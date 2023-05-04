@@ -40,7 +40,8 @@ Path = List[Segment]
 class Matching:
     """Matching between two different segments.
 
-    The meaning of the flavor index is the PID of the corresponding heavy quark.
+    The meaning of the flavor index `hq` is the PID of the corresponding heavy
+    quark.
 
     """
 
