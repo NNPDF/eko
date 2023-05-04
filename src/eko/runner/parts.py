@@ -75,10 +75,11 @@ def evolve_configs(eko: EKO) -> dict:
     """
     tcard = eko.theory_card
     ocard = eko.operator_card
+    scvar = ocard.configs.scvar_method
     return dict(
         order=tcard.order,
         xif2=tcard.xif**2,
-        method=ocard.configs.evolution_method,
+        method=ocard.configs.evolution_method.value,
         ev_op_iterations=ocard.configs.ev_op_iterations,
         ev_op_max_order=ocard.configs.ev_op_max_order,
         polarized=ocard.configs.polarized,
@@ -86,7 +87,7 @@ def evolve_configs(eko: EKO) -> dict:
         debug_skip_singlet=ocard.debug.skip_singlet,
         debug_skip_non_singlet=ocard.debug.skip_non_singlet,
         n_integration_cores=ocard.configs.n_integration_cores,
-        ModSV=ocard.configs.scvar_method,
+        ModSV=scvar.value if scvar is not None else None,
         n3lo_ad_variation=tcard.n3lo_ad_variation,
     )
 
@@ -116,9 +117,10 @@ def matching_configs(eko: EKO) -> dict:
     """
     tcard = eko.theory_card
     ocard = eko.operator_card
+    inversion = ocard.configs.inversion_method
     return dict(
         **evolve_configs(eko),
-        backward_inversion=ocard.configs.inversion_method,
+        backward_inversion=inversion.value if inversion is not None else None,
         intrinsic_range=tcard.heavy.intrinsic_flavors,
     )
 
