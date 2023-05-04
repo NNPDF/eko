@@ -140,7 +140,7 @@ def match(eko: EKO, recipe: Matching) -> Operator:
     binfo = blowup_info(eko)
     nf_match = op.nf - 1 if recipe.inverse else op.nf
     res, err = matching_condition.MatchingCondition.split_ad_to_evol_map(
-        op, nf_match, recipe.scale, **binfo
+        op.op_members, nf_match, recipe.scale, **binfo
     ).to_flavor_basis_tensor(qed=binfo["qed"])
 
     return Operator(res, err)
