@@ -56,7 +56,9 @@ def test_ekos_product(tmp_path):
 
                 with EKO.read(res_path) as eko_res:
                     assert eko_res.operator_card.mu20 == eko_ini.operator_card.mu20
-                    np.testing.assert_allclose(eko_res.mu2grid[1:], eko_fin.mu2grid)
+                    np.testing.assert_allclose(
+                        sorted(eko_res.mu2grid)[1:], sorted(eko_fin.mu2grid)
+                    )
                     np.testing.assert_allclose(
                         eko_ini[mu2first].operator, eko_res[mu2first].operator
                     )
@@ -64,7 +66,9 @@ def test_ekos_product(tmp_path):
                     # product overwrites initial
                     utils.ekos_product(eko_ini, eko_fin)
 
-                    np.testing.assert_allclose(eko_ini.mu2grid[1:], eko_fin.mu2grid)
+                    np.testing.assert_allclose(
+                        sorted(eko_ini.mu2grid)[1:], sorted(eko_fin.mu2grid)
+                    )
                     np.testing.assert_allclose(
                         eko_res[mu2first].operator, eko_ini[mu2first].operator
                     )
