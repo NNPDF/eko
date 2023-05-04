@@ -32,4 +32,4 @@ def create(evolgrid: List[EPoint], atlas: Atlas) -> List[Recipe]:
     for ep in evolgrid:
         recipes.extend(elements(ep, atlas))
 
-    return recipes
+    return list(set(recipes))
