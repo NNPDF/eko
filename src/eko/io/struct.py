@@ -30,14 +30,23 @@ logger = logging.getLogger(__name__)
 
 def inventories(path: pathlib.Path, access: AccessConfigs) -> dict:
     """Set up empty inventories for object initialization."""
+    paths = InternalPaths(path)
     return dict(
-        recipes=Inventory(path, access, Evolution, contentless=True, name="recipes"),
-        recipes_matching=Inventory(
-            path, access, Matching, contentless=True, name="matching-recipes"
+        recipes=Inventory(
+            paths.recipes, access, Evolution, contentless=True, name="recipes"
         ),
-        parts=Inventory(path, access, Evolution, name="parts"),
-        parts_matching=Inventory(path, access, Matching, name="matching-parts"),
-        operators=Inventory(path, access, Target, name="operators"),
+        recipes_matching=Inventory(
+            paths.recipes_matching,
+            access,
+            Matching,
+            contentless=True,
+            name="matching-recipes",
+        ),
+        parts=Inventory(paths.parts, access, Evolution, name="parts"),
+        parts_matching=Inventory(
+            paths.parts_matching, access, Matching, name="matching-parts"
+        ),
+        operators=Inventory(paths.operators, access, Target, name="operators"),
     )
 
 
