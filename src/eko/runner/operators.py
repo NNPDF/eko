@@ -6,14 +6,19 @@ import numpy as np
 import numpy.typing as npt
 
 from ..io.inventory import Inventory
-from ..io.items import Operator, Recipe
+from ..io.items import Evolution, Operator, Recipe
 
 
 def retrieve(
-    elements: List[Recipe], parts: Inventory, parts_matching: Inventory
+    headers: List[Recipe], parts: Inventory, parts_matching: Inventory
 ) -> List[Operator]:
     """Retrieve parts to be joined."""
-    return []
+    elements = []
+    for head in headers:
+        inv = parts if isinstance(head, Evolution) else parts_matching
+        elements.append(inv[head])
+
+    return elements
 
 
 def dot4(op1: npt.NDArray, op2: npt.NDArray) -> npt.NDArray:

@@ -2,12 +2,22 @@ import numpy as np
 
 from eko.io.items import Operator
 from eko.io.struct import EKO
-from eko.runner.operators import join
+from eko.runner.operators import join, retrieve
 
 
 def test_retrieve(ekoparts: EKO):
-    #  __import__("pdb").set_trace()
-    pass
+    evhead, evop = next(iter(ekoparts.parts.cache.items()))
+    matchhead, matchop = next(iter(ekoparts.parts_matching.cache.items()))
+
+    els = retrieve([evhead] * 5, ekoparts.parts, ekoparts.parts_matching)
+    assert len(els) == 5
+    assert all(isinstance(el, Operator) for el in els)
+
+    els = retrieve(
+        [evhead, matchhead, matchhead], ekoparts.parts, ekoparts.parts_matching
+    )
+    assert len(els) == 3
+    assert all(isinstance(el, Operator) for el in els)
 
 
 def test_join(identity: Operator):
