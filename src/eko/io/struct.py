@@ -216,7 +216,6 @@ class EKO:
 
     def __iter__(self):
         """Iterate over keys (i.e. evolution points)."""
-        self.operators.sync()
         for target in self.operators:
             yield target.ep
 
@@ -237,13 +236,14 @@ class EKO:
             immediately after
 
         """
-        self.operators.sync()
         for target in self.operators:
             # recast to evolution point
             ep = target.ep
 
             # auto-load
-            yield ep, self[ep]
+            op = self[ep]
+            assert op is not None
+            yield ep, op
             # auto-unload
             del self[ep]
 
@@ -377,6 +377,7 @@ class EKO:
                 metadata=metadata,
                 access=access,
             )
+            opened.operators.sync()
         else:
             opened = Builder(path=tmpdir, access=access)
 
