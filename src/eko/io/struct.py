@@ -237,6 +237,7 @@ class EKO:
             immediately after
 
         """
+        self.operators.sync()
         for target in self.operators:
             # recast to evolution point
             ep = target.ep
