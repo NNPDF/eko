@@ -27,6 +27,8 @@ from .types import SquaredScale
 
 logger = logging.getLogger(__name__)
 
+TEMP_PREFIX = "eko-"
+
 
 def inventories(path: pathlib.Path, access: AccessConfigs) -> dict:
     """Set up empty inventories for object initialization."""
@@ -324,7 +326,7 @@ class EKO:
         new.access.readonly = False
         new.access.open = True
 
-        tmpdir = pathlib.Path(tempfile.mkdtemp())
+        tmpdir = pathlib.Path(tempfile.mkdtemp(prefix=TEMP_PREFIX))
         new.metadata.path = tmpdir
         # copy old dir to new dir
         tmpdir.rmdir()
@@ -365,7 +367,7 @@ class EKO:
         else:
             raise ValueError
 
-        tmpdir = pathlib.Path(tempfile.mkdtemp())
+        tmpdir = pathlib.Path(tempfile.mkdtemp(prefix=TEMP_PREFIX))
         if load:
             cls.load(path, tmpdir)
             metadata = Metadata.load(tmpdir)
