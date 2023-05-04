@@ -127,10 +127,8 @@ def get(
         cache = update(w1.S1, S1mh, cache, (n - 1) / 2)
         s = recursive_harmonic_sum(cache[S1mh], (n - 1) / 2, 1, 1)
     elif key == Sm1:
-        cache = update(w1.S1, S1, cache, n)
-        cache = update(w1.S1, S1mh, cache, (n - 1) / 2)
-        cache = update(w1.S1, S1h, cache, n / 2)
-        s = w1.Sm1(n, cache[S1], cache[S1mh], cache[S1h], is_singlet)
+        cache = update_Sm1(cache, n, is_singlet)
+        s = cache[key]
     elif key == S1p2:
         cache = update(w1.S1, S1, cache, n)
         s = recursive_harmonic_sum(cache[S1], n, 2, 1)
@@ -145,10 +143,8 @@ def get(
         cache = update(w2.S2, S2mh, cache, (n - 1) / 2)
         s = recursive_harmonic_sum(cache[S2mh], (n - 1) / 2, 1, 2)
     elif key == Sm2:
-        cache = update(w2.S2, S2, cache, n)
-        cache = update(w2.S2, S2mh, cache, (n - 1) / 2)
-        cache = update(w2.S2, S2h, cache, n / 2)
-        s = w2.Sm2(n, cache[S2], cache[S2mh], cache[S2h], is_singlet)
+        cache = update_Sm2(cache, n, is_singlet)
+        s = cache[key]
     # weight 3
     elif key == S3:
         s = w3.S3(n)
