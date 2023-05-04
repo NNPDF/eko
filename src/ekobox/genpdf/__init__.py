@@ -3,10 +3,12 @@ import copy
 import logging
 import pathlib
 import shutil
+from typing import Callable, List
 
 import numpy as np
 
 from eko import basis_rotation as br
+from eko.io.types import EvolutionPoint as EPoint
 
 from . import export, flavors, load
 
@@ -236,30 +238,14 @@ def install_pdf(name):
     shutil.move(str(src), str(target))
 
 
-def generate_block(xfxQ2, xgrid, mu2grid, pids):
-    """Generate an LHAPDF data block from a callable.
-
-    Parameters
-    ----------
-    xfxQ2 : callable
-        LHAPDF like callable
-    mu2grid : list(float)
-        Q grid
-    pids : list(int)
-        Flavors list
-    xgrid : list(float)
-        x grid
-
-    Returns
-    -------
-    dict
-        PDF block
-
-    """
-    block = dict(mu2grid=mu2grid, pids=pids, xgrid=xgrid)
+def generate_block(
+    xfxQ2: Callable, xgrid: List[float], evolgrid: List[EPoint], pids: List[int]
+) -> dict:
+    """Generate an LHAPDF data block from a callable."""
+    block: dict = dict(mu2grid=[mu2 for mu2, _ in evolgrid], pids=pids, xgrid=xgrid)
     data = []
     for x in xgrid:
-        for Q2 in mu2grid:
-            data.append(np.array([xfxQ2(pid, x, Q2) for pid in pids]))
+        for mu2, _ in evolgrid:
+            data.append(np.array([xfxQ2(pid, x, mu2) for pid in pids]))
     block["data"] = np.array(data)
     return block
