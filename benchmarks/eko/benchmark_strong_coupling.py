@@ -3,7 +3,7 @@
 import numpy as np
 import pytest
 
-from eko import thresholds
+from eko import matchings
 from eko.beta import beta_qcd
 from eko.couplings import Couplings
 from eko.io.runcards import TheoryCard
@@ -138,13 +138,13 @@ class BenchmarkCouplings:
             ),
         }
         # collect my values
-        threshold_holder = thresholds.ThresholdsAtlas.ffns(nf)
+        threshold_holder = matchings.Atlas.ffns(nf, 0.0)
         for order in [1, 2, 3]:
             as_FFNS = Couplings(
                 couplings=ref_couplings(coupling_ref, scale_ref),
                 order=(order, 0),
                 method=CouplingEvolutionMethod.EXPANDED,
-                masses=threshold_holder.area_walls[1:-1],
+                masses=threshold_holder.walls[1:-1],
                 hqm_scheme=QuarkMassScheme.POLE,
                 thresholds_ratios=[1.0, 1.0, 1.0],
             )
@@ -211,7 +211,7 @@ class BenchmarkCouplings:
             ),
         }
         # collect my values
-        threshold_holder = thresholds.ThresholdsAtlas.ffns(nf)
+        threshold_holder = matchings.Atlas.ffns(nf, 0.0)
         couplings = ref_couplings(coupling_ref, scale_ref)
         couplings.max_num_flavs = 4
         for order in [1, 2, 3, 4]:
@@ -219,7 +219,7 @@ class BenchmarkCouplings:
                 couplings=couplings,
                 order=(order, 0),
                 method=CouplingEvolutionMethod.EXACT,
-                masses=threshold_holder.area_walls[1:-1],
+                masses=threshold_holder.walls[1:-1],
                 hqm_scheme=QuarkMassScheme.POLE,
                 thresholds_ratios=[1.0, 1.0, 1.0],
             )
@@ -584,12 +584,12 @@ class BenchmarkCouplings:
         scale_ref = 91.0
         nf = 4
         # collect my values
-        threshold_holder = thresholds.ThresholdsAtlas.ffns(nf)
+        threshold_holder = matchings.Atlas.ffns(nf, 0.0)
         as_FFNS_LO = Couplings(
             couplings=ref_couplings(coupling_ref, scale_ref),
             order=(1, 0),
             method=CouplingEvolutionMethod.EXACT,
-            masses=threshold_holder.area_walls[1:-1],
+            masses=threshold_holder.walls[1:-1],
             hqm_scheme=QuarkMassScheme.POLE,
             thresholds_ratios=[1.0, 1.0, 1.0],
         )
@@ -630,7 +630,7 @@ class BenchmarkCouplings:
         coupling_ref = np.array([0.118, 0.007496])
         scale_ref = 90
         # collect my values
-        threshold_holder = thresholds.ThresholdsAtlas.ffns(3)
+        threshold_holder = matchings.Atlas.ffns(3, 0.0)
         # LHAPDF cache
         apfel_vals_dict = {
             1: np.array(
@@ -663,7 +663,7 @@ class BenchmarkCouplings:
                 couplings=ref_couplings(coupling_ref, scale_ref),
                 order=(order, 0),
                 method=CouplingEvolutionMethod.EXACT,
-                masses=threshold_holder.area_walls[1:-1],
+                masses=threshold_holder.walls[1:-1],
                 hqm_scheme=QuarkMassScheme.POLE,
                 thresholds_ratios=[1.0, 1.0, 1.0],
             )
@@ -697,7 +697,7 @@ class BenchmarkCouplings:
         coupling_ref = np.array([0.118, 0.007496])
         scale_ref = 90
         # collect my values
-        threshold_holder = thresholds.ThresholdsAtlas.ffns(3)
+        threshold_holder = matchings.Atlas.ffns(3, 0.0)
         # LHAPDF cache
         lhapdf_vals_dict = {
             1: np.array(
@@ -738,7 +738,7 @@ class BenchmarkCouplings:
                 couplings=ref_couplings(coupling_ref, scale_ref),
                 order=(order, 0),
                 method=CouplingEvolutionMethod.EXACT,
-                masses=threshold_holder.area_walls[1:-1],
+                masses=threshold_holder.walls[1:-1],
                 hqm_scheme=QuarkMassScheme.POLE,
                 thresholds_ratios=[1.0, 1.0, 1.0],
             )
