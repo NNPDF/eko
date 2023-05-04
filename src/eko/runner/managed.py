@@ -21,7 +21,7 @@ from . import commons, operators, parts, recipes
 def solve(theory: TheoryCard, operator: OperatorCard, path: Path):
     """Solve DGLAP equations in terms of evolution kernel operators (EKO)."""
     with EKO.create(path) as builder:
-        eko = builder.load_cards(theory, operator).build()
+        eko = builder.load_cards(theory, operator).build()  # pylint: disable=E1101
 
         atlas = commons.atlas(eko.theory_card, eko.operator_card)
 
