@@ -84,7 +84,7 @@ def apply_pdf_flavor(
 
     # build output
     out_grid = {}
-    for mu2, elem in eko.items():
+    for (mu2, nf), elem in eko.items():
         pdf_final = np.einsum(CONTRACTION, elem.operator, pdfs, optimize="optimal")
         if elem.error is not None:
             error_final = np.einsum(CONTRACTION, elem.error, pdfs, optimize="optimal")
