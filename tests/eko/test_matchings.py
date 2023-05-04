@@ -20,7 +20,7 @@ class TestPathSegment:
         p = Segment(0, 1, 3)
         s = str(p)
         assert s.index("0") > 0
-        assert s.index("3") > 0
+        assert s.index("1") > 0
         assert s.index("3") > 0
 
 
