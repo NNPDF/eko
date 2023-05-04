@@ -45,20 +45,21 @@ def test_mass_scheme(theory_card, operator_card, tmp_path):
 
 
 def check_shapes(o, txs, ixs, theory_card, operators_card):
-    tpids = len(o.rotations.targetpids)
-    ipids = len(o.rotations.inputpids)
+    tpids = len(o.bases.targetpids)
+    ipids = len(o.bases.inputpids)
     op_shape = (tpids, len(txs), ipids, len(ixs))
 
     # check output = input
     np.testing.assert_allclose(o.xgrid.raw, operators_card.xgrid.raw)
     # targetgrid and inputgrid in the opcard are now ignored, we are testing this
     np.testing.assert_allclose(
-        o.rotations.targetgrid.raw,
+        o.bases.targetgrid.raw,
         txs.raw,
     )
-    np.testing.assert_allclose(o.rotations.inputgrid.raw, ixs.raw)
+    np.testing.assert_allclose(o.bases.inputgrid.raw, ixs.raw)
     np.testing.assert_allclose(o.mu20, operators_card.mu20)
     # check available operators
+    ~o.operators
     assert len(o.mu2grid) == len(operators_card.mu2grid)
     assert list(o.mu2grid) == operators_card.mu2grid
     for _, ops in o.items():
