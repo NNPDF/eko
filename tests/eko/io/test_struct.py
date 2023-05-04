@@ -1,3 +1,4 @@
+import io
 import pathlib
 import tarfile
 
@@ -124,8 +125,6 @@ class TestEKO:
             eko2_ = struct.EKO.read(p)
             assert eko2.raw == eko2_.raw
 
-
-class TestLegacy:
     def test_items(self, eko_factory: EKOFactory):
         """Test autodump, autoload, and manual unload."""
         eko = eko_factory.get()
@@ -137,14 +136,14 @@ class TestLegacy:
         ep = next(iter(eko))
 
         # unload
-        eko._operators[ep] = None
+        eko.operators[ep] = None
         # test autoloading
         assert isinstance(eko[ep], struct.Operator)
-        assert isinstance(eko._operators[ep], struct.Operator)
+        assert isinstance(eko.operators[ep], struct.Operator)
 
         del eko[ep]
 
-        assert eko._operators[ep] is None
+        assert eko.operators[ep] is None
 
     def test_iter(self, eko_factory: EKOFactory):
         """Test managed iteration."""
@@ -154,7 +153,7 @@ class TestLegacy:
         epprev = None
         for ep, op in eko.items():
             if epprev is not None:
-                assert eko._operators[epprev] is None
+                assert eko.operators[epprev] is None
             assert isinstance(op, struct.Operator)
             epprev = ep
 
@@ -166,4 +165,4 @@ class TestLegacy:
         with eko.operator(ep) as op:
             assert isinstance(op, struct.Operator)
 
-        assert eko._operators[ep] is None
+        assert eko.operators[ep] is None
