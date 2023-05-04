@@ -10,7 +10,7 @@ from .access import AccessConfigs
 from .items import Header, Operator
 
 NBYTES = 8
-ENDIANNES = "little"
+ENDIANNESS = "little"
 
 HEADER_EXT = ".yaml"
 ARRAY_EXT = [".npy", ".npz"]
@@ -25,7 +25,7 @@ class LookupError(ValueError):
 def encode(header: Header):
     """Extract an hash from a header."""
     return base64.urlsafe_b64encode(
-        hash(header).to_bytes(NBYTES, byteorder=ENDIANNES)
+        abs(hash(header)).to_bytes(NBYTES, byteorder=ENDIANNESS)
     ).decode(encoding="utf-8")
 
 
