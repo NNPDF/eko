@@ -174,7 +174,7 @@ class Legacy:
         new["order"] = [old["PTO"] + 1, old["QED"]]
         alphaem = self.fallback(old.get("alphaqed"), old.get("alphaem"), default=0.0)
         ms = self.heavies("m%s", old)
-        mus = self.heavies("Qm%s", old)
+        ks = self.heavies("k%sThr", old)
         new["couplings"] = dict(
             alphas=old["alphas"],
             alphaem=alphaem,
@@ -183,7 +183,7 @@ class Legacy:
             max_num_flavs=old["MaxNfAs"],
         )
         new["heavy"] = {
-            "num_flavs_init": nf_default(old["Qref"] ** 2.0, default_atlas(ms, mus))
+            "num_flavs_init": nf_default(old["Qref"] ** 2.0, default_atlas(ms, ks))
             if old["nf0"] is None
             else old["nf0"],
             "num_flavs_max_pdf": old["MaxNfPdf"],
@@ -198,6 +198,7 @@ class Legacy:
         if old["HQ"] == "POLE":
             new["heavy"]["masses"] = [[m, nan] for m in ms]
         elif old["HQ"] == "MSBAR":
+            mus = self.heavies("Qm%s", old)
             new["heavy"]["masses"] = [[m, mu] for m, mu in zip(ms, mus)]
         else:
             raise ValueError(f"Unknown mass scheme '{old['HQ']}'")
