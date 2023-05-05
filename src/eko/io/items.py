@@ -23,7 +23,8 @@ class Header:
 class Evolution(Header):
     """Information to compute an evolution operator.
 
-    Describe evolution with a fixed number of light flavors.
+    It describes the evolution with a fixed number of light flavors between two
+    scales.
 
     """
 
@@ -43,7 +44,7 @@ class Evolution(Header):
 
     Intermediate ones always have final scales :attr:`mu2` corresponding to
     matching scales, and initial scales :attr:`mu20` corresponding to either
-    matching scales or the global initial scale of the EKO.
+    matching scales or the global initial scale of the |EKO|.
 
     Note
     ----
@@ -58,15 +59,15 @@ class Evolution(Header):
                                                             |
         nf = 6 --------------------------------------------------------
 
-    where each lane corresponds to DGLAP evolution with the relative number of
-    running flavors, and the vertical bridges are the perturbative matchings
+    where each lane corresponds to |DGLAP| evolution with the relative number
+    of running flavors, and the vertical bridges are the perturbative matchings
     between two different "adjacent" schemes.
 
     """
 
     @classmethod
     def from_atlas(cls, segment: matchings.Segment, cliff: bool = False):
-        """Create instance from analogous Atlas object."""
+        """Create instance from analogous :class:`eko.matchings.Atlas` object."""
         return cls(**asdict(segment), cliff=cliff)
 
     @property
@@ -89,7 +90,7 @@ class Matching(Header):
 
     @classmethod
     def from_atlas(cls, matching: matchings.Matching, inverse: bool = False):
-        """Create instance from analogous Atlas object."""
+        """Create instance from analogous :class:`eko.matchings.Atlas` object."""
         return cls(**asdict(matching), inverse=inverse)
 
     @property
@@ -123,8 +124,8 @@ class Target(Header):
 class Operator:
     """Operator representation.
 
-    To be used to hold the result of a computed 4-dim operator (from a given
-    scale to another given one).
+    To be used to hold the result of a computed 4-dim operator (either a raw
+    evolution operator or a matching condition).
 
     Note
     ----
