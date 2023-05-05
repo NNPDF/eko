@@ -49,5 +49,17 @@ def dotop(op1: Operator, op2: Operator) -> Operator:
 
 
 def join(elements: List[Operator]) -> Operator:
-    """Join the elements into the final operator."""
+    """Join the elements into the final operator.
+
+    Note
+    ----
+    Since the matrices composing the path have to be multiplied from the
+    destination to the origin, the input order, coming from path (which is
+    instead ``origin -> target``), is being reversed.
+
+    .. todo::
+
+        consider if reversing the path...
+
+    """
     return reduce(dotop, reversed(elements))
