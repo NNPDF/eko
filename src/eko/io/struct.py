@@ -200,6 +200,14 @@ class EKO:
         """Drop operator from memory."""
         del self.operators[Target.from_ep(ep)]
 
+    def __delattr__(self, name: str):
+        """Empty an inventory cache."""
+        attr = getattr(self, name)
+        if isinstance(attr, Inventory):
+            attr.empty()
+        else:
+            super().__delattr__(name)
+
     @contextlib.contextmanager
     def operator(self, ep: EPoint):
         """Retrieve an operator and discard it afterwards.

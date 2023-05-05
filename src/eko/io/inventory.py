@@ -201,3 +201,8 @@ class Inventory(Generic[H]):
     def __invert__(self):
         """Alias for :meth:`sync`."""
         self.sync()
+
+    def empty(self):
+        """Empty the in-memory cache."""
+        for header in self.cache:
+            del self[header]

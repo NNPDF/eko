@@ -44,4 +44,9 @@ def solve(theory: TheoryCard, operator: OperatorCard, path: Path):
         for ep in operator.evolgrid:
             headers = recipes.elements(ep, atlas)
             parts_ = operators.retrieve(headers, eko.parts, eko.parts_matching)
-            eko.operators[Target.from_ep(ep)] = operators.join(parts_)
+            target = Target.from_ep(ep)
+            eko.operators[target] = operators.join(parts_)
+            # flush the memory
+            del eko.parts
+            del eko.parts_matching
+            del eko.operators[target]
