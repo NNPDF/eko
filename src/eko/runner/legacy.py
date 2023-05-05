@@ -44,6 +44,7 @@ class Runner:
 
         """
         new_theory, new_operator = runcards.update(theory_card, operators_card)
+        new_theory.heavy.intrinsic_flavors = [4, 5, 6]
 
         # Store inputs
         self.path = path
