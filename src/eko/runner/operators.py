@@ -50,4 +50,4 @@ def dotop(op1: Operator, op2: Operator) -> Operator:
 
 def join(elements: List[Operator]) -> Operator:
     """Join the elements into the final operator."""
-    return reduce(dotop, elements)
+    return reduce(dotop, reversed(elements))
