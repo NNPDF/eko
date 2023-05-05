@@ -453,6 +453,7 @@ class Couplings:
         # create new threshold object
         self.a_ref = np.array(couplings.values) / 4.0 / np.pi  # convert to a_s and a_em
         matching_scales = (np.array(masses) * np.array(thresholds_ratios)).tolist()
+        self.thresholds_ratios = list(thresholds_ratios)
         self.atlas = matchings.Atlas(matching_scales, (couplings.scale**2, nf_ref))
         self.hqm_scheme = scheme_name
         logger.info(
@@ -744,7 +745,7 @@ class Couplings:
             # - if there is yet a step to go
             if k < len(path) - 1:
                 # q2_to is the threshold value
-                L = np.log(self.atlas.walls[seg.nf - shift + 1])
+                L = np.log(self.thresholds_ratios[seg.nf - shift])
                 m_coeffs = (
                     compute_matching_coeffs_down(self.hqm_scheme, seg.nf - 1)
                     if is_downward

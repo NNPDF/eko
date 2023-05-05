@@ -6,8 +6,7 @@ See :doc:`pQCD ingredients </theory/pQCD>`.
 
 import numba as nb
 
-from eko.constants import zeta3
-
+from .constants import zeta3
 from . import constants
 
 
