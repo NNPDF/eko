@@ -144,7 +144,8 @@ def quad_ker(
         else:
             if is_time_like:
                 A = ome_ut.A_singlet(order, ker_base.n, L)
-            A = ome_us.A_singlet(order, ker_base.n, nf, L, is_msbar)
+            else:
+                A = ome_us.A_singlet(order, ker_base.n, nf, L, is_msbar)
     else:
         indices = {200: 0, 91: 1}
         if is_polarized:
@@ -154,7 +155,8 @@ def quad_ker(
         else:
             if is_time_like:
                 A = ome_ut.A_non_singlet(order, ker_base.n, L)
-            A = ome_us.A_non_singlet(order, ker_base.n, nf, L)
+            else:
+                A = ome_us.A_non_singlet(order, ker_base.n, nf, L)
 
     # correct for scale variations
     if sv_mode == sv.Modes.exponentiated:
