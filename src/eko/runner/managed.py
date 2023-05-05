@@ -33,9 +33,13 @@ def solve(theory: TheoryCard, operator: OperatorCard, path: Path):
         for recipe in eko.recipes:
             assert isinstance(recipe, Evolution)
             eko.parts[recipe] = parts.evolve(eko, recipe)
+            # flush the memory
+            del eko.parts[recipe]
         for recipe in eko.recipes_matching:
             assert isinstance(recipe, Matching)
             eko.parts_matching[recipe] = parts.match(eko, recipe)
+            # flush the memory
+            del eko.parts_matching[recipe]
 
         for ep in operator.evolgrid:
             headers = recipes.elements(ep, atlas)
