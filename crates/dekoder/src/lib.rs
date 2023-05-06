@@ -1,14 +1,6 @@
-pub fn add(left: usize, right: usize) -> usize {
-    left + right
-}
+//! Read the content of an EKO file
 
-#[cfg(test)]
-mod tests {
-    use super::*;
+#![warn(clippy::all, clippy::cargo, clippy::nursery, clippy::pedantic)]
+#![warn(missing_docs)]
 
-    #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
-    }
-}
+pub mod metadata;
