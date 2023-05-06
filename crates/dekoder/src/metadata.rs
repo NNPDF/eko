@@ -13,7 +13,7 @@ struct EvolutionPoint(Scale, FlavorsNumber);
 /// `target_grid`).
 #[derive(Deserialize)]
 struct Bases {
-    xgrid: Vec<X>,
+    x_grid: Vec<X>,
     pids: Vec<Pid>,
     #[serde(alias = "_inputgrid")]
     input_grid: Option<Vec<X>>,
@@ -28,8 +28,5 @@ struct Bases {
 #[derive(Deserialize)]
 struct Metadata {
     origin: EvolutionPoint,
-    inputgrid: Vec<X>,
-    inputpids: Vec<Pid>,
-    targetgrid: Vec<X>,
-    targetpids: Vec<Pid>,
+    bases: Bases,
 }
