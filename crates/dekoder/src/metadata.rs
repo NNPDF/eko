@@ -1,9 +1,12 @@
+//! Define EKO metadata
 use serde::Deserialize;
 
 type FlavorsNumber = u8;
 type Scale = f64;
 type X = f64;
 type Pid = i32;
+
+#[derive(Deserialize)]
 struct EvolutionPoint(Scale, FlavorsNumber);
 
 /// Manipulation information, describing the current status of the EKO (e.g. `input_grid` and
@@ -14,8 +17,8 @@ struct Bases {
     pids: Vec<Pid>,
     #[serde(alias = "_inputgrid")]
     input_grid: Option<Vec<X>>,
-    #[serde(alias = "_inputpids", with = "either::serde_untagged_optional")]
-    input_pids: Option<Either<Vec<Vec<Pid>>, Vec<Pid>>>,
+    #[serde(alias = "_inputpids")]
+    input_pids: Option<Vec<Pid>>,
     #[serde(alias = "_targetgrid")]
     target_grid: Option<Vec<X>>,
     #[serde(alias = "_targetpids")]

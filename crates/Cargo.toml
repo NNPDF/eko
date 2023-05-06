@@ -1,3 +1,13 @@
 [workspace]
-
 members = ["dekoder"]
+
+
+[workspace.package]
+authors = ["Alessandro Candido <candido.ale@gmail.com>"]
+categories = ["science"]
+edition = "2021"
+keywords = ["high-energy-physics", "physics"]
+license = "GPL-3.0-or-later"
+repository = "https://github.com/NNPDF/eko"
+rust-version = "1.69.0"
+version = "0.1.0"
