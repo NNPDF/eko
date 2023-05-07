@@ -3,7 +3,7 @@ requires = ["maturin>=0.14.8,<0.15", "poetry-dynamic-versioning"]
 build-backend = "maturin"
 
 [project]
-name = "atuin"
+name = "eko"
 requires-python = ">=3.8"
 classifiers = [
   "Programming Language :: Rust",
