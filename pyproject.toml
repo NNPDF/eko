@@ -12,7 +12,7 @@ classifiers = [
 ]
 
 [tool.maturin]
-manifest-path = "rust/eko/Cargo.toml"
+manifest-path = "crates/eko/Cargo.toml"
 python-packages = ["ekomark", "ekobox"]
 
 [tool.poetry]
@@ -26,7 +26,7 @@ authors = [
   "F. Hekhorn <felix.hekhorn@mi.infn.it>",
   "N. Laurenti <niccolo.laurenti@mi.infn.it>",
   "G. Magni <gmagni@nikhef.nl>",
-  "T. Sharma <tanishq.sharma@alumni.cern>"
+  "T. Sharma <tanishq.sharma@alumni.cern>",
 ]
 classifiers = [
   "Programming Language :: Python",
