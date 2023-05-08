@@ -194,7 +194,7 @@ def is_downward_path(path: Path) -> bool:
 
     - in the number of active flavors when the path list contains more than one
       :class:`PathSegment`, note this can be different from each
-      :attr:`PathSegment.is_downward_q2`
+      :attr:`PathSegment.is_downward`
     - in :math:`Q^2` when just one single :class:`PathSegment` is given
 
     """
