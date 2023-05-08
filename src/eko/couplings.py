@@ -744,7 +744,6 @@ class Couplings:
             # apply matching conditions: see hep-ph/9706430
             # - if there is yet a step to go
             if k < len(path) - 1:
-                # q2_to is the threshold value
                 L = np.log(self.thresholds_ratios[seg.nf - shift])
                 m_coeffs = (
                     compute_matching_coeffs_down(self.hqm_scheme, seg.nf - 1)
