@@ -124,7 +124,18 @@ def matching_configs(eko: EKO) -> dict:
 
 
 def match(eko: EKO, recipe: Matching) -> Operator:
-    """Compute matching in isolation."""
+    """Compute matching in isolation.
+
+    Note
+    ----
+    Compared to the old prescription, a dedicated rotation to a different
+    intrinsic basis is not needed any longer.
+
+    All the operators are blown up to flavor basis, and they are saved and
+    joined in that unique basis. So, the only rotation used is towards that
+    basis, and encoded in the blowing up prescription.
+
+    """
     kthr = eko.theory_card.heavy.squared_ratios[recipe.hq - 4]
     op = ome.OperatorMatrixElement(
         matching_configs(eko),
