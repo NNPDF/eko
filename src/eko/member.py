@@ -56,8 +56,9 @@ class OpMember:
         lval = self.value
         ler = self.error
         new_val = np.matmul(lval, rval)
-        # TODO check error propagation
-        new_err = np.abs(np.matmul(lval, rerror)) + np.abs(np.matmul(ler, rval))
+        new_err = np.matmul(np.abs(lval), np.abs(rerror)) + np.matmul(
+            np.abs(ler), np.abs(rval)
+        )
         return self.__class__(new_val, new_err)
 
     def __mul__(self, other):
