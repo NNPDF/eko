@@ -840,7 +840,7 @@ class BenchmarkCouplings:
         theory.couplings.alphaem = 0.007496
         theory.couplings.num_flavs_ref = 4
         theory.heavy.num_flavs_init = 3
-        theory.xif = np.sqrt(2.0)
+        theory.xif = np.sqrt(1.0 / 2.0)
         theory.heavy.masses.c.value = np.sqrt(2.0)
         theory.heavy.masses.b.value = 4.5
         theory.heavy.masses.t.value = 175.0
@@ -849,22 +849,23 @@ class BenchmarkCouplings:
         masses = tuple(mq.value**2 for mq in theory.heavy.masses)
 
         mu2s = [2.0]
+        xif2 = theory.xif**2
         sc = Couplings(
             couplings=theory.couplings,
             order=theory.order,
             method=CouplingEvolutionMethod.EXACT,
-            masses=[m2 / theory.xif**2 for m2 in masses],
+            masses=masses,
             hqm_scheme=QuarkMassScheme.POLE,
-            thresholds_ratios=np.power(list(iter(theory.heavy.matching_ratios)), 2.0),
+            thresholds_ratios=np.power(list(iter(theory.heavy.matching_ratios)), 2.0)
+            * xif2,
         )
-        xif2 = theory.xif**2
         for mu2 in mu2s:
-            my_val = sc.a(mu2 / xif2, mu2)[0]
-            path = sc.thresholds.path(mu2 / xif2)
-            my_val_4 = sc.a(mu2 / xif2, mu2, nf_to=4)[0]
-            path_4 = sc.thresholds.path(mu2 / xif2, 4)
-            my_val_3 = sc.a(mu2 / xif2, mu2, nf_to=3)[0]
-            path_3 = sc.thresholds.path(mu2 / xif2, 3)
+            my_val = sc.a(mu2 * xif2)[0]
+            path = sc.thresholds.path(mu2 * xif2)
+            my_val_4 = sc.a(mu2 * xif2, nf_to=4)[0]
+            path_4 = sc.thresholds.path(mu2 * xif2, 4)
+            my_val_3 = sc.a(mu2 * xif2, nf_to=3)[0]
+            path_3 = sc.thresholds.path(mu2 * xif2, 3)
 
             # path_4 it's not matched
             assert len(path_4) == 1
@@ -890,10 +891,10 @@ class BenchmarkCouplings:
                     theory.heavy.matching_ratios.b,
                     theory.heavy.matching_ratios.t,
                 )
-                apfel.SetRenFacRatio(1.0 / theory.xif)
+                apfel.SetRenFacRatio(theory.xif)
                 apfel.InitializeAPFEL()
                 # collect a_s
-                apfel_val = apfel.AlphaQCD(np.sqrt(mu2) / theory.xif) / (4.0 * np.pi)
+                apfel_val = apfel.AlphaQCD(np.sqrt(mu2) * theory.xif) / (4.0 * np.pi)
                 # check APFEL cached value
                 np.testing.assert_allclose(apfel_val_ref, apfel_val)
 
