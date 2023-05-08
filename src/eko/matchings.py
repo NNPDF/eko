@@ -30,7 +30,7 @@ class Segment:
 
     def __str__(self):
         """Textual representation, mainly for logging purpose."""
-        return f"PathSegment({self.origin} -> {self.target}, nf={self.nf})"
+        return f"Segment({self.origin} -> {self.target}, nf={self.nf})"
 
 
 Path = List[Segment]
@@ -188,14 +188,14 @@ def nf_default(mu2: SquaredScale, atlas: Atlas) -> FlavorsNumber:
 
 
 def is_downward_path(path: Path) -> bool:
-    """Determine if a path is downward.
+    r"""Determine if a path is downward.
 
     Criterias are:
 
     - in the number of active flavors when the path list contains more than one
-      :class:`PathSegment`, note this can be different from each
-      :attr:`PathSegment.is_downward`
-    - in :math:`Q^2` when just one single :class:`PathSegment` is given
+      :class:`Segment`, note this can be different from each
+      :attr:`Segment.is_downward`
+    - in :math:`\mu^2`, when just one single :class:`Segment` is given
 
     """
     if len(path) == 1:
