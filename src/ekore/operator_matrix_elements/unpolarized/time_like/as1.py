@@ -75,7 +75,7 @@ def A_singlet(N, L):
 
     Returns
     -------
-    A_singlet : numpy.ndarray
+    numpy.ndarray
         |NLO| singlet |OME|
         :math:`A^{S,(1)}`
 

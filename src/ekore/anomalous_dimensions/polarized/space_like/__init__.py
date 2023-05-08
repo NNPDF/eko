@@ -11,30 +11,8 @@ with :math:`a_s = \frac{\alpha_S(\mu^2)}{4\pi}`.
 import numba as nb
 import numpy as np
 
-from .... import harmonics
+from ....harmonics import cache as c
 from . import as1, as2, as3
-
-
-@nb.njit(cache=True)
-def compute_cache(n, pto):
-    """Compute the harmonic cache for polarized anomalous dimension.
-
-    Parameters
-    ----------
-    n : complex
-        Mellin variable
-    pto : int
-        perturbative order
-
-    Returns
-    -------
-    list
-        harmonics cache
-
-    """
-    max_weight = pto if pto != 3 else 4
-    cache = harmonics.sx(n, max_weight)
-    return cache
 
 
 @nb.njit(cache=True)
@@ -58,28 +36,26 @@ def gamma_ns(order, mode, n, nf):
         non-singlet anomalous dimensions
 
     """
-    # cache the s-es
-    sx = compute_cache(n, order[0] + 1)
-    # now combine
+    cache = c.reset()
     gamma_ns = np.zeros(order[0], np.complex_)
-    gamma_ns[0] = as1.gamma_ns(n, sx[0])
+    gamma_ns[0] = as1.gamma_ns(n, cache)
     # NLO and beyond
     if order[0] >= 2:
         if mode == 10101:
-            gamma_ns_1 = as2.gamma_nsp(n, nf, sx)
+            gamma_ns_1 = as2.gamma_nsp(n, nf, cache)
         # To fill the full valence vector in NNLO we need to add gamma_ns^1 explicitly here
         elif mode in [10201, 10200]:
-            gamma_ns_1 = as2.gamma_nsm(n, nf, sx)
+            gamma_ns_1 = as2.gamma_nsm(n, nf, cache)
         else:
             raise NotImplementedError("Non-singlet sector is not implemented")
         gamma_ns[1] = gamma_ns_1
     if order[0] >= 3:
         if mode == 10101:
-            gamma_ns_2 = as3.gamma_nsp(n, nf, sx)
+            gamma_ns_2 = as3.gamma_nsp(n, nf, cache)
         elif mode == 10201:
-            gamma_ns_2 = as3.gamma_nsm(n, nf, sx)
+            gamma_ns_2 = as3.gamma_nsm(n, nf, cache)
         elif mode == 10200:
-            gamma_ns_2 = as3.gamma_nsv(n, nf, sx)
+            gamma_ns_2 = as3.gamma_nsv(n, nf, cache)
         gamma_ns[2] = gamma_ns_2
     if order[0] >= 4:
         raise NotImplementedError("Polarized beyond NNLO is not yet implemented")
@@ -105,15 +81,13 @@ def gamma_singlet(order, n, nf):
         singlet anomalous dimensions matrices
 
     """
-    # cache the s-es
-    sx = compute_cache(n, order[0] + 1)
-
+    cache = c.reset()
     gamma_s = np.zeros((order[0], 2, 2), np.complex_)
-    gamma_s[0] = as1.gamma_singlet(n, sx[0], nf)
+    gamma_s[0] = as1.gamma_singlet(n, cache, nf)
     if order[0] >= 2:
-        gamma_s[1] = as2.gamma_singlet(n, nf, sx)
+        gamma_s[1] = as2.gamma_singlet(n, nf, cache)
     if order[0] >= 3:
-        gamma_s[2] = as3.gamma_singlet(n, nf, sx)
+        gamma_s[2] = as3.gamma_singlet(n, nf, cache)
     if order[0] >= 4:
         raise NotImplementedError("Polarized beyond NNLO is not yet implemented")
     return gamma_s

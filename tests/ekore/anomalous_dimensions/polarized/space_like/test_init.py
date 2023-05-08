@@ -4,7 +4,6 @@ from numpy.testing import assert_allclose, assert_almost_equal
 
 import ekore.anomalous_dimensions.polarized.space_like as ad_ps
 from eko import basis_rotation as br
-from ekore import harmonics
 
 
 def test_shapes():
@@ -36,16 +35,11 @@ def test_gamma_ns():
     )
 
 
-def test_not_implemeted(monkeypatch):
+def test_not_implemeted():
     with pytest.raises(NotImplementedError):
         ad_ps.gamma_ns((4, 0), br.non_singlet_pids_map["ns-"], 1.234, 4)
     with pytest.raises(NotImplementedError):
         ad_ps.gamma_ns((2, 0), 10202, 1.234, 4)
     N = 2.345
-    monkeypatch.setattr(
-        ad_ps,
-        "compute_cache",
-        lambda *args: harmonics.sx(N, 4),
-    )
     with pytest.raises(NotImplementedError):
         ad_ps.gamma_singlet((4, 0), N, 4)

@@ -36,7 +36,7 @@ def safe_extractall(
     path: Optional[os.PathLike] = None,
     members: Optional[Sequence[TarInfo]] = None,
     *,
-    numeric_owner: bool = False
+    numeric_owner: bool = False,
 ):
     """Extract a tar archive avoiding CVE-2007-4559 issue.
 

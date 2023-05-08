@@ -5,6 +5,7 @@ import numpy as np
 
 from eko import constants
 
+from ....harmonics import cache as c
 from ...unpolarized.space_like.as1 import gamma_ns
 
 
@@ -51,15 +52,15 @@ def gamma_gq(N):
 
 
 @nb.njit(cache=True)
-def gamma_gg(N, s1, nf):
+def gamma_gg(N, cache, nf):
     r"""Compute the |LO| polarized gluon-gluon anomalous dimension :cite:`Gluck:1995yr` (eq A.1).
 
     Parameters
     ----------
     N : complex
       Mellin moment
-    s1 : complex
-      harmonic sum :math:`S_{1}`
+    cache: numpy.ndarray
+        Harmonic sum cache
     nf : int
       Number of active flavors
 
@@ -69,13 +70,14 @@ def gamma_gg(N, s1, nf):
       |LO| gluon-gluon anomalous dimension :math:`\\gamma_{gg}^{(0)}(N)`
 
     """
-    gamma = -s1 + 2 / N / (N + 1)
+    S1 = c.get(c.S1, cache, N)
+    gamma = -S1 + 2 / N / (N + 1)
     result = constants.CA * (-4.0 * gamma - 11.0 / 3.0) + 4.0 / 3.0 * constants.TR * nf
     return result
 
 
 @nb.njit(cache=True)
-def gamma_singlet(N, s1, nf):
+def gamma_singlet(N, cache, nf):
     r"""Compute the |LO| polarized singlet anomalous dimension matrix.
 
       .. math::
@@ -88,8 +90,8 @@ def gamma_singlet(N, s1, nf):
     ----------
     N : complex
       Mellin moment
-    s1 : complex
-      harmonic sum :math:`S_{1}`
+    cache: numpy.ndarray
+        Harmonic sum cache
     nf : int
       Number of active flavors
 
@@ -99,9 +101,9 @@ def gamma_singlet(N, s1, nf):
       |LO| singlet anomalous dimension matrix :math:`\gamma_{S}^{(0)}(N)`
 
     """
-    gamma_qq = gamma_ns(N, s1)
+    gamma_qq = gamma_ns(N, cache)
     gamma_S_0 = np.array(
-        [[gamma_qq, gamma_qg(N, nf)], [gamma_gq(N), gamma_gg(N, s1, nf)]],
+        [[gamma_qq, gamma_qg(N, nf)], [gamma_gq(N), gamma_gg(N, cache, nf)]],
         np.complex_,
     )
     return gamma_S_0

@@ -3,6 +3,7 @@
 import numba as nb
 import numpy as np
 
+from ....harmonics import cache as c
 from . import as1, as2, as3
 
 
@@ -27,21 +28,22 @@ def gamma_ns(order, mode, n, nf):
         non-singlet anomalous dimensions
 
     """
+    cache = c.reset()
     gamma_ns = np.zeros(order[0], np.complex_)
-    gamma_ns[0] = as1.gamma_ns(n)
+    gamma_ns[0] = as1.gamma_ns(n, cache)
     if order[0] >= 2:
         if mode == 10101:
-            gamma_ns_1 = as2.gamma_nsp(n, nf)
+            gamma_ns_1 = as2.gamma_nsp(n, nf, cache)
         elif mode in [10201, 10200]:
-            gamma_ns_1 = as2.gamma_nsm(n, nf)
+            gamma_ns_1 = as2.gamma_nsm(n, nf, cache)
         gamma_ns[1] = gamma_ns_1
     if order[0] >= 3:
         if mode == 10101:
-            gamma_ns_2 = as3.gamma_nsp(n, nf)
+            gamma_ns_2 = as3.gamma_nsp(n, nf, cache)
         elif mode == 10201:
-            gamma_ns_2 = as3.gamma_nsm(n, nf)
+            gamma_ns_2 = as3.gamma_nsm(n, nf, cache)
         elif mode == 10200:
-            gamma_ns_2 = as3.gamma_nsv(n, nf)
+            gamma_ns_2 = as3.gamma_nsv(n, nf, cache)
         gamma_ns[2] = gamma_ns_2
     return gamma_ns
 
@@ -65,10 +67,11 @@ def gamma_singlet(order, n, nf):
         singlet anomalous dimensions matrices
 
     """
+    cache = c.reset()
     gamma_s = np.zeros((order[0], 2, 2), np.complex_)
-    gamma_s[0] = as1.gamma_singlet(n, nf)
+    gamma_s[0] = as1.gamma_singlet(n, nf, cache)
     if order[0] >= 2:
-        gamma_s[1] = as2.gamma_singlet(n, nf)
+        gamma_s[1] = as2.gamma_singlet(n, nf, cache)
     if order[0] >= 3:
-        gamma_s[2] = as3.gamma_singlet(n, nf)
+        gamma_s[2] = as3.gamma_singlet(n, nf, cache)
     return gamma_s

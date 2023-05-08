@@ -35,7 +35,7 @@ def S1(N):
 
 
 @nb.njit(cache=True)
-def Sm1(N, hS1, is_singlet=None):
+def Sm1(N, hS1, hS1mh, hS1h, is_singlet=None):
     r"""Analytic continuation of harmonic sum :math:`S_{-1}(N)`.
 
     .. math::
@@ -47,6 +47,10 @@ def Sm1(N, hS1, is_singlet=None):
         Mellin moment
     hS1:  complex
         Harmonic sum :math:`S_{1}(N)`
+    hS1mh: complex
+        Harmonic sum :math:`S_{1}((N-1)/2)`
+    hS1h: complex
+        Harmonic sum :math:`S_{1}(N/2)`
     is_singlet: bool, None
         symmetry factor: True for singlet like quantities (:math:`\eta=(-1)^N = 1`),
         False for non-singlet like quantities (:math:`\eta=(-1)^N=-1`)
@@ -62,11 +66,7 @@ def Sm1(N, hS1, is_singlet=None):
 
     """
     if is_singlet is None:
-        return (
-            (1 - (-1) ** N) / 2 * S1((N - 1) / 2)
-            + ((-1) ** N + 1) / 2 * S1(N / 2)
-            - hS1
-        )
+        return (1 - (-1) ** N) / 2 * hS1mh + ((-1) ** N + 1) / 2 * hS1h - hS1
     if is_singlet:
-        return S1(N / 2) - hS1
-    return S1((N - 1) / 2) - hS1
+        return hS1h - hS1
+    return hS1mh - hS1

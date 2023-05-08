@@ -5,11 +5,11 @@ import numpy as np
 
 from eko import constants
 
-from ....harmonics import w1
+from ....harmonics import cache as c
 
 
 @nb.njit(cache=True)
-def gamma_qq(N):
+def gamma_qq(N, cache):
     r"""Compute the |LO| quark-quark anomalous dimension.
 
     Implements :eqref:`B.3` from :cite:`Mitov:2006wy`.
@@ -18,16 +18,18 @@ def gamma_qq(N):
     ----------
     N : complex
         Mellin moment
+    cache: numpy.ndarray
+        Harmonic sum cache
 
     Returns
     -------
-    gamma_qq : complex
+    complex
         LO quark-quark anomalous dimension
         :math:`\gamma_{qq}^{(0)}(N)`
 
     """
-    s1 = w1.S1(N)
-    result = constants.CF * (-3.0 + (4.0 * s1) - 2.0 / (N * (N + 1.0)))
+    S1 = c.get(c.S1, cache, N)
+    result = constants.CF * (-3.0 + (4.0 * S1) - 2.0 / (N * (N + 1.0)))
     return result
 
 
@@ -45,7 +47,7 @@ def gamma_qg(N):
 
     Returns
     -------
-    gamma_qg : complex
+    complex
         LO quark-gluon anomalous dimension
         :math:`\gamma_{qg}^{(0)}(N)`
 
@@ -70,7 +72,7 @@ def gamma_gq(N, nf):
 
     Returns
     -------
-    gamma_qg : complex
+    complex
         LO quark-gluon anomalous dimension
         :math:`\gamma_{gq}^{(0)}(N)`
 
@@ -80,7 +82,7 @@ def gamma_gq(N, nf):
 
 
 @nb.njit(cache=True)
-def gamma_gg(N, nf):
+def gamma_gg(N, nf, cache):
     r"""Compute the |LO| gluon-gluon anomalous dimension.
 
     Implements :eqref:`B.6` from :cite:`Mitov:2006wy`.
@@ -91,23 +93,25 @@ def gamma_gg(N, nf):
         Mellin moment
     nf : int
         No. of active flavors
+    cache: numpy.ndarray
+        Harmonic sum cache
 
     Returns
     -------
-    gamma_qq : complex
+    complex
         LO quark-quark anomalous dimension
         :math:`\gamma_{gg}^{(0)}(N)`
 
     """
-    s1 = w1.S1(N)
+    S1 = c.get(c.S1, cache, N)
     result = (2.0 * nf - 11.0 * constants.CA) / 3.0 + 4.0 * constants.CA * (
-        s1 - 1.0 / (N * (N - 1.0)) - 1.0 / ((N + 1.0) * (N + 2.0))
+        S1 - 1.0 / (N * (N - 1.0)) - 1.0 / ((N + 1.0) * (N + 2.0))
     )
     return result
 
 
 @nb.njit(cache=True)
-def gamma_ns(N):
+def gamma_ns(N, cache):
     r"""Compute the |LO| non-singlet anomalous dimension.
 
     At LO, :math:`\gamma_{ns}^{(0)} = \gamma_{qq}^{(0)}`.
@@ -116,19 +120,21 @@ def gamma_ns(N):
     ----------
     N : complex
         Mellin moment
+    cache: numpy.ndarray
+        Harmonic sum cache
 
     Returns
     -------
-    gamma_ns : complex
+    complex
         LO quark-quark anomalous dimension
         :math:`\gamma_{ns}^{(0)}(N)`
 
     """
-    return gamma_qq(N)
+    return gamma_qq(N, cache)
 
 
 @nb.njit(cache=True)
-def gamma_singlet(N, nf):
+def gamma_singlet(N, nf, cache):
     r"""Compute the |LO| singlet anomalous dimension matrix.
 
     Implements :eqref:`2.13` from :cite:`Gluck:1992zx`.
@@ -139,17 +145,19 @@ def gamma_singlet(N, nf):
         Mellin moment
     nf : int
         No. of active flavors
+    cache: numpy.ndarray
+        Harmonic sum cache
 
     Returns
     -------
-    gamma_singlet : numpy.ndarray
+    numpy.ndarray
         LO singlet anomalous dimension matrix
         :math:`\gamma_{s}^{(0)}`
     """
     result = np.array(
         [
-            [gamma_qq(N), gamma_gq(N, nf)],
-            [gamma_qg(N), gamma_gg(N, nf)],
+            [gamma_qq(N, cache), gamma_gq(N, nf)],
+            [gamma_qg(N), gamma_gg(N, nf, cache)],
         ],
         np.complex_,
     )

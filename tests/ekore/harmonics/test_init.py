@@ -3,66 +3,17 @@ import numpy as np
 from eko.constants import log2, zeta2, zeta3, zeta4, zeta5
 from ekore import harmonics as h
 
-
-def test_spm1():
-    for k in range(1, 5 + 1):
-        f = np.sum([1.0 / j for j in range(1, k + 1)])
-        S1 = h.S1(k)
-        np.testing.assert_allclose(f, S1)
-        g = np.sum([(-1.0) ** j / j for j in range(1, k + 1)])
-        np.testing.assert_allclose(g, h.Sm1(k, S1, (-1) ** k == 1))
+from . import s, sm
 
 
-def test_spm2():
-    for k in range(1, 5 + 1):
-        f = np.sum([1.0 / j**2 for j in range(1, k + 1)])
-        S2 = h.S2(k)
-        np.testing.assert_allclose(f, S2)
-        g = np.sum([(-1.0) ** j / j**2 for j in range(1, k + 1)])
-        np.testing.assert_allclose(g, h.Sm2(k, S2, (-1) ** k == 1))
-
-
-def test_harmonics_cache():
-    N = np.random.randint(1, high=100)
-    is_singlet = (-1) ** N == 1
-    S1 = h.S1(N)
-    S2 = h.S2(N)
-    S3 = h.S3(N)
-    S4 = h.S4(N)
-    S5 = h.S5(N)
-    Sm1 = h.Sm1(N, S1, is_singlet)
-    Sm2 = h.Sm2(N, S2, is_singlet)
-    sx = np.array([S1, S2, S3, S4, S5])
-    smx_test = np.array(
-        [
-            Sm1,
-            Sm2,
-            h.Sm3(N, S3, is_singlet),
-            h.Sm4(N, S4, is_singlet),
-            h.Sm5(N, S5, is_singlet),
-        ]
-    )
-    np.testing.assert_allclose(h.smx(N, sx, is_singlet), smx_test)
-    s3x_test = np.array(
-        [
-            h.S21(N, S1, S2),
-            h.S2m1(N, S2, Sm1, Sm2, is_singlet),
-            h.Sm21(N, S1, Sm1, is_singlet),
-            h.Sm2m1(N, S1, S2, Sm2),
-        ]
-    )
-    np.testing.assert_allclose(h.s3x(N, sx, smx_test, is_singlet), s3x_test)
-    Sm31 = h.Sm31(N, S1, Sm1, Sm2, is_singlet)
-    s4x_test = np.array(
-        [
-            h.S31(N, S1, S2, S3, S4),
-            h.S211(N, S1, S2, S3),
-            h.Sm22(N, S1, S2, Sm2, Sm31, is_singlet),
-            h.Sm211(N, S1, S2, Sm1, is_singlet),
-            Sm31,
-        ]
-    )
-    np.testing.assert_allclose(h.s4x(N, sx, smx_test, is_singlet), s4x_test)
+def test_harmonic_definition():
+    for power in [1, 2]:
+        for k in range(1, 5 + 1):
+            f = np.sum([1.0 / j**power for j in range(1, k + 1)])
+            Sx = s(power, k)
+            np.testing.assert_allclose(f, Sx)
+            g = np.sum([(-1.0) ** j / j**power for j in range(1, k + 1)])
+            np.testing.assert_allclose(g, sm(power, k, (-1) ** k == 1))
 
 
 # reference values coming fom mathematica
@@ -106,28 +57,15 @@ refvals = {
 def test_Sm21():
     for N, vals in zip(testN, refvals["Sm21"]):
         S1 = h.S1(N)
-        Sm1 = h.Sm1(N, S1)
+        S1mh = h.S1((N - 1) / 2)
+        S1h = h.S1(N / 2)
+        Sm1 = h.Sm1(N, S1, S1mh, S1h)
         np.testing.assert_allclose(h.Sm21(N, S1, Sm1), vals, atol=1e-06)
-
-
-def test_Smx():
-    for j, N in enumerate(testN):
-        sx = h.sx(N)
-        smx = [
-            h.Sm1(N, sx[0]),
-            h.Sm2(N, sx[1]),
-            h.Sm3(N, sx[2]),
-            h.Sm4(N, sx[3]),
-            h.Sm5(N, sx[4]),
-        ]
-        for i, sm in enumerate(smx):
-            np.testing.assert_allclose(sm, refvals[f"Sm{i+1}"][j], atol=1e-06)
 
 
 def test_smx_continuation():
     # test s_{-m} against a different analytic continuation
     N = np.random.rand() + 1j * np.random.rand()
-    sx = h.sx(N)
 
     def dm(m):
         zeta_list = [
@@ -143,27 +81,5 @@ def test_smx_continuation():
     def sm_complex(m, N):
         return ((-1) ** N) / 2**m * (s(m, N / 2) - s(m, (N - 1) / 2)) - dm(m)
 
-    def s(m, N):
-        if m == 1:
-            return h.S1(N)
-        if m == 2:
-            return h.S2(N)
-        if m == 3:
-            return h.S3(N)
-        if m == 4:
-            return h.S4(N)
-        return h.S5(N)
-
-    def sm(m, N, hs):
-        if m == 1:
-            return h.Sm1(N, hs)
-        if m == 2:
-            return h.Sm2(N, hs)
-        if m == 3:
-            return h.Sm3(N, hs)
-        if m == 4:
-            return h.Sm4(N, hs)
-        return h.Sm5(N, hs)
-
-    for j, hs in enumerate(sx):
-        np.testing.assert_allclose(sm_complex(j + 1, N), sm(j + 1, N, hs))
+    for j in range(1, 6):
+        np.testing.assert_allclose(sm_complex(j, N), sm(j, N))

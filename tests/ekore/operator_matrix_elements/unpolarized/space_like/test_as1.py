@@ -1,15 +1,15 @@
 # Test NLO OME
 import numpy as np
 
-from ekore.harmonics import compute_cache
+from ekore.harmonics import cache as c
 from ekore.operator_matrix_elements.unpolarized.space_like.as1 import A_ns, A_singlet
 
 
 def test_A_1_intrinsic():
     L = 100.0
     N = 2
-    sx = compute_cache(N, 2, True)
-    aS1 = A_singlet(N, sx, L)
+    sx_cache = c.reset()
+    aS1 = A_singlet(N, sx_cache, L)
     # heavy quark momentum conservation
     np.testing.assert_allclose(aS1[0, 2] + aS1[1, 2] + aS1[2, 2], 0.0, atol=1e-10)
 
@@ -20,9 +20,9 @@ def test_A_1_intrinsic():
 def test_A_1_shape():
     N = 2
     L = 3.0
-    sx = compute_cache(N, 2, (-1) ** N == 1)
-    aNS1i = A_ns(N, sx, L)
-    aS1i = A_singlet(N, sx, L)
+    sx_cache = c.reset()
+    aNS1i = A_ns(N, sx_cache, L)
+    aS1i = A_singlet(N, sx_cache, L)
 
     assert aNS1i.shape == (2, 2)
     assert aS1i.shape == (3, 3)
@@ -44,8 +44,8 @@ def test_Blumlein_1():
 
     for n in range(N_vals):
         N = 2 * n + 2
-        sx = compute_cache(N, 2, True)
+        sx_cache = c.reset()
         for L, ref_gg in ref_val_gg.items():
-            aS1 = A_singlet(N, sx, L)
+            aS1 = A_singlet(N, sx_cache, L)
             np.testing.assert_allclose(aS1[0, 0], ref_gg[n], rtol=1e-6)
             np.testing.assert_allclose(aS1[2, 0], ref_val_Hg[L][n], rtol=3e-6)

@@ -3,9 +3,11 @@
 import numba as nb
 import numpy as np
 
+from .....harmonics import cache as c
+
 
 @nb.njit(cache=True)
-def a_gg3(n, sx, nf):
+def a_gg3(n, cache, nf):
     r"""Compute the approximate part of :math:`a_{gg}^{S,(3)}(N)`.
 
     This is the part of :math:`A_{gg}^{S,(3)}(N)` proportional to :math:`\mathcal{O}(\epsilon^0)`,
@@ -19,8 +21,8 @@ def a_gg3(n, sx, nf):
     ----------
     n : complex
         Mellin moment
-    sx : list
-        harmonic sums cache
+    cache: numpy.ndarray
+        Harmonic sum cache
     nf : int
         number of active flavor below the threshold
 
@@ -30,11 +32,11 @@ def a_gg3(n, sx, nf):
         :math:`a_{gg}^{S,(3)}(N)`
 
     """
-    S1 = sx[0][0]
-    S2 = sx[1][0]
-    S3 = sx[2][0]
-    S4 = sx[3][0]
-    S5 = sx[4][0]
+    S1 = c.get(c.S1, cache, n)
+    S2 = c.get(c.S2, cache, n)
+    S3 = c.get(c.S3, cache, n)
+    S4 = c.get(c.S4, cache, n)
+    S5 = c.get(c.S5, cache, n)
     # the nf^0 part is parametrized since it contains nasty binomial factors.
     agg3_nf0_param = (
         119.55586399490849
@@ -245,7 +247,7 @@ def a_gg3(n, sx, nf):
 
 
 @nb.njit(cache=True)
-def A_gg(n, sx, nf, L):
+def A_gg(n, cache, nf, L):
     r"""Compute the |N3LO| singlet |OME| :math:`A_{gg}^{S,(3)}(N)`.
 
     The expression is presented in :cite:`Bierenbaum:2009mv`.
@@ -257,8 +259,8 @@ def A_gg(n, sx, nf, L):
     ----------
     n : complex
         Mellin moment
-    sx : list
-        harmonic sums cache
+    cache: numpy.ndarray
+        Harmonic sum cache
     nf : int
         number of active flavor below the threshold
     L : float
@@ -270,13 +272,23 @@ def A_gg(n, sx, nf, L):
         :math:`A_{gg}^{S,(3)}(N)`
 
     """
-    S1, _ = sx[0]
-    S2, Sm2 = sx[1]
-    S3, S21, _, Sm21, _, Sm3 = sx[2]
-    S4, S31, S211, Sm22, Sm211, Sm31, Sm4 = sx[3]
+    S1 = c.get(c.S1, cache, n)
+    S2 = c.get(c.S2, cache, n)
+    Sm2 = c.get(c.Sm2, cache, n, is_singlet=True)
+    S3 = c.get(c.S3, cache, n)
+    S21 = c.get(c.S21, cache, n)
+    Sm21 = c.get(c.Sm21, cache, n, is_singlet=True)
+    Sm3 = c.get(c.Sm3, cache, n, is_singlet=True)
+    S4 = c.get(c.S4, cache, n)
+    S31 = c.get(c.S31, cache, n)
+    S211 = c.get(c.S211, cache, n)
+    Sm22 = c.get(c.Sm22, cache, n, is_singlet=True)
+    Sm211 = c.get(c.Sm211, cache, n, is_singlet=True)
+    Sm31 = c.get(c.Sm31, cache, n, is_singlet=True)
+    Sm4 = c.get(c.Sm4, cache, n, is_singlet=True)
     a_gg_l0 = (
         -0.35616500834358344
-        + a_gg3(n, sx, nf)
+        + a_gg3(n, cache, nf)
         + 0.75
         * (
             (-19.945240467240673 * (1.0 + n + np.power(n, 2)))

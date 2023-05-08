@@ -5,6 +5,7 @@ import numpy as np
 
 from eko import constants
 
+from ....harmonics import cache as c
 from . import as1aem1
 
 
@@ -23,7 +24,7 @@ def gamma_phph(N, nf):
 
     Returns
     -------
-    gamma_gg : complex
+    complex
         :math:`O(a_{em}^2)` photon-photon singlet anomalous dimension
         :math:`\\gamma_{\\gamma \\gamma}^{(0,2)}(N)`
 
@@ -38,7 +39,7 @@ def gamma_phph(N, nf):
 
 
 @nb.njit(cache=True)
-def gamma_uph(N, nf, sx):
+def gamma_uph(N, nf, cache):
     r"""Compute the :math:`O(a_{em}^2)` quark-photon anomalous dimension for up quarks.
 
     Implements Eq. (55) of :cite:`deFlorian:2016gvk` for q=u.
@@ -49,20 +50,20 @@ def gamma_uph(N, nf, sx):
         Mellin moment
     nf : int
         Number of active flavors
-    sx : np array
-        List of harmonic sums
+    cache: numpy.ndarray
+        Harmonic sum cache
 
     Returns
     -------
-    gamma_uph : complex
+    complex
         :math:`O(a_{em}^2)` quark-photon anomalous dimension :math:`\\gamma_{u \\gamma}^{(0,2)}(N)`
 
     """
-    return constants.eu2 * as1aem1.gamma_qph(N, nf, sx) / constants.CF
+    return constants.eu2 * as1aem1.gamma_qph(N, nf, cache) / constants.CF
 
 
 @nb.njit(cache=True)
-def gamma_dph(N, nf, sx):
+def gamma_dph(N, nf, cache):
     r"""Compute the :math:`O(a_{em}^2)` quark-photon anomalous dimension for down quarks.
 
     Implements Eq. (55) of :cite:`deFlorian:2016gvk` for q=d.
@@ -73,20 +74,20 @@ def gamma_dph(N, nf, sx):
         Mellin moment
     nf : int
         Number of active flavors
-    sx : np array
-        List of harmonic sums
+    cache: numpy.ndarray
+        Harmonic sum cache
 
     Returns
     -------
-    gamma_dph : complex
+    complex
         :math:`O(a_{em}^2)` quark-photon anomalous dimension :math:`\\gamma_{d \\gamma}^{(0,2)}(N)`
 
     """
-    return constants.ed2 * as1aem1.gamma_qph(N, nf, sx) / constants.CF
+    return constants.ed2 * as1aem1.gamma_qph(N, nf, cache) / constants.CF
 
 
 @nb.njit(cache=True)
-def gamma_phu(N, nf, sx):
+def gamma_phu(N, nf, cache):
     r"""Compute the :math:`O(a_{em}^2)` photon-quark anomalous dimension for up quarks.
 
     Implements Eq. (56) of :cite:`deFlorian:2016gvk` for q=u.
@@ -97,29 +98,29 @@ def gamma_phu(N, nf, sx):
         Mellin moment
     nf : int
         Number of active flavors
-    sx : np array
-        List of harmonic sums
+    cache: numpy.ndarray
+        Harmonic sum cache
 
     Returns
     -------
-    gamma_phu : complex
+    complex
         :math:`O(a_{em}^2)` photon-quark anomalous dimension :math:`\\gamma_{\\gamma u}^{(0,2)}(N)`
 
     """
     nu = constants.uplike_flavors(nf)
     nd = nf - nu
-    S1 = sx[0]
+    S1 = c.get(c.S1, cache, N)
     tmp = (-16.0 * (-16.0 - 27.0 * N - 13.0 * N**2 - 8.0 * N**3)) / (
         9.0 * (-1.0 + N) * N * (1.0 + N) ** 2
     ) - 16.0 * (2.0 + 3.0 * N + 2.0 * N**2 + N**3) / (
         3.0 * (-1.0 + N) * N * (1.0 + N) ** 2
     ) * S1
     eSigma2 = constants.NC * (nu * constants.eu2 + nd * constants.ed2)
-    return constants.eu2 * as1aem1.gamma_phq(N, sx) / constants.CF + eSigma2 * tmp
+    return constants.eu2 * as1aem1.gamma_phq(N, cache) / constants.CF + eSigma2 * tmp
 
 
 @nb.njit(cache=True)
-def gamma_phd(N, nf, sx):
+def gamma_phd(N, nf, cache):
     r"""Compute the :math:`O(a_{em}^2)` photon-quark anomalous dimension for down quarks.
 
     Implements Eq. (56) of :cite:`deFlorian:2016gvk` for q=d.
@@ -130,29 +131,29 @@ def gamma_phd(N, nf, sx):
         Mellin moment
     nf : int
         Number of active flavors
-    sx : np array
-        List of harmonic sums
+    cache: numpy.ndarray
+        Harmonic sum cache
 
     Returns
     -------
-    gamma_phd : complex
+    complex
         :math:`O(a_{em}^2)` photon-quark anomalous dimension :math:`\\gamma_{\\gamma d}^{(0,2)}(N)`
 
     """
     nu = constants.uplike_flavors(nf)
     nd = nf - nu
-    S1 = sx[0]
+    S1 = c.get(c.S1, cache, N)
     tmp = (-16.0 * (-16.0 - 27.0 * N - 13.0 * N**2 - 8.0 * N**3)) / (
         9.0 * (-1.0 + N) * N * (1.0 + N) ** 2
     ) - 16.0 * (2.0 + 3.0 * N + 2.0 * N**2 + N**3) / (
         3.0 * (-1.0 + N) * N * (1.0 + N) ** 2
     ) * S1
     eSigma2 = constants.NC * (nu * constants.eu2 + nd * constants.ed2)
-    return constants.ed2 * as1aem1.gamma_phq(N, sx) / constants.CF + eSigma2 * tmp
+    return constants.ed2 * as1aem1.gamma_phq(N, cache) / constants.CF + eSigma2 * tmp
 
 
 @nb.njit(cache=True)
-def gamma_nspu(N, nf, sx, sx_ns_qed):
+def gamma_nspu(N, nf, cache):
     r"""Compute the :math:`O(a_{em}^2)` singlet-like non-singlet anomalous dimension for up quarks.
 
     Implements sum of Eqs. (57-58) of :cite:`deFlorian:2016gvk` for q=u.
@@ -163,18 +164,18 @@ def gamma_nspu(N, nf, sx, sx_ns_qed):
         Mellin moment
     nf : int
         Number of active flavors
-    sx : np array
-        List of harmonic sums
+    cache: numpy.ndarray
+        Harmonic sum cache
 
     Returns
     -------
-    gamma_nspu : complex
+    complex
         :math:`O(a_{em}^2)` singlet-like non-singlet anomalous dimension
         :math:`\\gamma_{ns,+,u}^{(0,2)}(N)`
 
     """
-    S1 = sx[0]
-    S2 = sx[1]
+    S1 = c.get(c.S1, cache, N)
+    S2 = c.get(c.S2, cache, N)
     nu = constants.uplike_flavors(nf)
     nd = nf - nu
     eSigma2 = constants.NC * (nu * constants.eu2 + nd * constants.ed2)
@@ -185,13 +186,11 @@ def gamma_nspu(N, nf, sx, sx_ns_qed):
         - 80.0 / 9.0 * S1
         + 16.0 / 3.0 * S2
     ) * eSigma2
-    return (
-        constants.eu2 * as1aem1.gamma_nsp(N, sx, sx_ns_qed) / constants.CF / 2.0 + tmp
-    )
+    return constants.eu2 * as1aem1.gamma_nsp(N, cache) / constants.CF / 2.0 + tmp
 
 
 @nb.njit(cache=True)
-def gamma_nspd(N, nf, sx, sx_ns_qed):
+def gamma_nspd(N, nf, cache):
     r"""Compute the :math:`O(a_{em}^2)` singlet-like non-singlet anomalous dimension for down quarks.
 
     Implements sum of Eqs. (57-58) of :cite:`deFlorian:2016gvk` for q=d.
@@ -202,18 +201,18 @@ def gamma_nspd(N, nf, sx, sx_ns_qed):
         Mellin moment
     nf : int
         Number of active flavors
-    sx : np array
-        List of harmonic sums
+    cache: numpy.ndarray
+        Harmonic sum cache
 
     Returns
     -------
-    gamma_nspd : complex
+    complex
         :math:`O(a_{em}^2)` singlet-like non-singlet anomalous dimension
         :math:`\\gamma_{ns,+,d}^{(0,2)}(N)`
 
     """
-    S1 = sx[0]
-    S2 = sx[1]
+    S1 = c.get(c.S1, cache, N)
+    S2 = c.get(c.S2, cache, N)
     nu = constants.uplike_flavors(nf)
     nd = nf - nu
     eSigma2 = constants.NC * (nu * constants.eu2 + nd * constants.ed2)
@@ -224,13 +223,11 @@ def gamma_nspd(N, nf, sx, sx_ns_qed):
         - 80.0 / 9.0 * S1
         + 16.0 / 3.0 * S2
     ) * eSigma2
-    return (
-        constants.ed2 * as1aem1.gamma_nsp(N, sx, sx_ns_qed) / constants.CF / 2.0 + tmp
-    )
+    return constants.ed2 * as1aem1.gamma_nsp(N, cache) / constants.CF / 2.0 + tmp
 
 
 @nb.njit(cache=True)
-def gamma_nsmu(N, nf, sx, sx_ns_qed):
+def gamma_nsmu(N, nf, cache):
     r"""Compute the :math:`O(a_{em}^2)` valence-like non-singlet anomalous dimension for up quarks.
 
     Implements difference between Eqs. (57-58) of :cite:`deFlorian:2016gvk` for q=u.
@@ -241,18 +238,18 @@ def gamma_nsmu(N, nf, sx, sx_ns_qed):
         Mellin moment
     nf : int
         Number of active flavors
-    sx : np array
-        List of harmonic sums
+    cache: numpy.ndarray
+        Harmonic sum cache
 
     Returns
     -------
-    gamma_nsp : complex
+    complex
         :math:`O(a_{em}^2)` valence-like non-singlet anomalous dimension
         :math:`\\gamma_{ns,-,u}^{(0,2)}(N)`
 
     """
-    S1 = sx[0]
-    S2 = sx[1]
+    S1 = c.get(c.S1, cache, N)
+    S2 = c.get(c.S2, cache, N)
     nu = constants.uplike_flavors(nf)
     nd = nf - nu
     eSigma2 = constants.NC * (nu * constants.eu2 + nd * constants.ed2)
@@ -263,13 +260,11 @@ def gamma_nsmu(N, nf, sx, sx_ns_qed):
         - 80.0 / 9.0 * S1
         + 16.0 / 3.0 * S2
     ) * eSigma2
-    return (
-        constants.eu2 * as1aem1.gamma_nsm(N, sx, sx_ns_qed) / constants.CF / 2.0 + tmp
-    )
+    return constants.eu2 * as1aem1.gamma_nsm(N, cache) / constants.CF / 2.0 + tmp
 
 
 @nb.njit(cache=True)
-def gamma_nsmd(N, nf, sx, sx_ns_qed):
+def gamma_nsmd(N, nf, cache):
     r"""Compute the :math:`O(a_{em}^2)` valence-like non-singlet anomalous dimension for down quarks.
 
     Implements difference between Eqs. (57-58) of :cite:`deFlorian:2016gvk` for q=d.
@@ -280,18 +275,18 @@ def gamma_nsmd(N, nf, sx, sx_ns_qed):
         Mellin moment
     nf : int
         Number of active flavors
-    sx : np array
-        List of harmonic sums
+    cache: numpy.ndarray
+        Harmonic sum cache
 
     Returns
     -------
-    gamma_nsp : complex
+    complex
         :math:`O(a_{em}^2)` valence-like non-singlet anomalous dimension
         :math:`\\gamma_{ns,-,d}^{(0,2)}(N)`
 
     """
-    S1 = sx[0]
-    S2 = sx[1]
+    S1 = c.get(c.S1, cache, N)
+    S2 = c.get(c.S2, cache, N)
     nu = constants.uplike_flavors(nf)
     nd = nf - nu
     eSigma2 = constants.NC * (nu * constants.eu2 + nd * constants.ed2)
@@ -302,9 +297,7 @@ def gamma_nsmd(N, nf, sx, sx_ns_qed):
         - 80.0 / 9.0 * S1
         + 16.0 / 3.0 * S2
     ) * eSigma2
-    return (
-        constants.ed2 * as1aem1.gamma_nsm(N, sx, sx_ns_qed) / constants.CF / 2.0 + tmp
-    )
+    return constants.ed2 * as1aem1.gamma_nsm(N, cache) / constants.CF / 2.0 + tmp
 
 
 @nb.njit(cache=True)
@@ -322,7 +315,7 @@ def gamma_ps(N, nf):
 
     Returns
     -------
-    gamma_ps : complex
+    complex
         :math:`O(a_{em}^2)` pure-singlet quark-quark anomalous dimension
         :math:`\\gamma_{ps}^{(0,2)}(N)`
 
@@ -337,7 +330,7 @@ def gamma_ps(N, nf):
 
 
 @nb.njit(cache=True)
-def gamma_singlet(N, nf, sx, sx_ns_qed):
+def gamma_singlet(N, nf, cache):
     r"""Compute the :math:`O(a_{em}^2)` singlet sector.
 
     Parameters
@@ -346,13 +339,14 @@ def gamma_singlet(N, nf, sx, sx_ns_qed):
         Mellin moment
     nf : int
         Number of active flavors
-    sx : np array
-        List of harmonic sums
+    cache: numpy.ndarray
+        Harmonic sum cache
 
     Returns
     -------
-    gamma_singlet : numpy.ndarray
-        :math:`O(a_{em}^2)` singlet anomalous dimension :math:`\\gamma_{S}^{(0,2)}(N,nf,sx)`
+    numpy.ndarray
+        :math:`O(a_{em}^2)` singlet anomalous dimension :math:`\\gamma_{S}^{(0,2)}`
+
     """
     nu = constants.uplike_flavors(nf)
     nd = nf - nu
@@ -361,12 +355,12 @@ def gamma_singlet(N, nf, sx, sx_ns_qed):
     e2m = constants.eu2 - constants.ed2
     e2avg = (nu * constants.eu2 + nd * constants.ed2) / nf
     e2m = constants.eu2 - constants.ed2
-    gamma_ph_u = gamma_phu(N, nf, sx)
-    gamma_ph_d = gamma_phd(N, nf, sx)
-    gamma_u_ph = gamma_uph(N, nf, sx)
-    gamma_d_ph = gamma_dph(N, nf, sx)
-    gamma_ns_p_u = gamma_nspu(N, nf, sx, sx_ns_qed)
-    gamma_ns_p_d = gamma_nspd(N, nf, sx, sx_ns_qed)
+    gamma_ph_u = gamma_phu(N, nf, cache)
+    gamma_ph_d = gamma_phd(N, nf, cache)
+    gamma_u_ph = gamma_uph(N, nf, cache)
+    gamma_d_ph = gamma_dph(N, nf, cache)
+    gamma_ns_p_u = gamma_nspu(N, nf, cache)
+    gamma_ns_p_d = gamma_nspd(N, nf, cache)
     gamma_pure_singlet = gamma_ps(N, nf)
     gamma_S_02 = np.array(
         [
@@ -410,7 +404,7 @@ def gamma_singlet(N, nf, sx, sx_ns_qed):
 
 
 @nb.njit(cache=True)
-def gamma_valence(N, nf, sx, sx_ns_qed):
+def gamma_valence(N, nf, cache):
     r"""Compute the :math:`O(a_{em}^2)` valence sector.
 
     Parameters
@@ -419,20 +413,21 @@ def gamma_valence(N, nf, sx, sx_ns_qed):
         Mellin moment
     nf : int
         Number of active flavors
-    sx : np array
-        List of harmonic sums
+    cache: numpy.ndarray
+        Harmonic sum cache
 
     Returns
     -------
-    gamma_singlet : numpy.ndarray
-        :math:`O(a_{em}^2)` valence anomalous dimension :math:`\\gamma_{V}^{(0,2)}(N,nf,sx)`
+    numpy.ndarray
+        :math:`O(a_{em}^2)` valence anomalous dimension :math:`\\gamma_{V}^{(0,2)}`
+
     """
     nu = constants.uplike_flavors(nf)
     nd = nf - nu
     vu = nu / nf
     vd = nd / nf
-    gamma_ns_m_u = gamma_nsmu(N, nf, sx, sx_ns_qed)
-    gamma_ns_m_d = gamma_nsmd(N, nf, sx, sx_ns_qed)
+    gamma_ns_m_u = gamma_nsmu(N, nf, cache)
+    gamma_ns_m_d = gamma_nsmd(N, nf, cache)
     gamma_V_02 = np.array(
         [
             [
