@@ -160,11 +160,12 @@ class Atlas:
 
         prev = path[0]
         matched: MatchedPath = [prev]
-        for seq in path[1:]:
-            matching = Matching(prev.target, max(prev.nf, seq.nf))
+        for seg in path[1:]:
+            matching = Matching(prev.target, max(prev.nf, seg.nf))
 
             matched.append(matching)
-            matched.append(seq)
+            matched.append(seg)
+            prev = seg
 
         return matched
 
