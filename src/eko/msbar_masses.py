@@ -387,7 +387,7 @@ def compute(
             order=order,
             method=evmeth,
             masses=thr_masses,
-            thresholds_ratios=matching * xif2,
+            thresholds_ratios=(np.array(matching) * xif2).tolist(),
             hqm_scheme=QuarkMassScheme.MSBAR,
         )
 
