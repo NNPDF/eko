@@ -279,12 +279,12 @@ class TestCouplings:
                             )
                             if not em_running or qed == 0:
                                 np.testing.assert_allclose(
-                                    sc_expanded.a(q2)[1],
+                                    sc_expanded.a_em(q2),
                                     alpharef[1] / (4 * np.pi),
                                     rtol=1e-10,
                                 )
                                 np.testing.assert_allclose(
-                                    sc_exact.a(q2)[1],
+                                    sc_exact.a_em(q2),
                                     alpharef[1] / (4 * np.pi),
                                     rtol=1e-10,
                                 )
