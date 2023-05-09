@@ -102,10 +102,9 @@ class Inventory(Generic[H]):
 
         # in case of contentless, check header availability instead
         if self.contentless:
-            if self.lookup(stem, header=True):
-                self.cache[header] = None
-                return None
-            raise LookupError(f"Impossible to retrieve {header} from {self}.")
+            self.lookup(stem, header=True)
+            self.cache[header] = None
+            return None
 
         # for contentful inventories, check operator availability
         oppath = self.lookup(stem)
@@ -117,7 +116,7 @@ class Inventory(Generic[H]):
         return op
 
     def __setitem__(self, header: H, operator: Optional[Operator]):
-        """Set operator for given :math:`mu^2`.
+        """Set operator for given header.
 
         Header and operator are automatically dumped on disk.
 
@@ -178,6 +177,10 @@ class Inventory(Generic[H]):
 
         """
         yield from self.cache
+
+    def __len__(self):
+        """Return the number of elements in the cache."""
+        return len(self.cache)
 
     def sync(self):
         """Sync the headers in the cache with the content on disk.
