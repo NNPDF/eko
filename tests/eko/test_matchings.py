@@ -3,7 +3,14 @@ from dataclasses import astuple
 
 import numpy as np
 
-from eko.matchings import Atlas, Segment, flavor_shift, is_downward_path, nf_default
+from eko.matchings import (
+    Atlas,
+    Matching,
+    Segment,
+    flavor_shift,
+    is_downward_path,
+    nf_default,
+)
 from eko.quantities.heavy_quarks import MatchingScales
 
 
@@ -35,6 +42,12 @@ class TestAtlas:
         # 2 thr
         tc2 = Atlas(MatchingScales([0, 2, 3]), ZERO)
         assert tc2.walls == [0, 0, 2, 3, np.inf]
+
+    def test_normalize(self):
+        tc = Atlas(MatchingScales([1, 2, 3]), (1.5, None))
+        assert tc.origin[1] == 4
+        assert tc.normalize((2.5, None))[1] == 5
+        assert tc.normalize((2.5, 3))[1] == 3
 
     def test_nfref(self):
         # weird but fine
@@ -113,6 +126,26 @@ class TestAtlas:
         assert [s.nf for s in p8] == list(range(3, 6 + 1))
         assert p8[0].origin == mu2_from
         assert p8[3].target == mu2_to
+
+    def test_matched_path(self):
+        for kc in [0.3, 0.9, 1.5]:
+            for kb in [0.75, 1.25]:
+                tc = Atlas(MatchingScales([1 * kc, 2 * kb, 300]), (0.5, 3))
+                p = tc.matched_path((200, 5))
+                assert len(p) == 5
+                assert isinstance(p[0], Segment)
+                assert isinstance(p[1], Matching)
+                assert p[1].scale == p[0].target
+                assert p[1].scale == p[2].origin
+                assert p[1].hq == p[0].nf + 1
+                assert p[1].hq == p[2].nf
+                assert isinstance(p[2], Segment)
+                assert isinstance(p[3], Matching)
+                assert p[3].scale == p[2].target
+                assert p[3].scale == p[4].origin
+                assert p[3].hq == p[2].nf + 1
+                assert p[3].hq == p[4].nf
+                assert isinstance(p[4], Segment)
 
 
 def test_nf():
