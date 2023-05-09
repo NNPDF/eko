@@ -1,12 +1,10 @@
 """Manage steps to DGLAP solution, and operator creation."""
 import os
-from pathlib import Path
 from typing import Union
 
-from ..io import runcards
 from ..io.runcards import OperatorCard, TheoryCard
 from ..io.types import RawCard
-from . import legacy, managed
+from . import legacy
 
 
 # TODO: drop this altogether, replacing just with managed.solve
@@ -39,18 +37,3 @@ def solve(
     """
     # TODO: drop this
     legacy.Runner(theory_card, operators_card, path).compute()
-
-
-# TODO: drop this, and directly re-export manaaged.solve
-def solve_jets(
-    theory_card: Union[RawCard, TheoryCard],
-    operators_card: Union[RawCard, OperatorCard],
-    path: os.PathLike,
-):
-    """Implement solve for new output."""
-    new_theory, new_operator = runcards.update(theory_card, operators_card)
-    managed.solve(new_theory, new_operator, Path(path))
-
-
-# TODO: drop this before merging #242
-solve = solve_jets
