@@ -417,12 +417,12 @@ def compute(
         if q_idx + 4 == nf_ref and q2m_ref > mu2_ref:
             raise ValueError(
                 f"In MSbar scheme, Qm{hq} should be lower than Qref, "
-                "if alpha_s is given with nfref={nf_ref} at scale Qref={mu2_ref}"
+                f"if alpha_s is given with nfref={nf_ref} at scale Qref={mu2_ref}"
             )
         if q_idx + 4 == nf_ref + 1 and q2m_ref < mu2_ref:
             raise ValueError(
                 f"In MSbar scheme, Qm{hq} should be greater than Qref, "
-                "if alpha_s is given with nfref={nf_ref} at scale Qref={mu2_ref}"
+                f"if alpha_s is given with nfref={nf_ref} at scale Qref={mu2_ref}"
             )
 
         # check that for higher patches you do forward running
@@ -430,7 +430,7 @@ def compute(
         if q_idx + 3 >= nf_ref and q2m_ref >= m2_ref:
             raise ValueError(
                 f"In MSbar scheme, Qm{hq} should be lower than m{hq} "
-                "if alpha_s is given with nfref={nf_ref} at scale Qref={mu2_ref}"
+                f"if alpha_s is given with nfref={nf_ref} at scale Qref={mu2_ref}"
             )
 
         # check that for lower patches you do backward running
@@ -439,7 +439,7 @@ def compute(
             if q2m_ref < m2_ref:
                 raise ValueError(
                     f"In MSbar scheme, Qm{hq} should be greater than m{hq}"
-                    "if alpha_s is given with nfref={nf_ref} at scale Qref={mu2_ref}"
+                    f"if alpha_s is given with nfref={nf_ref} at scale Qref={mu2_ref}"
                 )
             nf_target += 1
             shift = 1
