@@ -108,7 +108,7 @@ def get(
 
     """
     # Maybe improve error
-    if key < 0 or key > len(cache):
+    if key < 0 or key >= len(cache):
         raise RuntimeError
     # load the thing
     s = cache[key]
