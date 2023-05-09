@@ -10,7 +10,7 @@ def test_lm1pm2():
     def mellin_lm1pm2(x, k, N):
         return x ** (N - 1) * (1 - x) ** 2 * np.log(1 - x) ** k
 
-    Ns = 1.0 + 100 * np.random.rand(3)
+    Ns = [1.0, 1.5, 2.0, 2.34, 56.789]
     for N in Ns:
         sx = hsx(N, 4)
 
@@ -31,7 +31,7 @@ def test_lm1pm1():
     def mellin_lm1pm1(x, k, N):
         return x ** (N - 1) * (1 - x) * np.log(1 - x) ** k
 
-    Ns = 1.0 + 100 * np.random.rand(3)
+    Ns = [1.0, 1.5, 2.0, 2.34, 56.789]
     for N in Ns:
         sx = hsx(N, 4)
 
@@ -52,7 +52,7 @@ def test_lm1p():
     def mellin_lm1p(x, k, N):
         return x ** (N - 1) * np.log(1 - x) ** k
 
-    Ns = 1.0 + 100 * np.random.rand(3)
+    Ns = [1.0, 1.5, 2.0, 2.34, 56.789]
     for N in Ns:
         sx = hsx(N, 5)
 
