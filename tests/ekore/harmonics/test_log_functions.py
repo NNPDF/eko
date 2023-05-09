@@ -7,10 +7,10 @@ from . import sx as hsx
 
 
 def test_lm1pm2():
-    def mellin_lm1pm2(x, k):
+    def mellin_lm1pm2(x, k, N):
         return x ** (N - 1) * (1 - x) ** 2 * np.log(1 - x) ** k
 
-    Ns = 100 * np.random.rand(3)
+    Ns = 1.0 + 100 * np.random.rand(3)
     for N in Ns:
         sx = hsx(N, 4)
 
@@ -22,16 +22,16 @@ def test_lm1pm2():
         }
 
         for k, ref in ref_values.items():
-            test_value = quad(mellin_lm1pm2, 0, 1, args=(k))[0]
+            test_value = quad(mellin_lm1pm2, 0, 1, args=(k, N))[0]
             np.testing.assert_allclose(test_value, ref)
 
 
 def test_lm1pm1():
     # test mellin transformation with some random N values
-    def mellin_lm1pm1(x, k):
+    def mellin_lm1pm1(x, k, N):
         return x ** (N - 1) * (1 - x) * np.log(1 - x) ** k
 
-    Ns = 100 * np.random.rand(3)
+    Ns = 1.0 + 100 * np.random.rand(3)
     for N in Ns:
         sx = hsx(N, 4)
 
@@ -43,16 +43,16 @@ def test_lm1pm1():
         }
 
         for k in [1, 2, 3, 4]:
-            test_value = quad(mellin_lm1pm1, 0, 1, args=(k))[0]
+            test_value = quad(mellin_lm1pm1, 0, 1, args=(k, N))[0]
             np.testing.assert_allclose(test_value, ref_values[k])
 
 
 def test_lm1p():
     # test mellin transformation with some random N values
-    def mellin_lm1p(x, k):
+    def mellin_lm1p(x, k, N):
         return x ** (N - 1) * np.log(1 - x) ** k
 
-    Ns = 100 * np.random.rand(3)
+    Ns = 1.0 + 100 * np.random.rand(3)
     for N in Ns:
         sx = hsx(N, 5)
 
@@ -65,5 +65,5 @@ def test_lm1p():
         }
 
         for k in [1, 3, 4, 5]:
-            test_value = quad(mellin_lm1p, 0, 1, args=(k))[0]
+            test_value = quad(mellin_lm1p, 0, 1, args=(k, N))[0]
             np.testing.assert_allclose(test_value, ref_values[k])
