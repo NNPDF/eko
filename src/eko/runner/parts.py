@@ -12,11 +12,11 @@
 """
 import numpy as np
 
-from .. import EKO
 from .. import evolution_operator as evop
 from ..evolution_operator import matching_condition
 from ..evolution_operator import operator_matrix_element as ome
 from ..evolution_operator import physical
+from ..io import EKO
 from ..io.items import Evolution, Matching, Operator
 from ..quantities.heavy_quarks import QuarkMassScheme
 from . import commons
