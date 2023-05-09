@@ -241,7 +241,7 @@ def flavor_reshape(
 def to_evol(eko: EKO, source: bool = True, target: bool = False):
     """Rotate the operator into evolution basis.
 
-    This also assigns also the pids. The operation is in-place.
+    This assigns also the pids. The operation is in-place.
 
     Parameters
     ----------
@@ -272,7 +272,7 @@ def to_evol(eko: EKO, source: bool = True, target: bool = False):
 def to_uni_evol(eko: EKO, source: bool = True, target: bool = False):
     """Rotate the operator into evolution basis.
 
-    This also assigns also the pids. The operation is in-place.
+    This assigns also the pids. The operation is in-place.
 
     Parameters
     ----------

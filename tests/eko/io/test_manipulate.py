@@ -173,6 +173,26 @@ class TestManipulate:
                 manipulate.flavor_reshape(of)
 
     def test_to_evol(self, eko_factory: EKOFactory, tmp_path):
+        self._test_to_all_evol(
+            eko_factory,
+            tmp_path,
+            manipulate.to_evol,
+            br.rotate_flavor_to_evolution,
+            br.flavor_basis_pids,
+        )
+
+    def test_to_uni_evol(self, eko_factory: EKOFactory, tmp_path):
+        self._test_to_all_evol(
+            eko_factory,
+            tmp_path,
+            manipulate.to_uni_evol,
+            br.rotate_flavor_to_unified_evolution,
+            br.flavor_basis_pids,
+        )
+
+    def _test_to_all_evol(
+        self, eko_factory: EKOFactory, tmp_path, to_evol_fnc, rot_matrix, pids
+    ):
         xgrid = interpolation.XGrid([0.5, 1.0])
         mu_out = 2.0
         mu2_out = mu_out**2
@@ -190,39 +210,31 @@ class TestManipulate:
         o01_path = tmp_path / "o01.tar"
         o00.deepcopy(o01_path)
         with EKO.edit(o01_path) as o01:
-            manipulate.to_evol(o01)
+            to_evol_fnc(o01)
         o10_path = tmp_path / "o10.tar"
         o00.deepcopy(o10_path)
         with EKO.edit(o10_path) as o10:
-            manipulate.to_evol(o10, False, True)
+            to_evol_fnc(o10, False, True)
         o11_path = tmp_path / "o11.tar"
         o00.deepcopy(o11_path)
         with EKO.edit(o11_path) as o11:
-            manipulate.to_evol(o11, True, True)
+            to_evol_fnc(o11, True, True)
             chk_keys(o00.raw, o11.raw)
 
         with EKO.edit(o01_path) as o01:
             with EKO.edit(o10_path) as o10:
                 with EKO.read(o11_path) as o11:
                     # check the input rotated one
-                    np.testing.assert_allclose(
-                        o01.bases.inputpids, br.rotate_flavor_to_evolution
-                    )
-                    np.testing.assert_allclose(
-                        o01.bases.targetpids, br.flavor_basis_pids
-                    )
+                    np.testing.assert_allclose(o01.bases.inputpids, rot_matrix)
+                    np.testing.assert_allclose(o01.bases.targetpids, pids)
                     # rotate also target
-                    manipulate.to_evol(o01, False, True)
+                    to_evol_fnc(o01, False, True)
                     np.testing.assert_allclose(o01[epout].operator, o11[epout].operator)
                     chk_keys(o00.raw, o01.raw)
                     # check the target rotated one
-                    np.testing.assert_allclose(
-                        o10.bases.inputpids, br.flavor_basis_pids
-                    )
-                    np.testing.assert_allclose(
-                        o10.bases.targetpids, br.rotate_flavor_to_evolution
-                    )
+                    np.testing.assert_allclose(o10.bases.inputpids, pids)
+                    np.testing.assert_allclose(o10.bases.targetpids, rot_matrix)
                     # rotate also input
-                    manipulate.to_evol(o10)
+                    to_evol_fnc(o10)
                     np.testing.assert_allclose(o10[epout].operator, o11[epout].operator)
                     chk_keys(o00.raw, o10.raw)
