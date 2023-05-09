@@ -123,6 +123,8 @@ def test_gamma_ns():
         ad_us.gamma_ns((4, 0), br.non_singlet_pids_map["ns+"], 1, nf),
         np.zeros(4),
     )
+    with pytest.raises(NotImplementedError):
+        ad_us.gamma_ns((2, 0), 10106, 2.0, nf)
 
 
 def test_gamma_ns_qed():
@@ -192,6 +194,14 @@ def test_gamma_ns_qed():
         np.zeros((4, 2)),
         decimal=3,
     )
+
+
+def test_errors():
+    cache = h.cache.reset()
+    with pytest.raises(NotImplementedError):
+        ad_us.choose_ns_ad_as1aem1(10106, 2.0, cache)
+    with pytest.raises(NotImplementedError):
+        ad_us.choose_ns_ad_aem2(10106, 2.0, 4, cache)
 
 
 def test_dim_singlet():
