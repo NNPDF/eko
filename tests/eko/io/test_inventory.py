@@ -91,3 +91,14 @@ def test_contentfull(tmp_path):
     assert two not in ir
     with pytest.raises(inventory.LookupError):
         ir[two]
+
+
+def test_fs(tmp_path):
+    acw = inventory.AccessConfigs(tmp_path, False, True)
+    iw = inventory.Inventory(tmp_path, acw, FakeH, contentless=True, name="Bla")
+    aa = "aa" + inventory.HEADER_EXT
+    ab = "ab" + inventory.HEADER_EXT
+    (tmp_path / aa).write_text("aa")
+    (tmp_path / ab).write_text("ab")
+    with pytest.raises(inventory.LookupError, match="many"):
+        iw.lookup("a", True)
