@@ -10,7 +10,6 @@ import numpy as np
 import ekore.operator_matrix_elements.polarized.space_like as ome_ps
 import ekore.operator_matrix_elements.unpolarized.space_like as ome_us
 import ekore.operator_matrix_elements.unpolarized.time_like as ome_ut
-from ekore import harmonics
 
 from .. import basis_rotation as br
 from .. import scale_variations as sv

@@ -8,8 +8,6 @@ We provide transforms of:
 """
 import numba as nb
 
-from eko.constants import zeta3
-
 
 @nb.njit(cache=True)
 def lm11m1(n, S1):

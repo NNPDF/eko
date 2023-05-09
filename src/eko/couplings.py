@@ -8,7 +8,6 @@ See :doc:`pQCD ingredients </theory/pQCD>`.
 
 """
 import logging
-import warnings
 from typing import Iterable, List
 
 import numba as nb

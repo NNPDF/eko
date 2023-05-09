@@ -9,7 +9,8 @@ from ....harmonics import cache as c
 
 # Non Singlet sector is swapped
 from ...unpolarized.space_like.as2 import gamma_nsm as gamma_nsp
-from ...unpolarized.space_like.as2 import gamma_nsp as gamma_nsm
+
+# from ...unpolarized.space_like.as2 import gamma_nsp as gamma_nsm
 
 
 @nb.njit(cache=True)

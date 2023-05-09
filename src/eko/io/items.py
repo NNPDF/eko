@@ -5,8 +5,8 @@ from typing import BinaryIO, Optional, Union
 
 import lz4.frame
 import numpy as np
-import numpy.lib.npyio as npyio
 import numpy.typing as npt
+from numpy.lib import npyio
 
 from .. import matchings
 from . import exceptions
