@@ -206,6 +206,8 @@ class TestBasisFunction:
 
     def test_log_eval_N(self):
         xg = interpolation.XGrid([np.exp(-1.0), 1.0], True)
+        assert xg.grid[0] == -1.0
+        assert xg.grid[1] == 0.0
         inter_N = interpolation.InterpolatorDispatcher(xg, 1)
         # p_0(x) = -ln(x)
         p0N = inter_N[0]
