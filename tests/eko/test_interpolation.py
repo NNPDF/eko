@@ -210,42 +210,43 @@ class TestBasisFunction:
         # p_0(x) = -ln(x)
         p0N = inter_N[0]
         assert len(p0N.areas) == 1
-        p0_cs_ref = [0, -1]
+        p0_cs_ref = [0.0, -1.0]
         for act_c, res_c in zip(p0N.areas[0], p0_cs_ref):
-            assert_almost_equal(act_c, res_c)
+            assert act_c == res_c
 
         def p0Nref_full(N, lnx):
             r"""
             Full -> \tilde p_0(N) = exp(-N)(exp(N)-1-N)/N^2
             MMa: Integrate[x^(n-1) (-Log[x]),{x,1/E,1}]
             """
-            return ((np.exp(N) - 1 - N) / N**2) * np.exp(-N * (lnx + 1))
+            return ((np.exp(N) - 1.0 - N) / N**2) * np.exp(-N * (lnx + 1.0))
 
         def p0Nref_partial(N, lnx):
             "partial = lower bound is neglected"
-            return (1 / N**2) * np.exp(-N * lnx)
+            return (1.0 / N**2) * np.exp(-N * lnx)
 
+        # p_1(x) = 1 + ln(x)
         p1N = inter_N[1]
         assert len(p1N.areas) == 1
-        p1_cs_ref = [1, 1]
+        p1_cs_ref = [1.0, 1.0]
         for act_c, res_c in zip(p1N.areas[0], p1_cs_ref):
-            assert_almost_equal(act_c, res_c)
+            assert act_c == res_c
 
         def p1Nref_full(N, lnx):
             r"""
             p_1(x) = 1+\ln(x) -> \tilde p_1(N) = (exp(-N)-1+N)/N^2
             MMa: Integrate[x^(n-1) (1+Log[x]),{x,1/E,1}]
             """
-            return ((np.exp(-N) - 1 + N) / N**2) * np.exp(-N * lnx)
+            return ((np.exp(-N) - 1.0 + N) / N**2) * np.exp(-N * lnx)
 
         def p1Nref_partial(N, lnx):
-            return (1 / N - 1 / N**2) * np.exp(-N * lnx)
+            return (1.0 / N - 1.0 / N**2) * np.exp(-N * lnx)
 
         # iterate configurations
         for N in [1.0, 2.0, complex(1.0, 1.0)]:
             # check skip
-            assert_almost_equal(p0N(N, 0), 0)
-            assert_almost_equal(p1N(N, 0), 0)
+            assert p0N(N, 0.0) == 0.0
+            assert p1N(N, 0.0) == 0.0
             # check values for full
             for lnx in [-1.0, -0.5]:
                 assert_almost_equal(
