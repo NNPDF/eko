@@ -205,7 +205,7 @@ class TestBasisFunction:
                 assert_almost_equal(p1N(N, lnx), p1Nref(N, lnx))
 
     def test_log_eval_N(self):
-        xg = [np.exp(-1), 1.0]
+        xg = interpolation.XGrid([np.exp(-1), 1.0], True)
         inter_N = interpolation.InterpolatorDispatcher(xg, 1)
         # p_0(x) = -ln(x)
         p0N = inter_N[0]
@@ -247,7 +247,7 @@ class TestBasisFunction:
             assert_almost_equal(p0N(N, 0), 0)
             assert_almost_equal(p1N(N, 0), 0)
             # check values for full
-            for lnx in [-1, -0.5]:
+            for lnx in [-1.0, -0.5]:
                 assert_almost_equal(
                     p0N(N, lnx),
                     p0Nref_partial(N, lnx),
@@ -259,7 +259,7 @@ class TestBasisFunction:
                     err_msg=f"p1N_partial,{N=},{lnx=}",
                 )
             # check values for full
-            for lnx in [-2, -3]:
+            for lnx in [-2.0, -3.0]:
                 assert_almost_equal(
                     p0N(N, lnx), p0Nref_full(N, lnx), err_msg=f"p0N_full,{N=},{lnx=}"
                 )
