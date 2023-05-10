@@ -248,12 +248,24 @@ class TestBasisFunction:
             assert_almost_equal(p1N(N, 0), 0)
             # check values for full
             for lnx in [-1, -0.5]:
-                assert_almost_equal(p0N(N, lnx), p0Nref_partial(N, lnx))
-                assert_almost_equal(p1N(N, lnx), p1Nref_partial(N, lnx))
+                assert_almost_equal(
+                    p0N(N, lnx),
+                    p0Nref_partial(N, lnx),
+                    err_msg=f"p0N_partial,{N=},{lnx=}",
+                )
+                assert_almost_equal(
+                    p1N(N, lnx),
+                    p1Nref_partial(N, lnx),
+                    err_msg=f"p1N_partial,{N=},{lnx=}",
+                )
             # check values for full
             for lnx in [-2, -3]:
-                assert_almost_equal(p0N(N, lnx), p0Nref_full(N, lnx))
-                assert_almost_equal(p1N(N, lnx), p1Nref_full(N, lnx))
+                assert_almost_equal(
+                    p0N(N, lnx), p0Nref_full(N, lnx), err_msg=f"p0N_full,{N=},{lnx=}"
+                )
+                assert_almost_equal(
+                    p1N(N, lnx), p1Nref_full(N, lnx), err_msg=f"p1N_full,{N=},{lnx=}"
+                )
 
     def test_is_below_x(self):
         for log in [False, True]:
