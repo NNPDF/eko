@@ -205,7 +205,7 @@ class TestBasisFunction:
                 assert_almost_equal(p1N(N, lnx), p1Nref(N, lnx))
 
     def test_log_eval_N(self):
-        xg = interpolation.XGrid([np.exp(-1), 1.0], True)
+        xg = interpolation.XGrid([np.exp(-1.0), 1.0], True)
         inter_N = interpolation.InterpolatorDispatcher(xg, 1)
         # p_0(x) = -ln(x)
         p0N = inter_N[0]
