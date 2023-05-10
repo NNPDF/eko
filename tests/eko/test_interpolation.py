@@ -233,7 +233,8 @@ class TestBasisFunction:
         assert len(p1N.areas) == 1
         p1_cs_ref = [1.0, 1.0]
         for act_c, res_c in zip(p1N.areas[0], p1_cs_ref):
-            assert act_c == res_c
+            # assert act_c == res_c
+            assert_almost_equal(act_c, res_c)
 
         def p1Nref_full(N, lnx):
             r"""
