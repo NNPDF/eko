@@ -13,7 +13,7 @@ from tests.conftest import EKOFactory
 
 
 class TestEKO:
-    def test_new_error(self, tmp_path: pathlib.Path):
+    def test_new_error(self, tmp_path: pathlib.Path, theory_card, operator_card):
         # try to write to a file different from bla
         no_tar_path = tmp_path / "Blub.bla"
         no_tar_path.touch()
@@ -25,13 +25,19 @@ class TestEKO:
             tar.add(no_tar_path)
         with pytest.raises(FileExistsError, match="Blub.tar"):
             struct.EKO.create(exists_path)
+        for args in [(None, None), (theory_card, None), (None, operator_card)]:
+            with pytest.raises(RuntimeError, match="missing"):
+                with struct.EKO.create(tmp_path / "Blub2.tar") as builder:
+                    eko = builder.load_cards(*args).build()
 
     def test_load_error(self, tmp_path):
         # try to read from a non-tar path
         no_tar_path = tmp_path / "Blub.tar"
         no_tar_path.write_text("Blub", encoding="utf-8")
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="tar"):
             struct.EKO.read(no_tar_path)
+        with pytest.raises(ValueError, match="file mode"):
+            struct.EKO.open(no_tar_path, "ü")
 
     def test_properties(self, eko_factory: EKOFactory):
         mu = 10.0
@@ -55,6 +61,8 @@ class TestEKO:
         stream.seek(0)
         raw_eko = yaml.safe_load(stream)
         assert "metadata" in raw_eko
+        assert "read" in eko.permissions
+        assert "write" in eko.permissions
 
     def test_ops(self, eko_factory: EKOFactory):
         mu = 10.0

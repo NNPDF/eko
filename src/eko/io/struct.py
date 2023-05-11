@@ -182,10 +182,6 @@ class EKO:
             else:
                 self.recipes_matching[recipe] = None
 
-    def __ilshift__(self, recipes: List[Recipe]):
-        """Shortcut for :meth:`load_recipes`."""
-        self.load_recipes(recipes)
-
     # operator management
     # -------------------
     def __getitem__(self, ep: EPoint) -> Optional[Operator]:
@@ -374,7 +370,7 @@ class EKO:
         elif mode in "a":
             load = True
         else:
-            raise ValueError
+            raise ValueError(f"Unknown file mode: {mode}")
 
         tmpdir = pathlib.Path(tempfile.mkdtemp(prefix=TEMP_PREFIX))
         if load:
