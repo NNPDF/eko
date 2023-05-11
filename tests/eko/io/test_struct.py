@@ -48,7 +48,11 @@ class TestEKO:
         assert hasattr(eko.theory_card.heavy, "masses")
         assert hasattr(eko.operator_card, "debug")
         np.testing.assert_allclose(eko.mu2grid, [mu**2])
-        assert (mu**2, nf) in eko
+        ep2 = (mu**2, nf)
+        assert ep2 in eko
+        assert eko[ep2] is not None
+        del eko.operators
+        assert ep2 not in eko.operators.cache
         default_grid = eko.operator_card.xgrid
         assert eko.xgrid == default_grid
         xg = interpolation.XGrid([0.1, 1.0])
@@ -56,6 +60,7 @@ class TestEKO:
         assert eko.xgrid == xg
         assert "metadata" in eko.raw
         # check we can dump and reload
+        eko.assert_permissions(True, True)
         stream = io.StringIO()
         yaml.safe_dump(eko.raw, stream)
         stream.seek(0)
@@ -63,6 +68,15 @@ class TestEKO:
         assert "metadata" in raw_eko
         assert "read" in eko.permissions
         assert "write" in eko.permissions
+        np.testing.assert_allclose(eko.mu20, 1.65**2.0)
+        assert len(eko.evolgrid) == 1
+        np.testing.assert_allclose(eko.evolgrid[0][0], mu**2.0)
+        assert eko.evolgrid[0][1] == nf
+        # __delattr__
+        eko.blub = "bla"
+        del eko.blub
+        with pytest.raises(AttributeError, match="blub"):
+            eko.blub
 
     def test_ops(self, eko_factory: EKOFactory):
         mu = 10.0
