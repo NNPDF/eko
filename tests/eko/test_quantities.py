@@ -1,5 +1,6 @@
 from math import nan
 
+import numpy as np
 import pytest
 
 from eko.quantities import heavy_quarks as hq
@@ -37,11 +38,12 @@ def test_HeavyInfo():
         intrinsic_flavors=[4, 5],
         masses=hq.HeavyQuarkMasses(
             [
-                hq.QuarkMassRef(2.0, nan),
-                hq.QuarkMassRef(5.0, nan),
-                hq.QuarkMassRef(100.0, nan),
+                hq.QuarkMassRef([2.0, nan]),
+                hq.QuarkMassRef([5.0, nan]),
+                hq.QuarkMassRef([100.0, nan]),
             ]
         ),
         masses_scheme=hq.QuarkMassScheme.POLE,
         matching_ratios=hq.MatchingRatios([1.5, 2.0, 3.0]),
     )
+    np.testing.assert_allclose(i.squared_ratios, [2.25, 4.0, 9.0])

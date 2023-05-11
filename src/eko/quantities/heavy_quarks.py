@@ -65,19 +65,6 @@ MatchingScale = SquaredScale
 MatchingScales = HeavyQuarks[MatchingScale]
 
 
-def scales_from_ratios(
-    ratios: MatchingRatios, masses: HeavyQuarkMasses
-) -> MatchingScales:
-    """Convert ratios to squared scales.
-
-    .. todo::
-
-        make this a method
-
-    """
-    return MatchingScales(*(np.power(ratios, 2.0) * np.power(masses, 2.0)).tolist())
-
-
 # TODO: upgrade the following to StrEnum (requires py>=3.11) with that, it is
 # possible to replace all non-alias right sides with calls to enum.auto()
 
@@ -119,11 +106,6 @@ class HeavyInfo(DictLike):
     """Scheme used to specify heavy quark masses."""
     matching_ratios: MatchingRatios
     """Matching scale of heavy quark masses"""
-
-    @property
-    def matching_scales(self) -> MatchingScales:
-        """Compute matching scales."""
-        return scales_from_ratios(self.matching_ratios, self.masses)
 
     @property
     def squared_ratios(self) -> List[float]:
