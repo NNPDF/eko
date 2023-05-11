@@ -60,6 +60,7 @@ def test_quad_ker(monkeypatch):
     monkeypatch.setattr(s, "dispatcher", lambda *args: np.identity(2))
     params = [
         ((1, 0), br.non_singlet_pids_map["ns+"], 0, "", 0.0, 0.0),
+        ((1, 0), br.non_singlet_pids_map["ns+"], 0, "", 0.123, 1.0),
         ((3, 1), br.non_singlet_pids_map["ns+u"], 0, "", 0.0, 0.0),
         ((1, 0), 100, 100, "", 0.123, 1.0),
         ((1, 0), 100, 21, "", 0.0, 0.0),
