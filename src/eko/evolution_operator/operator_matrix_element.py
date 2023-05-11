@@ -49,6 +49,7 @@ def build_ome(A, matching_order, a_s, backward_method):
     # Print;
     # .end
     ome = np.eye(len(A[0]), dtype=np.complex_)
+    A = A[:, :, :]
     A = np.ascontiguousarray(A)
     if backward_method is InversionMethod.EXPANDED:
         # expended inverse
