@@ -42,6 +42,7 @@ class TestManipulate:
             manipulate.xgrid_reshape(ot, xgp)
             chk_keys(o1.raw, ot.raw)
             assert ot[epout].operator.shape == (lpids, len(xgp), lpids, len(xg))
+            assert ot[epout].error is None
         ottpath = tmp_path / "ott.tar"
         o1.deepcopy(ottpath)
         with EKO.edit(ottpath) as ott:
@@ -74,7 +75,20 @@ class TestManipulate:
             op = eko_identity([1, 2, len(xgp), 2, len(xgp)])
             np.testing.assert_allclose(oit[epout].operator, op[0], atol=1e-10)
 
-        # error
+        # op error handling
+        o1[epout] = eko.io.Operator(
+            operator=eko_identity([1, lpids, len(xg), lpids, len(xg)])[0],
+            error=0.1 * eko_identity([1, lpids, len(xg), lpids, len(xg)])[0],
+        )
+        ot2path = tmp_path / "ot2.tar"
+        o1.deepcopy(ot2path)
+        with EKO.edit(ot2path) as ot2:
+            manipulate.xgrid_reshape(ot2, xgp)
+            chk_keys(o1.raw, ot2.raw)
+            assert ot[epout].operator.shape == (lpids, len(xgp), lpids, len(xg))
+            assert ot[epout].error is not None
+
+        # Python error
         with pytest.raises(ValueError):
             manipulate.xgrid_reshape(o1)
 
