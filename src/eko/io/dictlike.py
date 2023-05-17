@@ -146,17 +146,26 @@ def load_field(type_, value):
         # valid classes, cf. the module docstring
         return load_typing(type_, value)
 
+    # FIXME: python 3.8 does not recognize the origin of `npt.NDArray`, but at
+    # the same time it is not a proper class since `numpy==1.23.2`, since it is
+    # not recognized by `inspect.isclass`, and `type(npt.NDArray)` is not
+    # inheriting from `type`
+    # However, this check should be matched by every version of NumPy for every
+    # version of Python supported
+    # Once py3.8 will be dropped, move this back below `inspect.isclass`
+    # assertion
+    if np.ndarray in type_.__mro__ or issubclass(type_, np.ndarray):
+        # do not apply array on scalars
+        if isinstance(value, list):
+            return np.array(value)
+        return value
+
     assert inspect.isclass(type_)
 
     if issubclass(type_, DictLike):
         return type_.from_dict(value)
     if issubclass(type_, enum.Enum):
         return load_enum(type_, value)
-    if issubclass(type_, np.ndarray) or np.ndarray in type_.__mro__:
-        # do not apply array on scalars
-        if isinstance(value, list):
-            return np.array(value)
-        return value
     if isinstance(value, dict):
         return type_(**value)
 

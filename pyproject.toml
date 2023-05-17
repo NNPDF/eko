@@ -13,7 +13,7 @@ authors = [
   "F. Hekhorn <felix.hekhorn@mi.infn.it>",
   "N. Laurenti <niccolo.laurenti@mi.infn.it>",
   "G. Magni <gmagni@nikhef.nl>",
-  "T. Sharma <tanishq.sharma@alumni.cern>"
+  "T. Sharma <tanishq.sharma@alumni.cern>",
 ]
 classifiers = [
   "Programming Language :: Python",
@@ -37,12 +37,12 @@ packages = [
 ]
 
 [tool.poetry.dependencies]
-python = "^3.8,<3.11"
-numpy = "^1.22"
-scipy = "^1.7.3"
+python = "^3.8,<3.12"
+numpy = "^1.24"
+scipy = "^1.10.1"
 PyYAML = "^6.0"
 lz4 = "^4.0.2"
-numba = "^0.55.0"
+numba = "^0.57.0"
 # docs dependencies (for readthedocs, https://github.com/readthedocs/readthedocs.org/issues/4912#issuecomment-664002569)
 Sphinx = { version = "^4.3.2", optional = true }
 sphinx-rtd-theme = { version = "^1.0.0", optional = true }
