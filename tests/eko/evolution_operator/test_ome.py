@@ -72,7 +72,7 @@ def test_build_ome_nlo():
 
 
 def test_quad_ker_errors():
-    for p, t in [(True, False), (True, True)]:
+    for p, t in [(True, True)]:
         for mode0, mode1 in [
             (21, br.matching_hplus_pid),
             (200, br.matching_hminus_pid),

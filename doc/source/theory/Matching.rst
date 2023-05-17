@@ -103,6 +103,10 @@ Additional contributions due to |MSbar| masses are included only up to |NNLO|.
 The |OME| are also required in the context of the FONLL matching scheme :cite:`Forte:2010ta`.
 For :ref:`Intrinsic Evolution <theory/DGLAP:Intrinsic Evolution>` this leads to considerable simplifications :cite:`Ball:2015dpa`.
 
+Matching conditions for polarized and time-like evolution follow a similar structure. The former being implemented up to
+|NNLO| from :cite:`Bierenbaum:2022biv` and the latter up to |NLO| :cite:`Cacciari:2005ry` as the |NNLO| contributions are
+currently unknown.
+
 Basis rotation
 --------------
 
