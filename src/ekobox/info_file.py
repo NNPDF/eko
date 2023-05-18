@@ -79,5 +79,7 @@ def build(
         dtype=float,
     )
     template_info["AlphaS_Vals"] = alphas_values.tolist()
-    template_info["AlphaS_Qs"] = np.array([mu for mu, _ in operators_card.mugrid]).tolist()
+    template_info["AlphaS_Qs"] = np.array(
+        [mu for mu, _ in operators_card.mugrid]
+    ).tolist()
     return template_info
