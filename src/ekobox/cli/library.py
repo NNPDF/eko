@@ -22,10 +22,11 @@ def destination(dest: pathlib.Path):
         generated option
 
     """
+    rel_dest = dest.relative_to(pathlib.Path.cwd())
     return click.option(
         "-d",
         "--destination",
         type=click.Path(path_type=pathlib.Path, exists=True),
         default=dest,
-        help="Alternative destination path to store the resulting table (default: $PWD/theory)",
+        help=f"Alternative destination path to store the resulting table (default: $PWD/{rel_dest})",
     )
