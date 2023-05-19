@@ -4,21 +4,28 @@ The first is the driver class of eko as it is the one that collects all the
 previously instantiated information and does the actual computation of the Q2s.
 
 """
-
 import logging
-import numbers
+from dataclasses import astuple
+from typing import Dict, List, Optional
 
 import numpy as np
 import numpy.typing as npt
 
 from .. import member
 from .. import scale_variations as sv
+from ..couplings import Couplings
+from ..interpolation import InterpolatorDispatcher
 from ..io.runcards import Configs, Debug
-from ..thresholds import flavor_shift, is_downward_path
+from ..io.types import EvolutionPoint as EPoint
+from ..io.types import Order
+from ..matchings import Atlas, Segment, flavor_shift, is_downward_path
 from . import Operator, flavors, matching_condition, physical
 from .operator_matrix_element import OperatorMatrixElement
 
 logger = logging.getLogger(__name__)
+
+OpDict = Dict[str, Optional[npt.NDArray]]
+"""In particular, only the ``operator`` and ``error`` fields are expected."""
 
 
 class OperatorGrid(sv.ModeMixin):
@@ -39,40 +46,20 @@ class OperatorGrid(sv.ModeMixin):
 
     def __init__(
         self,
-        mu2grid: npt.NDArray,
-        order: tuple,
-        masses: tuple,
+        mu2grid: List[EPoint],
+        order: Order,
+        masses: List[float],
         mass_scheme,
+        thresholds_ratios: List[float],
         intrinsic_flavors: list,
         xif: float,
         n3lo_ad_variation: tuple,
         configs: Configs,
         debug: Debug,
-        thresholds_config,
-        couplings,
-        interpol_dispatcher,
+        atlas: Atlas,
+        couplings: Couplings,
+        interpol_dispatcher: InterpolatorDispatcher,
     ):
-        """Initialize `OperatorGrid`.
-
-        Parameters
-        ----------
-        config: dict
-            configuration dictionary
-        q2_grid: array
-            Grid in Q2 on where to to compute the operators
-        order: tuple(int,int)
-            orders in perturbation theory
-        thresholds_config: eko.thresholds.ThresholdsAtlas
-            Instance of :class:`~eko.thresholds.Threshold` containing information about the
-            thresholds
-        couplings: eko.couplings.StrongCoupling
-            Instance of :class:`~eko.couplings.StrongCoupling` able to generate a_s for
-            any q
-        kernel_dispatcher: eko.kernel_generation.KernelDispatcher
-            Instance of the :class:`~eko.kernel_generation.KernelDispatcher` with the
-            information about the kernels
-
-        """
         # check
         config = {}
         config["order"] = order
@@ -84,6 +71,7 @@ class OperatorGrid(sv.ModeMixin):
 
         for i, q in enumerate("cbt"):
             config[f"m{q}"] = masses[i]
+        config["thresholds_ratios"] = thresholds_ratios
         method = config["method"] = configs.evolution_method.value
         config["backward_inversion"] = configs.inversion_method
         config["ev_op_max_order"] = configs.ev_op_max_order
@@ -94,17 +82,6 @@ class OperatorGrid(sv.ModeMixin):
         config["polarized"] = configs.polarized
         config["time_like"] = configs.time_like
 
-        if method not in [
-            "iterate-exact",
-            "iterate-expanded",
-            "truncated",
-            "ordered-truncated",
-            "decompose-exact",
-            "decompose-expanded",
-            "perturbative-exact",
-            "perturbative-expanded",
-        ]:
-            raise ValueError(f"Unknown evolution mode {method}")
         if order == (1, 0) and method != "iterate-exact":
             logger.warning("Evolution: In LO we use the exact solution always!")
 
@@ -114,16 +91,15 @@ class OperatorGrid(sv.ModeMixin):
         self.config = config
         self.q2_grid = mu2grid
         self.managers = dict(
-            thresholds_config=thresholds_config,
+            thresholds_config=atlas,
             couplings=couplings,
             interpol_dispatcher=interpol_dispatcher,
         )
         self._threshold_operators = {}
         self._matching_operators = {}
 
-    def get_threshold_operators(self, path):
-        """
-        Generate the threshold operators.
+    def get_threshold_operators(self, path: List[Segment]) -> List[Operator]:
+        """Generate the threshold operators.
 
         This method is called everytime the OperatorGrid is asked for a grid on Q^2
         with a list of the relevant areas.
@@ -133,15 +109,8 @@ class OperatorGrid(sv.ModeMixin):
         The internal dictionary is self._threshold_operators and its structure is:
         (q2_from, q2_to) -> eko.operators.Operator
 
-        It computes and stores the necessary macthing operators
-        Parameters
-        ----------
-            path: list(`eko.thresholds.PathSegment`)
-                thresholds path
+        It computes and stores the necessary macthing operators.
 
-        Returns
-        -------
-            thr_ops: list(eko.evolution_operator.Operator)
         """
         # The base area is always that of the reference q
         thr_ops = []
@@ -149,14 +118,13 @@ class OperatorGrid(sv.ModeMixin):
         is_downward = is_downward_path(path)
         shift = flavor_shift(is_downward)
         for seg in path[:-1]:
-            new_op_key = seg.tuple
-            thr_config = self.managers["thresholds_config"]
-            kthr = thr_config.thresholds_ratios[seg.nf - shift]
+            new_op_key = astuple(seg)
+            kthr = self.config["thresholds_ratios"][seg.nf - shift]
             ome = OperatorMatrixElement(
                 self.config,
                 self.managers,
                 seg.nf - shift + 3,
-                seg.q2_to,
+                seg.target,
                 is_downward,
                 np.log(kthr),
                 self.config["HQ"] == "MSBAR",
@@ -164,76 +132,39 @@ class OperatorGrid(sv.ModeMixin):
             if new_op_key not in self._threshold_operators:
                 # Compute the operator and store it
                 logger.info("Prepare threshold operator")
-                op_th = Operator(
-                    self.config,
-                    self.managers,
-                    seg.nf,
-                    seg.q2_from,
-                    seg.q2_to,
-                    is_threshold=True,
-                )
+                op_th = Operator(self.config, self.managers, seg, is_threshold=True)
                 op_th.compute()
                 self._threshold_operators[new_op_key] = op_th
             thr_ops.append(self._threshold_operators[new_op_key])
 
             # Compute the matching conditions and store it
-            if seg.q2_to not in self._matching_operators:
+            if seg.target not in self._matching_operators:
                 ome.compute()
-                self._matching_operators[seg.q2_to] = ome.op_members
+                self._matching_operators[seg.target] = ome.op_members
         return thr_ops
 
-    def compute(self, q2grid=None):
-        """Compute all ekos for the `q2grid`.
+    def compute(self) -> Dict[EPoint, dict]:
+        """Compute all ekos for the `q2grid`."""
+        return {q2: self.generate(q2) for q2 in self.q2_grid}
 
-        Parameters
-        ----------
-        q2grid: list(float)
-            List of :math:`Q^2`
-
-        Returns
-        -------
-        list(dict)
-            List of ekos for each value of :math:`Q^2`
-        """
-        # use input?
-        if q2grid is None:
-            q2grid = self.q2_grid
-        # normalize input
-        if isinstance(q2grid, numbers.Number):
-            q2grid = [q2grid]
-        # And now return the grid
-        grid_return = {}
-        for q2 in q2grid:
-            grid_return[q2] = self.generate(q2)
-        return grid_return
-
-    def generate(self, q2):
+    def generate(self, q2: EPoint) -> OpDict:
         r"""Compute a single EKO.
 
-        Parameters
-        ----------
-        q2: float
-            Target value of :math:`Q^2`
+        eko :math:`\mathbf E(Q^2 \leftarrow Q_0^2)` in flavor basis as numpy array.
 
-        Returns
-        -------
-        dict
-            eko :math:`\mathbf E(Q^2 \leftarrow Q_0^2)` in flavor basis as numpy array
         """
         # The lists of areas as produced by the thresholds
         path = self.managers["thresholds_config"].path(q2)
         # Prepare the path for the composition of the operator
         thr_ops = self.get_threshold_operators(path)
         # we start composing with the highest operator ...
-        operator = Operator(
-            self.config, self.managers, path[-1].nf, path[-1].q2_from, path[-1].q2_to
-        )
+        operator = Operator(self.config, self.managers, path[-1])
         operator.compute()
-        intrinsic_range = self.config["intrinsic_range"]
+
         is_downward = is_downward_path(path)
-        if is_downward:
-            intrinsic_range = [4, 5, 6]
+        intrinsic_range = [4, 5, 6] if is_downward else self.config["intrinsic_range"]
         qed = self.config["order"][1] > 0
+
         final_op = physical.PhysicalOperator.ad_to_evol_map(
             operator.op_members, operator.nf, operator.q2_to, intrinsic_range, qed
         )
@@ -244,32 +175,23 @@ class OperatorGrid(sv.ModeMixin):
             )
 
             # join with the basis rotation, since matching requires c+ (or likewise)
+            nf_match = op.nf - 1 if is_downward else op.nf
+            matching = matching_condition.MatchingCondition.split_ad_to_evol_map(
+                self._matching_operators[op.q2_to],
+                nf_match,
+                op.q2_to,
+                intrinsic_range=intrinsic_range,
+                qed=qed,
+            )
             if is_downward:
-                matching = matching_condition.MatchingCondition.split_ad_to_evol_map(
-                    self._matching_operators[op.q2_to],
-                    op.nf - 1,
-                    op.q2_to,
-                    intrinsic_range=intrinsic_range,
-                    qed=qed,
-                )
                 invrot = member.ScalarOperator.promote_names(
                     flavors.rotate_matching_inverse(op.nf, qed), op.q2_to
                 )
                 final_op = final_op @ matching @ invrot @ phys_op
             else:
-                matching = matching_condition.MatchingCondition.split_ad_to_evol_map(
-                    self._matching_operators[op.q2_to],
-                    op.nf,
-                    op.q2_to,
-                    intrinsic_range=intrinsic_range,
-                    qed=qed,
-                )
                 rot = member.ScalarOperator.promote_names(
                     flavors.rotate_matching(op.nf + 1, qed), op.q2_to
                 )
                 final_op = final_op @ rot @ matching @ phys_op
         values, errors = final_op.to_flavor_basis_tensor(qed)
-        return {
-            "operator": values,
-            "error": errors,
-        }
+        return {"operator": values, "error": errors}

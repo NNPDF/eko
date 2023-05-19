@@ -70,7 +70,7 @@ class TestCouplings:
             hqm_scheme=QuarkMassScheme.POLE,
             thresholds_ratios=[1.0, 1.0, 1.0],
         )
-        assert sc.q2_ref == muref**2
+        assert sc.mu2_ref == muref**2
         assert sc.a_ref[0] == alpharef[0] / 4.0 / np.pi
         assert sc.a(muref**2)[0] == alpharef[0] / (4.0 * np.pi)
         assert sc.a_ref[1] == alpharef[1] / 4.0 / np.pi
@@ -226,7 +226,10 @@ class TestCouplings:
         for thresh_setup in thresh_setups:
             for qcd in range(1, 4 + 1):
                 for qed in range(2 + 1):
-                    for qedref in [muref, nan]:  # testing both running and fixed alpha
+                    for em_running in [
+                        True,
+                        False,
+                    ]:  # testing both running and fixed alpha
                         pto = (qcd, qed)
                         couplings = CouplingsInfo.from_dict(
                             dict(
@@ -235,6 +238,7 @@ class TestCouplings:
                                 scale=muref,
                                 num_flavs_ref=None,
                                 max_num_flavs=6,
+                                em_running=em_running,
                             )
                         )
                         sc_expanded = Couplings(
@@ -273,14 +277,14 @@ class TestCouplings:
                                 sc_exact.a(q2)[1],
                                 rtol=precisions[1],
                             )
-                            if qedref is nan or qed == 0:
+                            if not em_running or qed == 0:
                                 np.testing.assert_allclose(
-                                    sc_expanded.a(q2)[1],
+                                    sc_expanded.a_em(q2),
                                     alpharef[1] / (4 * np.pi),
                                     rtol=1e-10,
                                 )
                                 np.testing.assert_allclose(
-                                    sc_exact.a(q2)[1],
+                                    sc_exact.a_em(q2),
                                     alpharef[1] / (4 * np.pi),
                                     rtol=1e-10,
                                 )

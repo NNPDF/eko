@@ -11,6 +11,7 @@ import pytest
 from eko import interpolation
 from eko.io.runcards import OperatorCard, TheoryCard
 from eko.io.struct import EKO, Operator
+from eko.io.types import EvolutionPoint
 from ekobox import cards
 
 
@@ -80,7 +81,7 @@ class EKOFactory:
         self.cache: Optional[EKO] = None
 
     @staticmethod
-    def _operators(mugrid: Iterable[float], shape: Tuple[int, int]):
+    def _operators(mugrid: Iterable[EvolutionPoint], shape: Tuple[int, int]):
         ops = {}
         for mu in mugrid:
             ops[mu] = Operator(np.random.rand(*shape, *shape))
@@ -94,7 +95,7 @@ class EKOFactory:
         lx = len(self.operator.xgrid)
         lpids = len(self.operator.pids)
         for mu2, op in self._operators(
-            mugrid=self.operator.mu2grid, shape=(lpids, lx)
+            mugrid=self.operator.evolgrid, shape=(lpids, lx)
         ).items():
             self.cache[mu2] = op
 

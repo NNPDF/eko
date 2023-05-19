@@ -5,35 +5,36 @@ value, for consistency.
 Squares are consistenly taken inside.
 
 """
-from dataclasses import dataclass, fields
+from dataclasses import dataclass
 from math import nan
 from typing import List, Optional, Union
 
 import numpy as np
 import numpy.typing as npt
 
-from eko.thresholds import ThresholdsAtlas
-
 from .. import basis_rotation as br
 from .. import interpolation, msbar_masses
 from .. import version as vmod
 from ..couplings import couplings_mod_ev
+from ..matchings import Atlas, nf_default
 from ..quantities import heavy_quarks as hq
 from ..quantities.couplings import CouplingsInfo
 from ..quantities.heavy_quarks import HeavyInfo, QuarkMassScheme
 from .dictlike import DictLike
+from .types import EvolutionMethod
+from .types import EvolutionPoint as EPoint
 from .types import (
-    EvolutionMethod,
     InversionMethod,
     N3LOAdVariation,
     Order,
     RawCard,
     ScaleVariationsMethod,
+    SquaredScale,
     T,
-    Target,
 )
 
 
+# TODO: add frozen
 @dataclass
 class TheoryCard(DictLike):
     """Represent theory card content."""
@@ -48,23 +49,6 @@ class TheoryCard(DictLike):
     """Ratio between factorization scale and process scale."""
     n3lo_ad_variation: N3LOAdVariation
     """|N3LO| anomalous dimension variation: ``(gg_var, gq_var, qg_var, qq_var)``."""
-
-
-def masses(theory: TheoryCard, evmeth: EvolutionMethod):
-    """Compute masses in the chosen scheme."""
-    if theory.heavy.masses_scheme is QuarkMassScheme.MSBAR:
-        return msbar_masses.compute(
-            theory.heavy.masses,
-            theory.couplings,
-            theory.order,
-            couplings_mod_ev(evmeth),
-            np.power(theory.heavy.matching_ratios, 2.0),
-            xif2=theory.xif**2,
-        ).tolist()
-    if theory.heavy.masses_scheme is QuarkMassScheme.POLE:
-        return [mq.value**2 for mq in theory.heavy.masses]
-
-    raise ValueError(f"Unknown mass scheme '{theory.heavy.masses_scheme}'")
 
 
 @dataclass
@@ -108,119 +92,12 @@ class Configs(DictLike):
 
 
 @dataclass
-class Rotations(DictLike):
-    """Rotations related configurations.
-
-    Here "Rotation" is intended in a broad sense: it includes both rotations in
-    flavor space (labeled with suffix `pids`) and in :math:`x`-space (labeled
-    with suffix `grid`).
-    Rotations in :math:`x`-space correspond to reinterpolate the result on a
-    different basis of polynomials.
-
-    """
-
-    xgrid: interpolation.XGrid
-    """Internal momentum fraction grid."""
-    _targetgrid: Optional[interpolation.XGrid] = None
-    _inputgrid: Optional[interpolation.XGrid] = None
-    _targetpids: Optional[npt.NDArray] = None
-    _inputpids: Optional[npt.NDArray] = None
-
-    def __post_init__(self):
-        """Adjust types when loaded from serialized object."""
-        for attr in ("xgrid", "_inputgrid", "_targetgrid"):
-            value = getattr(self, attr)
-            if value is None:
-                continue
-            if isinstance(value, (np.ndarray, list)):
-                setattr(self, attr, interpolation.XGrid(value))
-            elif not isinstance(value, interpolation.XGrid):
-                setattr(self, attr, interpolation.XGrid.load(value))
-
-    @property
-    def pids(self):
-        """Internal flavor basis, used for computation."""
-        return np.array(br.flavor_basis_pids)
-
-    @property
-    def inputpids(self) -> npt.NDArray:
-        """Provide pids expected on the input PDF."""
-        if self._inputpids is None:
-            return self.pids
-        return self._inputpids
-
-    @inputpids.setter
-    def inputpids(self, value):
-        self._inputpids = value
-
-    @property
-    def targetpids(self) -> npt.NDArray:
-        """Provide pids corresponding to the output PDF."""
-        if self._targetpids is None:
-            return self.pids
-        return self._targetpids
-
-    @targetpids.setter
-    def targetpids(self, value):
-        self._targetpids = value
-
-    @property
-    def inputgrid(self) -> interpolation.XGrid:
-        """Provide :math:`x`-grid expected on the input PDF."""
-        if self._inputgrid is None:
-            return self.xgrid
-        return self._inputgrid
-
-    @inputgrid.setter
-    def inputgrid(self, value: interpolation.XGrid):
-        self._inputgrid = value
-
-    @property
-    def targetgrid(self) -> interpolation.XGrid:
-        """Provide :math:`x`-grid corresponding to the output PDF."""
-        if self._targetgrid is None:
-            return self.xgrid
-        return self._targetgrid
-
-    @targetgrid.setter
-    def targetgrid(self, value: interpolation.XGrid):
-        self._targetgrid = value
-
-    @classmethod
-    def from_dict(cls, dictionary: dict):
-        """Deserialize rotation.
-
-        Load from full state, but with public names.
-
-        """
-        d = dictionary.copy()
-        for f in fields(cls):
-            if f.name.startswith("_"):
-                d[f.name] = d.pop(f.name[1:])
-        return cls._from_dict(d)
-
-    @property
-    def raw(self):
-        """Serialize rotation.
-
-        Pass through interfaces, access internal values but with a public name.
-
-        """
-        d = self._raw()
-        for key in d.copy():
-            if key.startswith("_"):
-                d[key[1:]] = d.pop(key)
-
-        return d
-
-
-@dataclass
 class OperatorCard(DictLike):
     """Operator Card info."""
 
     mu0: float
     """Initial scale."""
-    mugrid: List[Target]
+    mugrid: List[EPoint]
     xgrid: interpolation.XGrid
     """Momentum fraction internal grid."""
 
@@ -244,6 +121,11 @@ class OperatorCard(DictLike):
     def mu2grid(self) -> npt.NDArray:
         """Grid of squared final scales."""
         return np.array([mu for mu, _ in self.mugrid]) ** 2
+
+    @property
+    def evolgrid(self) -> List[EPoint]:
+        """Grid of squared final scales."""
+        return [(mu**2, nf) for mu, nf in self.mugrid]
 
     @property
     def pids(self):
@@ -291,6 +173,8 @@ class Legacy:
 
         new["order"] = [old["PTO"] + 1, old["QED"]]
         alphaem = self.fallback(old.get("alphaqed"), old.get("alphaem"), default=0.0)
+        ms = self.heavies("m%s", old)
+        ks = self.heavies("k%sThr", old)
         new["couplings"] = dict(
             alphas=old["alphas"],
             alphaem=alphaem,
@@ -299,7 +183,9 @@ class Legacy:
             max_num_flavs=old["MaxNfAs"],
         )
         new["heavy"] = {
-            "num_flavs_init": old["nf0"],
+            "num_flavs_init": nf_default(old["Qref"] ** 2.0, default_atlas(ms, ks))
+            if old["nf0"] is None
+            else old["nf0"],
             "num_flavs_max_pdf": old["MaxNfPdf"],
             "matching_ratios": self.heavies("k%sThr", old),
             "masses_scheme": old["HQ"],
@@ -309,11 +195,10 @@ class Legacy:
             if old.get(f"i{q}".upper()) == 1:
                 intrinsic.append(idx + 4)
         new["heavy"]["intrinsic_flavors"] = intrinsic
-        ms = self.heavies("m%s", old)
-        mus = self.heavies("Qm%s", old)
         if old["HQ"] == "POLE":
             new["heavy"]["masses"] = [[m, nan] for m in ms]
         elif old["HQ"] == "MSBAR":
+            mus = self.heavies("Qm%s", old)
             new["heavy"]["masses"] = [[m, mu] for m, mu in zip(ms, mus)]
         else:
             raise ValueError(f"Unknown mass scheme '{old['HQ']}'")
@@ -394,6 +279,21 @@ def update(theory: Union[RawCard, TheoryCard], operator: Union[RawCard, Operator
     return cards.new_theory, cards.new_operator
 
 
+def default_atlas(masses: list, matching_ratios: list):
+    r"""Create default landscape.
+
+    This method should not be used to write new runcards, but rather to have a
+    consistent default for comparison with other softwares and existing PDF
+    sets.
+    There is no one-to-one relation between number of running flavors and final
+    scales, unless matchings are all applied. But this is a custom choice,
+    since it is possible to have PDFs in different |FNS| at the same scales.
+
+    """
+    matchings = (np.array(masses) * np.array(matching_ratios)) ** 2
+    return Atlas(matchings.tolist(), (0.0, 0))
+
+
 def flavored_mugrid(mugrid: list, masses: list, matching_ratios: list):
     r"""Upgrade :math:`\mu^2` grid to contain also target number flavors.
 
@@ -408,8 +308,23 @@ def flavored_mugrid(mugrid: list, masses: list, matching_ratios: list):
     since it is possible to have PDFs in different |FNS| at the same scales.
 
     """
-    tc = ThresholdsAtlas(
-        masses=(np.array(masses) ** 2).tolist(),
-        thresholds_ratios=(np.array(matching_ratios) ** 2).tolist(),
-    )
-    return [(mu, int(tc.nf(mu**2))) for mu in mugrid]
+    atlas = default_atlas(masses, matching_ratios)
+    return [(mu, nf_default(mu**2, atlas)) for mu in mugrid]
+
+
+# TODO: move to a more suitable place
+def masses(theory: TheoryCard, evmeth: EvolutionMethod) -> List[SquaredScale]:
+    """Compute masses in the chosen scheme."""
+    if theory.heavy.masses_scheme is QuarkMassScheme.MSBAR:
+        return msbar_masses.compute(
+            theory.heavy.masses,
+            theory.couplings,
+            theory.order,
+            couplings_mod_ev(evmeth),
+            np.power(theory.heavy.matching_ratios, 2.0).tolist(),
+            xif2=theory.xif**2,
+        ).tolist()
+    if theory.heavy.masses_scheme is QuarkMassScheme.POLE:
+        return [mq.value**2 for mq in theory.heavy.masses]
+
+    raise ValueError(f"Unknown mass scheme '{theory.heavy.masses_scheme}'")

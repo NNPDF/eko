@@ -2,7 +2,10 @@ import numpy as np
 import pytest
 
 from eko import basis_rotation as br
+from eko.io.runcards import flavored_mugrid
 from ekobox import genpdf
+
+MASSES = [1.5, 4.0, 170.0]
 
 
 def test_genpdf_exceptions(tmp_path, cd):
@@ -33,13 +36,14 @@ def test_genpdf_exceptions(tmp_path, cd):
 
 def test_generate_block():
     xg = np.linspace(0.0, 1.0, 5)
-    q2s = np.geomspace(1.0, 1e3, 5)
+    mu2s = np.geomspace(1.0, 1e3, 5)
+    evolgrid = flavored_mugrid(mu2s.tolist(), MASSES, [1.0, 1.0, 1.0])
     pids = np.arange(3)
-    b = genpdf.generate_block(lambda pid, x, q2: pid * x * q2, xg, q2s, pids)
+    b = genpdf.generate_block(lambda pid, x, q2: pid * x * q2, xg, evolgrid, pids)
     assert isinstance(b, dict)
     assert sorted(b.keys()) == sorted(["data", "mu2grid", "xgrid", "pids"])
     assert isinstance(b["data"], np.ndarray)
-    assert b["data"].shape == (len(xg) * len(q2s), len(pids))
+    assert b["data"].shape == (len(xg) * len(mu2s), len(pids))
 
 
 def test_install_pdf(fake_lhapdf, cd):
@@ -68,7 +72,8 @@ def test_generate_pdf_debug_pid(fake_lhapdf, cd):
     mytmp.mkdir()
     n = "test_generate_pdf_debug_pid"
     xg = np.linspace(0.0, 1.0, 5)
-    q2s = np.geomspace(1.0, 1e3, 7)
+    mu2s = np.geomspace(1.0, 1e3, 7)
+    evolgrid = flavored_mugrid(mu2s.tolist(), MASSES, [1.0, 1.0, 1.0])
     p = mytmp / n
     i = f"{n}.info"
     with cd(mytmp):
@@ -79,7 +84,7 @@ def test_generate_pdf_debug_pid(fake_lhapdf, cd):
             info_update={"Debug": "debug"},
             install=True,
             xgrid=xg,
-            mu2grid=q2s,
+            evolgrid=evolgrid,
         )
     pp = fake_lhapdf / n
     assert not p.exists()
@@ -164,7 +169,8 @@ def test_generate_pdf_toy_antiqed(fake_lhapdf, cd):
     # iterate pdfs with their error type and number of blocks
     n = "test_generate_pdf_toy_antiqed"
     xg = np.linspace(1e-5, 1.0, 5)
-    q2s = np.geomspace(1.0, 1e3, 7)
+    mu2s = np.geomspace(1.0, 1e3, 7)
+    evolgrid = flavored_mugrid(mu2s.tolist(), MASSES, [1.0, 1.0, 1.0])
     anti_qed_singlet = np.zeros_like(br.flavor_basis_pids, dtype=np.float_)
     anti_qed_singlet[br.flavor_basis_pids.index(1)] = -4
     anti_qed_singlet[br.flavor_basis_pids.index(-1)] = -4
@@ -179,7 +185,7 @@ def test_generate_pdf_toy_antiqed(fake_lhapdf, cd):
             [anti_qed_singlet],
             "toy",
             xgrid=xg,
-            mu2grid=q2s,
+            evolgrid=evolgrid,
         )
     assert p.exists()
     # check info file

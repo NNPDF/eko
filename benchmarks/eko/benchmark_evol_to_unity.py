@@ -8,6 +8,7 @@ from eko.evolution_operator import Operator
 from eko.interpolation import XGrid
 from eko.io import types
 from eko.io.runcards import OperatorCard, TheoryCard
+from eko.matchings import Segment
 from eko.quantities.couplings import CouplingsInfo
 from eko.runner.legacy import Runner
 
@@ -53,11 +54,10 @@ class BenchmarkBackwardForward:
             path=tmp_path / "eko.tar",
         ).op_grid
 
-        q20 = 30
-        q21 = 50
-        nf = 4
-        o = Operator(g.config, g.managers, nf, q20, q21)
-        o_back = Operator(g.config, g.managers, nf, q21, q20)
+        seg = Segment(30, 50, 4)
+        seg_back = Segment(50, 30, 4)
+        o = Operator(g.config, g.managers, seg)
+        o_back = Operator(g.config, g.managers, seg_back)
         o.compute()
         o_back.compute()
 

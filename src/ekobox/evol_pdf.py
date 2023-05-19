@@ -84,7 +84,7 @@ def evolve_pdfs(
             lambda pid, x, Q2, evolved_PDF=evolved_PDF: targetlist[targetlist.index(x)]
             * evolved_PDF[Q2]["pdfs"][pid][targetlist.index(x)],
             xgrid=targetlist,
-            mu2grid=operators_card.mu2grid,
+            evolgrid=operators_card.evolgrid,
             pids=np.array(br.flavor_basis_pids),
         )
         # all_blocks will be useful in case there will be necessity to dump many blocks

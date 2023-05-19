@@ -1,10 +1,6 @@
 """Contains the :class:`PhysicalOperator` class."""
-
-import numpy as np
-
 from .. import basis_rotation as br
 from .. import member
-from . import flavors
 
 
 class PhysicalOperator(member.OperatorBase):
@@ -109,51 +105,3 @@ class PhysicalOperator(member.OperatorBase):
                 m[f"{hq}-.{hq}-"] = op_id.copy()
         # map key to MemberName
         return cls.promote_names(m, q2_final)
-
-    def to_flavor_basis_tensor(self, qed=False):
-        """
-        Convert the computations into an rank 4 tensor over flavor operator space and momentum fraction operator space.
-
-        Parameters
-        ----------
-            qed : bool
-                activate qed
-
-        Returns
-        -------
-            tensor : numpy.ndarray
-                EKO
-        """
-        nf_in, nf_out = flavors.get_range(self.op_members.keys(), qed)
-        len_pids = len(br.flavor_basis_pids)
-        len_xgrid = list(self.op_members.values())[0].value.shape[0]
-        # dimension will be pids^2 * xgrid^2
-        value_tensor = np.zeros((len_pids, len_xgrid, len_pids, len_xgrid))
-        error_tensor = value_tensor.copy()
-        for name, op in self.op_members.items():
-            if not qed:
-                in_pids = flavors.pids_from_intrinsic_evol(name.input, nf_in, False)
-                out_pids = flavors.pids_from_intrinsic_evol(name.target, nf_out, True)
-            else:
-                in_pids = flavors.pids_from_intrinsic_unified_evol(
-                    name.input, nf_in, False
-                )
-                out_pids = flavors.pids_from_intrinsic_unified_evol(
-                    name.target, nf_out, True
-                )
-            for out_idx, out_weight in enumerate(out_pids):
-                for in_idx, in_weight in enumerate(in_pids):
-                    # keep the outer index to the left as we're multiplying from the right
-                    value_tensor[
-                        out_idx,  # output pid (position)
-                        :,  # output momentum fraction
-                        in_idx,  # input pid (position)
-                        :,  # input momentum fraction
-                    ] += out_weight * (op.value * in_weight)
-                    error_tensor[
-                        out_idx,  # output pid (position)
-                        :,  # output momentum fraction
-                        in_idx,  # input pid (position)
-                        :,  # input momentum fraction
-                    ] += out_weight * (op.error * in_weight)
-        return value_tensor, error_tensor

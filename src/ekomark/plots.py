@@ -141,24 +141,24 @@ def plot_dist(x, y, yerr, yref, title=None, oMx_min=1e-2, oMx_max=0.5):
 
 
 def plot_operator(var_name, op, op_err, log_operator=True, abs_operator=True):
-    """
-    Plot a single operator as heat map.
+    """Plot a single operator as heat map.
 
     Parameters
     ----------
-        ret : dict
-            DGLAP result
-        var_name : str
-            operator name
-        log_operator : bool, optional
-            plot on logarithmic scale
-        abs_operator : bool, optional
-            plot absolute value (instead of true value)
+    ret : dict
+        DGLAP result
+    var_name : str
+        operator name
+    log_operator : bool, optional
+        plot on logarithmic scale
+    abs_operator : bool, optional
+        plot absolute value (instead of true value)
 
     Returns
     -------
-        fig : matplotlib.pyplot.figure
-            created figure
+    fig : matplotlib.pyplot.figure
+        created figure
+
     """
     # get
     # op = ret["operators"][var_name]
@@ -210,25 +210,25 @@ def plot_operator(var_name, op, op_err, log_operator=True, abs_operator=True):
 
 
 def save_operators_to_pdf(path, theory, ops, me: EKO, skip_pdfs, change_lab=False):
-    """
-        Output all operator heatmaps to PDF.
+    """Output all operator heatmaps to PDF.
 
     Parameters
     ----------
-        path : str
-            path to the plot
-        theory : dict
-            theory card
-        ops : dict
-            operator card
-        me : eko.output.Output
-            DGLAP result
-        skip_pdfs : list
-            PDF to skip
-        change_lab : bool
-            set whether to rename the labels
+    path : str
+        path to the plot
+    theory : dict
+        theory card
+    ops : dict
+        operator card
+    me : eko.output.Output
+        DGLAP result
+    skip_pdfs : list
+        PDF to skip
+    change_lab : bool
+        set whether to rename the labels
+
     """
-    ops_names = list(me.rotations.targetpids)
+    ops_names = list(me.bases.targetpids)
     if np.allclose(ops_names, br.rotate_flavor_to_evolution):
         ops_names = br.evol_basis_pids
     else:

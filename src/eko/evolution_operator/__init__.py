@@ -26,6 +26,7 @@ from ..kernels import singlet as s
 from ..kernels import singlet_qed as qed_s
 from ..kernels import utils
 from ..kernels import valence_qed as qed_v
+from ..matchings import Segment
 from ..member import OpMember
 
 logger = logging.getLogger(__name__)
@@ -606,13 +607,13 @@ class Operator(sv.ModeMixin):
     full_labels_qed = br.full_unified_labels
 
     def __init__(
-        self, config, managers, nf, q2_from, q2_to, mellin_cut=5e-2, is_threshold=False
+        self, config, managers, segment: Segment, mellin_cut=5e-2, is_threshold=False
     ):
         self.config = config
         self.managers = managers
-        self.nf = nf
-        self.q2_from = q2_from
-        self.q2_to = q2_to
+        self.nf = segment.nf
+        self.q2_from = segment.origin
+        self.q2_to = segment.target
         # TODO make 'cut' external parameter?
         self._mellin_cut = mellin_cut
         self.is_threshold = is_threshold
@@ -703,7 +704,7 @@ class Operator(sv.ModeMixin):
             as1 = self.a_s[1]
             aem0 = self.a_em[0]
             aem1 = self.a_em[1]
-            q2ref = self.managers["couplings"].q2_ref
+            q2ref = self.managers["couplings"].mu2_ref
             delta_from = abs(self.q2_from - q2ref)
             delta_to = abs(self.q2_to - q2ref)
             # I compute the values in aem_list starting from the mu2

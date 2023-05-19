@@ -10,11 +10,11 @@ import numpy as np
 import ekore.operator_matrix_elements.polarized.space_like as ome_ps
 import ekore.operator_matrix_elements.unpolarized.space_like as ome_us
 import ekore.operator_matrix_elements.unpolarized.time_like as ome_ut
-from ekore import harmonics
 
 from .. import basis_rotation as br
 from .. import scale_variations as sv
 from ..io.types import InversionMethod
+from ..matchings import Segment
 from . import Operator, QuadKerBase
 
 logger = logging.getLogger(__name__)
@@ -185,12 +185,8 @@ class OperatorMatrixElement(Operator):
         configuration
     managers : dict
         managers
-    nf: int
-        number of active flavor below threshold
-    q2: float
-        matching scale
-    is_backward: bool
-        True for backward evolution
+    segment: Segment
+        path segment
     L: float
         :math:`\ln(\mu_F^2 / m_h^2)`
     is_msbar: bool
@@ -215,7 +211,7 @@ class OperatorMatrixElement(Operator):
     full_labels_qed = copy.deepcopy(full_labels)
 
     def __init__(self, config, managers, nf, q2, is_backward, L, is_msbar):
-        super().__init__(config, managers, nf, q2, None)
+        super().__init__(config, managers, Segment(q2, q2, nf))
         self.backward_method = config["backward_inversion"] if is_backward else None
         if is_backward:
             self.is_intrinsic = True

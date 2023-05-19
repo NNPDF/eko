@@ -237,7 +237,7 @@ class Runner(BenchmarkRunner):
             ):
                 rotate_to_evolution[3, :] = [0, 0, 0, 0, 0, -1, -1, 0, 1, 1, 0, 0, 0, 0]
 
-        with EKO.open(me) as eko:
+        with EKO.read(me) as eko:
             pdf_grid = apply.apply_pdf_flavor(
                 eko,
                 pdf,

@@ -1,7 +1,6 @@
 """
 Benchmark to :cite:`Giele:2002hx` (LO + NLO) and :cite:`Dittmar:2005ed` (NNLO).
 """
-import argparse
 import os
 from math import nan
 

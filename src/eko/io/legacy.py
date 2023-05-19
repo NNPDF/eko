@@ -6,17 +6,20 @@ import pathlib
 import tarfile
 import tempfile
 import warnings
+from typing import Dict, List
 
 import lz4.frame
 import numpy as np
-import numpy.typing as npt
 import yaml
 
 from eko.interpolation import XGrid
+from eko.io.runcards import flavored_mugrid
+from eko.quantities.heavy_quarks import HeavyInfo, HeavyQuarkMasses, MatchingRatios
 
 from . import raw
 from .dictlike import DictLike
 from .struct import EKO, Operator
+from .types import EvolutionPoint as EPoint
 from .types import RawCard
 
 
@@ -55,7 +58,9 @@ def load_tar(source: os.PathLike, dest: os.PathLike, errors: bool = False):
     op5 = metaold.get("Q2grid")
     if op5 is None:
         op5 = metaold["mu2grid"]
-    grid = op5to4(op5, arrays)
+    grid = op5to4(
+        flavored_mugrid(op5, theory.heavy.masses, theory.heavy.matching_ratios), arrays
+    )
 
     with EKO.create(dest) as builder:
         # here I'm plainly ignoring the static analyzer, the types are faking
@@ -63,8 +68,8 @@ def load_tar(source: os.PathLike, dest: os.PathLike, errors: bool = False):
         # accept also these
         eko = builder.load_cards(theory, operator).build()  # pylint: disable=E1101
 
-        for mu2, op in grid.items():
-            eko[mu2] = op
+        for ep, op in grid.items():
+            eko[ep] = op
 
         eko.metadata.version = metaold.get("eko_version", "")
         eko.metadata.data_version = 0
@@ -80,12 +85,20 @@ class PseudoTheory(DictLike):
 
     """
 
-    _void: str
+    heavy: HeavyInfo
 
     @classmethod
     def from_old(cls, old: RawCard):
         """Load from old metadata."""
-        return cls(_void="")
+        heavy = HeavyInfo(
+            num_flavs_init=4,
+            num_flavs_max_pdf=None,
+            intrinsic_flavors=None,
+            masses=HeavyQuarkMasses([1.51, 4.92, 172.5]),
+            masses_scheme=None,
+            matching_ratios=MatchingRatios([1.0, 1.0, 1.0]),
+        )
+        return cls(heavy=heavy)
 
 
 @dataclasses.dataclass
@@ -98,7 +111,7 @@ class PseudoOperator(DictLike):
     """
 
     mu20: float
-    mu2grid: npt.NDArray
+    evolgrid: List[EPoint]
     xgrid: XGrid
     configs: dict
 
@@ -110,6 +123,9 @@ class PseudoOperator(DictLike):
         if mu2list is None:
             mu2list = old["mu2grid"]
         mu2grid = np.array(mu2list)
+        evolgrid = flavored_mugrid(
+            np.sqrt(mu2grid).tolist(), [1.51, 4.92, 172.5], [1, 1, 1]
+        )
 
         xgrid = XGrid(old["interpolation_xgrid"])
 
@@ -118,7 +134,7 @@ class PseudoOperator(DictLike):
             interpolation_is_log=old.get("interpolation_is_log"),
         )
 
-        return cls(mu20=mu20, mu2grid=mu2grid, xgrid=xgrid, configs=configs)
+        return cls(mu20=mu20, evolgrid=evolgrid, xgrid=xgrid, configs=configs)
 
 
 ARRAY_SUFFIX = ".npy.lz4"
@@ -147,7 +163,7 @@ ERROR = "operator_error"
 """File name stem for operator errrors."""
 
 
-def op5to4(mu2grid: list, arrays: dict) -> dict:
+def op5to4(evolgrid: List[EPoint], arrays: dict) -> Dict[EPoint, Operator]:
     """Load dictionary of 4-dim operators, from a single 5-dim one."""
 
     def plural(name: str) -> list:
@@ -169,7 +185,7 @@ def op5to4(mu2grid: list, arrays: dict) -> dict:
         err5 = [None] * len(op5)
 
     grid = {}
-    for mu2, op4, err4 in zip(mu2grid, op5, err5):
-        grid[mu2] = Operator(operator=op4, error=err4)
+    for ep, op4, err4 in zip(evolgrid, op5, err5):
+        grid[ep] = Operator(operator=op4, error=err4)
 
     return grid

@@ -32,19 +32,6 @@ class CouplingsInfo(DictLike):
     em_running: bool = False
 
     @property
-    def alphas_ref(self):
-        r""":math:`\alpha_s` reference point."""
-        return CouplingRef.typed(self.alphas, self.scale)
-
-    @property
-    def alphaem_ref(self):
-        r""":math:`\alpha` reference point."""
-        if self.em_running:
-            raise ValueError("Non-running electromagnetic coupling.")
-
-        return CouplingRef.typed(self.alphaem, self.scale)
-
-    @property
     def values(self):
         """Collect only couplings values."""
         return (self.alphas, self.alphaem)

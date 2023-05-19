@@ -1,7 +1,7 @@
 """Heavy quarks related quantities."""
 import enum
 from dataclasses import dataclass
-from typing import Generic, Optional, Sequence, TypeVar
+from typing import Generic, List, Sequence, TypeVar
 
 import numpy as np
 
@@ -65,19 +65,6 @@ MatchingScale = SquaredScale
 MatchingScales = HeavyQuarks[MatchingScale]
 
 
-def scales_from_ratios(
-    ratios: MatchingRatios, masses: HeavyQuarkMasses
-) -> MatchingScales:
-    """Convert ratios to squared scales.
-
-    .. todo::
-
-        make this a method
-
-    """
-    return MatchingScales(*(np.power(ratios, 2.0) * np.power(masses, 2.0)).tolist())
-
-
 # TODO: upgrade the following to StrEnum (requires py>=3.11) with that, it is
 # possible to replace all non-alias right sides with calls to enum.auto()
 
@@ -96,9 +83,14 @@ class HeavyInfo(DictLike):
     This is meant to be used mainly as a theory card section, and to be passed
     around when all or a large part of this information is required.
 
+    Note
+    ----
+    All scales and ratios in this structure are linear, so you can consider
+    them as quantities in :math:`GeV` or ratios of them.
+
     """
 
-    num_flavs_init: Optional[FlavorsNumber]
+    num_flavs_init: FlavorsNumber
     r"""Number of active flavors at fitting scale.
 
     I.e. :math:`n_{f,\text{ref}}(\mu^2_0)`, formerly called ``nf0``.
@@ -116,6 +108,6 @@ class HeavyInfo(DictLike):
     """Matching scale of heavy quark masses"""
 
     @property
-    def matching_scales(self) -> MatchingScales:
-        """Compute matching scales."""
-        return scales_from_ratios(self.matching_ratios, self.masses)
+    def squared_ratios(self) -> List[float]:
+        """Squared ratios of matching scales."""
+        return np.power(self.matching_ratios, 2.0).tolist()
