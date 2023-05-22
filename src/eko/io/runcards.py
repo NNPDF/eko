@@ -309,7 +309,7 @@ def flavored_mugrid(mugrid: list, masses: list, matching_ratios: list):
 
     """
     atlas = default_atlas(masses, matching_ratios)
-    return [(mu, nf_default(mu**2, atlas)) for mu in mugrid]
+    return [(float(mu), nf_default(mu**2, atlas)) for mu in mugrid]
 
 
 # TODO: move to a more suitable place

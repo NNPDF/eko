@@ -4,6 +4,7 @@ import logging
 import os
 import sys
 
+import numpy as np
 import pandas as pd
 from banana import cfg as banana_cfg
 from banana.benchmark.runner import BenchmarkRunner
@@ -245,10 +246,11 @@ class Runner(BenchmarkRunner):
                 flavor_rotation=rotate_to_evolution,
                 qed=qed,
             )
-        for q2 in q2s:
+        for (q2, ref_pdfs), (q2a, res) in zip(ext["values"].items(), pdf_grid.items()):
+            np.testing.assert_allclose(q2, q2a)
             log_tab = dfdict.DFdict()
-            ref_pdfs = ext["values"][q2]
-            res = pdf_grid[q2]
+            # ref_pdfs = ext["values"][q2]
+            # res = pdf_grid[q2]
             my_pdfs = res["pdfs"]
             my_pdf_errs = res["errors"]
 
