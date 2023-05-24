@@ -177,8 +177,8 @@ def test_ode():
                             False,
                             nf,
                             ev_op_iterations,
-                            mu2_to,
                             mu2_0,
+                            mu2_to,
                         )
                         lhs = (
                             ns.dispatcher(
@@ -194,8 +194,8 @@ def test_ode():
                                 False,
                                 nf,
                                 ev_op_iterations,
-                                mu2_to + 0.5 * delta_mu2,
                                 mu2_0,
+                                mu2_to + 0.5 * delta_mu2,
                             )
                             - ns.dispatcher(
                                 order,
@@ -210,11 +210,11 @@ def test_ode():
                                 False,
                                 nf,
                                 ev_op_iterations,
-                                mu2_to - 0.5 * delta_mu2,
                                 mu2_0,
+                                mu2_to - 0.5 * delta_mu2,
                             )
                         ) / dlog_mu2
-                        np.testing.assert_allclose(lhs, rhs, atol=np.abs(1e-3))
+                        np.testing.assert_allclose(lhs, rhs, atol=np.abs(2e-4))
 
 
 def test_ode_true_gamma():
@@ -260,8 +260,8 @@ def test_ode_true_gamma():
                             False,
                             nf,
                             ev_op_iterations,
-                            mu2_to,
                             mu2_0,
+                            mu2_to,
                         )
                         lhs = (
                             ns.dispatcher(
@@ -277,8 +277,8 @@ def test_ode_true_gamma():
                                 False,
                                 nf,
                                 ev_op_iterations,
-                                mu2_to + 0.5 * delta_mu2,
                                 mu2_0,
+                                mu2_to + 0.5 * delta_mu2,
                             )
                             - ns.dispatcher(
                                 order,
@@ -293,11 +293,11 @@ def test_ode_true_gamma():
                                 False,
                                 nf,
                                 ev_op_iterations,
-                                mu2_to - 0.5 * delta_mu2,
                                 mu2_0,
+                                mu2_to - 0.5 * delta_mu2,
                             )
                         ) / dlog_mu2
-                        np.testing.assert_allclose(lhs, rhs, atol=np.abs(1e-3))
+                        np.testing.assert_allclose(lhs, rhs, atol=np.abs(2e-4))
 
 
 def test_error():

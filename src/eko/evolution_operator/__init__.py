@@ -770,9 +770,9 @@ class Operator(sv.ModeMixin):
                 labels.append(br.non_singlet_unified_labels[0])
                 labels.append(br.non_singlet_unified_labels[2])
                 # -u and -d become different starting from O(as1aem1) or O(aem2)
-                if self.order[1] >= 2 or self.order[0] >= 1:
-                    labels.append(br.non_singlet_unified_labels[1])
-                    labels.append(br.non_singlet_unified_labels[3])
+                # but at this point order is at least (1, 1)
+                labels.append(br.non_singlet_unified_labels[1])
+                labels.append(br.non_singlet_unified_labels[3])
                 labels.extend(br.valence_unified_labels)
             if self.config["debug_skip_singlet"]:
                 logger.warning("%s: skipping singlet sector", self.log_label)
