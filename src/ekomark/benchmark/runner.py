@@ -249,8 +249,6 @@ class Runner(BenchmarkRunner):
         for (q2, ref_pdfs), (q2a, res) in zip(ext["values"].items(), pdf_grid.items()):
             np.testing.assert_allclose(q2, q2a)
             log_tab = dfdict.DFdict()
-            # ref_pdfs = ext["values"][q2]
-            # res = pdf_grid[q2]
             my_pdfs = res["pdfs"]
             my_pdf_errs = res["errors"]
 
