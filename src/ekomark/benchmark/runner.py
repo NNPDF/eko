@@ -220,7 +220,6 @@ class Runner(BenchmarkRunner):
         # return a proper log table
         log_tabs = {}
         xgrid = ext["target_xgrid"]
-        q2s = list(ext["values"].keys())
 
         # LHA NNLO VFNS needs a special treatment
         # Valence contains only u and d
