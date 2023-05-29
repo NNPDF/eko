@@ -130,8 +130,8 @@ def dispatcher(
     alphaem_running,
     nf,
     ev_op_iterations,
-    mu2_to,
     mu2_from,
+    mu2_to,
 ):
     r"""Determine used kernel and call it.
 
@@ -174,13 +174,13 @@ def dispatcher(
         aem_half,
         nf,
         ev_op_iterations,
-        mu2_to,
         mu2_from,
+        mu2_to,
     )
 
 
 @nb.njit(cache=True)
-def fixed_alphaem_exact(order, gamma_ns, a1, a0, aem, nf, mu2_to, mu2_from):
+def fixed_alphaem_exact(order, gamma_ns, a1, a0, aem, nf, mu2_from, mu2_to):
     """Compute exact solution for fixed alphaem.
 
     Parameters
@@ -222,7 +222,7 @@ def fixed_alphaem_exact(order, gamma_ns, a1, a0, aem, nf, mu2_to, mu2_from):
 
 
 @nb.njit(cache=True)
-def exact(order, gamma_ns, as_list, aem_half, nf, ev_op_iterations, mu2_to, mu2_from):
+def exact(order, gamma_ns, as_list, aem_half, nf, ev_op_iterations, mu2_from, mu2_to):
     """Compute exact solution for running alphaem.
 
     Parameters
@@ -259,5 +259,5 @@ def exact(order, gamma_ns, as_list, aem_half, nf, ev_op_iterations, mu2_to, mu2_
         a0 = as_list[step - 1]
         mu2_from = mu2_steps[step - 1]
         mu2_to = mu2_steps[step]
-        res *= fixed_alphaem_exact(order, gamma_ns, a1, a0, aem, nf, mu2_to, mu2_from)
+        res *= fixed_alphaem_exact(order, gamma_ns, a1, a0, aem, nf, mu2_from, mu2_to)
     return res

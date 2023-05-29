@@ -183,7 +183,7 @@ class Legacy:
             max_num_flavs=old["MaxNfAs"],
         )
         new["heavy"] = {
-            "num_flavs_init": nf_default(old["Qref"] ** 2.0, default_atlas(ms, ks))
+            "num_flavs_init": nf_default(old["Q0"] ** 2.0, default_atlas(ms, ks))
             if old["nf0"] is None
             else old["nf0"],
             "num_flavs_max_pdf": old["MaxNfPdf"],
