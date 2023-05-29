@@ -82,12 +82,12 @@ def compute_pegasus_data(theory, operators, skip_pdfs, rotate_to_evolution_basis
 
     # run pegaus
     out_tabs = {}
-    for mu2 in operators["Q2grid"]:
+    for mu in operators["mugrid"]:
         tab = {}
         for x in target_xgrid:
             # last two numbers are the min and max pid to calculate,
             # keep everthing for simplicity.
-            xf, _ = pegasus.xparton(x, mu2, -6, 6)
+            xf, _ = pegasus.xparton(x, mu**2, -6, 6)
             temp = dict(zip(labels, xf))
             for pid in labels:
                 if pid in skip_pdfs:
@@ -114,7 +114,7 @@ def compute_pegasus_data(theory, operators, skip_pdfs, rotate_to_evolution_basis
             evol_pdf = rotate_flavor_to_evolution @ pdfs
             tab = dict(zip(evol_basis, evol_pdf))
 
-        out_tabs[mu2] = tab
+        out_tabs[mu**2] = tab
 
     ref = {"target_xgrid": target_xgrid, "values": out_tabs}
 
