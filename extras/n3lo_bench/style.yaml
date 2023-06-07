@@ -1,3 +1,4 @@
+
 axes:
   axisbelow: true
   edgecolor: ".8"
@@ -48,6 +49,7 @@ patch:
   facecolor: "#4C72B0"
   linewidth: 0.7
 text:
+  usetex: True
   color: ".15"
 xtick:
   color: ".6"

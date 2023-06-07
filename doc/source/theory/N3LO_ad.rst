@@ -229,7 +229,7 @@ The other parts are approximated using some known limits:
         It is known that :cite:`Albino:2000cp,Moch:2021qrk` the diagonal terms diverge in N-space as:
 
             .. math ::
-                \gamma_{kk} \approx A^{(r)}_4 S_1(N)  + B^{(r)}_4 \delta(1-x) + \mathcal{O}(1)
+                \gamma_{kk} \approx A^{(r)}_4 S_1(N) + B^{(r)}_4 + \mathcal{O}(1)
 
         Where again the coefficient :math:`A^{(r)}_4` is the |QCD| cusp anomalous dimension for the adjoint or fundamental representation.
         Again the coefficient :math:`B^{(r)}_4` has been extracted from soft anomalous dimensions :cite:`Duhr:2022cob`.
@@ -279,9 +279,9 @@ First, we solve the system associated to the 4 known moments,
 minus the known limits, using different functional bases.
 Any possible candidate contains 4 elements and is obtained with the following prescription:
 
-    1. one function is the leading large-N unknown contribution,
+    1. one function is leading small-N unknown contribution, which correspond to the highest power unknown for the pole at :math:`N=1`,
 
-    2. one function is leading small-N unknown contribution, which correspond to the highest power unknown for the pole at :math:`N=1`,
+    2. one function is the leading large-N unknown contribution,
 
     3. the remaining functions are chosen from of a batch of functions describing sub-leading unknown terms both for the small-N and large-N limit.
 
