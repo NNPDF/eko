@@ -39,7 +39,7 @@ def build(
     template_info["Authors"] = ""
     template_info["FlavorScheme"] = "variable"
     template_info.update(info_update)
-    template_info["NumFlavors"] = theory_card.heavy.num_flavs_max_pdf
+    template_info["NumFlavors"] = max(nf for _, nf in op.mugrid)
     template_info["Flavors"] = [-6, -5, -4, -3, -2, -1, 1, 2, 3, 4, 5, 6, 21, 22]
     # TODO actually point to input grid
     template_info["XMin"] = float(operators_card.xgrid.raw[0])
