@@ -80,8 +80,11 @@ def evolve_pdfs(
     targetlist = targetgrid.raw.tolist()
     for evolved_PDF in evolved_PDF_list:
         all_blocks = []
+        evolved_PDF_q2 = {q2: val for (q2, _), val in evolved_PDF.items()}
         block = genpdf.generate_block(
-            lambda pid, x, Q2, evolved_PDF=evolved_PDF: targetlist[targetlist.index(x)]
+            lambda pid, x, Q2, evolved_PDF=evolved_PDF_q2: targetlist[
+                targetlist.index(x)
+            ]
             * evolved_PDF[Q2]["pdfs"][pid][targetlist.index(x)],
             xgrid=targetlist,
             evolgrid=operators_card.evolgrid,
