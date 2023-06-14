@@ -252,7 +252,7 @@ class Runner(BenchmarkRunner):
             # find the first hit, regardless of the flavor, since others can not deal with them appearing in parallel
             eps = [ep for ep in pdf_grid.keys() if np.isclose(ep[0], q2)]
             if len(eps) != 1:
-                if len(eps) < 1:
+                if len(eps) == 0:
                     raise KeyError(f"PDF at Q2={q2} not found")
                 raise KeyError(f"More than one evolution point found for Q2={q2}")
             res = pdf_grid[eps[0]]
