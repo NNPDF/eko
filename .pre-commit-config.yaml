@@ -12,6 +12,11 @@ repos:
       - id: check-toml
       - id: check-merge-conflict
       - id: debug-statements
+  - repo: https://github.com/hadialqattan/pycln
+    rev: v2.1.5
+    hooks:
+      - id: pycln
+        args: [--config=pyproject.toml]
   - repo: https://github.com/psf/black
     rev: 23.3.0
     hooks:

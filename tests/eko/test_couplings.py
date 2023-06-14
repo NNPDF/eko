@@ -4,7 +4,6 @@
 """
 import copy
 import enum
-from math import nan
 
 import numpy as np
 import pytest
