@@ -3,7 +3,7 @@ import pathlib
 import matplotlib.pyplot as plt
 import numpy as np
 import utils
-from matplotlib import cm
+from matplotlib import colormaps as cm
 from plot_msht import build_n3lo_var, n3lo_vars_dict
 from splitting_function_utils import compute_a_s, splitting_function
 
@@ -63,7 +63,9 @@ def plot_ad(entry, q2=None, nf=4, logscale=True, plot_totu=True, plot_scaling=Fa
     mhou_nnlo = compute_mhou(g_low, g_hig, g_nnlo, q2, xif2_low, xif2_hig, 2, nf)
     mhou_n3lo = compute_mhou(g_low, g_hig, g_n3lo, q2, xif2_low, xif2_hig, 3, nf)
 
-    ax.plot(grid, g_n3lo, label="N3LO ((MHOU) + IHOU)" if plot_totu else "N3LO (MHOU)")
+    ax.plot(
+        grid, g_n3lo, label="aN3LO ((MHOU) + IHOU)" if plot_totu else "aN3LO (MHOU)"
+    )
     ax.fill_between(
         grid,
         g_n3lo - mhou_n3lo,
@@ -274,13 +276,13 @@ def plot_ad_ratio(entry, q2=None, nf=4, plot_totu=False):
 if __name__ == "__main__":
     for k in ["qg", "gq", "gg", "qq"]:
         # linear plots
-        q2_ref = 38.5  # chosen such that a_s(Q2) \approx 0.2
-        nf_ref = 5
+        q2_ref = 37  # chosen such that a_s(Q2) \approx 0.2
+        nf_ref = 4
         plot_totu = True
         x_grid = lambertgrid(80, x_min=1e-2)
         # plot_ad(k, q2=q2_ref, nf=nf_ref, logscale=False, plot_totu=plot_totu)
         plot_ad_ratio(k, q2=q2_ref, nf=nf_ref, plot_totu=plot_totu)
 
         # log plots
-        x_grid = lambertgrid(80, x_min=1e-7)
+        x_grid = lambertgrid(80, x_min=1e-5)
         plot_ad(k, q2=q2_ref, nf=nf_ref, plot_scaling=True, plot_totu=plot_totu)

@@ -84,18 +84,18 @@ def apply_pdf_flavor(
 
     # build output
     out_grid = {}
-    for (mu2, nf), elem in eko.items():
+    for ep, elem in eko.items():
         pdf_final = np.einsum(CONTRACTION, elem.operator, pdfs, optimize="optimal")
         if elem.error is not None:
             error_final = np.einsum(CONTRACTION, elem.error, pdfs, optimize="optimal")
         else:
             error_final = None
-        out_grid[mu2] = {
+        out_grid[ep] = {
             "pdfs": dict(zip(eko.bases.targetpids, pdf_final)),
             "errors": None,
         }
         if error_final is not None:
-            out_grid[mu2]["errors"] = dict(zip(eko.bases.targetpids, error_final))
+            out_grid[ep]["errors"] = dict(zip(eko.bases.targetpids, error_final))
 
     # rotate to evolution basis
     if flavor_rotation is not None:

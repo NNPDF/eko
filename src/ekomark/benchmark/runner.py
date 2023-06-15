@@ -245,9 +245,15 @@ class Runner(BenchmarkRunner):
                 flavor_rotation=rotate_to_evolution,
                 qed=qed,
             )
-        for (q2, ref_pdfs), (q2a, res) in zip(ext["values"].items(), pdf_grid.items()):
-            np.testing.assert_allclose(q2, q2a)
+        for q2, ref_pdfs in ext["values"].items():
             log_tab = dfdict.DFdict()
+            # find the first hit, regardless of the flavor, since others can not deal with them appearing in parallel
+            eps = [ep for ep in pdf_grid.keys() if np.isclose(ep[0], q2)]
+            if len(eps) != 1:
+                if len(eps) == 0:
+                    raise KeyError(f"PDF at Q2={q2} not found")
+                raise KeyError(f"More than one evolution point found for Q2={q2}")
+            res = pdf_grid[eps[0]]
             my_pdfs = res["pdfs"]
             my_pdf_errs = res["errors"]
 

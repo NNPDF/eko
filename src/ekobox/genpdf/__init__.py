@@ -220,10 +220,11 @@ def generate_block(
     xfxQ2: Callable, xgrid: List[float], evolgrid: List[EPoint], pids: List[int]
 ) -> dict:
     """Generate an LHAPDF data block from a callable."""
-    block: dict = dict(mu2grid=[mu2 for mu2, _ in evolgrid], pids=pids, xgrid=xgrid)
+    sorted_q2grid = [float(q2) for q2, _ in np.sort(evolgrid, axis=0)]
+    block: dict = dict(mu2grid=sorted_q2grid, pids=pids, xgrid=xgrid)
     data = []
     for x in xgrid:
-        for mu2, _ in evolgrid:
+        for mu2 in sorted_q2grid:
             data.append(np.array([xfxQ2(pid, x, mu2) for pid in pids]))
     block["data"] = np.array(data)
     return block

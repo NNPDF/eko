@@ -44,6 +44,7 @@ def test_generate_block():
     assert sorted(b.keys()) == sorted(["data", "mu2grid", "xgrid", "pids"])
     assert isinstance(b["data"], np.ndarray)
     assert b["data"].shape == (len(xg) * len(mu2s), len(pids))
+    assert b["mu2grid"] == sorted(b["mu2grid"])
 
 
 def test_install_pdf(fake_lhapdf, cd):

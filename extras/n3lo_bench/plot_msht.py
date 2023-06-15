@@ -108,7 +108,7 @@ def plot_ad(
         alpha=0.2,
     )
 
-    ax.plot(grid, g_n3lo, label="N3LO")
+    ax.plot(grid, g_n3lo, label="aN3LO")
     if show_candidates:
         for var in g_n3lo_var:
             ax.plot(grid, g_nnlo + var * a_s**4, alpha=0.5, color="#D62828")
@@ -200,5 +200,5 @@ if __name__ == "__main__":
         # plot_ad(k, logscale=False)
 
         # log plots
-        x_grid = lambertgrid(60, x_min=1e-7)
+        x_grid = lambertgrid(60, x_min=1e-5)
         plot_ad(k, plot_scaling=True)
