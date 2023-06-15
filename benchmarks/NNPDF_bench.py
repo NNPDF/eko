@@ -72,7 +72,7 @@ class BenchmarkNNPDF31_luxqed(BenchmarkNNPDF):
             "QED": 2,
             "Q0": Q0,
         }
-        theory_card.update({"ModEv": "iterate-exact", "FNS": "VFNS", "QrefQED": 91.2})
+        theory_card.update({"ModEv": "iterate-exact", "FNS": "VFNS", "Qedref": 91.2})
 
         self.skip_pdfs = lambda _theory: [
             -6,

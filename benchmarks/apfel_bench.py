@@ -202,7 +202,7 @@ class BenchmarkFFNS_qed(ApfelBenchmark):
 
     ffns_theory = {
         "Qref": 91.1870,
-        "QrefQED": 91.1870,
+        "Qedref": 91.1870,
         "mc": 1.3,
         "mb": 4.75,
         "mt": 172.0,
@@ -281,7 +281,7 @@ class BenchmarkVFNS_qed(ApfelBenchmark):
 
     vfns_theory = {
         "Qref": 91.1870,
-        "QrefQED": 91.1870,
+        "Qedref": 91.1870,
         "mc": 1.3,
         "mb": 4.75,
         "mt": 172.0,

@@ -173,11 +173,16 @@ class Legacy:
 
         new["order"] = [old["PTO"] + 1, old["QED"]]
         alphaem = self.fallback(old.get("alphaqed"), old.get("alphaem"), default=0.0)
+        if "Qedref" in old:
+            em_running = bool(np.isclose(old["Qedref"], old["Qref"]))
+        else:
+            em_running = False
         ms = self.heavies("m%s", old)
         ks = self.heavies("k%sThr", old)
         new["couplings"] = dict(
             alphas=old["alphas"],
             alphaem=alphaem,
+            em_running=em_running,
             scale=old["Qref"],
             num_flavs_ref=old["nfref"],
             max_num_flavs=old["MaxNfAs"],
