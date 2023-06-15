@@ -139,7 +139,7 @@ files = [
 
 [[package]]
 name = "banana-hep"
-version = "0.6.8"
+version = "0.6.9"
 description = "Benchmark QCD physics"
 category = "main"
 optional = true
