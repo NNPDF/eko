@@ -36,10 +36,9 @@ def test_genpdf_exceptions(tmp_path, cd):
 
 def test_generate_block():
     xg = np.linspace(0.0, 1.0, 5)
-    mu2s = np.geomspace(1.0, 1e3, 5)
-    evolgrid = flavored_mugrid(mu2s.tolist(), MASSES, [1.0, 1.0, 1.0])
+    mu2s = np.geomspace(1.0, 1e3, 5).tolist()
     pids = np.arange(3)
-    b = genpdf.generate_block(lambda pid, x, q2: pid * x * q2, xg, evolgrid, pids)
+    b = genpdf.generate_block(lambda pid, x, q2: pid * x * q2, xg, mu2s, pids)
     assert isinstance(b, dict)
     assert sorted(b.keys()) == sorted(["data", "mu2grid", "xgrid", "pids"])
     assert isinstance(b["data"], np.ndarray)
