@@ -47,6 +47,7 @@ def test_runcards_opcard():
     np.testing.assert_allclose(no.mu0, tc["Q0"])
     np.testing.assert_allclose(no.mu20, tc["Q0"] ** 2.0)
     assert len(no.pids) == 14
+    check_dumpable(no)
     del oc["mugrid"]
     # or mu2grid
     oc["mu2grid"] = [9.0, 30.0, 32.0]
@@ -57,6 +58,7 @@ def test_runcards_opcard():
     assert no.evolgrid[0][-1] == 4
     assert no.evolgrid[1][-1] == 5
     assert no.evolgrid[2][-1] == 5
+    check_dumpable(no)
     del oc["mu2grid"]
     # or Q2grid
     oc["Q2grid"] = [15.0, 130.0, 140.0, 1e5]
@@ -68,6 +70,15 @@ def test_runcards_opcard():
     assert no.evolgrid[1][-1] == 5
     assert no.evolgrid[2][-1] == 5
     assert no.evolgrid[3][-1] == 6
+    check_dumpable(no)
+
+
+def check_dumpable(no):
+    """Check we can write and read to yaml."""
+    so = StringIO()
+    yaml.dump(no.raw, so)
+    so.seek(0)
+    noo = yaml.safe_load(so)
 
 
 def test_runcards_ekomark():

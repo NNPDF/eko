@@ -225,7 +225,7 @@ class Legacy:
             mugrid = old["mugrid"]
         else:
             mu2grid = old["Q2grid"] if "Q2grid" in old else old["mu2grid"]
-            mugrid = np.sqrt(mu2grid)
+            mugrid = np.sqrt(mu2grid).tolist()
         new["mugrid"] = flavored_mugrid(
             mugrid,
             list(self.heavies("m%s", old_th)),
@@ -314,7 +314,7 @@ def flavored_mugrid(mugrid: list, masses: list, matching_ratios: list):
 
     """
     atlas = default_atlas(masses, matching_ratios)
-    return [(float(mu), nf_default(mu**2, atlas)) for mu in mugrid]
+    return [(mu, nf_default(mu**2, atlas)) for mu in mugrid]
 
 
 # TODO: move to a more suitable place
