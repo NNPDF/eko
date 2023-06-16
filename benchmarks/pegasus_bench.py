@@ -1,7 +1,6 @@
 """
 Benchmark to Pegasus :cite:`Vogt:2004ns`
 """
-from math import nan
 
 import numpy as np
 from banana import register
@@ -56,7 +55,7 @@ class BenchmarkVFNS(PegasusBenchmark):
         "kbThr": 1.0,
         "ktThr": 1.0,
         "Qref": np.sqrt(2.0),
-        "QrefQED": nan,
+        "Qedref": 0.0,
         "alphas": 0.35,
         "alphaqed": 0.007496,
         "QED": 0,
@@ -110,7 +109,7 @@ class BenchmarkFFNS(PegasusBenchmark):
         "kbThr": np.inf,
         "ktThr": np.inf,
         "Qref": np.sqrt(2.0),
-        "QrefQED": nan,
+        "Qedref": 0.0,
         "alphas": 0.35,
         "alphaqed": 0.007496,
         "Q0": np.sqrt(2.0),

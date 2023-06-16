@@ -220,7 +220,6 @@ class Runner(BenchmarkRunner):
         # return a proper log table
         log_tabs = {}
         xgrid = ext["target_xgrid"]
-        q2s = list(ext["values"].keys())
 
         # LHA NNLO VFNS needs a special treatment
         # Valence contains only u and d
@@ -246,9 +245,8 @@ class Runner(BenchmarkRunner):
                 flavor_rotation=rotate_to_evolution,
                 qed=qed,
             )
-        for q2 in q2s:
+        for q2, ref_pdfs in ext["values"].items():
             log_tab = dfdict.DFdict()
-            ref_pdfs = ext["values"][q2]
             # find the first hit, regardless of the flavor, since others can not deal with them appearing in parallel
             eps = [ep for ep in pdf_grid.keys() if np.isclose(ep[0], q2)]
             if len(eps) != 1:

@@ -1,5 +1,4 @@
 # pylint: skip-file
-from math import nan
 
 import numpy as np
 from banana import register
@@ -27,7 +26,7 @@ ffns4 = {
 }
 nnpdf_base_theory = {
     "Qref": 91.2,
-    "QrefQED": nan,
+    "Qedref": 0.0,
     "mc": 1.51,
     "mb": 4.92,
     "mt": 172.5,

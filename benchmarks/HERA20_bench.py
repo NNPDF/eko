@@ -2,7 +2,6 @@
 Benchmark HERAPDF2.0 pdf family
 
 """
-from math import nan
 
 from banana import register
 
@@ -14,7 +13,7 @@ register(__file__)
 
 base_theory = {
     "Qref": 91.1876,
-    "QrefQED": nan,
+    "Qedref": 0.0,
     "mc": 1.43,
     "mb": 4.5,
     "mt": 173.0,

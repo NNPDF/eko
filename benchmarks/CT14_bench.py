@@ -5,8 +5,6 @@ Benchmark CT14 pdf family
   whereas the lo family uses LO splitting functions with NLO alphas evolution
 """
 
-from math import nan
-
 from banana import register
 
 from ekomark.benchmark.runner import Runner
@@ -16,7 +14,7 @@ register(__file__)
 
 base_theory = {
     "Qref": 91.1876,
-    "QrefQED": nan,
+    "Qedref": 0.0,
     "mc": 1.3,
     "mb": 4.75,
     "mt": 172,
