@@ -40,6 +40,7 @@ def take_data(
         xgrid = np.geomspace(1e-9, 1, 240)
     if evolgrid is None:
         evolgrid = [(mu2, 0) for mu2 in np.geomspace(1.3, 1e5, 35)]
+    sorted_q2grid = [float(q2) for q2, _ in np.sort(evolgrid, axis=0)]
     # collect blocks
     all_blocks = []
     info = None
@@ -59,7 +60,11 @@ def take_data(
             else:
                 toylh = toy.mkPDF("", 0)
             all_blocks.append(
-                [generate_block(toylh.xfxQ2, xgrid, evolgrid, br.flavor_basis_pids)]
+                [
+                    generate_block(
+                        toylh.xfxQ2, xgrid, sorted_q2grid, br.flavor_basis_pids
+                    )
+                ]
             )
 
         else:
@@ -80,7 +85,7 @@ def take_data(
                     if pid not in parent_pdf_set
                     else parent_pdf_set[pid](x, Q2),
                     xgrid,
-                    evolgrid,
+                    sorted_q2grid,
                     br.flavor_basis_pids,
                 )
             ]
@@ -217,10 +222,9 @@ def install_pdf(name):
 
 
 def generate_block(
-    xfxQ2: Callable, xgrid: List[float], evolgrid: List[EPoint], pids: List[int]
+    xfxQ2: Callable, xgrid: List[float], sorted_q2grid: List[float], pids: List[int]
 ) -> dict:
     """Generate an LHAPDF data block from a callable."""
-    sorted_q2grid = [float(q2) for q2, _ in np.sort(evolgrid, axis=0)]
     block: dict = dict(mu2grid=sorted_q2grid, pids=pids, xgrid=xgrid)
     data = []
     for x in xgrid:

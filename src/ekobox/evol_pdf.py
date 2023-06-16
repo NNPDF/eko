@@ -80,11 +80,17 @@ def evolve_pdfs(
     targetlist = targetgrid.raw.tolist()
     for evolved_PDF in evolved_PDF_list:
         all_blocks = []
+        evolved_PDF_q2 = {q2: val for (q2, _), val in evolved_PDF.items()}
+        sorted_q2grid = [
+            float(q2) for q2, _ in np.sort(operators_card.evolgrid, axis=0)
+        ]
         block = genpdf.generate_block(
-            lambda pid, x, Q2, evolved_PDF=evolved_PDF: targetlist[targetlist.index(x)]
+            lambda pid, x, Q2, evolved_PDF=evolved_PDF_q2: targetlist[
+                targetlist.index(x)
+            ]
             * evolved_PDF[Q2]["pdfs"][pid][targetlist.index(x)],
             xgrid=targetlist,
-            evolgrid=operators_card.evolgrid,
+            sorted_q2grid=sorted_q2grid,
             pids=np.array(br.flavor_basis_pids),
         )
         # all_blocks will be useful in case there will be necessity to dump many blocks
