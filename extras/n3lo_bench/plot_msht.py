@@ -15,7 +15,7 @@ plt.style.use(utils.load_style())
 
 n3lo_vars_dict = {
     "qq": 8,
-    "gg": 18,
+    "gg": 17,
     "gq": 24,
     "qg": 20,
 }
@@ -33,42 +33,77 @@ def build_n3lo_var(entry, idx):
     return (0, 0, 0, 0)
 
 
-def msht_splitting(entry, x, nf):
+def msht_splitting(entry, x, nf, posterior):
     if entry == "gg":
-        a1, a2 = -5, 15
-        return msht.pgg3a(x, a1), msht.pgg3a(x, a2)
+        if posterior:
+            a0, a1, a2 = 19.245, 9.025, 21.505
+        else:
+            a1, a2 = 5, 15
+            a0 = (a1 + a2) / 2
+        return msht.pgg3a(x, a0), msht.pgg3a(x, a1), msht.pgg3a(x, a2)
     if entry == "gq":
-        a1, a2 = -1.8, -1.5
-        # val = - (106911.99053742114 + 996.3830436187579 * 4)/ (4 * np.pi )**4 * CF/CA
-        # a1, a2 = val - 0.5, val +0.5
-        # a1, a2 = -1.5, -1.2
-        return msht.pgq3a(x, a1), msht.pgq3a(x, a2)
+        if posterior:
+            a0, a1, a2 = -1.784, -2.212, -1.548
+        else:
+            a1, a2 = -1.8, -1.5
+            a0 = (a1 + a2) / 2
+            # val = - (106911.99053742114 + 996.3830436187579 * 4)/ (4 * np.pi )**4 * CF/CA
+            # a1, a2 = val - 0.5, val +0.5
+            # a1, a2 = -1.5, -1.2
+            # a0 = (a1 + a2)/2
+        return msht.pgq3a(x, a0), msht.pgq3a(x, a1), msht.pgq3a(x, a2)
     if entry == "qg":
-        a1, a2 = -2.5, -0.8
-        # a1, a2 =  -0.7 * CA / CF, 0
-        return nf * msht.pqg3a(x, a1), nf * msht.pqg3a(x, a2)
+        if posterior:
+            a0, a1, a2 = -1.754, -1.897, -1.157
+        else:
+            a1, a2 = -2.5, -0.8
+            a0 = (a1 + a2) / 2
+        #   a1, a2 =  -0.7 * CA / CF, 0
+        return nf * msht.pqg3a(x, a0), nf * msht.pqg3a(x, a1), nf * msht.pqg3a(x, a2)
     if entry == "qq":
-        aps1, aps2 = -0.7, 0
-        ans1, ans2 = 0, 0.014
-        qqps = np.array([msht.pqqps3a(x, aps1), msht.pqqps3a(x, aps2)])
-        qqns = np.array([msht.p3nsa(x, ans1, 1, nf), msht.p3nsa(x, ans2, 1, nf)])
+        if posterior:
+            aps0, aps1, aps2 = -0.501, -0.644, -0.254
+            ans0, ans1, ans2 = 0.007, -0.002, 0.015
+        else:
+            aps1, aps2 = -0.7, 0
+            ans1, ans2 = 0, 0.014
+            aps0 = (aps1 + aps2) / 2
+            ans0 = (ans1 + ans2) / 2
+        qqps = np.array(
+            [msht.pqqps3a(x, aps0), msht.pqqps3a(x, aps1), msht.pqqps3a(x, aps2)]
+        )
+        qqns = np.array(
+            [
+                msht.pqqps3a(x, ans0),
+                msht.p3nsa(x, ans1, 1, nf),
+                msht.p3nsa(x, ans2, 1, nf),
+            ]
+        )
         qq = nf * qqps + qqns
-        return qq[0], qq[1]
+        return qq[0], qq[1], qq[2]
     raise ValueError(f"Entry not found {entry}")
 
 
-def msht_splitting_xpx(entry, grid, nf):
+def msht_splitting_xpx(entry, grid, nf, posterior):
+    msht_grid_central = []
     msht_grid_min = []
     msht_grid_max = []
     for x in grid:
-        g1, g2 = msht_splitting(entry, x, nf)
+        g0, g1, g2 = msht_splitting(entry, x, nf, posterior)
+        msht_grid_central.append(x * g0)
         msht_grid_min.append(x * g1)
         msht_grid_max.append(x * g2)
-    return np.array(msht_grid_min), np.array(msht_grid_max)
+    return np.array(msht_grid_central), np.array(msht_grid_min), np.array(msht_grid_max)
 
 
 def plot_ad(
-    entry, q2=None, nf=4, logscale=True, show_candidates=False, plot_scaling=False
+    entry,
+    q2=None,
+    nf=4,
+    logscale=True,
+    show_candidates=False,
+    plot_scaling=False,
+    posterior=False,
 ):
     fig = plt.figure(figsize=(7, 5))
     gs = fig.add_gridspec(5, 1)
@@ -93,13 +128,12 @@ def plot_ad(
     g_n3lo_min = g_n3lo - g_n3lo_var.std(axis=0) * a_s**4
     g_n3lo_max = g_n3lo + g_n3lo_var.std(axis=0) * a_s**4
 
-    g_msht_n3lo_min, g_msht_n3lo_max = msht_splitting_xpx(entry, grid, nf)
-    g_msht_n3lo = (g_msht_n3lo_min + g_msht_n3lo_max) / 2
-
+    g_msht_n3lo, g_msht_n3lo_min, g_msht_n3lo_max = msht_splitting_xpx(
+        entry, grid, nf, posterior=False
+    )
     g_msht_n3lo_min = g_msht_n3lo_min * a_s**4 + g_nnlo
     g_msht_n3lo_max = g_msht_n3lo_max * a_s**4 + g_nnlo
     g_msht_n3lo = g_msht_n3lo * a_s**4 + g_nnlo
-
     ax.plot(grid, g_msht_n3lo, label="MSHTaN3LO")
     ax.fill_between(
         grid,
@@ -117,6 +151,20 @@ def plot_ad(
             grid,
             g_n3lo_min,
             g_n3lo_max,
+            alpha=0.2,
+        )
+    if posterior:
+        g_msht_n3lo, g_msht_n3lo_min, g_msht_n3lo_max = msht_splitting_xpx(
+            entry, grid, nf, posterior
+        )
+        g_msht_n3lo_min = g_msht_n3lo_min * a_s**4 + g_nnlo
+        g_msht_n3lo_max = g_msht_n3lo_max * a_s**4 + g_nnlo
+        g_msht_n3lo = g_msht_n3lo * a_s**4 + g_nnlo
+        ax.plot(grid, g_msht_n3lo, label="MSHTaN3LO (posterior)")
+        ax.fill_between(
+            grid,
+            g_msht_n3lo_min,
+            g_msht_n3lo_max,
             alpha=0.2,
         )
     ax.plot(grid, g_nnlo, linestyle="dashed", label="NNLO")
@@ -184,21 +232,24 @@ def plot_ad(
 
     # save
     plt.tight_layout()
-    pathlib.Path(utils.here / "compare_msht").mkdir(parents=True, exist_ok=True)
+    folder = "compare_msht"
+    if posterior:
+        folder += "_posterior"
+    pathlib.Path(utils.here / folder).mkdir(parents=True, exist_ok=True)
     if logscale and not show_candidates:
-        plt.savefig(f"compare_msht/gamma_{entry}_msht_logx.pdf")
+        plt.savefig(f"{folder}/gamma_{entry}_msht_logx_new.pdf")
     elif show_candidates:
-        plt.savefig(f"compare_msht/gamma_{entry}_msht_rep.pdf")
+        plt.savefig(f"{folder}/gamma_{entry}_msht_rep.pdf")
     else:
-        plt.savefig(f"compare_msht/gamma_{entry}_msht_linx.pdf")
+        plt.savefig(f"{folder}/gamma_{entry}_msht_linx.pdf")
 
 
 if __name__ == "__main__":
-    for k in ["qg", "gq", "gg", "qq"]:
+    for k in ["gg"]:  # ["qg", "gq", "gg", "qq"]:
         # linear plots
-        x_grid = lambertgrid(60, x_min=1e-2)
-        # plot_ad(k, logscale=False)
+        # x_grid = lambertgrid(60, x_min=1e-2)
+        # plot_ad(k, logscale=False, posterior=True)
 
         # log plots
-        x_grid = lambertgrid(60, x_min=1e-5)
-        plot_ad(k, plot_scaling=True)
+        x_grid = lambertgrid(60, x_min=1e-6)
+        plot_ad(k, plot_scaling=True, posterior=True)
