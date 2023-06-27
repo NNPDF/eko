@@ -231,9 +231,9 @@ The other parts are approximated using some known limits:
             .. math ::
                 \gamma_{kk} \approx A^{(r)}_4 S_1(N) + B^{(r)}_4 + C^{(r)}_4 \frac{S_1(N)}{N} + \mathcal{O}(\frac{1}{N})
 
-        Where again the coefficient :math:`A^{(r)}_4` is the |QCD| cusp anomalous dimension for the adjoint or fundamental representation.
-        Again the coefficient :math:`B^{(r)}_4` has been extracted from soft anomalous dimensions :cite:`Duhr:2022cob`.
-        While :math:`C^{(r)}_4`can be estimate from lower order :cite:`Dokshitzer:2005bf`.
+        Where again the coefficient :math:`A^{(r)}_4` is the |QCD| cusp anomalous dimension for the adjoint or fundamental representation,
+        the coefficient :math:`B^{(r)}_4` has been extracted from soft anomalous dimensions :cite:`Duhr:2022cob`.
+        and :math:`C^{(r)}_4`can be estimate from lower orders :cite:`Dokshitzer:2005bf`.
         However, :math:`\gamma_{qq,ps}^{(3)}` do not constrain any divergence at large-x or constant term so its expansion starts as
         :math:`\mathcal{O}(\frac{1}{N^2})`.
         The off-diagonal do not contain any +-distributions or delta distributions but can include divergent logarithms
