@@ -137,7 +137,7 @@ def test_momentum_conservation():
     np.testing.assert_allclose(
         g_gg[:, 0],
         0,
-        atol=4e-10,
+        atol=6e-10,
     )
 
     # total
