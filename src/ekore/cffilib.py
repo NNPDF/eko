@@ -2,18 +2,18 @@
 from cffi import FFI
 
 ffi = FFI()
-cernlibc = ffi.dlopen("./cernlibc.so")
+cernlibc = ffi.dlopen("./cernlibc2.so")
 
 ffi.cdef(
     """
-int cern_polygamma(const double re_in, const double im_in, const unsigned int K, void* re_out, void* im_out);
-double getdouble(void* ptr);
+int c_cern_polygamma(const double re_in, const double im_in, const unsigned int K, void* re_out, void* im_out);
+double c_getdouble(void* ptr);
 """
 )
 
 # we need to "activate" the actual function first
-c_cern_polygamma = cernlibc.cern_polygamma
-c_getdouble = cernlibc.getdouble
+c_cern_polygamma = cernlibc.c_cern_polygamma
+c_getdouble = cernlibc.c_getdouble
 
 # allocate the pointers and get their addresses
 re_y = ffi.new("double*")

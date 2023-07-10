@@ -1,14 +1,7 @@
-// gcc -shared -o cernlibc.so -fPIC cern_polygamma.c
+#include <complex>
+#include <exception>
 
-#include <math.h>
-#include <complex.h>
-
-double getdouble(double* ptr) {
-    return *ptr;
-}
-
-int cern_polygamma(const double re_in, const double im_in, const unsigned int K, double* re_out, double* im_out) {
-    const double _Complex Z = re_in + im_in * _Complex_I;
+std::complex<double> cern_polygamma(const std::complex<double> Z, const unsigned int K) {
     const double DELTA = 5e-13;
     const double R1 = 1;
     const double HF = R1/2;
@@ -58,60 +51,55 @@ int cern_polygamma(const double re_in, const double im_in, const unsigned int K,
            },
            {10., -7., 12., -33., 130., -691.}
     };
-    double _Complex U=Z;
-    double X=creal(U);
-    double A=cabs(X);
+    std::complex<double> U=Z;
+    double X=U.real();
+    double A=abs(X);
     if (K < 0 || K > 4)
-        return -1;
-    //     raise NotImplementedError("Order K has to be in [0:4]")
+        throw std::invalid_argument("Order K has to be in [0:4]");
     const int A_as_int = A;
-    if (cabs(cimag(U)) < DELTA && cabs(X+A_as_int) < DELTA)
-        return -2;
-    //     raise ValueError("Argument Z equals non-positive integer")
+    if (abs(U.imag()) < DELTA && abs(X+A_as_int) < DELTA)
+        throw std::invalid_argument("Argument Z equals non-positive integer");
     const unsigned int K1=K+1;
     if (X < 0)
          U=-U;
-    double _Complex V=U;
-    double _Complex H=0;
+    std::complex<double> V=U;
+    std::complex<double> H=0;
     if (A < 15) {
-        H=1/cpow(V,K1);
+        H=1./pow(V,K1);
         for (int i = 1; i < 14 - A_as_int + 1 ; ++i) {
-            V=V+1;
-            H=H+1/cpow(V,K1);
+            V=V+1.;
+            H=H+1./pow(V,K1);
         }
-        V=V+1;
+        V=V+1.;
     }
-    double _Complex R=1/cpow(V,2);
-    double _Complex P=R*C[K][6-1];
+    std::complex<double> R=1./pow(V,2);
+    std::complex<double> P=R*C[K][6-1];
     for (int i = 5; i>1-1; i--)
          P=R*(C[K][i-1]+P);
-    H=SGN[K]*(FCT[K+1]*H+(V*(FCT[K-1+1]+P)+HF*FCT[K+1])/cpow(V,K1));
+    H=SGN[K]*(FCT[K+1]*H+(V*(FCT[K-1+1]+P)+HF*FCT[K+1])/pow(V,K1));
     if (0 == K)
-        H=H+clog(V);
+        H=H+log(V);
     if (X < 0){
         V=M_PI*U;
-        X=creal(V);
-        const double Y=cimag(V);
+        X=V.real();
+        const double Y=V.imag();
         const double A=sin(X);
         const double B=cos(X);
         const double T=tanh(Y);
-        P=(B-A*T*_Complex_I)/(A+B*T*_Complex_I);
+        P=std::complex<double>(B,-A*T)/std::complex<double>(A,+B*T);
         if (0 == K)
-            H=H+1/U+M_PI*P;
+            H=H+1./U+M_PI*P;
         else if (1 == K)
-            H=-H+1/cpow(U,2)+C1*(cpow(P,2)+1);
+            H=-H+1./pow(U,2)+C1*(pow(P,2)+1.);
         else if (2 == K)
-            H=H+2/cpow(U,3)+C2*P*(cpow(P,2)+1);
+            H=H+2./pow(U,3)+C2*P*(pow(P,2)+1.);
         else if (3 == K) {
-            R=cpow(P,2);
-            H=-H+6/cpow(U,4)+C3*((3*R+4)*R+1);
+            R=pow(P,2);
+            H=-H+6./pow(U,4)+C3*((3.*R+4.)*R+1.);
         } else if (4 == K) {
-            R=cpow(P,2);
-            H=H+24/cpow(U,5)+C4*P*((3*R+5)*R+2);
+            R=pow(P,2);
+            H=H+24./pow(U,5)+C4*P*((3.*R+5.)*R+2.);
         }
     }
-    //return creal(H);
-    *re_out = creal(H);
-    *im_out = cimag(H);
-    return 0;
+    return H;
 }
