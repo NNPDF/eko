@@ -1,6 +1,19 @@
+#ifndef EKOREPP_HARMONICS_POLYGAMMA_HPP_
+#define EKOREPP_HARMONICS_POLYGAMMA_HPP_
+
 #include <complex>
 #include <exception>
 
+namespace ekorepp {
+namespace harmonics {
+
+/**
+ * @brief Compute the polygamma functions :math:`\psi_k(z)`.
+ * Reimplementation of ``WPSIPG`` (C317) in `CERNlib <http://cernlib.web.cern.ch/cernlib/>`_ :cite:`KOLBIG1972221`.
+ * @param Z argument of polygamma function
+ * @param K order of polygamma function
+ * @return k-th polygamma function :math:`\psi_k(z)`
+ */
 std::complex<double> cern_polygamma(const std::complex<double> Z, const unsigned int K) {
     const double DELTA = 5e-13;
     const double R1 = 1;
@@ -103,3 +116,15 @@ std::complex<double> cern_polygamma(const std::complex<double> Z, const unsigned
     }
     return H;
 }
+
+std::complex<double> recursive_harmonic_sum(const std::complex<double> base_value, const std::complex<double> n, const unsigned int iterations, const unsigned int weight) {
+    std::complex<double> fact = 0.0;
+    for (unsigned int i = 1; i <= iterations + 1; ++i)
+        fact += pow(1.0 / (n + double(i)), weight);
+    return base_value + fact;
+}
+
+} // namespace harmonics
+} // namespace ekorepp
+
+#endif // EKOREPP_HARMONICS_POLYGAMMA_HPP_

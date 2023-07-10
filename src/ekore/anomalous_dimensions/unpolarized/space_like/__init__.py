@@ -20,8 +20,35 @@ import numpy as np
 
 from eko import constants
 
+from ....cffilib import (
+    c_ad_us_gamma_ns,
+    c_getdouble,
+    im_double_3_address,
+    re_double_3_address,
+)
 from ....harmonics import cache as c
 from . import aem1, aem2, as1, as1aem1, as2, as3, as4
+
+
+@nb.njit()
+def c_gamma_ns(order, mode, n, nf):
+    """Compute gamma_ns from C."""
+    # bypass complex and pointers
+    res = c_ad_us_gamma_ns(
+        order[0],
+        mode,
+        np.real(n),
+        np.imag(n),
+        nf,
+        re_double_3_address,
+        im_double_3_address,
+    )
+    gamma_ns = np.zeros(order[0], np.complex_)
+    for j in range(order[0]):
+        gamma_ns[j] = (
+            c_getdouble(re_double_3_address) + c_getdouble(im_double_3_address) * 1j
+        )
+    return gamma_ns
 
 
 @nb.njit(cache=True)
