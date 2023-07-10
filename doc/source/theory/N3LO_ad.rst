@@ -316,7 +316,7 @@ final reduced sets of candidates.
         *   - :math:`f_2(N)`
             - :math:`\frac{1}{N}`
         *   - :math:`f_3(N)`
-            - :math:`\frac{1}{N-1},\ \frac{1}{N}`
+            - :math:`\frac{1}{N-1},\ \frac{S_1(N)}{N^2}`
         *   - :math:`f_4(N)`
             - :math:`\frac{1}{N-1},\ \frac{1}{N^4},\ \frac{1}{N^3},\ \frac{1}{N^2},\ \frac{1}{(N+1)^3},\ \frac{1}{(N+1)^2},\ \frac{1}{N+1},\ \frac{1}{N+2},\ \mathcal{M}[(1-x)\ln(1-x)],\ \frac{S_1(N)}{N^2}, \ \mathcal{M}[(1-x)^2\ln(1-x)],`
 
@@ -333,7 +333,7 @@ final reduced sets of candidates.
             - :math:`\frac{1}{N-1},\ \frac{1}{N^4},\ \frac{1}{N^3},\ \frac{1}{N^2},\ \frac{1}{N},\ \frac{1}{(N+1)^3},\ \frac{1}{(N+1)^2},\ \frac{1}{N+1},\ \frac{1}{N+2},\ \frac{S_1(N-2)}{N},\ \mathcal{M}[\ln^3(1-x)],\ \mathcal{M}[\ln^2(1-x)], \frac{S_1(N)}{N},\ \frac{S_1^2(N)}{N}`
 
     Note that this table refers only to the :math:`n_f^0` part where we assume no violation of the scaling with :math:`\gamma_{gg}`
-    also for the |NLL| term, to help the convergence. We expect that any possible deviation can be parametrized as a shift in he |NNLL| terms
+    also for the |NLL| term, to help the convergence. We expect that any possible deviation can be parametrized as a shift in the |NNLL| terms
     and in the |NLL| :math:`n_f^1` which are free to vary independently.
     Furthermore for the part :math:`\propto n_f^2` we adopt a slightly different
     basis to account fot the fact that the leading
@@ -366,9 +366,9 @@ and following :cite:`Falcioni:2023luc` we use:
             - :math:`\frac{1}{(N-1)^2} + \frac{1}{N^2}`
         *   - :math:`f_2(N)`
             - :math:`\mathcal{M}[(1-x)\ln^2(1-x)]`
-        *   - :math:`f_3(N)`
+        *   - :math:`f_{3,\dots,8}(N)`
             - :math:`\frac{1}{N^4},\ \frac{1}{N^3},\ \mathcal{M}[(1-x)\ln(1-x)],\ \mathcal{M}[(1-x)^2\ln^2(1-x)],\ \mathcal{M}[(1-x)^2\ln(1-x)],\ \frac{1}{N-1}-\frac{1}{N}`
-        *   - :math:`f_4(N)`
+        *   - :math:`f_{9,10}(N)`
             - :math:`\mathcal{M}[(1-x)\ln(x)],\ \mathcal{M}[(1-x)(1+2x)],\ \mathcal{M}[(1-x)x^2],\ \mathcal{M}[(1-x)x (1+x)],\ \mathcal{M}[(1-x)]`
 
 
