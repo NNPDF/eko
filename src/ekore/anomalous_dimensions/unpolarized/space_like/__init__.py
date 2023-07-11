@@ -22,9 +22,12 @@ from eko import constants
 
 from ....cffilib import (
     c_ad_us_gamma_ns,
+    c_ad_us_gamma_singlet,
     c_getdouble,
-    im_double_3_address,
-    re_double_3_address,
+    im_double_4_address,
+    im_double_16_address,
+    re_double_4_address,
+    re_double_16_address,
 )
 from ....harmonics import cache as c
 from . import aem1, aem2, as1, as1aem1, as2, as3, as4
@@ -40,15 +43,39 @@ def c_gamma_ns(order, mode, n, nf):
         np.real(n),
         np.imag(n),
         nf,
-        re_double_3_address,
-        im_double_3_address,
+        re_double_4_address,
+        im_double_4_address,
     )
     gamma_ns = np.zeros(order[0], np.complex_)
     for j in range(order[0]):
         gamma_ns[j] = (
-            c_getdouble(re_double_3_address) + c_getdouble(im_double_3_address) * 1j
+            c_getdouble(re_double_4_address + j * 8)
+            + c_getdouble(im_double_4_address + j * 8) * 1j
         )
     return gamma_ns
+
+
+@nb.njit()
+def c_gamma_singlet(order, n, nf):
+    """Compute gamma_singlet from C."""
+    # bypass complex and pointers
+    res = c_ad_us_gamma_singlet(
+        order[0],
+        np.real(n),
+        np.imag(n),
+        nf,
+        re_double_16_address,
+        im_double_16_address,
+    )
+    size = order[0] * 4
+    gamma_s = np.zeros(size, np.complex_)
+    for j in range(size):
+        gamma_s[j] = (
+            c_getdouble(re_double_16_address + j * 8)
+            + c_getdouble(im_double_16_address + j * 8) * 1j
+        )
+
+    return gamma_s.reshape(order[0], 2, 2)
 
 
 @nb.njit(cache=True)

@@ -3,6 +3,7 @@
 
 #include <complex>
 #include <exception>
+#include "../types.hpp"
 
 namespace ekorepp {
 namespace harmonics {
@@ -14,7 +15,7 @@ namespace harmonics {
  * @param K order of polygamma function
  * @return k-th polygamma function :math:`\psi_k(z)`
  */
-std::complex<double> cern_polygamma(const std::complex<double> Z, const unsigned int K) {
+cmplx cern_polygamma(const cmplx Z, const unsigned int K) {
     const double DELTA = 5e-13;
     const double R1 = 1;
     const double HF = R1/2;
@@ -64,7 +65,7 @@ std::complex<double> cern_polygamma(const std::complex<double> Z, const unsigned
            },
            {10., -7., 12., -33., 130., -691.}
     };
-    std::complex<double> U=Z;
+    cmplx U=Z;
     double X=U.real();
     double A=abs(X);
     if (K < 0 || K > 4)
@@ -75,8 +76,8 @@ std::complex<double> cern_polygamma(const std::complex<double> Z, const unsigned
     const unsigned int K1=K+1;
     if (X < 0)
          U=-U;
-    std::complex<double> V=U;
-    std::complex<double> H=0;
+    cmplx V=U;
+    cmplx H=0;
     if (A < 15) {
         H=1./pow(V,K1);
         for (int i = 1; i < 14 - A_as_int + 1 ; ++i) {
@@ -85,8 +86,8 @@ std::complex<double> cern_polygamma(const std::complex<double> Z, const unsigned
         }
         V=V+1.;
     }
-    std::complex<double> R=1./pow(V,2);
-    std::complex<double> P=R*C[K][6-1];
+    cmplx R=1./pow(V,2);
+    cmplx P=R*C[K][6-1];
     for (int i = 5; i>1-1; i--)
          P=R*(C[K][i-1]+P);
     H=SGN[K]*(FCT[K+1]*H+(V*(FCT[K-1+1]+P)+HF*FCT[K+1])/pow(V,K1));
@@ -99,7 +100,7 @@ std::complex<double> cern_polygamma(const std::complex<double> Z, const unsigned
         const double A=sin(X);
         const double B=cos(X);
         const double T=tanh(Y);
-        P=std::complex<double>(B,-A*T)/std::complex<double>(A,+B*T);
+        P=cmplx(B,-A*T)/cmplx(A,+B*T);
         if (0 == K)
             H=H+1./U+M_PI*P;
         else if (1 == K)
@@ -117,8 +118,8 @@ std::complex<double> cern_polygamma(const std::complex<double> Z, const unsigned
     return H;
 }
 
-std::complex<double> recursive_harmonic_sum(const std::complex<double> base_value, const std::complex<double> n, const unsigned int iterations, const unsigned int weight) {
-    std::complex<double> fact = 0.0;
+cmplx recursive_harmonic_sum(const cmplx base_value, const cmplx n, const unsigned int iterations, const unsigned int weight) {
+    cmplx fact = 0.0;
     for (unsigned int i = 1; i <= iterations + 1; ++i)
         fact += pow(1.0 / (n + double(i)), weight);
     return base_value + fact;
