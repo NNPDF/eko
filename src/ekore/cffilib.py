@@ -1,8 +1,11 @@
 """CFFI interface."""
+import numba as nb
+import numpy as np
+import numpy.typing as npt
 from cffi import FFI
 
 ffi = FFI()
-cernlibc = ffi.dlopen("./ekorepp.so")
+ekorepplibc = ffi.dlopen("./ekorepp.so")
 
 ffi.cdef(
     """
@@ -13,17 +16,27 @@ int c_ad_us_gamma_singlet(const unsigned int order_qcd, const double re_in, cons
 )
 
 # we need to "activate" the actual function first
-c_getdouble = cernlibc.c_getdouble
-c_ad_us_gamma_ns = cernlibc.c_ad_us_gamma_ns
-c_ad_us_gamma_singlet = cernlibc.c_ad_us_gamma_singlet
+c_getdouble = ekorepplibc.c_getdouble
+c_ad_us_gamma_ns = ekorepplibc.c_ad_us_gamma_ns
+c_ad_us_gamma_singlet = ekorepplibc.c_ad_us_gamma_singlet
 
 # allocate the pointers and get their addresses
-re_double_4 = ffi.new("double[4]")
-im_double_4 = ffi.new("double[4]")
-re_double_4_address = int(ffi.cast("uintptr_t", re_double_4))
-im_double_4_address = int(ffi.cast("uintptr_t", im_double_4))
+MAX_DOUBLES = 16
+_re_double = ffi.new(f"double[{MAX_DOUBLES}]")
+_im_double = ffi.new(f"double[{MAX_DOUBLES}]")
+re_double_address = int(ffi.cast("uintptr_t", _re_double))
+im_double_address = int(ffi.cast("uintptr_t", _im_double))
 
-re_double_16 = ffi.new("double[16]")
-im_double_16 = ffi.new("double[16]")
-re_double_16_address = int(ffi.cast("uintptr_t", re_double_16))
-im_double_16_address = int(ffi.cast("uintptr_t", im_double_16))
+
+@nb.njit()
+def read_complex(size: int) -> npt.ArrayLike:
+    """Read `size` complex numbers from C."""
+    if size > MAX_DOUBLES:
+        raise MemoryError("Not enough memory allocated")
+    res = np.zeros(size, np.complex_)
+    for j in range(size):
+        res[j] = (
+            c_getdouble(re_double_address + j * 8)
+            + c_getdouble(im_double_address + j * 8) * 1j
+        )
+    return res

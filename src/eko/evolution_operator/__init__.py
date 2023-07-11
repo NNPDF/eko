@@ -185,7 +185,7 @@ class QuadKerBase:
         return self.path.prefactor * pj * self.path.jac
 
 
-@nb.njit(cache=True)
+@nb.njit(cache=False)
 def quad_ker(
     u,
     order,
@@ -313,7 +313,7 @@ def quad_ker(
     return np.real(ker * integrand)
 
 
-@nb.njit(cache=True)
+@nb.njit(cache=False)
 def quad_ker_qcd(
     ker_base,
     order,
@@ -415,7 +415,7 @@ def quad_ker_qcd(
             if is_time_like:
                 gamma_ns = ad_ut.gamma_ns(order, mode0, ker_base.n, nf)
             else:
-                gamma_ns = ad_us.gamma_ns(order, mode0, ker_base.n, nf)
+                gamma_ns = ad_us.c_gamma_ns(order, mode0, ker_base.n, nf)
         if sv_mode == sv.Modes.exponentiated:
             gamma_ns = sv.exponentiated.gamma_variation(gamma_ns, order, nf, L)
         ker = ns.dispatcher(
@@ -863,6 +863,7 @@ class Operator(sv.ModeMixin):
         """
         column = []
         k, logx = log_grid
+        labels = self.labels
         start_time = time.perf_counter()
         # iterate basis functions
         for l, bf in enumerate(self.int_disp):
@@ -870,7 +871,7 @@ class Operator(sv.ModeMixin):
                 continue
             temp_dict = {}
             # iterate sectors
-            for label in self.labels:
+            for label in labels:
                 res = integrate.quad(
                     self.quad_ker(
                         label=label, logx=logx, areas=bf.areas_representation
