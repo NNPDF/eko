@@ -16,6 +16,12 @@ from scipy import integrate
 import ekore.anomalous_dimensions.polarized.space_like as ad_ps
 import ekore.anomalous_dimensions.unpolarized.space_like as ad_us
 import ekore.anomalous_dimensions.unpolarized.time_like as ad_ut
+from ekore.cffilib import (
+    c_quad_ker_qcd_ns,
+    im_double_address,
+    re_double_address,
+    read_complex,
+)
 
 from .. import basis_rotation as br
 from .. import interpolation, mellin
@@ -209,6 +215,7 @@ def quad_ker(
     n3lo_ad_variation,
     is_polarized,
     is_time_like,
+    quad_ker_qcd_ns_address,
 ):
     """Raw evolution kernel inside quad.
 
@@ -288,6 +295,7 @@ def quad_ker(
             is_polarized,
             is_time_like,
             n3lo_ad_variation,
+            quad_ker_qcd_ns_address,
         )
     else:
         ker = quad_ker_qed(
@@ -331,6 +339,7 @@ def quad_ker_qcd(
     is_polarized,
     is_time_like,
     n3lo_ad_variation,
+    quad_ker_qcd_ns_address,
 ):
     """Raw evolution kernel inside quad.
 
@@ -406,30 +415,124 @@ def quad_ker_qcd(
             ) @ np.ascontiguousarray(ker)
         ker = select_singlet_element(ker, mode0, mode1)
     else:
-        if is_polarized:
-            if is_time_like:
-                raise NotImplementedError("Polarized, time-like is not implemented")
-            else:
-                gamma_ns = ad_ps.gamma_ns(order, mode0, ker_base.n, nf)
-        else:
-            if is_time_like:
-                gamma_ns = ad_ut.gamma_ns(order, mode0, ker_base.n, nf)
-            else:
-                gamma_ns = ad_us.c_gamma_ns(order, mode0, ker_base.n, nf)
-        if sv_mode == sv.Modes.exponentiated:
-            gamma_ns = sv.exponentiated.gamma_variation(gamma_ns, order, nf, L)
-        ker = ns.dispatcher(
+        # if is_polarized:
+        #     if is_time_like:
+        #         raise NotImplementedError("Polarized, time-like is not implemented")
+        #     else:
+        #         gamma_ns = ad_ps.gamma_ns(order, mode0, ker_base.n, nf)
+        # else:
+        #     if is_time_like:
+        #         gamma_ns = ad_ut.gamma_ns(order, mode0, ker_base.n, nf)
+        #     else:
+        #         gamma_ns = ad_us.c_gamma_ns(order, mode0, ker_base.n, nf)
+        ker = quad_ker_qcd_ns(
             order,
-            method,
-            gamma_ns,
+            mode0,
+            ker_base.n,
+            nf,
+            quad_ker_qcd_ns_address,
+            L,
             as1,
             as0,
-            nf,
             ev_op_iterations,
+            is_threshold,
         )
-        if sv_mode == sv.Modes.expanded and not is_threshold:
-            ker = sv.expanded.non_singlet_variation(gamma_ns, as1, order, nf, L) * ker
     return ker
+
+
+@nb.cfunc(
+    nb.types.void(
+        nb.types.CPointer(nb.types.double),
+        nb.types.CPointer(nb.types.double),
+        nb.types.uint,
+        nb.types.uint,
+        nb.types.double,
+        nb.types.uint,
+        nb.types.double,
+        nb.types.double,
+        nb.types.uint,
+        nb.types.uint,
+        nb.types.bool_,
+        nb.types.CPointer(nb.types.double),
+        nb.types.CPointer(nb.types.double),
+    ),
+    cache=True,
+)
+def cb_quad_ker_qcd_ns(
+    re_gamma_ns_raw,
+    im_gamma_ns_raw,
+    order_qcd,
+    nf,
+    L,
+    _method_num,
+    as1,
+    as0,
+    ev_op_iterations,
+    _sv_mode_num,
+    is_threshold,
+    re_ker,
+    im_ker,
+):
+    """C Callback inside integration kernel."""
+    re_gamma_ns = nb.carray(re_gamma_ns_raw, order_qcd)
+    im_gamma_ns = nb.carray(im_gamma_ns_raw, order_qcd)
+    gamma_ns = re_gamma_ns + im_gamma_ns * 1j
+    method = "iterate-expanded"
+    sv_mode = sv.Modes.exponentiated
+    order = (order_qcd, 0)
+    if sv_mode == sv.Modes.exponentiated:
+        gamma_ns = sv.exponentiated.gamma_variation(gamma_ns, order, nf, L)
+    ker = ns.dispatcher(
+        order,
+        method,
+        gamma_ns,
+        as1,
+        as0,
+        nf,
+        ev_op_iterations,
+    )
+    if sv_mode == sv.Modes.expanded and not is_threshold:
+        ker = sv.expanded.non_singlet_variation(gamma_ns, as1, order, nf, L) * ker
+    re_ker[0] = np.real(ker)
+    im_ker[0] = np.imag(ker)
+
+
+@nb.njit()
+def quad_ker_qcd_ns(
+    order,
+    mode,
+    n,
+    nf,
+    quad_ker_qcd_ns_address,
+    L,
+    as1,
+    as0,
+    ev_op_iterations,
+    is_threshold,
+):
+    """Compute ker in C."""
+    # bypass complex and pointers
+    method_num = 1
+    sv_mode_num = 1
+    res = c_quad_ker_qcd_ns(
+        order[0],
+        mode,
+        np.real(n),
+        np.imag(n),
+        nf,
+        quad_ker_qcd_ns_address,
+        L,
+        method_num,
+        as1,
+        as0,
+        ev_op_iterations,
+        sv_mode_num,
+        is_threshold,
+        re_double_address,
+        im_double_address,
+    )
+    ker = read_complex(1)
+    return ker[0]
 
 
 @nb.njit(cache=True)
@@ -821,6 +924,7 @@ class Operator(sv.ModeMixin):
             n3lo_ad_variation=self.config["n3lo_ad_variation"],
             is_polarized=self.config["polarized"],
             is_time_like=self.config["time_like"],
+            quad_ker_qcd_ns_address=cb_quad_ker_qcd_ns.address,
         )
 
     def initialize_op_members(self):
