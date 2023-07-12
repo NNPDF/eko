@@ -381,7 +381,7 @@ def quad_ker_qcd(
             if is_time_like:
                 gamma_singlet = ad_ut.gamma_singlet(order, ker_base.n, nf)
             else:
-                gamma_singlet = ad_us.gamma_singlet(
+                gamma_singlet = ad_us.c_gamma_singlet(
                     order, ker_base.n, nf, n3lo_ad_variation
                 )
         # scale var exponentiated is directly applied on gamma
