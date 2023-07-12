@@ -8,6 +8,12 @@
 namespace ekorepp {
 namespace harmonics {
 
+/** @brief Wrong order k of :math:`\psi_k(z)` */
+struct InvalidPolygammaOrder : public std::invalid_argument { using std::invalid_argument::invalid_argument; };
+
+/** @brief Wrong argument z of :math:`\psi_k(z)` */
+struct InvalidPolygammaArgument : public std::invalid_argument { using std::invalid_argument::invalid_argument; };
+
 /**
  * @brief Compute the polygamma functions :math:`\psi_k(z)`.
  * Reimplementation of ``WPSIPG`` (C317) in `CERNlib <http://cernlib.web.cern.ch/cernlib/>`_ :cite:`KOLBIG1972221`.
@@ -67,12 +73,13 @@ cmplx cern_polygamma(const cmplx Z, const unsigned int K) {
     };
     cmplx U=Z;
     double X=U.real();
-    double A=abs(X);
+    double A=fabs(X);
     if (K < 0 || K > 4)
-        throw std::invalid_argument("Order K has to be in [0:4]");
-    const int A_as_int = A;
-    if (abs(U.imag()) < DELTA && abs(X+A_as_int) < DELTA)
-        throw std::invalid_argument("Argument Z equals non-positive integer");
+        throw InvalidPolygammaOrder("Order K has to be in [0:4]");
+    const int A_as_int = int(A);
+    if (fabs(U.imag()) < DELTA && fabs(X+A_as_int) < DELTA){
+        throw InvalidPolygammaArgument("Argument Z equals non-positive integer");
+    }
     const unsigned int K1=K+1;
     if (X < 0)
          U=-U;

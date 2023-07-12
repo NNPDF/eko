@@ -19,8 +19,10 @@ extern "C" int c_ad_us_gamma_ns(const unsigned int order_qcd, const unsigned int
             re_out[j] = res[j].real();
             im_out[j] = res[j].imag();
         }
-    } catch (std::invalid_argument &e) {
-        return -1;
+    } catch (ekorepp::harmonics::InvalidPolygammaOrder &e) {
+        return -2;
+    } catch (ekorepp::harmonics::InvalidPolygammaArgument &e) {
+        return -3;
     }
     return 0;
 }
@@ -41,8 +43,10 @@ extern "C" int c_ad_us_gamma_singlet(const unsigned int order_qcd, const double 
                 }
             }
         }
-    } catch (std::invalid_argument &e) {
-        return -1;
+    } catch (ekorepp::harmonics::InvalidPolygammaOrder &e) {
+        return -2;
+    } catch (ekorepp::harmonics::InvalidPolygammaArgument &e) {
+        return -3;
     }
     return 0;
 }
