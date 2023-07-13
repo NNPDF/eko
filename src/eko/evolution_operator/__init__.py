@@ -3,6 +3,7 @@ r"""Contains the central operator classes.
 See :doc:`Operator overview </code/Operators>`.
 """
 
+import ctypes
 import functools
 import logging
 import os
@@ -11,13 +12,13 @@ from multiprocessing import Pool
 
 import numba as nb
 import numpy as np
-from scipy import integrate
+from scipy import LowLevelCallable, integrate
 
 import ekore.anomalous_dimensions.polarized.space_like as ad_ps
 import ekore.anomalous_dimensions.unpolarized.space_like as ad_us
 import ekore.anomalous_dimensions.unpolarized.time_like as ad_ut
 from ekore.cffilib import (
-    c_quad_ker_qcd_ns,
+    c_quad_ker_qcd,
     im_double_address,
     re_double_address,
     read_complex,
@@ -440,61 +441,176 @@ def quad_ker_qcd(
     return ker
 
 
-@nb.cfunc(
-    nb.types.void(
-        nb.types.CPointer(nb.types.double),
-        nb.types.CPointer(nb.types.double),
-        nb.types.uint,
-        nb.types.uint,
-        nb.types.double,
-        nb.types.uint,
-        nb.types.double,
-        nb.types.double,
-        nb.types.uint,
-        nb.types.uint,
-        nb.types.bool_,
-        nb.types.CPointer(nb.types.double),
-        nb.types.CPointer(nb.types.double),
-    ),
-    cache=True,
+cb_quad_ker_qcd_T = ctypes.CFUNCTYPE(
+    ctypes.c_double,
+    ctypes.POINTER(ctypes.c_double),  # re_gamma_ns_raw
+    ctypes.POINTER(ctypes.c_double),  # im_gamma_ns_raw
+    ctypes.c_double,  # re_n
+    ctypes.c_double,  # im_n
+    ctypes.c_double,  # re_jac
+    ctypes.c_double,  # im_jac
+    ctypes.c_uint,  # order_qcd
+    ctypes.c_bool,  # is_singlet
+    ctypes.c_uint,  # mode0
+    ctypes.c_uint,  # mode1
+    ctypes.c_uint,  # nf
+    ctypes.c_bool,  # is_log
+    ctypes.c_double,  # logx
+    ctypes.c_double * 12,  # areas_raw
+    ctypes.c_uint,  # polynomial_degreee
+    ctypes.c_double,  # L
+    ctypes.c_uint,  # method_num
+    ctypes.c_double,  # as1
+    ctypes.c_double,  # as0
+    ctypes.c_uint,  # ev_op_iterations
+    ctypes.c_uint,  # ev_op_max_order_qcd
+    ctypes.c_uint,  # sv_mode_num
+    ctypes.c_bool,  # is_threshold
 )
-def cb_quad_ker_qcd_ns(
-    re_gamma_ns_raw,
-    im_gamma_ns_raw,
+
+libc = ctypes.CDLL("./ekorepp.so")
+c_quad_ker_qcd2 = libc.c_quad_ker_qcd
+
+
+class QuadCargs(ctypes.Structure):
+    """Arguments to C call."""
+
+    _fields_ = [
+        ("order_qcd", ctypes.c_uint),
+        ("mode0", ctypes.c_uint),
+        ("mode1", ctypes.c_uint),
+        ("is_polarized", ctypes.c_bool),
+        ("is_time_like", ctypes.c_bool),
+        ("nf", ctypes.c_uint),
+        ("py", cb_quad_ker_qcd_T),
+        ("is_log", ctypes.c_bool),
+        ("logx", ctypes.c_double),
+        ("areas", ctypes.POINTER(ctypes.c_double)),
+        ("areas_x", ctypes.c_uint),
+        ("areas_y", ctypes.c_uint),
+        ("L", ctypes.c_double),
+        ("method_num", ctypes.c_uint),
+        ("as1", ctypes.c_double),
+        ("as0", ctypes.c_double),
+        ("ev_op_iterations", ctypes.c_uint),
+        ("ev_op_max_order_qcd", ctypes.c_uint),
+        ("sv_mode_num", ctypes.c_uint),
+        ("is_threshold", ctypes.c_bool),
+    ]
+
+
+c_quad_ker_qcd2.argtypes = [ctypes.c_double, ctypes.c_void_p]
+c_quad_ker_qcd2.restype = ctypes.c_double
+
+
+@nb.cfunc(
+    nb.types.double(
+        nb.types.CPointer(nb.types.double),  # re_gamma_ns_raw
+        nb.types.CPointer(nb.types.double),  # im_gamma_ns_raw
+        nb.types.double,  # re_n
+        nb.types.double,  # im_n
+        nb.types.double,  # re_jac
+        nb.types.double,  # im_jac
+        nb.types.uint,  # order_qcd
+        nb.types.bool_,  # is_singlet
+        nb.types.uint,  # mode0
+        nb.types.uint,  # mode1
+        nb.types.uint,  # nf
+        nb.types.bool_,  # is_log
+        nb.types.double,  # logx
+        nb.types.CPointer(nb.types.double),  # areas_raw
+        nb.types.uint,  # areas_x
+        nb.types.uint,  # areas_y
+        nb.types.double,  # L
+        nb.types.uint,  # method_num
+        nb.types.double,  # as1
+        nb.types.double,  # as0
+        nb.types.uint,  # ev_op_iterations
+        nb.types.uint,  # ev_op_max_order_qcd
+        nb.types.uint,  # sv_mode_num
+        nb.types.bool_,  # is_threshold
+    ),
+    cache=False,
+)
+def cb_quad_ker_qcd(
+    re_gamma_raw,
+    im_gamma_raw,
+    re_n,
+    im_n,
+    re_jac,
+    im_jac,
     order_qcd,
+    is_singlet,
+    mode0,
+    mode1,
     nf,
+    is_log,
+    logx,
+    areas_raw,
+    areas_x,
+    areas_y,
     L,
     _method_num,
     as1,
     as0,
     ev_op_iterations,
+    ev_op_max_order_qcd,
     _sv_mode_num,
     is_threshold,
-    re_ker,
-    im_ker,
 ):
     """C Callback inside integration kernel."""
-    re_gamma_ns = nb.carray(re_gamma_ns_raw, order_qcd)
-    im_gamma_ns = nb.carray(im_gamma_ns_raw, order_qcd)
-    gamma_ns = re_gamma_ns + im_gamma_ns * 1j
+    n = re_n + im_n * 1j
+    jac = re_jac + im_jac * 1j
+    areas = nb.carray(areas_raw, (areas_x, areas_y))
+    pj = interpolation.evaluate_grid(n, is_log, logx, areas)
     method = "iterate-expanded"
     sv_mode = sv.Modes.exponentiated
     order = (order_qcd, 0)
-    if sv_mode == sv.Modes.exponentiated:
-        gamma_ns = sv.exponentiated.gamma_variation(gamma_ns, order, nf, L)
-    ker = ns.dispatcher(
-        order,
-        method,
-        gamma_ns,
-        as1,
-        as0,
-        nf,
-        ev_op_iterations,
-    )
-    if sv_mode == sv.Modes.expanded and not is_threshold:
-        ker = sv.expanded.non_singlet_variation(gamma_ns, as1, order, nf, L) * ker
-    re_ker[0] = np.real(ker)
-    im_ker[0] = np.imag(ker)
+    ev_op_max_order = (ev_op_max_order_qcd, 0)
+    if is_singlet:
+        re_gamma_singlet = nb.carray(re_gamma_raw, (order_qcd, 2, 2))
+        im_gamma_singlet = nb.carray(im_gamma_raw, (order_qcd, 2, 2))
+        gamma_singlet = re_gamma_singlet + im_gamma_singlet * 1j
+        if sv_mode == sv.Modes.exponentiated:
+            gamma_singlet = sv.exponentiated.gamma_variation(
+                gamma_singlet, order, nf, L
+            )
+        ker = s.dispatcher(
+            order,
+            method,
+            gamma_singlet,
+            as1,
+            as0,
+            nf,
+            ev_op_iterations,
+            ev_op_max_order,
+        )
+        # scale var expanded is applied on the kernel
+        if sv_mode == sv.Modes.expanded and not is_threshold:
+            ker = np.ascontiguousarray(
+                sv.expanded.singlet_variation(gamma_singlet, as1, order, nf, L, dim=2)
+            ) @ np.ascontiguousarray(ker)
+        ker = select_singlet_element(ker, mode0, mode1)
+    else:
+        re_gamma_ns = nb.carray(re_gamma_raw, order_qcd)
+        im_gamma_ns = nb.carray(im_gamma_raw, order_qcd)
+        gamma_ns = re_gamma_ns + im_gamma_ns * 1j
+        if sv_mode == sv.Modes.exponentiated:
+            gamma_ns = sv.exponentiated.gamma_variation(gamma_ns, order, nf, L)
+        ker = ns.dispatcher(
+            order,
+            method,
+            gamma_ns,
+            as1,
+            as0,
+            nf,
+            ev_op_iterations,
+        )
+        if sv_mode == sv.Modes.expanded and not is_threshold:
+            ker = sv.expanded.non_singlet_variation(gamma_ns, as1, order, nf, L) * ker
+    # recombine everything
+    res = ker * pj * jac
+    return np.real(res)
 
 
 @nb.njit()
@@ -924,7 +1040,7 @@ class Operator(sv.ModeMixin):
             n3lo_ad_variation=self.config["n3lo_ad_variation"],
             is_polarized=self.config["polarized"],
             is_time_like=self.config["time_like"],
-            quad_ker_qcd_ns_address=cb_quad_ker_qcd_ns.address,
+            quad_ker_qcd_ns_address=cb_quad_ker_qcd.address,
         )
 
     def initialize_op_members(self):
@@ -970,16 +1086,43 @@ class Operator(sv.ModeMixin):
         labels = self.labels
         start_time = time.perf_counter()
         # iterate basis functions
+        cfg = QuadCargs(
+            order_qcd=self.order[0],
+            is_polarized=self.config["polarized"],
+            is_time_like=self.config["time_like"],
+            nf=self.nf,
+            py=ctypes.cast(cb_quad_ker_qcd.address, cb_quad_ker_qcd_T),
+            is_log=self.int_disp.log,
+            logx=logx,
+            L=np.log(self.xif2),
+            method_num=1,
+            as1=self.as_list[1],
+            as0=self.as_list[0],
+            ev_op_iterations=self.config["ev_op_iterations"],
+            ev_op_max_order_qcd=self.config["ev_op_max_order"][0],
+            sv_mode_num=1,
+            is_threshold=self.is_threshold,
+        )
         for l, bf in enumerate(self.int_disp):
             if k == l and l == self.grid_size - 1:
                 continue
+            if bf.is_below_x(np.exp(logx)):
+                continue
             temp_dict = {}
+            curareas = bf.areas_representation
+            cfg.areas = (ctypes.c_double * (curareas.shape[0] * curareas.shape[1]))(
+                *curareas.flatten().tolist()
+            )
+            cfg.areas_x = curareas.shape[0]
+            cfg.areas_y = curareas.shape[1]
             # iterate sectors
             for label in labels:
+                cfg.mode0 = label[0]
+                cfg.mode1 = label[1]
+                user_data = ctypes.cast(ctypes.pointer(cfg), ctypes.c_void_p)
+                func = LowLevelCallable(c_quad_ker_qcd2, user_data)
                 res = integrate.quad(
-                    self.quad_ker(
-                        label=label, logx=logx, areas=bf.areas_representation
-                    ),
+                    func,
                     0.5,
                     1.0 - self._mellin_cut,
                     epsabs=1e-12,

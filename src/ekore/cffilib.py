@@ -12,10 +12,17 @@ ffi.cdef(
 double c_getdouble(void* ptr);
 int c_ad_us_gamma_ns(const unsigned int order_qcd, const unsigned int mode, const double re_in, const double im_in, const unsigned int nf, void* re_out, void* im_out);
 int c_ad_us_gamma_singlet(const unsigned int order_qcd, const double re_in, const double im_in, const unsigned int nf, void* re_out, void* im_out);
-int c_quad_ker_qcd_ns(const unsigned int order_qcd, const unsigned int mode, const double re_in, const double im_in,
-                    const unsigned int nf, void* py, const double L,
-                    const unsigned int method_num, const double as1, const double as0, const unsigned int ev_op_iterations,
-                    const unsigned int sv_mode_num, const bool is_threshold, void* re_out, void* im_out);
+double c_quad_ker_qcd(const double u,
+                    const unsigned int order_qcd,
+                    const unsigned int mode0, const unsigned int mode1,
+                    const bool is_polarized, const bool is_time_like,
+                    const unsigned int nf,
+                    void* py,
+                    const bool is_log, const double logx, void* areas, const unsigned int polynomial_degree,
+                    const double L,
+                    const unsigned int method_num, const double as1, const double as0,
+                    const unsigned int ev_op_iterations, const unsigned int ev_op_max_order,
+                    const unsigned int sv_mode_num, const bool is_threshold);
 """
 )
 
@@ -23,7 +30,7 @@ int c_quad_ker_qcd_ns(const unsigned int order_qcd, const unsigned int mode, con
 c_getdouble = ekorepplibc.c_getdouble
 c_ad_us_gamma_ns = ekorepplibc.c_ad_us_gamma_ns
 c_ad_us_gamma_singlet = ekorepplibc.c_ad_us_gamma_singlet
-c_quad_ker_qcd_ns = ekorepplibc.c_quad_ker_qcd_ns
+c_quad_ker_qcd = ekorepplibc.c_quad_ker_qcd
 
 # allocate the pointers and get their addresses
 MAX_DOUBLES = 16

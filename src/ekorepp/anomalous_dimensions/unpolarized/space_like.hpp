@@ -1,6 +1,6 @@
-#include "../../../types.hpp"
-#include "../../../harmonics/cache.hpp"
-#include "./as1.hpp"
+#include "../../types.hpp"
+#include "../../harmonics/cache.hpp"
+#include "./space_like/as1.hpp"
 
 
 namespace ekorepp {
