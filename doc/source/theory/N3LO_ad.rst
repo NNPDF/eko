@@ -259,7 +259,7 @@ The other parts are approximated using some known limits:
                 & \gamma_{qg}(2) + \gamma_{gg}(2) = 0 \\
                 & \gamma_{qq}(2) + \gamma_{gq}(2) = 0 \\
 
-        For :math:`\gamma_{qq,ps}` other 6 additional moments are available :cite:`Falcioni:2023luc`,
+        For :math:`\gamma_{qq,ps}, \gamma_{qg}` other 6 additional moments are available :cite:`Falcioni:2023luc,Falcioni:2023vqq`.
         making the parametrization of this splitting function much more accurate.
 
 The difference between the known moments and the known limits is parametrized
@@ -339,38 +339,33 @@ final reduced sets of candidates.
     basis to account fot the fact that the leading
     contribution for the pole at :math:`N=1` is :math:`\frac{1}{(N-1)^2}`.
 
+Slightly different choices are performed for :math:`\gamma_{gq}^{(3)}` and :math:`\gamma_{qq,ps}^{(3)}`
+where 10 moments are known. In this case we can select a larger number of functions in group 3
+and following :cite:`Falcioni:2023luc,Falcioni:2023vqq` we use:
+
     .. list-table::  :math:`\gamma_{qg}^{(3)}` parametrization basis
         :align: center
 
         *   - :math:`f_1(N)`
-            - :math:`\frac{1}{(N-1)}`
+            - :math:`\frac{1}{(N-1)^2}`
         *   - :math:`f_2(N)`
-            - :math:`\frac{S_1^3(N)}{N}`
+            - :math:`\mathcal{M}[\ln^3(1-x)]`
         *   - :math:`f_3(N)`
-            - :math:`\frac{1}{N^3},\ \mathcal{M}[\ln^3(1-x)]`
+            - :math:`\frac{1}{N^4},\ \frac{1}{N^3},\ \frac{1}{N^2},\ \frac{1}{N},\frac{1}{N-1}-\frac{1}{N},\ \mathcal{M}[\ln^2(1-x)]`
         *   - :math:`f_4(N)`
-            - :math:`\frac{1}{N^4},\ \frac{1}{N^3},\ \frac{1}{N^2},\ \frac{1}{N},\ \frac{1}{(N+1)^3},\ \frac{1}{(N+1)^2},\ \frac{1}{N+1},\ \frac{1}{N+2},\ \frac{S_1^2(N)}{N},\ \frac{S_1(N-2)}{N},\ \frac{S_1(N)}{N},\ \mathcal{M}[\ln^2(1-x)],\ \mathcal{M}[\ln^3(1-x)]`
-
-    Also in this case we assume no violation of the scaling with :math:`\gamma_{qq}`
-    for the |NLL| term, which is extracted from using 10 moments :cite:`Falcioni:2023luc`
-    thus is known more precisely. We expect that any possible deviation can be parametrized as a shift in the |NNLL| terms.
-
-Slightly different choices are performed for :math:`\gamma_{qq,ps}^{(3)}` where 10 moments
-are known. In this case we can select a larger number of functions in group 3
-and following :cite:`Falcioni:2023luc` we use:
+            - :math:`\mathcal{M}[\ln(x) \ln(1-x)],\ \mathcal{M}[\ln(1-x)],\ \mathcal{M}[(1-x)\ln^3(1-x)],\ \mathcal{M}[(1-x)\ln^2(1-x)],\ \mathcal{M}[(1-x)\ln(1-x)],\ \frac{1}{1+N}`
 
     .. list-table::  :math:`\gamma_{qq,ps}^{(3)}` parametrization basis
         :align: center
 
         *   - :math:`f_1(N)`
-            - :math:`\frac{1}{(N-1)^2} + \frac{1}{N^2}`
+            - :math:`-\frac{1}{(N-1)^2} + \frac{1}{N^2}`
         *   - :math:`f_2(N)`
             - :math:`\mathcal{M}[(1-x)\ln^2(1-x)]`
         *   - :math:`f_{3,\dots,8}(N)`
-            - :math:`\frac{1}{N^4},\ \frac{1}{N^3},\ \mathcal{M}[(1-x)\ln(1-x)],\ \mathcal{M}[(1-x)^2\ln^2(1-x)],\ \mathcal{M}[(1-x)^2\ln(1-x)],\ \frac{1}{N-1}-\frac{1}{N}`
+            - :math:`\frac{1}{N^4},\ \frac{1}{N^3},\ \mathcal{M}[(1-x)\ln(1-x)],\ \mathcal{M}[(1-x)^2\ln(1-x)^2],\ \frac{1}{N-1}-\frac{1}{N},\ \mathcal{M}[(1-x)\ln(x)]`
         *   - :math:`f_{9,10}(N)`
-            - :math:`\mathcal{M}[(1-x)\ln(x)],\ \mathcal{M}[(1-x)(1+2x)],\ \mathcal{M}[(1-x)x^2],\ \mathcal{M}[(1-x)x (1+x)],\ \mathcal{M}[(1-x)]`
-
+            - :math:`\mathcal{M}[(1-x)(1+2x)],\ \mathcal{M}[(1-x)x^2],\ \mathcal{M}[(1-x) x (1+x)],\ \mathcal{M}[(1-x)]`
 
 Note that for :math:`\gamma_{qq,ps},\gamma_{qg}` the parts proportional
 to :math:`n_f^0` are not present.
