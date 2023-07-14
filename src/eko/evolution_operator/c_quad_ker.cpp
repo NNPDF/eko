@@ -107,7 +107,7 @@ extern "C" double c_quad_ker_qcd(const double u, void* rargs) {
     // pass on
     return args.py(re.data(), im.data(),
             c.N().real(), c.N().imag(),
-            jac.real(),jac.real(),
+            jac.real(),jac.imag(),
             args.order_qcd,
             is_singlet,
             args.mode0, args.mode1,

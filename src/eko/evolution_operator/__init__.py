@@ -414,6 +414,7 @@ class Operator(sv.ModeMixin):
             if k == l and l == self.grid_size - 1:
                 continue
             if bf.is_below_x(np.exp(logx)):
+                column.append({label: (0.0, 0.0) for label in labels})
                 continue
             temp_dict = {}
             curareas = bf.areas_representation
