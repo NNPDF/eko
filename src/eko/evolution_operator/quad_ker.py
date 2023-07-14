@@ -123,7 +123,7 @@ cb_quad_ker_qcd_T = ctypes.CFUNCTYPE(
     ctypes.c_uint,  # nf
     ctypes.c_bool,  # is_log
     ctypes.c_double,  # logx
-    ctypes.c_double * 12,  # areas_raw
+    ctypes.POINTER(ctypes.c_double),  # areas_raw
     ctypes.c_uint,  # polynomial_degreee
     ctypes.c_double,  # L
     ctypes.c_uint,  # method_num
@@ -139,7 +139,7 @@ libc = ctypes.CDLL("./c_quad_ker.so")
 c_quad_ker_qcd = libc.c_quad_ker_qcd
 
 
-class QuadCargs(ctypes.Structure):
+class QuadQCDargs(ctypes.Structure):
     """Arguments to C call."""
 
     _fields_ = [
@@ -197,7 +197,7 @@ c_quad_ker_qcd.restype = ctypes.c_double
         nb.types.uint,  # sv_mode_num
         nb.types.bool_,  # is_threshold
     ),
-    cache=False,
+    cache=True,
 )
 def cb_quad_ker_qcd(
     re_gamma_raw,
@@ -226,15 +226,19 @@ def cb_quad_ker_qcd(
     is_threshold,
 ):
     """C Callback inside integration kernel."""
+    # recover complex variables
     n = re_n + im_n * 1j
     jac = re_jac + im_jac * 1j
+    # combute basis functions
     areas = nb.carray(areas_raw, (areas_x, areas_y))
     pj = interpolation.evaluate_grid(n, is_log, logx, areas)
+    # TODO recover parameters
     method = "iterate-expanded"
     sv_mode = sv.Modes.exponentiated
     order = (order_qcd, 0)
     ev_op_max_order = (ev_op_max_order_qcd, 0)
     if is_singlet:
+        # reconstruct singlet matrices
         re_gamma_singlet = nb.carray(re_gamma_raw, (order_qcd, 2, 2))
         im_gamma_singlet = nb.carray(im_gamma_raw, (order_qcd, 2, 2))
         gamma_singlet = re_gamma_singlet + im_gamma_singlet * 1j
@@ -242,6 +246,7 @@ def cb_quad_ker_qcd(
             gamma_singlet = sv.exponentiated.gamma_variation(
                 gamma_singlet, order, nf, L
             )
+        # construct eko
         ker = s.dispatcher(
             order,
             method,
@@ -259,11 +264,13 @@ def cb_quad_ker_qcd(
             ) @ np.ascontiguousarray(ker)
         ker = select_singlet_element(ker, mode0, mode1)
     else:
+        # construct non-singlet matrices
         re_gamma_ns = nb.carray(re_gamma_raw, order_qcd)
         im_gamma_ns = nb.carray(im_gamma_raw, order_qcd)
         gamma_ns = re_gamma_ns + im_gamma_ns * 1j
         if sv_mode == sv.Modes.exponentiated:
             gamma_ns = sv.exponentiated.gamma_variation(gamma_ns, order, nf, L)
+        # construct eko
         ker = ns.dispatcher(
             order,
             method,

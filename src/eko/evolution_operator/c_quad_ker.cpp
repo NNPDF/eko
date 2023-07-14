@@ -1,4 +1,4 @@
-// g++ -shared -o c_quad_ker.so -fPIC src/eko/evolution_operator/c_quad_ker.cpp
+// g++ -shared -o c_quad_ker.so -fPIC src/eko/evolution_operator/c_quad_ker.cpp -O2
 
 #include <exception>
 #include <vector>
@@ -6,13 +6,30 @@
 #include "./../../ekorepp/harmonics/cache.hpp"
 #include "./../../ekorepp/anomalous_dimensions/unpolarized/space_like.hpp"
 
+/** @brief Talbot path in Mellin inversion */
 class TalbotPath {
+    /** @brief integration variable */
     double t;
+
+    /** @brief bending variable */
     double r;
+
+    /** @brief real offset */
     double o;
-public:
-    TalbotPath(const double t, const double logx, const bool is_singlet) : t(t), r(0.4 * 16.0 / (1.0 - logx)), o(is_singlet ? 1. : 0.) {}
+
+    /** @brief auxilary angle */
     double theta() const { return M_PI * (2.0 * t - 1.0); }
+
+public:
+    /**
+     * @brief Constructor from parameters
+     * @param t integration variable
+     * @param logx log of inversion point
+     * @param is_singlet add real offset?
+     */
+    TalbotPath(const double t, const double logx, const bool is_singlet) : t(t), r(0.4 * 16.0 / (1.0 - logx)), o(is_singlet ? 1. : 0.) {}
+
+    /** @brief Mellin-N */
     ekorepp::cmplx n() const {
         const double theta = this->theta();
         // treat singular point separately
@@ -20,6 +37,8 @@ public:
         const double im = theta;
         return o + r * ekorepp::cmplx(re, im);
     }
+
+    /** @brief transformation jacobian */
     ekorepp::cmplx jac() const {
         const double theta = this->theta();
         // treat singular point separately
@@ -27,11 +46,14 @@ public:
         const double im = 1.0;
         return r * M_PI * 2.0 * ekorepp::cmplx(re, im);
     }
+
+    /** @brief Mellin inversion prefactor */
     ekorepp::cmplx prefactor() const {
         return ekorepp::cmplx(0,-1./M_PI);
     }
 };
 
+/** @brief Python callback signature  */
 typedef double (*py_quad_ker_qcd)(
                         double* re_gamma, double* im_gamma,
                         double re_n, double im_n,
@@ -52,7 +74,8 @@ typedef double (*py_quad_ker_qcd)(
                         unsigned int ev_op_iterations, unsigned int ev_op_max_order_qcd,
                         unsigned int sv_mode_num, bool is_threshold);
 
-struct QuadCargs {
+/** @brief additional integration parameters */
+struct QuadQCDargs {
     unsigned int order_qcd;
     unsigned int mode0;
     unsigned int mode1;
@@ -75,8 +98,14 @@ struct QuadCargs {
     bool is_threshold;
 };
 
+/**
+ * @brief intergration kernel inside quad
+ * @param u interation variable
+ * @param rargs raw args, to be casted to QuadQCDargs
+ * @return intergration value
+ */
 extern "C" double c_quad_ker_qcd(const double u, void* rargs) {
-    QuadCargs args = *(QuadCargs* )rargs;
+    QuadQCDargs args = *(QuadQCDargs* )rargs;
     const bool is_singlet = (100 == args.mode0) || (21 == args.mode0) || (90 == args.mode0);
     // prepare gamma
     const TalbotPath path(u, args.logx, is_singlet);

@@ -29,7 +29,7 @@ from ..kernels import utils
 from ..kernels import valence_qed as qed_v
 from ..matchings import Segment
 from ..member import OpMember
-from .quad_ker import QuadCargs, c_quad_ker_qcd, cb_quad_ker_qcd, cb_quad_ker_qcd_T
+from .quad_ker import QuadQCDargs, c_quad_ker_qcd, cb_quad_ker_qcd, cb_quad_ker_qcd_T
 
 logger = logging.getLogger(__name__)
 
@@ -306,50 +306,6 @@ class Operator(sv.ModeMixin):
                 labels.extend(br.singlet_unified_labels)
         return labels
 
-    def quad_ker(self, label, logx, areas):
-        """Return partially initialized integrand function.
-
-        Parameters
-        ----------
-        label: tuple
-            operator element pids
-        logx: float
-            Mellin inversion point
-        areas : tuple
-            basis function configuration
-
-        Returns
-        -------
-        functools.partial
-            partially initialized integration kernel
-
-        """
-        return functools.partial(
-            quad_ker,
-            order=self.order,
-            mode0=label[0],
-            mode1=label[1],
-            method=self.config["method"],
-            is_log=self.int_disp.log,
-            logx=logx,
-            areas=areas,
-            as_list=self.as_list,
-            mu2_from=self.q2_from,
-            mu2_to=self.q2_to,
-            a_half=self.a_half_list,
-            alphaem_running=self.alphaem_running,
-            nf=self.nf,
-            L=np.log(self.xif2),
-            ev_op_iterations=self.config["ev_op_iterations"],
-            ev_op_max_order=tuple(self.config["ev_op_max_order"]),
-            sv_mode=self.sv_mode,
-            is_threshold=self.is_threshold,
-            n3lo_ad_variation=self.config["n3lo_ad_variation"],
-            is_polarized=self.config["polarized"],
-            is_time_like=self.config["time_like"],
-            quad_ker_qcd_ns_address=cb_quad_ker_qcd.address,
-        )
-
     def initialize_op_members(self):
         """Init all operators with the identity or zeros."""
         eye = OpMember(
@@ -372,10 +328,7 @@ class Operator(sv.ModeMixin):
             else:
                 self.op_members[n] = zero.copy()
 
-    def run_op_integration(
-        self,
-        log_grid,
-    ):
+    def run_op_integration(self, log_grid):
         """Run the integration for each grid point.
 
         Parameters
@@ -390,10 +343,11 @@ class Operator(sv.ModeMixin):
         """
         column = []
         k, logx = log_grid
+        # call(!) self.labels only once
         labels = self.labels
         start_time = time.perf_counter()
-        # iterate basis functions
-        cfg = QuadCargs(
+        # start preparing C arguments
+        cfg = QuadQCDargs(
             order_qcd=self.order[0],
             is_polarized=self.config["polarized"],
             is_time_like=self.config["time_like"],
@@ -410,13 +364,16 @@ class Operator(sv.ModeMixin):
             sv_mode_num=1,
             is_threshold=self.is_threshold,
         )
+        # iterate basis functions
         for l, bf in enumerate(self.int_disp):
             if k == l and l == self.grid_size - 1:
                 continue
+            # add emtpy labels with 0s
             if bf.is_below_x(np.exp(logx)):
                 column.append({label: (0.0, 0.0) for label in labels})
                 continue
             temp_dict = {}
+            # prepare areas for C
             curareas = bf.areas_representation
             cfg.areas = (ctypes.c_double * (curareas.shape[0] * curareas.shape[1]))(
                 *curareas.flatten().tolist()
@@ -427,6 +384,7 @@ class Operator(sv.ModeMixin):
             for label in labels:
                 cfg.mode0 = label[0]
                 cfg.mode1 = label[1]
+                # construct the low level object
                 user_data = ctypes.cast(ctypes.pointer(cfg), ctypes.c_void_p)
                 func = LowLevelCallable(c_quad_ker_qcd, user_data)
                 res = integrate.quad(
