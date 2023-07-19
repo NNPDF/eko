@@ -363,7 +363,7 @@ and following :cite:`Falcioni:2023luc,Falcioni:2023vqq` we use:
         *   - :math:`f_2(N)`
             - :math:`\mathcal{M}[(1-x)\ln^2(1-x)]`
         *   - :math:`f_{3,\dots,8}(N)`
-            - :math:`\frac{1}{N^4},\ \frac{1}{N^3},\ \mathcal{M}[(1-x)\ln(1-x)],\ \mathcal{M}[(1-x)^2\ln(1-x)^2],\ \frac{1}{N-1}-\frac{1}{N},\ \mathcal{M}[(1-x)\ln(x)]`
+            - :math:`\frac{1}{N^4},\ \frac{1}{N^3},\ \mathcal{M}[(1-x)\ln(1-x)],\ \mathcal{M}[(1-x)^2\ln^2(1-x)],\ \frac{1}{N-1}-\frac{1}{N},\ \mathcal{M}[(1-x)\ln(x)]`
         *   - :math:`f_{9,10}(N)`
             - :math:`\mathcal{M}[(1-x)(1+2x)],\ \mathcal{M}[(1-x)x^2],\ \mathcal{M}[(1-x) x (1+x)],\ \mathcal{M}[(1-x)]`
 
