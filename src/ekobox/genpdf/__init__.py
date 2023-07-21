@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 
 def take_data(
-    parent_pdf_set: Optional[Union[str, dict]] = None,
+    parent_pdf_set=None,
     members: bool = False,
     xgrid: Optional[List[float]] = None,
     evolgrid: Optional[List[EPoint]] = None,
@@ -62,7 +62,7 @@ def take_data(
             all_blocks.append(
                 [
                     generate_block(
-                        toylh.xfxQ2, xgrid, sorted_q2grid, br.flavor_basis_pids
+                        toylh.xfxQ2, xgrid, sorted_q2grid, list(br.flavor_basis_pids)
                     )
                 ]
             )
@@ -86,7 +86,7 @@ def take_data(
                     else parent_pdf_set[pid](x, Q2),
                     xgrid,
                     sorted_q2grid,
-                    br.flavor_basis_pids,
+                    list(br.flavor_basis_pids),
                 )
             ]
         )
