@@ -6,7 +6,7 @@ previously instantiated information and does the actual computation of the Q2s.
 """
 import logging
 from dataclasses import astuple
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 import numpy as np
 import numpy.typing as npt
@@ -61,7 +61,7 @@ class OperatorGrid(sv.ModeMixin):
         interpol_dispatcher: InterpolatorDispatcher,
     ):
         # check
-        config = {}
+        config: Dict[str, Any] = {}
         config["order"] = order
         config["intrinsic_range"] = intrinsic_flavors
         config["xif2"] = xif**2

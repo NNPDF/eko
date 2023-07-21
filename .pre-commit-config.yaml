@@ -48,7 +48,7 @@ repos:
       - id: mypy
         additional_dependencies: [types-PyYAML]
         pass_filenames: false
-        args: [".", "--ignore-missing-imports"]
+        args: ["--ignore-missing-imports", "src/"]
   - repo: https://github.com/pre-commit/pre-commit
     rev: v3.3.3
     hooks:

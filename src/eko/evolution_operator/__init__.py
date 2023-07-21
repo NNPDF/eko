@@ -8,6 +8,7 @@ import logging
 import os
 import time
 from multiprocessing import Pool
+from typing import Dict, Tuple
 
 import numba as nb
 import numpy as np
@@ -617,7 +618,7 @@ class Operator(sv.ModeMixin):
         # TODO make 'cut' external parameter?
         self._mellin_cut = mellin_cut
         self.is_threshold = is_threshold
-        self.op_members = {}
+        self.op_members: Dict[Tuple[int, int], OpMember] = {}
         self.order = tuple(config["order"])
         self.alphaem_running = self.managers["couplings"].alphaem_running
         if self.log_label == "Evolution":

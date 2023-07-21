@@ -8,10 +8,11 @@ See :doc:`pQCD ingredients </theory/pQCD>`.
 
 """
 import logging
-from typing import Iterable, List
+from typing import Dict, Iterable, List, Tuple
 
 import numba as nb
 import numpy as np
+import numpy.typing as npt
 import scipy
 
 from . import constants, matchings
@@ -474,7 +475,7 @@ class Couplings:
                 self.decoupled_running,
             )
         # cache
-        self.cache = {}
+        self.cache: Dict[Tuple[float, float, int, float, float], npt.NDArray] = {}
 
     @property
     def mu2_ref(self):
