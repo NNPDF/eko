@@ -579,7 +579,7 @@ def quad_ker_qed(
     return ker
 
 
-OPMEMBERS = Dict[Tuple[int, int], OpMember]
+OpMembers = Dict[Tuple[int, int], OpMember]
 
 
 class Operator(sv.ModeMixin):
@@ -621,7 +621,7 @@ class Operator(sv.ModeMixin):
         # TODO make 'cut' external parameter?
         self._mellin_cut = mellin_cut
         self.is_threshold = is_threshold
-        self.op_members: OPMEMBERS = {}
+        self.op_members: OpMembers = {}
         self.order = tuple(config["order"])
         self.alphaem_running = self.managers["couplings"].alphaem_running
         if self.log_label == "Evolution":

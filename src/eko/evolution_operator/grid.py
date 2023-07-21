@@ -18,7 +18,7 @@ from ..io.runcards import Configs, Debug
 from ..io.types import EvolutionPoint as EPoint
 from ..io.types import Order, SquaredScale
 from ..matchings import Atlas, Segment, flavor_shift, is_downward_path
-from . import OPMEMBERS, Operator, flavors, matching_condition, physical
+from . import Operator, OpMembers, flavors, matching_condition, physical
 from .operator_matrix_element import OperatorMatrixElement
 
 logger = logging.getLogger(__name__)
@@ -95,7 +95,7 @@ class OperatorGrid(sv.ModeMixin):
             interpol_dispatcher=interpol_dispatcher,
         )
         self._threshold_operators: Dict[Segment, Operator] = {}
-        self._matching_operators: Dict[SquaredScale, OPMEMBERS] = {}
+        self._matching_operators: Dict[SquaredScale, OpMembers] = {}
 
     def get_threshold_operators(self, path: List[Segment]) -> List[Operator]:
         """Generate the threshold operators.
