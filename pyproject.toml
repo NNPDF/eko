@@ -171,3 +171,10 @@ max-args = 10
 
 [tool.pydocstyle]
 convention = "numpy"
+
+[tool.mypy]
+exclude = [
+  'extras/',
+  'benchmarks/env',
+  'doc/',
+]
