@@ -5,7 +5,6 @@ previously instantiated information and does the actual computation of the Q2s.
 
 """
 import logging
-from dataclasses import astuple
 from typing import Any, Dict, List, Optional
 
 import numpy as np
@@ -17,9 +16,9 @@ from ..couplings import Couplings
 from ..interpolation import InterpolatorDispatcher
 from ..io.runcards import Configs, Debug
 from ..io.types import EvolutionPoint as EPoint
-from ..io.types import Order
+from ..io.types import Order, SquaredScale
 from ..matchings import Atlas, Segment, flavor_shift, is_downward_path
-from . import Operator, flavors, matching_condition, physical
+from . import OPMEMBERS, Operator, flavors, matching_condition, physical
 from .operator_matrix_element import OperatorMatrixElement
 
 logger = logging.getLogger(__name__)
@@ -95,8 +94,8 @@ class OperatorGrid(sv.ModeMixin):
             couplings=couplings,
             interpol_dispatcher=interpol_dispatcher,
         )
-        self._threshold_operators = {}
-        self._matching_operators = {}
+        self._threshold_operators: Dict[Segment, Operator] = {}
+        self._matching_operators: Dict[SquaredScale, OPMEMBERS] = {}
 
     def get_threshold_operators(self, path: List[Segment]) -> List[Operator]:
         """Generate the threshold operators.
@@ -118,7 +117,7 @@ class OperatorGrid(sv.ModeMixin):
         is_downward = is_downward_path(path)
         shift = flavor_shift(is_downward)
         for seg in path[:-1]:
-            new_op_key = astuple(seg)
+            new_op_key = seg
             kthr = self.config["thresholds_ratios"][seg.nf - shift]
             ome = OperatorMatrixElement(
                 self.config,
