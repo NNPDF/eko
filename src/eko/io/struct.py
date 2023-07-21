@@ -373,17 +373,17 @@ class EKO:
             raise ValueError(f"Unknown file mode: {mode}")
 
         tmpdir = pathlib.Path(tempfile.mkdtemp(prefix=TEMP_PREFIX))
-        if load:
-            cls.load(path, tmpdir)
-            metadata = Metadata.load(tmpdir)
-            opened = cls(
-                **inventories(tmpdir, access),
-                metadata=metadata,
-                access=access,
-            )
-            opened.operators.sync()
-        else:
-            opened = Builder(path=tmpdir, access=access)
+        if not load:
+            return Builder(path=tmpdir, access=access)
+        # load existing instead
+        cls.load(path, tmpdir)
+        metadata = Metadata.load(tmpdir)
+        opened: EKO = cls(
+            **inventories(tmpdir, access),
+            metadata=metadata,
+            access=access,
+        )
+        opened.operators.sync()
 
         return opened
 
