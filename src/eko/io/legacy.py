@@ -12,15 +12,19 @@ import lz4.frame
 import numpy as np
 import yaml
 
-from eko.interpolation import XGrid
-from eko.io.runcards import flavored_mugrid
-from eko.quantities.heavy_quarks import HeavyInfo, HeavyQuarkMasses, MatchingRatios
-
+from ..interpolation import XGrid
+from ..io.runcards import flavored_mugrid
+from ..quantities.heavy_quarks import (
+    HeavyInfo,
+    HeavyQuarkMasses,
+    MatchingRatios,
+    QuarkMassScheme,
+)
 from . import raw
 from .dictlike import DictLike
 from .struct import EKO, Operator
 from .types import EvolutionPoint as EPoint
-from .types import RawCard
+from .types import RawCard, ReferenceRunning
 
 
 def load_tar(source: os.PathLike, dest: os.PathLike, errors: bool = False):
@@ -38,8 +42,8 @@ def load_tar(source: os.PathLike, dest: os.PathLike, errors: bool = False):
         whether to load also errors (default ``False``)
 
     """
-    with tempfile.TemporaryDirectory() as tmpdir:
-        tmpdir = pathlib.Path(tmpdir)
+    with tempfile.TemporaryDirectory() as tmpdirr:
+        tmpdir = pathlib.Path(tmpdirr)
 
         with tarfile.open(source, "r") as tar:
             raw.safe_extractall(tar, tmpdir)
@@ -92,10 +96,16 @@ class PseudoTheory(DictLike):
         """Load from old metadata."""
         heavy = HeavyInfo(
             num_flavs_init=4,
-            num_flavs_max_pdf=None,
-            intrinsic_flavors=None,
-            masses=HeavyQuarkMasses([1.51, 4.92, 172.5]),
-            masses_scheme=None,
+            num_flavs_max_pdf=5,
+            intrinsic_flavors=[],
+            masses=HeavyQuarkMasses(
+                [
+                    ReferenceRunning([1.51, np.inf]),
+                    ReferenceRunning([4.92, np.inf]),
+                    ReferenceRunning([172.5, np.inf]),
+                ]
+            ),
+            masses_scheme=QuarkMassScheme.POLE,
             matching_ratios=MatchingRatios([1.0, 1.0, 1.0]),
         )
         return cls(heavy=heavy)
