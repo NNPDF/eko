@@ -5,6 +5,7 @@ previously instantiated information and does the actual computation of the Q2s.
 
 """
 import logging
+from dataclasses import dataclass
 from typing import Any, Dict, List, Optional
 
 import numpy as np
@@ -25,6 +26,15 @@ logger = logging.getLogger(__name__)
 
 OpDict = Dict[str, Optional[npt.NDArray]]
 """In particular, only the ``operator`` and ``error`` fields are expected."""
+
+
+@dataclass(frozen=True)
+class Managers:
+    """Set of steering objects."""
+
+    atlas: Atlas
+    couplings: Couplings
+    interpolator: InterpolatorDispatcher
 
 
 class OperatorGrid(sv.ModeMixin):
@@ -89,10 +99,10 @@ class OperatorGrid(sv.ModeMixin):
 
         self.config = config
         self.q2_grid = mu2grid
-        self.managers = dict(
-            thresholds_config=atlas,
+        self.managers = Managers(
+            atlas=atlas,
             couplings=couplings,
-            interpol_dispatcher=interpol_dispatcher,
+            interpolator=interpol_dispatcher,
         )
         self._threshold_operators: Dict[Segment, Operator] = {}
         self._matching_operators: Dict[SquaredScale, OpMembers] = {}
@@ -153,7 +163,7 @@ class OperatorGrid(sv.ModeMixin):
 
         """
         # The lists of areas as produced by the thresholds
-        path = self.managers["thresholds_config"].path(q2)
+        path = self.managers.atlas.path(q2)
         # Prepare the path for the composition of the operator
         thr_ops = self.get_threshold_operators(path)
         # we start composing with the highest operator ...

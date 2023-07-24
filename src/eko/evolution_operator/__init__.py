@@ -623,7 +623,7 @@ class Operator(sv.ModeMixin):
         self.is_threshold = is_threshold
         self.op_members: OpMembers = {}
         self.order = tuple(config["order"])
-        self.alphaem_running = self.managers["couplings"].alphaem_running
+        self.alphaem_running = self.managers.couplings.alphaem_running
         if self.log_label == "Evolution":
             self.a = self.compute_a()
             self.compute_aem_list()
@@ -645,7 +645,7 @@ class Operator(sv.ModeMixin):
     @property
     def int_disp(self):
         """Return the interpolation dispatcher."""
-        return self.managers["interpol_dispatcher"]
+        return self.managers.interpolator
 
     @property
     def grid_size(self):
@@ -668,7 +668,7 @@ class Operator(sv.ModeMixin):
 
     def compute_a(self):
         """Return the computed values for :math:`a_s` and :math:`a_{em}`."""
-        coupling = self.managers["couplings"]
+        coupling = self.managers.couplings
         a0 = coupling.a(
             self.mu2[0],
             nf_to=self.nf,
@@ -708,7 +708,7 @@ class Operator(sv.ModeMixin):
             as1 = self.a_s[1]
             aem0 = self.a_em[0]
             aem1 = self.a_em[1]
-            q2ref = self.managers["couplings"].mu2_ref
+            q2ref = self.managers.couplings.mu2_ref
             delta_from = abs(self.q2_from - q2ref)
             delta_to = abs(self.q2_to - q2ref)
             # I compute the values in aem_list starting from the mu2
@@ -719,7 +719,7 @@ class Operator(sv.ModeMixin):
             else:
                 a_start = np.array([as0, aem0])
                 mu2_start = self.q2_from
-            couplings = self.managers["couplings"]
+            couplings = self.managers.couplings
             mu2_steps = utils.geomspace(self.q2_from, self.q2_to, 1 + ev_op_iterations)
             mu2_l = mu2_steps[0]
             self.as_list = np.array(
