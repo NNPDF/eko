@@ -2,6 +2,8 @@
 import logging
 import pathlib
 
+import numpy as np
+
 from .. import cards
 from . import library as lib
 from .base import command
@@ -34,6 +36,6 @@ def sub_example(destination: pathlib.Path):
     cards.dump(theory.raw, path=destination / "theory.yaml")
     operator = cards.example.operator()
     operator.mu0 = 1.65
-    operator.mu2grid = [1e5]
+    operator.mugrid = [(np.sqrt(1e5), 5)]
     cards.dump(operator.raw, path=destination / "operator.yaml")
     _logger.info(f"Runcards generated to '{destination}'")

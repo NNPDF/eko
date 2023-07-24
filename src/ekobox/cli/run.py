@@ -52,11 +52,11 @@ def subcommand(paths: Sequence[pathlib.Path]):
     else:
         output = operator.parent / OUTPUT
 
-    theory = yaml.safe_load(theory.read_text(encoding="utf-8"))
-    if "order" in theory:
-        theory = TheoryCard.from_dict(theory)
-    operator = yaml.safe_load(operator.read_text(encoding="utf-8"))
-    if "configs" in operator:
-        operator = OperatorCard.from_dict(operator)
+    tc = yaml.safe_load(theory.read_text(encoding="utf-8"))
+    if "order" in tc:
+        tc = TheoryCard.from_dict(tc)
+    oc = yaml.safe_load(operator.read_text(encoding="utf-8"))
+    if "configs" in oc:
+        oc = OperatorCard.from_dict(oc)
 
-    eko.solve(theory, operator, path=output)
+    eko.solve(tc, oc, path=output)
