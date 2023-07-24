@@ -9,6 +9,7 @@ from matplotlib.cm import get_cmap
 from matplotlib.colors import LogNorm
 
 from eko import basis_rotation as br
+from eko.io import manipulate
 from eko.io.struct import EKO
 
 
@@ -209,7 +210,15 @@ def plot_operator(var_name, op, op_err, log_operator=True, abs_operator=True):
     return fig
 
 
-def save_operators_to_pdf(path, theory, ops, me: EKO, skip_pdfs, change_lab=False):
+def save_operators_to_pdf(
+    path,
+    theory,
+    ops,
+    me: EKO,
+    skip_pdfs,
+    rotate_to_evolution_basis: bool,
+    qed: bool = False,
+):
     """Output all operator heatmaps to PDF.
 
     Parameters
@@ -228,11 +237,7 @@ def save_operators_to_pdf(path, theory, ops, me: EKO, skip_pdfs, change_lab=Fals
         set whether to rename the labels
 
     """
-    ops_names = list(me.bases.targetpids)
-    if np.allclose(ops_names, br.rotate_flavor_to_evolution):
-        ops_names = br.evol_basis_pids
-    else:
-        raise ValueError("Can not reconstruct PDF names")
+    ops_names = br.evol_basis_pids if rotate_to_evolution_basis else br.evol_basis_pids
     ops_id = f"o{ops['hash'][:6]}_t{theory['hash'][:6]}"
     path = f"{path}/{ops_id}.pdf"
     print(f"Plotting operators plots to {path}")
@@ -244,9 +249,16 @@ def save_operators_to_pdf(path, theory, ops, me: EKO, skip_pdfs, change_lab=Fals
 
         # plot the operators
         # it's necessary to reshuffle the eko output
-        for mu2 in me.mu2grid:
-            results = me[mu2].operator
-            errors = me[mu2].error
+        for mu2, op in me.items():
+            change_lab = False
+            if rotate_to_evolution_basis:
+                if not qed:
+                    op = manipulate.to_evol(op, source=True, target=True)
+                else:
+                    op = manipulate.to_uni_evol(op, source=True, target=True)
+                change_lab = True
+            results = op.operator
+            errors = op.error
 
             # loop on pids
             for label_out, res, res_err in zip(ops_names, results, errors):
