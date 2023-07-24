@@ -26,6 +26,10 @@ from .struct import EKO, Operator
 from .types import EvolutionPoint as EPoint
 from .types import RawCard, ReferenceRunning
 
+_MC = 1.51
+_MB = 4.92
+_MT = 172.5
+
 
 def load_tar(source: os.PathLike, dest: os.PathLike, errors: bool = False):
     """Load tar representation from file.
@@ -63,7 +67,7 @@ def load_tar(source: os.PathLike, dest: os.PathLike, errors: bool = False):
     if op5 is None:
         op5 = metaold["mu2grid"]
     grid = op5to4(
-        flavored_mugrid(op5, theory.heavy.masses, theory.heavy.matching_ratios), arrays
+        flavored_mugrid(op5, [_MC, _MB, _MT], theory.heavy.matching_ratios), arrays
     )
 
     with EKO.create(dest) as builder:
@@ -100,9 +104,9 @@ class PseudoTheory(DictLike):
             intrinsic_flavors=[],
             masses=HeavyQuarkMasses(
                 [
-                    ReferenceRunning([1.51, np.inf]),
-                    ReferenceRunning([4.92, np.inf]),
-                    ReferenceRunning([172.5, np.inf]),
+                    ReferenceRunning([_MC, np.inf]),
+                    ReferenceRunning([_MB, np.inf]),
+                    ReferenceRunning([_MT, np.inf]),
                 ]
             ),
             masses_scheme=QuarkMassScheme.POLE,
@@ -134,7 +138,7 @@ class PseudoOperator(DictLike):
             mu2list = old["mu2grid"]
         mu2grid = np.array(mu2list)
         evolgrid = flavored_mugrid(
-            np.sqrt(mu2grid).tolist(), [1.51, 4.92, 172.5], [1, 1, 1]
+            np.sqrt(mu2grid).tolist(), [_MC, _MB, _MT], [1, 1, 1]
         )
 
         xgrid = XGrid(old["interpolation_xgrid"])
