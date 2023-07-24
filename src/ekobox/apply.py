@@ -141,4 +141,4 @@ def apply_pdf_flavor(
     real_out_grid = {}
     for ep, res in out_grid.items():
         real_out_grid[ep] = {"pdfs": res.pdfs, "errors": res.errors}
-    return out_grid
+    return real_out_grid
