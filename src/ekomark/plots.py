@@ -233,9 +233,10 @@ def save_operators_to_pdf(
         DGLAP result
     skip_pdfs : list
         PDF to skip
-    change_lab : bool
-        set whether to rename the labels
-
+    rotate_to_evolution_basis : bool
+        plot operators in evolution basis
+    qed : bool
+        plot operators in unified evolution basis, if the former is active
     """
     ops_names = br.evol_basis_pids if rotate_to_evolution_basis else br.evol_basis_pids
     ops_id = f"o{ops['hash'][:6]}_t{theory['hash'][:6]}"
@@ -250,13 +251,11 @@ def save_operators_to_pdf(
         # plot the operators
         # it's necessary to reshuffle the eko output
         for mu2, op in me.items():
-            change_lab = False
             if rotate_to_evolution_basis:
                 if not qed:
                     op = manipulate.to_evol(op, source=True, target=True)
                 else:
                     op = manipulate.to_uni_evol(op, source=True, target=True)
-                change_lab = True
             results = op.operator
             errors = op.error
 
@@ -283,7 +282,7 @@ def save_operators_to_pdf(
                         continue
                     lab_in = label_in
                     lab_out = label_out
-                    if change_lab:
+                    if rotate_to_evolution_basis:
                         index_in = br.evol_basis_pids.index(label_in)
                         index_out = br.evol_basis_pids.index(label_out)
                         lab_in = br.evol_basis[index_in]

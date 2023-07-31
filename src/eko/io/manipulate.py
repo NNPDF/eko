@@ -23,7 +23,7 @@ SIMGRID_ROTATION = "ij,ajbk,kl->aibl"
 def rotation(new: Optional[XGrid], old: XGrid, check: Callable, compute: Callable):
     """Define grid rotation.
 
-    This function returns the new grid to be assigned and the rotation computed,
+    This function returns the necessary rotation,
     if the checks for a non-trivial new grid are passed.
 
     However, the check and the computation are delegated respectively to the
@@ -31,13 +31,13 @@ def rotation(new: Optional[XGrid], old: XGrid, check: Callable, compute: Callabl
 
     """
     if new is None:
-        return old, None
+        return None
 
     if check(new, old):
         warnings.warn("The new grid is close to the current one")
-        return old, None
+        return None
 
-    return new, compute(new, old)
+    return compute(new, old)
 
 
 def xgrid_check(new: Optional[XGrid], old: XGrid):
@@ -78,13 +78,13 @@ def xgrid_reshape(
     crot = xgrid_compute_rotation
 
     # construct matrices
-    newtarget, targetrot = rotation(
+    targetrot = rotation(
         targetgrid,
         xgrid,
         check,
         lambda new, old: crot(new, old, interpdeg),
     )
-    newinput, inputrot = rotation(
+    inputrot = rotation(
         inputgrid,
         xgrid,
         check,
