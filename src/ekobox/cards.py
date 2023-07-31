@@ -18,7 +18,6 @@ _theory = dict(
     ),
     heavy=dict(
         num_flavs_init=4,
-        num_flavs_max_pdf=6,
         intrinsic_flavors=[4],
         masses=[ReferenceRunning([mq, nan]) for mq in (2.0, 4.5, 173.07)],
         masses_scheme="POLE",

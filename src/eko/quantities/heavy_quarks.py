@@ -96,8 +96,6 @@ class HeavyInfo(DictLike):
     I.e. :math:`n_{f,\text{ref}}(\mu^2_0)`, formerly called ``nf0``.
 
     """
-    num_flavs_max_pdf: FlavorsNumber
-    """Maximum number of quark PDFs."""
     intrinsic_flavors: IntrinsicFlavors
     """List of intrinsic quark PDFs."""
     masses: HeavyQuarkMasses

@@ -23,7 +23,6 @@ def benchmark_evolve_single_member(
     theory.couplings.alphas = 0.118000
     theory.couplings.scale = 91.1876
     theory.couplings.alphaem = 0.007496
-    theory.heavy.num_flavs_max_pdf = 3
     theory.heavy.masses.c.value = 1.3
     theory.heavy.masses.b.value = 4.75
     theory.heavy.masses.t.value = 172

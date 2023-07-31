@@ -190,7 +190,6 @@ class Legacy:
             "num_flavs_init": nf_default(old["Q0"] ** 2.0, default_atlas(ms, ks))
             if old["nf0"] is None
             else old["nf0"],
-            "num_flavs_max_pdf": old["MaxNfPdf"],
             "matching_ratios": self.heavies("k%sThr", old),
             "masses_scheme": old["HQ"],
         }
