@@ -100,7 +100,6 @@ def test_runcards_quarkmass():
     tc["IC"] = 1
     oc = copy.deepcopy(operator_card)
     nt, no = rc.update(tc, oc)
-    assert nt.heavy.intrinsic_flavors == [4]
     for _, scale in nt.heavy.masses:
         assert np.isnan(scale)
     m2s = rc.masses(nt, no.configs.evolution_method)

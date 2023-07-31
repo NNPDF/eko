@@ -100,7 +100,6 @@ class PseudoTheory(DictLike):
         """Load from old metadata."""
         heavy = HeavyInfo(
             num_flavs_init=4,
-            intrinsic_flavors=[],
             masses=HeavyQuarkMasses(
                 [
                     ReferenceRunning([_MC, np.inf]),

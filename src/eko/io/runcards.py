@@ -193,11 +193,6 @@ class Legacy:
             "matching_ratios": self.heavies("k%sThr", old),
             "masses_scheme": old["HQ"],
         }
-        intrinsic = []
-        for idx, q in enumerate(hq.FLAVORS):
-            if old.get(f"i{q}".upper()) == 1:
-                intrinsic.append(idx + 4)
-        new["heavy"]["intrinsic_flavors"] = intrinsic
         if old["HQ"] == "POLE":
             new["heavy"]["masses"] = [[m, nan] for m in ms]
         elif old["HQ"] == "MSBAR":

@@ -23,7 +23,6 @@ def update_cards(theory: TheoryCard, operator: OperatorCard):
         num_flavs_ref=None,
     )
     theory.heavy.num_flavs_init = 4
-    theory.heavy.intrinsic_flavors = [4, 5]
     theory.heavy.masses.c.value = 1.0
     theory.heavy.masses.b.value = 4.75
     theory.heavy.masses.t.value = 173.0
