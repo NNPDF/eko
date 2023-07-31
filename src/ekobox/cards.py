@@ -15,7 +15,6 @@ _theory = dict(
         alphaem=0.007496252,
         scale=91.2,
         num_flavs_ref=5,
-        max_num_flavs=6,
     ),
     heavy=dict(
         num_flavs_init=4,

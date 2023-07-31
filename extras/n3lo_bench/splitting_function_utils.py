@@ -104,7 +104,6 @@ def compute_a_s(q2=None, xif2=1.0, nf=None, order=(4, 0)):
             alphas=0.1181,
             alphaem=0.007496,
             scale=91.00,
-            max_num_flavs=6,
             num_flavs_ref=5,
         )
         sc = Couplings(

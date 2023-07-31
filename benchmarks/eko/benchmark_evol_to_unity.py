@@ -20,7 +20,6 @@ def update_cards(theory: TheoryCard, operator: OperatorCard):
         alphas=0.35,
         alphaem=0.007496,
         scale=float(np.sqrt(2)),
-        max_num_flavs=6,
         num_flavs_ref=None,
     )
     theory.heavy.num_flavs_init = 4

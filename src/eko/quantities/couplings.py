@@ -20,7 +20,6 @@ class CouplingsInfo(DictLike):
     alphas: Coupling
     alphaem: Coupling
     scale: LinearScale
-    max_num_flavs: FlavorsNumber
     num_flavs_ref: FlavorsNumber
     r"""Number of active flavors at strong coupling reference scale.
 

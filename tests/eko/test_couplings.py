@@ -55,7 +55,6 @@ class TestCouplings:
                 alphaem=alpharef[1],
                 scale=muref,
                 num_flavs_ref=5,
-                max_num_flavs=6,
             )
         )
         order = (1, 0)
@@ -162,7 +161,6 @@ class TestCouplings:
                     alphaem=alpharef[1],
                     scale=muref,
                     num_flavs_ref=nfref,
-                    max_num_flavs=6,
                 )
             )
             for order_s in [1, 2, 3, 4]:
@@ -197,7 +195,6 @@ class TestCouplings:
                 alphaem=alpharef[1],
                 scale=muref,
                 num_flavs_ref=3,  # reference nf is needed to force the matching
-                max_num_flavs=6,
             )
         )
         sc = Couplings(
@@ -238,7 +235,6 @@ class TestCouplings:
                                 alphaem=alpharef[1],
                                 scale=muref,
                                 num_flavs_ref=nfref,
-                                max_num_flavs=6,
                                 em_running=em_running,
                             )
                         )
@@ -301,7 +297,6 @@ class TestCouplings:
             alphaem=alpharef[1],
             scale=muref,
             num_flavs_ref=5,
-            max_num_flavs=6,
         )
         m2c = 2
         m2b = 25
