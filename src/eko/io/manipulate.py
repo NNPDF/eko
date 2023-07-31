@@ -20,7 +20,9 @@ SIMGRID_ROTATION = "ij,ajbk,kl->aibl"
 """Simultaneous grid rotation contraction indices."""
 
 
-def rotation(new: Optional[XGrid], old: XGrid, check: Callable, compute: Callable):
+def rotation(
+    new: Optional[XGrid], old: XGrid, check: Callable, compute: Callable
+) -> npt.NDArray:
     """Define grid rotation.
 
     This function returns the necessary rotation,
@@ -40,12 +42,14 @@ def rotation(new: Optional[XGrid], old: XGrid, check: Callable, compute: Callabl
     return compute(new, old)
 
 
-def xgrid_check(new: Optional[XGrid], old: XGrid):
+def xgrid_check(new: Optional[XGrid], old: XGrid) -> bool:
     """Check validity of new xgrid."""
     return new is not None and len(new) == len(old) and np.allclose(new.raw, old.raw)
 
 
-def xgrid_compute_rotation(new: XGrid, old: XGrid, interpdeg: int, swap: bool = False):
+def xgrid_compute_rotation(
+    new: XGrid, old: XGrid, interpdeg: int, swap: bool = False
+) -> npt.NDArray:
     """Compute rotation from old to new xgrid.
 
     By default, the roation is computed for a target xgrid. Whether the function
@@ -132,7 +136,7 @@ def flavor_reshape(
     elem: Operator,
     targetpids: Optional[npt.NDArray] = None,
     inputpids: Optional[npt.NDArray] = None,
-):
+) -> Operator:
     """Change the operator to have in the output targetpids and/or in the input inputpids.
 
     Parameters
@@ -202,7 +206,7 @@ def flavor_reshape(
     return Operator(operator=ops, error=errs)
 
 
-def to_evol(elem: Operator, source: bool = True, target: bool = False):
+def to_evol(elem: Operator, source: bool = True, target: bool = False) -> Operator:
     """Rotate the operator into evolution basis.
 
     Parameters
@@ -221,7 +225,7 @@ def to_evol(elem: Operator, source: bool = True, target: bool = False):
     return flavor_reshape(elem, inputpids=inputpids, targetpids=targetpids)
 
 
-def to_uni_evol(elem: Operator, source: bool = True, target: bool = False):
+def to_uni_evol(elem: Operator, source: bool = True, target: bool = False) -> Operator:
     """Rotate the operator into evolution basis.
 
     Parameters
