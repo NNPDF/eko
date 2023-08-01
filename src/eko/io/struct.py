@@ -552,7 +552,7 @@ class Builder:
         self.access.open = True
         metadata = Metadata(
             _path=self.path,
-            origin=(self.operator.mu20, self.theory.heavy.num_flavs_init),
+            origin=(self.operator.init[0] ** 2, self.operator.init[1]),
             bases=Bases(xgrid=self.operator.xgrid),
         )
         InternalPaths(self.path).bootstrap(

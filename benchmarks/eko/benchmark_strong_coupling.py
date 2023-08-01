@@ -842,7 +842,6 @@ class BenchmarkCouplings:
         theory.couplings.alphas = 0.35
         theory.couplings.alphaem = 0.007496
         theory.couplings.ref = (float(np.sqrt(2)), 4)
-        theory.heavy.num_flavs_init = 3
         theory.xif = np.sqrt(1.0 / 2.0)
         theory.heavy.masses.c.value = np.sqrt(2.0)
         theory.heavy.masses.b.value = 4.5

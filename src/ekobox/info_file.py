@@ -35,7 +35,9 @@ def build(
         info file in lhapdf format
     """
     template_info = copy.deepcopy(load.template_info)
-    template_info["SetDesc"] = "Evolved PDF from " + str(operators_card.mu0) + " GeV"
+    template_info["SetDesc"] = (
+        "Evolved PDF from " + str(operators_card.init[0]) + " GeV"
+    )
     template_info["Authors"] = ""
     template_info["FlavorScheme"] = "variable"
     template_info.update(info_update)

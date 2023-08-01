@@ -27,7 +27,7 @@ def benchmark_evolve_single_member(
     theory.heavy.masses.b.value = 4.75
     theory.heavy.masses.t.value = 172
     op = operator_card
-    op.mu0 = 5.0
+    op.init = (5.0, 4)
     op.mugrid = mugrid
     # lhapdf import (maybe i have to dump with a x*), do plots)
     with lhapdf_path(test_pdf):
@@ -74,7 +74,7 @@ def benchmark_evolve_more_members(
     theory = theory_card
     theory.order = (1, 0)
     op = operator_card
-    op.mu0 = 1.0
+    op.init = (1.0, 3)
     op.mugrid = [(10.0, 5), (100.0, 5)]
     op.xgrid = XGrid([1e-7, 0.01, 0.1, 0.2, 0.3])
     with lhapdf_path(test_pdf):

@@ -24,7 +24,7 @@ def test_runcards_opcard():
     assert len(no.mu2grid) == len(no.evolgrid)
     assert no.evolgrid[0][-1] == 4
     assert no.evolgrid[1][-1] == 5
-    np.testing.assert_allclose(no.mu0, tc["Q0"])
+    np.testing.assert_allclose(no.init[0], tc["Q0"])
     np.testing.assert_allclose(no.mu20, tc["Q0"] ** 2.0)
     assert len(no.pids) == 14
     check_dumpable(no)

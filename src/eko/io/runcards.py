@@ -95,7 +95,7 @@ class Configs(DictLike):
 class OperatorCard(DictLike):
     """Operator Card info."""
 
-    mu0: float
+    init: EPoint
     """Initial scale."""
     mugrid: List[EPoint]
     xgrid: interpolation.XGrid
@@ -115,7 +115,7 @@ class OperatorCard(DictLike):
     @property
     def mu20(self):
         """Squared value of initial scale."""
-        return self.mu0**2
+        return self.init[0] ** 2
 
     @property
     def mu2grid(self) -> npt.NDArray:
@@ -186,9 +186,6 @@ class Legacy:
             ref=(old["Qref"], old["nfref"]),
         )
         new["heavy"] = {
-            "num_flavs_init": nf_default(old["Q0"] ** 2.0, default_atlas(ms, ks))
-            if old["nf0"] is None
-            else old["nf0"],
             "matching_ratios": self.heavies("k%sThr", old),
             "masses_scheme": old["HQ"],
         }
@@ -212,17 +209,20 @@ class Legacy:
         old_th = self.theory
         new = {}
 
-        new["mu0"] = old_th["Q0"]
+        ms = self.heavies("m%s", old_th)
+        ks = self.heavies("k%sThr", old_th)
+        new["init"] = (
+            old_th["Q0"],
+            nf_default(old_th["Q0"] ** 2.0, default_atlas(ms, ks))
+            if old_th["nf0"] is None
+            else old_th["nf0"],
+        )
         if "mugrid" in old:
             mugrid = old["mugrid"]
         else:
             mu2grid = old["Q2grid"] if "Q2grid" in old else old["mu2grid"]
             mugrid = np.sqrt(mu2grid).tolist()
-        new["mugrid"] = flavored_mugrid(
-            mugrid,
-            list(self.heavies("m%s", old_th)),
-            list(self.heavies("k%sThr", old_th)),
-        )
+        new["mugrid"] = flavored_mugrid(mugrid, list(ms), list(ks))
 
         new["configs"] = {}
         evmod = old_th["ModEv"]

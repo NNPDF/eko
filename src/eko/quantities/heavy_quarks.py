@@ -84,12 +84,6 @@ class HeavyInfo(DictLike):
 
     """
 
-    num_flavs_init: FlavorsNumber
-    r"""Number of active flavors at fitting scale.
-
-    I.e. :math:`n_{f,\text{ref}}(\mu^2_0)`, formerly called ``nf0``.
-
-    """
     masses: HeavyQuarkMasses
     """List of heavy quark masses."""
     masses_scheme: QuarkMassScheme

@@ -99,7 +99,6 @@ class PseudoTheory(DictLike):
     def from_old(cls, old: RawCard):
         """Load from old metadata."""
         heavy = HeavyInfo(
-            num_flavs_init=4,
             masses=HeavyQuarkMasses(
                 [
                     ReferenceRunning([_MC, np.inf]),
@@ -122,7 +121,7 @@ class PseudoOperator(DictLike):
 
     """
 
-    mu20: float
+    init: EPoint
     evolgrid: List[EPoint]
     xgrid: XGrid
     configs: dict
@@ -130,7 +129,7 @@ class PseudoOperator(DictLike):
     @classmethod
     def from_old(cls, old: RawCard):
         """Load from old metadata."""
-        mu20 = float(old["q2_ref"])
+        mu0 = float(np.sqrt(float(old["q2_ref"])))
         mu2list = old.get("Q2grid")
         if mu2list is None:
             mu2list = old["mu2grid"]
@@ -146,7 +145,7 @@ class PseudoOperator(DictLike):
             interpolation_is_log=old.get("interpolation_is_log"),
         )
 
-        return cls(mu20=mu20, evolgrid=evolgrid, xgrid=xgrid, configs=configs)
+        return cls(init=(mu0, 4), evolgrid=evolgrid, xgrid=xgrid, configs=configs)
 
 
 ARRAY_SUFFIX = ".npy.lz4"
