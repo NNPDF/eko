@@ -234,11 +234,10 @@ class OperatorMatrixElement(Operator):
             logger.warning("%s: skipping non-singlet sector", self.log_label)
         else:
             labels.append((200, 200))
-            if self.backward_method is not None:
-                # intrinsic labels, which are not zero at NLO
-                labels.append((br.matching_hminus_pid, br.matching_hminus_pid))
-                # These contributions are always 0 for the moment
-                # labels.extend([(200, br.matching_hminus_pid), (br.matching_hminus_pid, 200)])
+            # intrinsic labels, which are not zero at NLO
+            labels.append((br.matching_hminus_pid, br.matching_hminus_pid))
+            # These contributions are always 0 for the moment
+            # labels.extend([(200, br.matching_hminus_pid), (br.matching_hminus_pid, 200)])
         # same for singlet
         if self.config["debug_skip_singlet"]:
             logger.warning("%s: skipping singlet sector", self.log_label)
@@ -250,14 +249,13 @@ class OperatorMatrixElement(Operator):
                     (br.matching_hplus_pid, 100),
                 ]
             )
-            if self.backward_method is not None:
-                labels.extend(
-                    [
-                        (21, br.matching_hplus_pid),
-                        (100, br.matching_hplus_pid),
-                        (br.matching_hplus_pid, br.matching_hplus_pid),
-                    ]
-                )
+            labels.extend(
+                [
+                    (21, br.matching_hplus_pid),
+                    (100, br.matching_hplus_pid),
+                    (br.matching_hplus_pid, br.matching_hplus_pid),
+                ]
+            )
         return labels
 
     def quad_ker(self, label, logx, areas):
