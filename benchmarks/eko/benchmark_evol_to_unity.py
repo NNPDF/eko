@@ -19,7 +19,7 @@ def update_cards(theory: TheoryCard, operator: OperatorCard):
     theory.couplings = CouplingsInfo(
         alphas=0.35,
         alphaem=0.007496,
-        scale=(float(np.sqrt(2)), 4),
+        ref=(float(np.sqrt(2)), 4),
     )
     theory.heavy.num_flavs_init = 4
     theory.heavy.masses.c.value = 1.0

@@ -148,7 +148,7 @@ class BenchmarkMSbar:
                     apfel.SetTheory("QCD")
                     apfel.SetPerturbativeOrder(order - 1)
                     apfel.SetAlphaEvolution(method)
-                    apfel.SetAlphaQCDRef(coupl.alphas, coupl.scale)
+                    apfel.SetAlphaQCDRef(coupl.alphas, coupl.ref[0])
                     apfel.SetVFNS()
                     apfel.SetMSbarMasses(
                         qmasses.c.value, qmasses.b.value, qmasses.t.value
@@ -216,7 +216,7 @@ class BenchmarkMSbar:
                 apfel.SetTheory("QCD")
                 apfel.SetPerturbativeOrder(order - 1)
                 apfel.SetAlphaEvolution("exact")
-                apfel.SetAlphaQCDRef(coupl.alphas, coupl.scale)
+                apfel.SetAlphaQCDRef(coupl.alphas, coupl.ref[0])
                 apfel.SetVFNS()
                 apfel.SetMSbarMasses(qmasses.c.value, qmasses.b.value, qmasses.t.value)
                 apfel.SetMassScaleReference(
