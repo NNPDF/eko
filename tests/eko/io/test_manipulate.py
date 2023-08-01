@@ -213,7 +213,7 @@ class TestManipulate:
         mu2_out = mu_out**2
         nfout = 4
         epout = (mu2_out, nfout)
-        eko_factory.operator.mu0 = float(np.sqrt(1.0))
+        eko_factory.operator.init = (float(np.sqrt(1.0)), 3)
         eko_factory.operator.mugrid = [(mu_out, nfout)]
         eko_factory.operator.xgrid = xgrid
         eko_factory.operator.configs.interpolation_polynomial_degree = 1

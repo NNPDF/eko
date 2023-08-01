@@ -33,9 +33,6 @@ def test_HeavyQuarks():
 
 def test_HeavyInfo():
     i = hq.HeavyInfo(
-        num_flavs_init=4,
-        num_flavs_max_pdf=6,
-        intrinsic_flavors=[4, 5],
         masses=hq.HeavyQuarkMasses(
             [
                 hq.QuarkMassRef([2.0, nan]),

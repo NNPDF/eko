@@ -21,15 +21,13 @@ def benchmark_evolve_single_member(
     theory = theory_card
     theory.order = (1, 0)
     theory.couplings.alphas = 0.118000
-    theory.couplings.scale = 91.1876
+    theory.couplings.ref = (91.1876, 5)
     theory.couplings.alphaem = 0.007496
-    theory.couplings.max_num_flavs = 3
-    theory.heavy.num_flavs_max_pdf = 3
     theory.heavy.masses.c.value = 1.3
     theory.heavy.masses.b.value = 4.75
     theory.heavy.masses.t.value = 172
     op = operator_card
-    op.mu0 = 5.0
+    op.init = (5.0, 4)
     op.mugrid = mugrid
     # lhapdf import (maybe i have to dump with a x*), do plots)
     with lhapdf_path(test_pdf):
@@ -49,7 +47,7 @@ def benchmark_evolve_single_member(
         ev_pdf = lhapdf.mkPDF("EvPDF", 0)
     assert info["XMin"] == op.xgrid.raw[0]
     assert info["SetDesc"] == "MyEvolvedPDF"
-    assert info["MZ"] == theory.couplings.scale
+    assert info["MZ"] == theory.couplings.ref[0]
     assert info["Debug"] == "Debug"
     xgrid = op.xgrid.raw
     for idx, mu2 in enumerate(op.mu2grid):
@@ -76,7 +74,7 @@ def benchmark_evolve_more_members(
     theory = theory_card
     theory.order = (1, 0)
     op = operator_card
-    op.mu0 = 1.0
+    op.init = (1.0, 3)
     op.mugrid = [(10.0, 5), (100.0, 5)]
     op.xgrid = XGrid([1e-7, 0.01, 0.1, 0.2, 0.3])
     with lhapdf_path(test_pdf):

@@ -10,7 +10,7 @@ def test_build():
     theory.order = (2, 0)
     theory.couplings.alphas = 0.2
     op = cards.example.operator()
-    op.mu0 = 1.0
+    op.init = (1.0, 3)
     op.mugrid = [(10.0, 5), (100.0, 5)]
     info = info_file.build(
         theory, op, 4, info_update={"SetDesc": "Prova", "NewArg": 15.3, "MTop": 1.0}

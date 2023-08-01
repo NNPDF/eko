@@ -36,7 +36,7 @@ def test_mass_scheme(theory_card, operator_card, tmp_path):
         eko.runner.legacy.Runner(theory_card, operator_card, path=path)
     # MSbar scheme
     theory_card.heavy.masses_scheme = QuarkMassScheme.MSBAR
-    theory_card.couplings.num_flavs_ref = 5
+    theory_card.couplings.ref = (91.0, 5)
     theory_card.heavy.masses.c.scale = 2
     theory_card.heavy.masses.b.scale = 4.5
     theory_card.heavy.masses.t.scale = 173.07

@@ -221,27 +221,21 @@ def mk_op_members(shape=(2, 2), qed=False):
     return om
 
 
-def get_ad_to_evol_map(nf, intrinsic_range=None, qed=False):
+def get_ad_to_evol_map(nf, qed=False):
     oms = mk_op_members(qed=qed)
-    m = PhysicalOperator.ad_to_evol_map(oms, nf, 1, intrinsic_range, qed)
+    m = PhysicalOperator.ad_to_evol_map(oms, nf, 1, qed)
     return sorted(map(str, m.op_members.keys()))
 
 
 def test_ad_to_evol_map():
     triv_ops = ("S.S", "S.g", "g.S", "g.g", "V.V", "V3.V3", "T3.T3", "V8.V8", "T8.T8")
     # nf=3
-    assert sorted(triv_ops) == get_ad_to_evol_map(3)
-    # nf=3 + IC
-    assert sorted([*triv_ops, "c+.c+", "c-.c-"]) == get_ad_to_evol_map(3, [4])
-    # nf=3 + IC + IB
     assert sorted(
-        [*triv_ops, "c+.c+", "c-.c-", "b+.b+", "b-.b-"]
-    ) == get_ad_to_evol_map(3, [4, 5])
-    # nf=4 + IC(non-existant) + IB
-    ks = sorted([*triv_ops, "V15.V15", "T15.T15", "b+.b+", "b-.b-"])
-    assert ks == get_ad_to_evol_map(4, [4, 5])
-    # nf=4 + IB
-    assert ks == get_ad_to_evol_map(4, [5])
+        [*triv_ops, "c+.c+", "c-.c-", "b+.b+", "b-.b-", "t+.t+", "t-.t-"]
+    ) == get_ad_to_evol_map(3)
+    # nf=4
+    ks = sorted([*triv_ops, "V15.V15", "T15.T15", "b+.b+", "b-.b-", "t+.t+", "t-.t-"])
+    assert ks == get_ad_to_evol_map(4)
     # nf=6
     assert sorted(
         [*triv_ops, "T15.T15", "V15.V15", "T24.T24", "V24.V24", "T35.T35", "V35.V35"]
@@ -274,18 +268,12 @@ def test_ad_to_evol_map_qed():
         "Td3.Td3",
     )
     # nf=3
-    assert sorted(triv_ops) == get_ad_to_evol_map(3, qed=True)
-    # nf=3 + IC
-    assert sorted([*triv_ops, "c+.c+", "c-.c-"]) == get_ad_to_evol_map(3, [4], qed=True)
-    # nf=3 + IC + IB
     assert sorted(
-        [*triv_ops, "c+.c+", "c-.c-", "b+.b+", "b-.b-"]
-    ) == get_ad_to_evol_map(3, [4, 5], qed=True)
-    # nf=4 + IC(non-existant) + IB
-    ks = sorted([*triv_ops, "Vu3.Vu3", "Tu3.Tu3", "b+.b+", "b-.b-"])
-    assert ks == get_ad_to_evol_map(4, [4, 5], qed=True)
-    # nf=4 + IB
-    assert ks == get_ad_to_evol_map(4, [5], qed=True)
+        [*triv_ops, "c+.c+", "c-.c-", "b+.b+", "b-.b-", "t+.t+", "t-.t-"]
+    ) == get_ad_to_evol_map(3, True)
+    # nf=4
+    ks = sorted([*triv_ops, "Vu3.Vu3", "Tu3.Tu3", "b+.b+", "b-.b-", "t+.t+", "t-.t-"])
+    assert ks == get_ad_to_evol_map(4, True)
     # nf=6
     assert sorted(
         [*triv_ops, "Tu3.Tu3", "Vu3.Vu3", "Td8.Td8", "Vd8.Vd8", "Tu8.Tu8", "Vu8.Vu8"]

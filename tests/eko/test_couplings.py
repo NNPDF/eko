@@ -53,9 +53,7 @@ class TestCouplings:
             dict(
                 alphas=alpharef[0],
                 alphaem=alpharef[1],
-                scale=muref,
-                num_flavs_ref=5,
-                max_num_flavs=6,
+                ref=(muref, 5),
             )
         )
         order = (1, 0)
@@ -108,7 +106,7 @@ class TestCouplings:
             )
         with pytest.raises(ValueError):
             coup3 = copy.deepcopy(couplings)
-            coup3.scale = 0
+            coup3.ref = (0.0, 5)
             Couplings(
                 coup3,
                 order,
@@ -160,9 +158,7 @@ class TestCouplings:
                 dict(
                     alphas=alpharef[0],
                     alphaem=alpharef[1],
-                    scale=muref,
-                    num_flavs_ref=nfref,
-                    max_num_flavs=6,
+                    ref=(muref, nfref),
                 )
             )
             for order_s in [1, 2, 3, 4]:
@@ -195,9 +191,7 @@ class TestCouplings:
             dict(
                 alphas=alpharef[0],
                 alphaem=alpharef[1],
-                scale=muref,
-                num_flavs_ref=3,  # reference nf is needed to force the matching
-                max_num_flavs=6,
+                ref=(muref, 3),  # reference nf is needed to force the matching
             )
         )
         sc = Couplings(
@@ -236,9 +230,7 @@ class TestCouplings:
                             dict(
                                 alphas=alpharef[0],
                                 alphaem=alpharef[1],
-                                scale=muref,
-                                num_flavs_ref=nfref,
-                                max_num_flavs=6,
+                                ref=(muref, nfref),
                                 em_running=em_running,
                             )
                         )
@@ -299,9 +291,7 @@ class TestCouplings:
         couplings = CouplingsInfo(
             alphas=alpharef[0],
             alphaem=alpharef[1],
-            scale=muref,
-            num_flavs_ref=5,
-            max_num_flavs=6,
+            ref=(muref, 5),
         )
         m2c = 2
         m2b = 25

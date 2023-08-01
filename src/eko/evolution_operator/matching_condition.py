@@ -20,7 +20,6 @@ class MatchingCondition(member.OperatorBase):
         op_members,
         nf,
         q2_thr,
-        intrinsic_range,
         qed=False,
     ):
         """
@@ -35,8 +34,6 @@ class MatchingCondition(member.OperatorBase):
                 number of active flavors *below* the threshold
             q2_thr: float
                 threshold value
-            intrinsic_range : list
-                list of intrinsic quark pids
             qed : bool
                 activate qed
         """
@@ -78,27 +75,26 @@ class MatchingCondition(member.OperatorBase):
         )
 
         # intrinsic matching
-        if len(intrinsic_range) != 0:
-            op_id = member.OpMember.id_like(op_members[(200, 200)])
-            for intr_fl in intrinsic_range:
-                ihq = br.quark_names[intr_fl - 1]  # find name
-                if intr_fl > nf + 1:
-                    # keep the higher quarks as they are
-                    m[f"{ihq}+.{ihq}+"] = op_id.copy()
-                    m[f"{ihq}-.{ihq}-"] = op_id.copy()
-                elif intr_fl == nf + 1:
-                    # match the missing contribution from h+ and h-
-                    m.update(
-                        {
-                            f"{ihq}+.{ihq}+": op_members[
-                                (br.matching_hplus_pid, br.matching_hplus_pid)
-                            ],
-                            f"S.{ihq}+": op_members[(100, br.matching_hplus_pid)],
-                            f"g.{ihq}+": op_members[(21, br.matching_hplus_pid)],
-                            f"{ihq}-.{ihq}-": op_members[
-                                (br.matching_hminus_pid, br.matching_hminus_pid)
-                            ],
-                            # f"V.{ihq}-": op_members[(200, br.matching_hminus_pid)],
-                        }
-                    )
+        op_id = member.OpMember.id_like(op_members[(200, 200)])
+        for intr_fl in [4, 5, 6]:
+            ihq = br.quark_names[intr_fl - 1]  # find name
+            if intr_fl > nf + 1:
+                # keep the higher quarks as they are
+                m[f"{ihq}+.{ihq}+"] = op_id.copy()
+                m[f"{ihq}-.{ihq}-"] = op_id.copy()
+            elif intr_fl == nf + 1:
+                # match the missing contribution from h+ and h-
+                m.update(
+                    {
+                        f"{ihq}+.{ihq}+": op_members[
+                            (br.matching_hplus_pid, br.matching_hplus_pid)
+                        ],
+                        f"S.{ihq}+": op_members[(100, br.matching_hplus_pid)],
+                        f"g.{ihq}+": op_members[(21, br.matching_hplus_pid)],
+                        f"{ihq}-.{ihq}-": op_members[
+                            (br.matching_hminus_pid, br.matching_hminus_pid)
+                        ],
+                        # f"V.{ihq}-": op_members[(200, br.matching_hminus_pid)],
+                    }
+                )
         return cls.promote_names(m, q2_thr)

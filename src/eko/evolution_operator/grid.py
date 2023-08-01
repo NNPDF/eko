@@ -60,7 +60,6 @@ class OperatorGrid(sv.ModeMixin):
         masses: List[float],
         mass_scheme,
         thresholds_ratios: List[float],
-        intrinsic_flavors: list,
         xif: float,
         n3lo_ad_variation: tuple,
         configs: Configs,
@@ -72,7 +71,6 @@ class OperatorGrid(sv.ModeMixin):
         # check
         config: Dict[str, Any] = {}
         config["order"] = order
-        config["intrinsic_range"] = intrinsic_flavors
         config["xif2"] = xif**2
         config["HQ"] = mass_scheme
         config["ModSV"] = configs.scvar_method
@@ -171,16 +169,15 @@ class OperatorGrid(sv.ModeMixin):
         operator.compute()
 
         is_downward = is_downward_path(path)
-        intrinsic_range = [4, 5, 6] if is_downward else self.config["intrinsic_range"]
         qed = self.config["order"][1] > 0
 
         final_op = physical.PhysicalOperator.ad_to_evol_map(
-            operator.op_members, operator.nf, operator.q2_to, intrinsic_range, qed
+            operator.op_members, operator.nf, operator.q2_to, qed
         )
         # and multiply the lower ones from the right
         for op in reversed(list(thr_ops)):
             phys_op = physical.PhysicalOperator.ad_to_evol_map(
-                op.op_members, op.nf, op.q2_to, intrinsic_range, qed
+                op.op_members, op.nf, op.q2_to, qed
             )
 
             # join with the basis rotation, since matching requires c+ (or likewise)
@@ -189,7 +186,6 @@ class OperatorGrid(sv.ModeMixin):
                 self._matching_operators[op.q2_to],
                 nf_match,
                 op.q2_to,
-                intrinsic_range=intrinsic_range,
                 qed=qed,
             )
             if is_downward:

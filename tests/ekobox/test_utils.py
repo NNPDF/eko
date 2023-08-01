@@ -16,10 +16,9 @@ def test_ekos_product(tmp_path):
 
     theory = cards.example.theory()
     theory.order = (1, 0)
-    theory.heavy.num_flavs_init = 5
 
     op1 = cards.example.operator()
-    op1.mu0 = mu01
+    op1.init = (mu01, 5)
     op1.mugrid = mugrid1
     op1.xgrid = xgrid
     op1.configs.interpolation_polynomial_degree = 1
@@ -28,13 +27,13 @@ def test_ekos_product(tmp_path):
     mugrid2 = [(8.0, 5), (10.0, 5), (12.0, 5)]
 
     op2 = cards.example.operator()
-    op2.mu0 = mu0
+    op2.init = (mu0, 5)
     op2.mugrid = mugrid2
     op2.xgrid = xgrid
     op2.configs.interpolation_polynomial_degree = 1
 
     op_err = copy.deepcopy(op2)
-    op_err.mu0 = mu01
+    op_err.init = (mu01, 5)
 
     mu2first = (mugrid2[0][0] ** 2, mugrid2[0][1])
 

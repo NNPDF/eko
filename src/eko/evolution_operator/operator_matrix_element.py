@@ -214,10 +214,6 @@ class OperatorMatrixElement(Operator):
     def __init__(self, config, managers, nf, q2, is_backward, L, is_msbar):
         super().__init__(config, managers, Segment(q2, q2, nf))
         self.backward_method = config["backward_inversion"] if is_backward else None
-        if is_backward:
-            self.is_intrinsic = True
-        else:
-            self.is_intrinsic = bool(len(config["intrinsic_range"]) != 0)
         self.L = L
         self.is_msbar = is_msbar
         # Note for the moment only QCD matching is implemented
@@ -238,11 +234,10 @@ class OperatorMatrixElement(Operator):
             logger.warning("%s: skipping non-singlet sector", self.log_label)
         else:
             labels.append((200, 200))
-            if self.is_intrinsic or self.backward_method is not None:
-                # intrinsic labels, which are not zero at NLO
-                labels.append((br.matching_hminus_pid, br.matching_hminus_pid))
-                # These contributions are always 0 for the moment
-                # labels.extend([(200, br.matching_hminus_pid), (br.matching_hminus_pid, 200)])
+            # intrinsic labels, which are not zero at NLO
+            labels.append((br.matching_hminus_pid, br.matching_hminus_pid))
+            # These contributions are always 0 for the moment
+            # labels.extend([(200, br.matching_hminus_pid), (br.matching_hminus_pid, 200)])
         # same for singlet
         if self.config["debug_skip_singlet"]:
             logger.warning("%s: skipping singlet sector", self.log_label)
@@ -254,14 +249,13 @@ class OperatorMatrixElement(Operator):
                     (br.matching_hplus_pid, 100),
                 ]
             )
-            if self.is_intrinsic or self.backward_method is not None:
-                labels.extend(
-                    [
-                        (21, br.matching_hplus_pid),
-                        (100, br.matching_hplus_pid),
-                        (br.matching_hplus_pid, br.matching_hplus_pid),
-                    ]
-                )
+            labels.extend(
+                [
+                    (21, br.matching_hplus_pid),
+                    (100, br.matching_hplus_pid),
+                    (br.matching_hplus_pid, br.matching_hplus_pid),
+                ]
+            )
         return labels
 
     def quad_ker(self, label, logx, areas):

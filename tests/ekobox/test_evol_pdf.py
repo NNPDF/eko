@@ -9,7 +9,7 @@ from ekobox import evol_pdf as ev_p
 
 def init_cards():
     op = cards.example.operator()
-    op.mu0 = 1.65
+    op.init = (1.65, 4)
     op.xgrid = XGrid([0.1, 0.5, 1.0])
     op.configs.interpolation_polynomial_degree = 1
     theory = cards.example.theory()
