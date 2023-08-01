@@ -7,6 +7,9 @@ import numpy.typing as npt
 
 from ..io.inventory import Inventory
 from ..io.items import Evolution, Operator, Recipe
+from ..io.struct import EKO
+from ..io.types import EvolutionPoint
+from . import commons, recipes
 
 
 def retrieve(
@@ -91,3 +94,9 @@ def join(elements: List[Operator]) -> Operator:
 
     """
     return reduce(dotop, reversed(elements))
+
+
+def parts(ep: EvolutionPoint, eko: EKO) -> List[Recipe]:
+    """Determine parts required for the given evolution point operator."""
+    atlas = commons.atlas(eko.theory_card, eko.operator_card)
+    return recipes._elements(ep, atlas)

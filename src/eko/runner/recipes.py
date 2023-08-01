@@ -2,11 +2,13 @@
 from typing import List
 
 from ..io.items import Evolution, Matching, Recipe
+from ..io.struct import EKO
 from ..io.types import EvolutionPoint as EPoint
 from ..matchings import Atlas, Segment
+from . import commons
 
 
-def elements(ep: EPoint, atlas: Atlas) -> List[Recipe]:
+def _elements(ep: EPoint, atlas: Atlas) -> List[Recipe]:
     """Determine recipes to compute a given operator."""
     recipes = []
 
@@ -26,10 +28,17 @@ def elements(ep: EPoint, atlas: Atlas) -> List[Recipe]:
     return recipes
 
 
-def create(evolgrid: List[EPoint], atlas: Atlas) -> List[Recipe]:
+def _create(evolgrid: List[EPoint], atlas: Atlas) -> List[Recipe]:
     """Create all associated recipes."""
     recipes = []
     for ep in evolgrid:
-        recipes.extend(elements(ep, atlas))
+        recipes.extend(_elements(ep, atlas))
 
     return list(set(recipes))
+
+
+def create(eko: EKO):
+    """Create and load all associated recipes."""
+    atlas = commons.atlas(eko.theory_card, eko.operator_card)
+    recs = _create(eko.operator_card.evolgrid, atlas)
+    eko.load_recipes(recs)

@@ -15,7 +15,7 @@ from pathlib import Path
 from ..io.items import Evolution, Matching, Target
 from ..io.runcards import OperatorCard, TheoryCard
 from ..io.struct import EKO
-from . import commons, operators, parts, recipes
+from . import operators, parts, recipes
 
 
 def solve(theory: TheoryCard, operator: OperatorCard, path: Path):
@@ -24,11 +24,7 @@ def solve(theory: TheoryCard, operator: OperatorCard, path: Path):
 
     with EKO.create(path) as builder:
         eko = builder.load_cards(theory, operator).build()  # pylint: disable=E1101
-
-        atlas = commons.atlas(eko.theory_card, eko.operator_card)
-
-        recs = recipes.create(eko.operator_card.evolgrid, atlas)
-        eko.load_recipes(recs)
+        recipes.create(eko)
 
         for recipe in eko.recipes:
             assert isinstance(recipe, Evolution)
@@ -42,8 +38,9 @@ def solve(theory: TheoryCard, operator: OperatorCard, path: Path):
             del eko.parts_matching[recipe]
 
         for ep in operator.evolgrid:
-            headers = recipes.elements(ep, atlas)
-            parts_ = operators.retrieve(headers, eko.parts, eko.parts_matching)
+            parts_ = operators.retrieve(
+                operators.parts(ep, eko), eko.parts, eko.parts_matching
+            )
             target = Target.from_ep(ep)
             eko.operators[target] = operators.join(parts_)
             # flush the memory
