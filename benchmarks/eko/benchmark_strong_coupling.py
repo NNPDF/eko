@@ -334,7 +334,7 @@ class BenchmarkCouplings:
         ]
         coupling_ref = np.array([0.118, 0.007496])
         scale_ref = 91.0
-        nf_ref = 5
+        nf_refs = (5, 6)
         fact_to_ren_lin_list = [0.567, 2.34]
         masses_list = np.power([2, 2 * 4, 2 * 92], 2)
         apfel_vals_dict_list = [
@@ -427,8 +427,8 @@ class BenchmarkCouplings:
                 ),
             },
         ]
-        for fact_to_ren_lin, apfel_vals_dict in zip(
-            fact_to_ren_lin_list, apfel_vals_dict_list
+        for fact_to_ren_lin, apfel_vals_dict, nf_ref in zip(
+            fact_to_ren_lin_list, apfel_vals_dict_list, nf_refs
         ):
             # collect my values
             for order in [1, 2, 3]:
