@@ -255,28 +255,6 @@ class Legacy:
         return OperatorCard.from_dict(new)
 
 
-def update(theory: Union[RawCard, TheoryCard], operator: Union[RawCard, OperatorCard]):
-    """Update legacy runcards.
-
-    This function is mainly defined for compatibility with the old interface.
-    Prefer direct usage of :class:`Legacy` in new code.
-
-    Consecutive applications of this function yield identical results::
-
-        cards = update(theory, operator)
-        assert update(*cards) == cards
-
-    """
-    if isinstance(theory, TheoryCard) or isinstance(operator, OperatorCard):
-        # if one is not a dict, both have to be new cards
-        assert isinstance(theory, TheoryCard)
-        assert isinstance(operator, OperatorCard)
-        return theory, operator
-
-    cards = Legacy(theory, operator)
-    return cards.new_theory, cards.new_operator
-
-
 def default_atlas(masses: list, matching_ratios: list):
     r"""Create default landscape.
 

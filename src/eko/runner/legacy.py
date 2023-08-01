@@ -3,6 +3,8 @@ import logging
 import os
 from typing import Union
 
+from ekomark.data import update_runcards
+
 from ..evolution_operator.grid import OperatorGrid
 from ..io import EKO, Operator, runcards
 from ..io.types import RawCard
@@ -43,7 +45,7 @@ class Runner:
             path where to store the computed operator
 
         """
-        new_theory, new_operator = runcards.update(theory_card, operators_card)
+        new_theory, new_operator = update_runcards(theory_card, operators_card)
 
         # Store inputs
         self.path = path
