@@ -229,10 +229,11 @@ The other parts are approximated using some known limits:
         It is known that :cite:`Albino:2000cp,Moch:2021qrk` the diagonal terms diverge in N-space as:
 
             .. math ::
-                \gamma_{kk} \approx A^{(r)}_4 S_1(N) + B^{(r)}_4 + \mathcal{O}(1)
+                \gamma_{kk} \approx A^{(r)}_4 S_1(N) + B^{(r)}_4 + C^{(r)}_4 \frac{S_1(N)}{N} + \mathcal{O}(\frac{1}{N})
 
-        Where again the coefficient :math:`A^{(r)}_4` is the |QCD| cusp anomalous dimension for the adjoint or fundamental representation.
-        Again the coefficient :math:`B^{(r)}_4` has been extracted from soft anomalous dimensions :cite:`Duhr:2022cob`.
+        Where again the coefficient :math:`A^{(r)}_4` is the |QCD| cusp anomalous dimension for the adjoint or fundamental representation,
+        the coefficient :math:`B^{(r)}_4` has been extracted from soft anomalous dimensions :cite:`Duhr:2022cob`.
+        and :math:`C^{(r)}_4`can be estimate from lower orders :cite:`Dokshitzer:2005bf`.
         However, :math:`\gamma_{qq,ps}^{(3)}` do not constrain any divergence at large-x or constant term so its expansion starts as
         :math:`\mathcal{O}(\frac{1}{N^2})`.
         The off-diagonal do not contain any +-distributions or delta distributions but can include divergent logarithms
@@ -258,7 +259,7 @@ The other parts are approximated using some known limits:
                 & \gamma_{qg}(2) + \gamma_{gg}(2) = 0 \\
                 & \gamma_{qq}(2) + \gamma_{gq}(2) = 0 \\
 
-        For :math:`\gamma_{qq,ps}` other 6 additional moments are available :cite:`Falcioni:2023luc`,
+        For :math:`\gamma_{qq,ps}, \gamma_{qg}` other 6 additional moments are available :cite:`Falcioni:2023luc,Falcioni:2023vqq`.
         making the parametrization of this splitting function much more accurate.
 
 The difference between the known moments and the known limits is parametrized
@@ -286,7 +287,7 @@ Any possible candidate contains 4 elements and is obtained with the following pr
     3. the remaining functions are chosen from of a batch of functions describing sub-leading unknown terms both for the small-N and large-N limit.
 
 This way we generate a large set of independent candidates, roughly 70 for each anomalous dimension,
-and by taking the spread of the solutions we get as an estimate of the parametrization uncertainties.
+and by taking the standard deviation of the solutions we get as an estimate of the parametrization uncertainties.
 When looking at the x-space results we must invert/perform the evolution with each solution
 and then compute the statical estimators on the final ensemble.
 The "best" result is always taken as the average on all the possible variations.
@@ -313,11 +314,11 @@ final reduced sets of candidates.
         *   - :math:`f_1(N)`
             - :math:`\frac{S_2(N-2)}{N}`
         *   - :math:`f_2(N)`
-            - :math:`\frac{S_1(N)}{N}`
+            - :math:`\frac{1}{N}`
         *   - :math:`f_3(N)`
-            - :math:`\frac{1}{N-1},\ \frac{1}{N}`
+            - :math:`\frac{1}{N-1},\ \frac{S_1(N)}{N^2}`
         *   - :math:`f_4(N)`
-            - :math:`\frac{1}{N-1},\ \frac{1}{N^4},\ \frac{1}{N^3},\ \frac{1}{N^2},\ \frac{1}{N},\ \frac{1}{(N+1)^3},\ \frac{1}{(N+1)^2},\ \frac{1}{N+1},\ \frac{1}{N+2},\ \frac{S_1(N)}{N},\ \mathcal{M}[(1-x)\ln(1-x)],\ \frac{S_1(N)}{N^2}`
+            - :math:`\frac{1}{N-1},\ \frac{1}{N^4},\ \frac{1}{N^3},\ \frac{1}{N^2},\ \frac{1}{(N+1)^3},\ \frac{1}{(N+1)^2},\ \frac{1}{N+1},\ \frac{1}{N+2},\ \mathcal{M}[(1-x)\ln(1-x)],\ \frac{S_1(N)}{N^2}, \ \mathcal{M}[(1-x)^2\ln(1-x)],`
 
     .. list-table::  :math:`\gamma_{gq}^{(3)}` parametrization basis
         :align: center
@@ -332,44 +333,39 @@ final reduced sets of candidates.
             - :math:`\frac{1}{N-1},\ \frac{1}{N^4},\ \frac{1}{N^3},\ \frac{1}{N^2},\ \frac{1}{N},\ \frac{1}{(N+1)^3},\ \frac{1}{(N+1)^2},\ \frac{1}{N+1},\ \frac{1}{N+2},\ \frac{S_1(N-2)}{N},\ \mathcal{M}[\ln^3(1-x)],\ \mathcal{M}[\ln^2(1-x)], \frac{S_1(N)}{N},\ \frac{S_1^2(N)}{N}`
 
     Note that this table refers only to the :math:`n_f^0` part where we assume no violation of the scaling with :math:`\gamma_{gg}`
-    also for the |NLL| term, to help the convergence. We expect that any possible deviation can be parametrized as a shift in he |NNLL| terms
+    also for the |NLL| term, to help the convergence. We expect that any possible deviation can be parametrized as a shift in the |NNLL| terms
     and in the |NLL| :math:`n_f^1` which are free to vary independently.
     Furthermore for the part :math:`\propto n_f^2` we adopt a slightly different
     basis to account fot the fact that the leading
     contribution for the pole at :math:`N=1` is :math:`\frac{1}{(N-1)^2}`.
 
+Slightly different choices are performed for :math:`\gamma_{gq}^{(3)}` and :math:`\gamma_{qq,ps}^{(3)}`
+where 10 moments are known. In this case we can select a larger number of functions in group 3
+and following :cite:`Falcioni:2023luc,Falcioni:2023vqq` we use:
+
     .. list-table::  :math:`\gamma_{qg}^{(3)}` parametrization basis
-        :align: center
-
-        *   - :math:`f_1(N)`
-            - :math:`\frac{1}{(N-1)}`
-        *   - :math:`f_2(N)`
-            - :math:`\frac{S_1^3(N)}{N}`
-        *   - :math:`f_3(N)`
-            - :math:`\frac{1}{N^3},\ \mathcal{M}[\ln^3(1-x)]`
-        *   - :math:`f_4(N)`
-            - :math:`\frac{1}{N^4},\ \frac{1}{N^3},\ \frac{1}{N^2},\ \frac{1}{N},\ \frac{1}{(N+1)^3},\ \frac{1}{(N+1)^2},\ \frac{1}{N+1},\ \frac{1}{N+2},\ \frac{S_1^2(N)}{N},\ \frac{S_1(N-2)}{N},\ \frac{S_1(N)}{N},\ \mathcal{M}[\ln^2(1-x)],\ \mathcal{M}[\ln^3(1-x)]`
-
-    Also in this case we assume no violation of the scaling with :math:`\gamma_{qq}`
-    for the |NLL| term, which is extracted from using 10 moments :cite:`Falcioni:2023luc`
-    thus is known more precisely. We expect that any possible deviation can be parametrized as a shift in the |NNLL| terms.
-
-Slightly different choices are performed for :math:`\gamma_{qq,ps}^{(3)}` where 10 moments
-are known. In this case we can select a larger number of functions in group 3
-and following :cite:`Falcioni:2023luc` we use:
-
-    .. list-table::  :math:`\gamma_{qq,ps}^{(3)}` parametrization basis
         :align: center
 
         *   - :math:`f_1(N)`
             - :math:`\frac{1}{(N-1)^2}`
         *   - :math:`f_2(N)`
-            - :math:`\mathcal{M}[(1-x)\ln^2(1-x)]`
+            - :math:`\mathcal{M}[\ln^3(1-x)]`
         *   - :math:`f_3(N)`
-            - :math:`\frac{1}{N^4},\ \frac{1}{N^3},\ \mathcal{M}[(1-x)\ln(1-x)],\ \mathcal{M}[(1-x)^2\ln^2(1-x)],\ \mathcal{M}[(1-x)^2\ln(1-x)],\ \frac{1}{N-1}-\frac{1}{N}`
+            - :math:`\frac{1}{N^4},\ \frac{1}{N^3},\ \frac{1}{N^2},\ \frac{1}{N},\frac{1}{N-1}-\frac{1}{N},\ \mathcal{M}[\ln^2(1-x)]`
         *   - :math:`f_4(N)`
-            - :math:`\mathcal{M}[(1-x)\ln(x)],\ \mathcal{M}[(1-x)\(1+2x)],\ \mathcal{M}[(1-x)x^2],\ \mathcal{M}[(1-x)x (1+x)],\ \mathcal{M}[(1-x)]`
+            - :math:`\mathcal{M}[\ln(x) \ln(1-x)],\ \mathcal{M}[\ln(1-x)],\ \mathcal{M}[(1-x)\ln^3(1-x)],\ \mathcal{M}[(1-x)\ln^2(1-x)],\ \mathcal{M}[(1-x)\ln(1-x)],\ \frac{1}{1+N}`
 
+    .. list-table::  :math:`\gamma_{qq,ps}^{(3)}` parametrization basis
+        :align: center
+
+        *   - :math:`f_1(N)`
+            - :math:`-\frac{1}{(N-1)^2} + \frac{1}{N^2}`
+        *   - :math:`f_2(N)`
+            - :math:`\mathcal{M}[(1-x)\ln^2(1-x)]`
+        *   - :math:`f_{3,\dots,8}(N)`
+            - :math:`\frac{1}{N^4},\ \frac{1}{N^3},\ \mathcal{M}[(1-x)\ln(1-x)],\ \mathcal{M}[(1-x)^2\ln^2(1-x)],\ \frac{1}{N-1}-\frac{1}{N},\ \mathcal{M}[(1-x)\ln(x)]`
+        *   - :math:`f_{9,10}(N)`
+            - :math:`\mathcal{M}[(1-x)(1+2x)],\ \mathcal{M}[(1-x)x^2],\ \mathcal{M}[(1-x) x (1+x)],\ \mathcal{M}[(1-x)]`
 
 Note that for :math:`\gamma_{qq,ps},\gamma_{qg}` the parts proportional
 to :math:`n_f^0` are not present.
