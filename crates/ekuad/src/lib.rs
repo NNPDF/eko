@@ -5,14 +5,22 @@ use ekore;
 #[no_mangle]
 pub unsafe extern "C" fn quad_ker(x: f64, extra: *mut c_void) -> f64 {
     let ex = *(extra as *mut Extra);
-    ekore::ciao(x * ex.slope, ex.shift)
+    //ekore::ciao(x * ex.slope, ex.shift)
+    (ex.py)(x * ex.slope, ex.shift)
 }
+
+type PyT = unsafe extern "C" fn(f64, f64)-> f64;
 
 #[repr(C)]
 #[derive(Clone, Copy)]
 pub struct Extra {
     pub slope: f64,
     pub shift: f64,
+    pub py: PyT,
+}
+
+pub unsafe extern "C" fn my_py(_x: f64, _y: f64) -> f64 {
+    0.
 }
 
 /// This is required to make `Extra` part of the API, otherwise it won't be added to the compiled
@@ -22,5 +30,6 @@ pub unsafe extern "C" fn dummy() -> Extra {
     Extra {
         slope: 0.,
         shift: 0.,
+        py: my_py,
     }
 }
