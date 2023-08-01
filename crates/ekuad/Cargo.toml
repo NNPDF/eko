@@ -1,0 +1,12 @@
+[package]
+name = "ekuad"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+name = "ekuad"
+crate-type = ["cdylib"]
+
+[dependencies]
+ekore = { version = "0.1.0", path = "../ekore" }

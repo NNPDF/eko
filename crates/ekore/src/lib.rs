@@ -1,4 +1,4 @@
-pub fn add(left: usize, right: usize) -> usize {
+pub fn ciao(left: f64, right: f64) -> f64 {
     left + right
 }
 
@@ -8,7 +8,7 @@ mod tests {
 
     #[test]
     fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
+        let result = ciao(2.0, 2.0);
+        assert_eq!(result, 4.0);
     }
 }
