@@ -13,8 +13,7 @@ _theory = dict(
     couplings=dict(
         alphas=0.118,
         alphaem=0.007496252,
-        scale=91.2,
-        num_flavs_ref=5,
+        ref=(91.2, 5),
     ),
     heavy=dict(
         num_flavs_init=4,

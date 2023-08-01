@@ -3,6 +3,7 @@ import dataclasses
 import enum
 
 from ..io.dictlike import DictLike
+from ..io.types import EvolutionPoint as EPoint
 from ..io.types import FlavorsNumber, LinearScale, ReferenceRunning, Scalar
 
 Coupling = Scalar
@@ -19,14 +20,7 @@ class CouplingsInfo(DictLike):
 
     alphas: Coupling
     alphaem: Coupling
-    scale: LinearScale
-    num_flavs_ref: FlavorsNumber
-    r"""Number of active flavors at strong coupling reference scale.
-
-    I.e. :math:`n_{f,\text{ref}}(\mu^2_{\text{ref}})`, formerly called
-    ``nfref``.
-
-    """
+    ref: EPoint
     em_running: bool = False
 
     @property

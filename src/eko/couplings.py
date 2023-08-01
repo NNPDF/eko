@@ -435,7 +435,7 @@ class Couplings:
 
         assert_positive("alpha_s_ref", couplings.alphas)
         assert_positive("alpha_em_ref", couplings.alphaem)
-        assert_positive("scale_ref", couplings.scale)
+        assert_positive("scale_ref", couplings.ref[0])
         if order[0] not in [1, 2, 3, 4]:
             raise NotImplementedError("a_s beyond N3LO is not implemented")
         if order[1] not in [0, 1, 2]:
@@ -445,7 +445,7 @@ class Couplings:
             raise ValueError(f"Unknown method {method.value}")
         self.method = method.value
 
-        nf_ref = couplings.num_flavs_ref
+        nf_ref = couplings.ref[1]
         scheme_name = hqm_scheme.name
         self.alphaem_running = couplings.em_running
         self.decoupled_running = False
@@ -454,7 +454,7 @@ class Couplings:
         self.a_ref = np.array(couplings.values) / 4.0 / np.pi  # convert to a_s and a_em
         matching_scales = (np.array(masses) * np.array(thresholds_ratios)).tolist()
         self.thresholds_ratios = list(thresholds_ratios)
-        self.atlas = matchings.Atlas(matching_scales, (couplings.scale**2, nf_ref))
+        self.atlas = matchings.Atlas(matching_scales, (couplings.ref[0] ** 2, nf_ref))
         self.hqm_scheme = scheme_name
         logger.info(
             "Strong Coupling: a_s(µ_R^2=%f)%s=%f=%f/(4π)",

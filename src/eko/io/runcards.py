@@ -183,8 +183,7 @@ class Legacy:
             alphas=old["alphas"],
             alphaem=alphaem,
             em_running=em_running,
-            scale=old["Qref"],
-            num_flavs_ref=old["nfref"],
+            ref=(old["Qref"], old["nfref"]),
         )
         new["heavy"] = {
             "num_flavs_init": nf_default(old["Q0"] ** 2.0, default_atlas(ms, ks))

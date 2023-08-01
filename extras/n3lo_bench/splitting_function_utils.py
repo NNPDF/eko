@@ -103,8 +103,7 @@ def compute_a_s(q2=None, xif2=1.0, nf=None, order=(4, 0)):
         ref = CouplingsInfo(
             alphas=0.1181,
             alphaem=0.007496,
-            scale=91.00,
-            num_flavs_ref=5,
+            ref=(91.00, 5),
         )
         sc = Couplings(
             couplings=ref,

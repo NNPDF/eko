@@ -21,7 +21,7 @@ def benchmark_evolve_single_member(
     theory = theory_card
     theory.order = (1, 0)
     theory.couplings.alphas = 0.118000
-    theory.couplings.scale = 91.1876
+    theory.couplings.ref = (91.1876, 5)
     theory.couplings.alphaem = 0.007496
     theory.heavy.masses.c.value = 1.3
     theory.heavy.masses.b.value = 4.75
@@ -47,7 +47,7 @@ def benchmark_evolve_single_member(
         ev_pdf = lhapdf.mkPDF("EvPDF", 0)
     assert info["XMin"] == op.xgrid.raw[0]
     assert info["SetDesc"] == "MyEvolvedPDF"
-    assert info["MZ"] == theory.couplings.scale
+    assert info["MZ"] == theory.couplings.ref[0]
     assert info["Debug"] == "Debug"
     xgrid = op.xgrid.raw
     for idx, mu2 in enumerate(op.mu2grid):

@@ -39,8 +39,7 @@ def ref_couplings(ref_values, ref_scale: float, ref_nf: FlavorsNumber) -> Coupli
     return CouplingsInfo(
         alphas=ref_values[0],
         alphaem=ref_values[1],
-        scale=ref_scale,
-        num_flavs_ref=ref_nf,
+        ref=(ref_scale, ref_nf),
     )
 
 
@@ -841,9 +840,8 @@ class BenchmarkCouplings:
         theory = theory_card
         theory.order = (3, 0)
         theory.couplings.alphas = 0.35
-        theory.couplings.scale = float(np.sqrt(2))
         theory.couplings.alphaem = 0.007496
-        theory.couplings.num_flavs_ref = 4
+        theory.couplings.ref = (float(np.sqrt(2)), 4)
         theory.heavy.num_flavs_init = 3
         theory.xif = np.sqrt(1.0 / 2.0)
         theory.heavy.masses.c.value = np.sqrt(2.0)
@@ -886,7 +884,7 @@ class BenchmarkCouplings:
                 apfel.SetTheory("QCD")
                 apfel.SetPerturbativeOrder(theory.order[0] - 1)
                 apfel.SetAlphaEvolution("exact")
-                apfel.SetAlphaQCDRef(theory.couplings.alphas, theory.couplings.scale)
+                apfel.SetAlphaQCDRef(theory.couplings.alphas, theory.couplings.ref[0])
                 apfel.SetVFNS()
                 apfel.SetPoleMasses(qmasses.c.value, qmasses.b.value, qmasses.t.value)
                 apfel.SetMassMatchingScales(
