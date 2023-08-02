@@ -1,5 +1,5 @@
 [build-system]
-requires = ["maturin>=0.15,<0.16"]
+requires = ["maturin>=1.1,<2.0"]
 build-backend = "maturin"
 
 [project]
@@ -10,7 +10,6 @@ classifiers = [
   "Programming Language :: Python :: Implementation :: CPython",
   "Programming Language :: Python :: Implementation :: PyPy",
 ]
-dependencies = ["cffi"]
 
 [tool.maturin]
-bindings = "cffi"
+features = ["pyo3/extension-module"]

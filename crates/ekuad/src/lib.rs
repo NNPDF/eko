@@ -1,15 +1,18 @@
 use std::ffi::c_void;
 
+use pyo3::prelude::*;
+use pyo3::types::PyCapsule;
+
 use ekore;
 
-#[no_mangle]
-pub unsafe extern "C" fn quad_ker(x: f64, extra: *mut c_void) -> f64 {
+#[pyfunction]
+unsafe extern "C" fn quad_ker(x: f64, extra: *mut c_void) -> f64 {
     let ex = *(extra as *mut Extra);
-    //ekore::ciao(x * ex.slope, ex.shift)
+    ekore::ciao(x * ex.slope, ex.shift);
     (ex.py)(x * ex.slope, ex.shift)
 }
 
-type PyT = unsafe extern "C" fn(f64, f64)-> f64;
+type PyT = unsafe extern "C" fn(f64, f64) -> f64;
 
 #[repr(C)]
 #[derive(Clone, Copy)]
@@ -32,4 +35,11 @@ pub unsafe extern "C" fn dummy() -> Extra {
         shift: 0.,
         py: my_py,
     }
+}
+
+/// A Python module implemented in Rust.
+#[pymodule]
+fn ekuad(_py: Python, m: &PyModule) -> PyResult<()> {
+    m.add_function(wrap_pyfunction!(quad_ker, m)?)?;
+    Ok(())
 }

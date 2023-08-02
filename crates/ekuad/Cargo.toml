@@ -10,3 +10,4 @@ crate-type = ["cdylib"]
 
 [dependencies]
 ekore = { version = "0.1.0", path = "../ekore" }
+pyo3 = "0.19.0"
