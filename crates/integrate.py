@@ -3,14 +3,23 @@ import numba as nb
 from scipy import LowLevelCallable, integrate
 
 
-@nb.cfunc(nb.types.double(nb.types.double, nb.types.double))
-def true_py(a, b):
-    return a + 1.23 * b
+@nb.cfunc(
+    nb.types.double(
+        nb.types.double,
+        nb.types.double,
+        nb.types.CPointer(nb.types.double),
+        nb.types.uint16,
+    )
+)
+def true_py(x, y, ar_raw, len):
+    ar = nb.carray(ar_raw, len)
+    return x + 1.23 * y + ar[0] + ar[1]
 
 
-py_ptr = ekuad.ffi.cast("void *", true_py.address)
-extra_ptr = ekuad.ffi.new("Extra *", (10.0, 10000.0, py_ptr))
-extra_void = ekuad.ffi.cast("void *", extra_ptr)
-func = LowLevelCallable(ekuad.lib.quad_ker, extra_void)
+extra = ekuad.lib.dummy()
+extra.slope = 10.0
+extra.shift = 1000.0
+extra.py = ekuad.ffi.cast("void *", true_py.address)
+func = LowLevelCallable(ekuad.lib.quad_ker, ekuad.ffi.addressof(extra))
 
 print(integrate.quad(func, 0.0, 1.0))
