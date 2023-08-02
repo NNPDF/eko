@@ -1,4 +1,4 @@
-import ekuad
+import ekors
 import numba as nb
 import numpy as np
 from scipy import LowLevelCallable, integrate
@@ -21,13 +21,13 @@ def true_py(x, y, ar_raw, len, areas_raw, areas_len):
 
 
 areas = [2e6, 3e7]
-extra = ekuad.lib.dummy()
+extra = ekors.lib.dummy()
 extra.slope = 10.0
 extra.shift = 1000.0
-areas_ffi = ekuad.ffi.new("double[2]", areas)
+areas_ffi = ekors.ffi.new("double[2]", areas)
 extra.areas = areas_ffi
 extra.areas_len = 2
-extra.py = ekuad.ffi.cast("void *", true_py.address)
-func = LowLevelCallable(ekuad.lib.quad_ker, ekuad.ffi.addressof(extra))
+extra.py = ekors.ffi.cast("void *", true_py.address)
+func = LowLevelCallable(ekors.lib.quad_ker, ekors.ffi.addressof(extra))
 
 print(integrate.quad(func, 0.0, 1.0))
