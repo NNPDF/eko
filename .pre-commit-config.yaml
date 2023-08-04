@@ -37,6 +37,24 @@ repos:
         args: ["--add-ignore=D107,D105"]
         additional_dependencies:
           - toml
+  - repo: local
+    hooks:
+    - id: fmt-eko
+      name: fmt-eko
+      description: Format eko files with cargo fmt.
+      entry: cargo fmt --manifest-path crates/eko/Cargo.toml --
+      language: system
+      files: ^crates/eko/.*\.rs$
+      args: []
+  - repo: local
+    hooks:
+    - id: fmt-ekore
+      name: fmt-ekore
+      description: Format ekore files with cargo fmt.
+      entry: cargo fmt --manifest-path crates/ekore/Cargo.toml --
+      language: system
+      files: ^crates/ekore/.*\.rs$
+      args: []
   - repo: https://github.com/pre-commit/pre-commit
     rev: v3.2.2
     hooks:
