@@ -97,16 +97,16 @@ pub fn cern_polygamma(Z: Complex<f64>, K: usize) -> Complex<f64> {
         let B = X.cos();
         let T = Y.tanh();
         P = Complex::<f64> { re: B, im: -A * T } / Complex::<f64> { re: A, im: B * T };
-        if (0 == K) {
+        if 0 == K {
             H = H + 1. / U + PI * P;
-        } else if (1 == K) {
+        } else if 1 == K {
             H = -H + 1. / U.powu(2) + C1 * (P.powu(2) + 1.);
-        } else if (2 == K) {
+        } else if 2 == K {
             H = H + 2. / U.powu(3) + C2 * P * (P.powu(2) + 1.);
-        } else if (3 == K) {
+        } else if 3 == K {
             R = P.powu(2);
             H = -H + 6. / U.powu(4) + C3 * ((3. * R + 4.) * R + 1.);
-        } else if (4 == K) {
+        } else if 4 == K {
             R = P.powu(2);
             H = H + 24. / U.powu(5) + C4 * P * ((3. * R + 5.) * R + 2.);
         }
