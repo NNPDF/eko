@@ -104,7 +104,7 @@ def log_evaluate_Nx(N, logx, area_list):
         logxmax = a[1]
         coefs = a[2:]
         # skip area completely?
-        if logx >= logxmax:
+        if logx >= logxmax or np.abs(logx - logxmax) < _atol_eps:
             continue
         umax = N * logxmax
         umin = N * logxmin
@@ -118,12 +118,12 @@ def log_evaluate_Nx(N, logx, area_list):
                 # this condition is actually not necessary in python since
                 # there pow(0,0) == 1 and apparently this is inherited in
                 # Numba/C, however this is mathematically cleaner
-                if umax == 0.0 and k == 0:
+                if np.abs(umax) < _atol_eps and k == 0:
                     pmax = emax
                 else:
                     pmax = pow(-umax, k) * emax
                 # drop factor by analytics?
-                if logx >= logxmin:
+                if logx >= logxmin or np.abs(logx - logxmin) < _atol_eps:
                     pmin = 0
                 else:
                     pmin = pow(-umin, k) * emin

@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import utils
-from matplotlib import cm
+from matplotlib import colormaps as cm
 from splitting_function_utils import compute_a_s, splitting_function
 
 from eko.constants import CA, CF

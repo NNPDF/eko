@@ -5,7 +5,6 @@ import numpy as np
 
 from eko import constants
 
-from ....harmonics import cache as c
 from . import as1
 
 

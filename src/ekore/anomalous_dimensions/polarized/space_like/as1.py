@@ -11,7 +11,9 @@ from ...unpolarized.space_like.as1 import gamma_ns
 
 @nb.njit(cache=True)
 def gamma_qg(N, nf):
-    r"""Compute the |LO| polarized quark-gluon anomalous dimension :cite:`Gluck:1995yr` (eq A.1).
+    r"""Compute the |LO| polarized quark-gluon anomalous dimension.
+
+    Implements :eqref:`A.1` from :cite:`Gluck:1995yr`.
 
     Parameters
     ----------
@@ -23,7 +25,7 @@ def gamma_qg(N, nf):
     Returns
     -------
     complex
-      |LO| polarized quark-gluon anomalous dimension :math:`\\gamma_{qg}^{(0)}(N)`
+      |LO| polarized quark-gluon anomalous dimension :math:`\gamma_{qg}^{(0)}(N)`
 
     """
     gamma = -(N - 1) / N / (N + 1)
@@ -33,7 +35,9 @@ def gamma_qg(N, nf):
 
 @nb.njit(cache=True)
 def gamma_gq(N):
-    r"""Compute the |LO| polarized gluon-quark anomalous dimension :cite:`Gluck:1995yr` (eq A.1).
+    r"""Compute the |LO| polarized gluon-quark anomalous dimension.
+
+    Implements :eqref:`A.1` from :cite:`Gluck:1995yr`.
 
     Parameters
     ----------
@@ -43,7 +47,7 @@ def gamma_gq(N):
     Returns
     -------
     complex
-      |LO| gluon-quark anomalous dimension :math:`\\gamma_{gq}^{(0)}(N)`
+      |LO| gluon-quark anomalous dimension :math:`\gamma_{gq}^{(0)}(N)`
 
     """
     gamma = -(N + 2) / N / (N + 1)
@@ -53,7 +57,9 @@ def gamma_gq(N):
 
 @nb.njit(cache=True)
 def gamma_gg(N, cache, nf):
-    r"""Compute the |LO| polarized gluon-gluon anomalous dimension :cite:`Gluck:1995yr` (eq A.1).
+    r"""Compute the |LO| polarized gluon-gluon anomalous dimension.
+
+    Implements :eqref:`A.1` from :cite:`Gluck:1995yr`.
 
     Parameters
     ----------
@@ -67,7 +73,7 @@ def gamma_gg(N, cache, nf):
     Returns
     -------
     complex
-      |LO| gluon-gluon anomalous dimension :math:`\\gamma_{gg}^{(0)}(N)`
+      |LO| gluon-gluon anomalous dimension :math:`\gamma_{gg}^{(0)}(N)`
 
     """
     S1 = c.get(c.S1, cache, N)

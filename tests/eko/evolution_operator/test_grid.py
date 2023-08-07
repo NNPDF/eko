@@ -12,6 +12,7 @@ import numpy as np
 import pytest
 
 import eko.io.types
+from eko import couplings
 from eko.quantities.couplings import CouplingEvolutionMethod
 from eko.runner import legacy
 
@@ -22,12 +23,12 @@ def test_init_errors(monkeypatch, theory_ffns, operator_card, tmp_path, caplog):
         BLUB = "blub"
 
     monkeypatch.setattr(
-        legacy,
+        couplings,
         "couplings_mod_ev",
         lambda *args: CouplingEvolutionMethod.EXACT,
     )
     operator_card.configs.evolution_method = FakeEM.BLUB
-    with pytest.raises(ValueError, match="blub"):
+    with pytest.raises(ValueError, match="BLUB"):
         legacy.Runner(theory_ffns(3), operator_card, path=tmp_path / "eko.tar")
 
     # check LO
@@ -43,33 +44,26 @@ def test_compute_mu2grid(theory_ffns, operator_card, tmp_path):
     opgrid = legacy.Runner(
         theory_ffns(3), operator_card, path=tmp_path / "eko.tar"
     ).op_grid
-    # q2 has not be precomputed - but should work nevertheless
-    opgrid.compute(3)
-    # we can also pass a single number
     opg = opgrid.compute()
     assert len(opg) == len(mugrid)
-    assert all(k in op for k in ["operator", "error"] for op in opg.values())
-    opg = opgrid.compute(3)
-    assert len(opg) == 1
     assert all(k in op for k in ["operator", "error"] for op in opg.values())
 
 
 def test_grid_computation_VFNS(theory_card, operator_card, tmp_path):
     """Checks that the grid can be computed"""
+    mugrid = [(3, 4), (5, 5), (5, 4)]
+    operator_card.mugrid = mugrid
     opgrid = legacy.Runner(
         theory_card, operator_card, path=tmp_path / "eko.tar"
     ).op_grid
-    qgrid_check = [3, 5, 200**2]
-    operators = opgrid.compute(qgrid_check)
-    assert len(operators) == len(qgrid_check)
+    operators = opgrid.compute()
+    assert len(operators) == len(mugrid)
 
 
 def test_mod_expanded(theory_card, theory_ffns, operator_card, tmp_path: pathlib.Path):
+    mugrid = [(3, 4)]
+    operator_card.mugrid = mugrid
     operator_card.configs.scvar_method = eko.io.types.ScaleVariationsMethod.EXPANDED
-    theory_update = {
-        "order": (1, 0),
-        "ModSV": "expanded",
-    }
     epsilon = 1e-1
     path = tmp_path / "eko.tar"
     for is_ffns, nf0 in zip([False, True], [5, 3]):
@@ -81,11 +75,11 @@ def test_mod_expanded(theory_card, theory_ffns, operator_card, tmp_path: pathlib
         theory.heavy.num_flavs_init = nf0
         path.unlink(missing_ok=True)
         opgrid = legacy.Runner(theory, operator_card, path=path).op_grid
-        opg = opgrid.compute(3)
-        theory_update["XIF"] = 1.0 + epsilon
+        opg = opgrid.compute()
+        theory.xif = 1.0 + epsilon
         path.unlink(missing_ok=True)
         sv_opgrid = legacy.Runner(theory, operator_card, path=path).op_grid
-        sv_opg = sv_opgrid.compute(3)
+        sv_opg = sv_opgrid.compute()
         np.testing.assert_allclose(
-            opg[3]["operator"], sv_opg[3]["operator"], atol=2.5 * epsilon
+            opg[(9, 4)]["operator"], sv_opg[(9, 4)]["operator"], atol=2.5 * epsilon
         )

@@ -112,8 +112,8 @@ class BenchmarkMSbar:
                         order=theory_card.order,
                         evmeth=couplevmeth,
                         matching=np.power(
-                            list(iter(theory_card.heavy.matching_ratios)), 2.0
-                        ),
+                            theory_card.heavy.matching_ratios, 2.0
+                        ).tolist(),
                         xif2=theory_card.xif**2,
                     ).tolist(),
                     thresholds_ratios=np.power(
@@ -131,6 +131,9 @@ class BenchmarkMSbar:
                                 qmasses[n].value ** 2,
                                 qmasses[n].scale ** 2,
                                 strong_coupling=as_VFNS,
+                                thresholds_ratios=np.power(
+                                    theory_card.heavy.matching_ratios, 2.0
+                                ).tolist(),
                                 xif2=1.0,
                                 q2_to=Q2,
                                 nf_ref=n + 3,

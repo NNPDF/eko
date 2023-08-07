@@ -3,33 +3,29 @@ import copy
 import logging
 import pathlib
 import shutil
+from typing import Callable, List, Optional, Union
 
 import numpy as np
 
 from eko import basis_rotation as br
+from eko.io.types import EvolutionPoint as EPoint
 
 from . import export, flavors, load
 
 logger = logging.getLogger(__name__)
 
 
-def take_data(parent_pdf_set=None, members=False, xgrid=None, mu2grid=None):
+def take_data(
+    parent_pdf_set: Optional[Union[str, dict]] = None,
+    members: bool = False,
+    xgrid: Optional[List[float]] = None,
+    evolgrid: Optional[List[EPoint]] = None,
+):
     """
     Auxiliary function for `generate_pdf`.
 
     It provides the info, the heads of the member files and the blocks
     to be generated to `generate_pdf`.
-
-    Parameters
-    ----------
-        parent_pdf_set : None or str or dict
-            the PDF set to be used as parent set
-        members : bool
-            if true every member of the parent is loaded
-        xgrid : list(float)
-            produced x grid if given
-        mu2grid : list(float)
-            produced Q2 grid if given
 
     Returns
     -------
@@ -42,8 +38,9 @@ def take_data(parent_pdf_set=None, members=False, xgrid=None, mu2grid=None):
     """
     if xgrid is None:
         xgrid = np.geomspace(1e-9, 1, 240)
-    if mu2grid is None:
-        mu2grid = np.geomspace(1.3, 1e5, 35)
+    if evolgrid is None:
+        evolgrid = [(mu2, 0) for mu2 in np.geomspace(1.3, 1e5, 35)]
+    sorted_q2grid = [float(q2) for q2, _ in np.sort(evolgrid, axis=0)]
     # collect blocks
     all_blocks = []
     info = None
@@ -63,7 +60,11 @@ def take_data(parent_pdf_set=None, members=False, xgrid=None, mu2grid=None):
             else:
                 toylh = toy.mkPDF("", 0)
             all_blocks.append(
-                [generate_block(toylh.xfxQ2, xgrid, mu2grid, br.flavor_basis_pids)]
+                [
+                    generate_block(
+                        toylh.xfxQ2, xgrid, sorted_q2grid, br.flavor_basis_pids
+                    )
+                ]
             )
 
         else:
@@ -84,7 +85,7 @@ def take_data(parent_pdf_set=None, members=False, xgrid=None, mu2grid=None):
                     if pid not in parent_pdf_set
                     else parent_pdf_set[pid](x, Q2),
                     xgrid,
-                    mu2grid,
+                    sorted_q2grid,
                     br.flavor_basis_pids,
                 )
             ]
@@ -95,14 +96,14 @@ def take_data(parent_pdf_set=None, members=False, xgrid=None, mu2grid=None):
 
 
 def generate_pdf(
-    name,
-    labels,
+    name: str,
+    labels: List[int],
     parent_pdf_set=None,
     members=False,
     info_update=None,
-    install=False,
-    xgrid=None,
-    mu2grid=None,
+    install: bool = False,
+    xgrid: Optional[List[float]] = None,
+    evolgrid: Optional[List[EPoint]] = None,
 ):
     """
     Generate a new PDF from a parent PDF with a set of flavors.
@@ -133,46 +134,30 @@ def generate_pdf(
     Turning True the value of the `install` flag, it is possible to automatically
     install the generated PDF to the lhapdf directory. By default install is False.
 
-    Parameters
-    ----------
-        name : str
-            target name
-        labels :
-            list of flavors
-        parent_pdf_set :
-            parent PDF
-        all : bool
-            iterate on members
-        install : bool
-            install on LHAPDF path
-        xgrid : list(float)
-            produced x grid if given
-        mu2grid : list(float)
-            produced Q2 grid if given
-
     Examples
     --------
-        To generate a PDF with a fixed function `f(x,Q2)` for some flavors
-        you can use the following snippet:
+    To generate a PDF with a fixed function `f(x,Q2)` for some flavors
+    you can use the following snippet:
 
-        >>> # f = lambda x,Q2 ... put the desired function here
-        >>> # mask = [list of active PIDs]
-        >>> generate_pdf(name, labels, parent_pdf_set={pid: f for pid in mask})
+    >>> # f = lambda x,Q2 ... put the desired function here
+    >>> # mask = [list of active PIDs]
+    >>> generate_pdf(name, labels, parent_pdf_set={pid: f for pid in mask})
 
-        The |API| also provides the possibility to extract arbitrary flavor combinations:
-        using the debug PDF settings we can construct a "anti-QED-singlet" combination that
-        is usefull in debugging DIS codes since it does not couple in |LO|, but only
-        through the pure-singlet contributions (starting at |NNLO|)
+    The |API| also provides the possibility to extract arbitrary flavor combinations:
+    using the debug PDF settings we can construct a "anti-QED-singlet" combination that
+    is usefull in debugging DIS codes since it does not couple in |LO|, but only
+    through the pure-singlet contributions (starting at |NNLO|)
 
-        >>> from eko import basis_rotation as br
-        >>> from ekobox import genpdf
-        >>> import numpy as np
-        >>> anti_qed_singlet = np.zeros_like(br.flavor_basis_pids, dtype=np.float_)
-        >>> anti_qed_singlet[br.flavor_basis_pids.index(1)] = -4
-        >>> anti_qed_singlet[br.flavor_basis_pids.index(-1)] = -4
-        >>> anti_qed_singlet[br.flavor_basis_pids.index(2)] = 1
-        >>> anti_qed_singlet[br.flavor_basis_pids.index(-2)] = 1
-        >>> genpdf.generate_pdf("anti_qed_singlet", [anti_qed_singlet])
+    >>> from eko import basis_rotation as br
+    >>> from ekobox import genpdf
+    >>> import numpy as np
+    >>> anti_qed_singlet = np.zeros_like(br.flavor_basis_pids, dtype=np.float_)
+    >>> anti_qed_singlet[br.flavor_basis_pids.index(1)] = -4
+    >>> anti_qed_singlet[br.flavor_basis_pids.index(-1)] = -4
+    >>> anti_qed_singlet[br.flavor_basis_pids.index(2)] = 1
+    >>> anti_qed_singlet[br.flavor_basis_pids.index(-2)] = 1
+    >>> genpdf.generate_pdf("anti_qed_singlet", [anti_qed_singlet])
+
     """
     pathlib.Path(name).mkdir(exist_ok=True)
     # Checking label basis
@@ -187,7 +172,7 @@ def generate_pdf(
 
     # labels = verify_labels(args.labels)
     info, heads, all_blocks = take_data(
-        parent_pdf_set, members, xgrid=xgrid, mu2grid=mu2grid
+        parent_pdf_set, members, xgrid=xgrid, evolgrid=evolgrid
     )
 
     # filter the PDF
@@ -236,30 +221,14 @@ def install_pdf(name):
     shutil.move(str(src), str(target))
 
 
-def generate_block(xfxQ2, xgrid, mu2grid, pids):
-    """Generate an LHAPDF data block from a callable.
-
-    Parameters
-    ----------
-    xfxQ2 : callable
-        LHAPDF like callable
-    mu2grid : list(float)
-        Q grid
-    pids : list(int)
-        Flavors list
-    xgrid : list(float)
-        x grid
-
-    Returns
-    -------
-    dict
-        PDF block
-
-    """
-    block = dict(mu2grid=mu2grid, pids=pids, xgrid=xgrid)
+def generate_block(
+    xfxQ2: Callable, xgrid: List[float], sorted_q2grid: List[float], pids: List[int]
+) -> dict:
+    """Generate an LHAPDF data block from a callable."""
+    block: dict = dict(mu2grid=sorted_q2grid, pids=pids, xgrid=xgrid)
     data = []
     for x in xgrid:
-        for Q2 in mu2grid:
-            data.append(np.array([xfxQ2(pid, x, Q2) for pid in pids]))
+        for mu2 in sorted_q2grid:
+            data.append(np.array([xfxQ2(pid, x, mu2) for pid in pids]))
     block["data"] = np.array(data)
     return block

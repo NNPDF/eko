@@ -14,7 +14,7 @@ def A_singlet(matching_order, n, nf, L, is_msbar):
     Parameters
     ----------
     matching_order : tuple(int,int)
-        perturbative matching_order
+        perturbative matching order
     n : complex
         Mellin variable
     nf: int
@@ -48,7 +48,7 @@ def A_non_singlet(matching_order, n, nf, L):
     Parameters
     ----------
     matching_order : tuple(int,int)
-        perturbative matching_order
+        perturbative matching order
     n : complex
         Mellin variable
     nf: int

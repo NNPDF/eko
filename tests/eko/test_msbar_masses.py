@@ -64,11 +64,14 @@ class TestMSbarMasses:
                             m2_ref,
                             Q2m_ref,
                             strong_coupling=strong_coupling,
+                            thresholds_ratios=th.heavy.matching_ratios,
                             xif2=th.xif**2,
                             q2_to=m2_computed[nf - 3],
                         )
                     )
-                np.testing.assert_allclose(m2_computed, m2_test, rtol=6e-4)
+                np.testing.assert_allclose(
+                    m2_computed, m2_test, rtol=6e-4, err_msg=f"{method=},{order=}"
+                )
 
     def test_compute_msbar_mass_VFNS(self, theory_card: TheoryCard):
         # test the solution now with some initial contition
@@ -107,6 +110,7 @@ class TestMSbarMasses:
                     m2_ref,
                     Q2m_ref,
                     strong_coupling=strong_coupling,
+                    thresholds_ratios=th.heavy.matching_ratios,
                     xif2=th.xif**2,
                     q2_to=m2_computed[nf - 3],
                 )

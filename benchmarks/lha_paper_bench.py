@@ -1,9 +1,7 @@
 """
 Benchmark to :cite:`Giele:2002hx` (LO + NLO) and :cite:`Dittmar:2005ed` (NNLO).
 """
-import argparse
 import os
-from math import nan
 
 import numpy as np
 import pytest
@@ -30,7 +28,7 @@ base_theory = {
     "alphas": 0.35,  # Eq. (4.55) :cite:`Dittmar:2005ed`
     "alphaqed": 0.007496,
     "QED": 0,
-    "QrefQED": nan,
+    "Qedref": 0.0,
 }
 """Global theory settings"""
 

@@ -1,13 +1,15 @@
 """Manipulate output generate by EKO."""
 import logging
 import warnings
-from typing import Optional
+from typing import Callable, Optional, Union
 
 import numpy as np
+import numpy.typing as npt
 
 from .. import basis_rotation as br
 from .. import interpolation
-from .struct import EKO
+from ..interpolation import XGrid
+from .struct import EKO, Operator
 
 logger = logging.getLogger(__name__)
 
@@ -16,24 +18,58 @@ INPUTGRID_ROTATION = "ajbk,kl->ajbl"
 SIMGRID_ROTATION = "ij,ajbk,kl->aibl"
 """Simultaneous grid rotation contraction indices."""
 
+Basis = Union[XGrid, npt.NDArray]
+
+
+def rotation(new: Optional[Basis], old: Basis, check: Callable, compute: Callable):
+    """Define grid rotation.
+
+    This function returns the new grid to be assigned and the rotation computed,
+    if the checks for a non-trivial new grid are passed.
+
+    However, the check and the computation are delegated respectively to the
+    callables `check` and `compute`.
+
+    """
+    if new is None:
+        return old, None
+
+    if check(new, old):
+        warnings.warn("The new grid is close to the current one")
+        return old, None
+
+    return new, compute(new, old)
+
+
+def xgrid_check(new: Optional[XGrid], old: XGrid):
+    """Check validity of new xgrid."""
+    return new is not None and len(new) == len(old) and np.allclose(new.raw, old.raw)
+
+
+def xgrid_compute_rotation(new: XGrid, old: XGrid, interpdeg: int, swap: bool = False):
+    """Compute rotation from old to new xgrid.
+
+    By default, the roation is computed for a target xgrid. Whether the function
+    should be used for an input xgrid, the `swap` argument should be set to
+    `True`, in order to compute it in the other direction (i.e. the transposed).
+
+    """
+    if swap:
+        new, old = old, new
+    b = interpolation.InterpolatorDispatcher(old, interpdeg, False)
+    return b.get_interpolation(new.raw)
+
 
 def xgrid_reshape(
     eko: EKO,
-    targetgrid: Optional[interpolation.XGrid] = None,
-    inputgrid: Optional[interpolation.XGrid] = None,
+    targetgrid: Optional[XGrid] = None,
+    inputgrid: Optional[XGrid] = None,
 ):
     """Reinterpolate operators on output and/or input grids.
 
-    The operation is in-place.
+    Target corresponds to the output PDF.
 
-    Parameters
-    ----------
-    eko :
-        the operator to be rotated
-    targetgrid :
-        xgrid for the target (output PDF)
-    inputgrid :
-        xgrid for the input (input PDF)
+    The operation is in-place.
 
     """
     eko.assert_permissions(write=True)
@@ -41,77 +77,63 @@ def xgrid_reshape(
     # calling with no arguments is an error
     if targetgrid is None and inputgrid is None:
         raise ValueError("Nor inputgrid nor targetgrid was given")
-    # now check to the current status
-    if (
-        targetgrid is not None
-        and len(targetgrid) == len(eko.rotations.targetgrid)
-        and np.allclose(targetgrid.raw, eko.rotations.targetgrid.raw)
-    ):
-        targetgrid = None
-        warnings.warn("The new targetgrid is close to the current targetgrid")
-    if (
-        inputgrid is not None
-        and len(inputgrid) == len(eko.rotations.inputgrid)
-        and np.allclose(inputgrid.raw, eko.rotations.inputgrid.raw)
-    ):
-        inputgrid = None
-        warnings.warn("The new inputgrid is close to the current inputgrid")
-    # after the checks: if there is still nothing to do, skip
-    if targetgrid is None and inputgrid is None:
-        logger.debug("Nothing done.")
-        return
+
+    interpdeg = eko.operator_card.configs.interpolation_polynomial_degree
+    check = xgrid_check
+    crot = xgrid_compute_rotation
 
     # construct matrices
-    if targetgrid is not None:
-        b = interpolation.InterpolatorDispatcher(
-            eko.rotations.targetgrid,
-            eko.operator_card.configs.interpolation_polynomial_degree,
-            False,
-        )
-        target_rot = b.get_interpolation(targetgrid.raw)
-        eko.rotations.targetgrid = targetgrid
-    if inputgrid is not None:
-        b = interpolation.InterpolatorDispatcher(
-            inputgrid,
-            eko.operator_card.configs.interpolation_polynomial_degree,
-            False,
-        )
-        input_rot = b.get_interpolation(eko.rotations.inputgrid.raw)
-        eko.rotations.inputgrid = inputgrid
+    newtarget, targetrot = rotation(
+        targetgrid,
+        eko.bases.targetgrid,
+        check,
+        lambda new, old: crot(new, old, interpdeg),
+    )
+    newinput, inputrot = rotation(
+        inputgrid,
+        eko.bases.inputgrid,
+        check,
+        lambda new, old: crot(new, old, interpdeg, swap=True),
+    )
+
+    # after the checks: if there is still nothing to do, skip
+    if targetrot is None and inputrot is None:
+        logger.debug("Nothing done.")
+        return
+    # if no rotation is done, the grids are not modified
+    if targetrot is not None:
+        eko.bases.targetgrid = newtarget
+    if inputrot is not None:
+        eko.bases.inputgrid = newinput
 
     # build new grid
-    for q2, elem in eko.items():
-        ops = elem.operator
-        errs = elem.error
-        if targetgrid is not None and inputgrid is None:
-            ops = np.einsum(TARGETGRID_ROTATION, target_rot, ops, optimize="optimal")
-            errs = (
-                np.einsum(TARGETGRID_ROTATION, target_rot, errs, optimize="optimal")
-                if errs is not None
-                else None
-            )
-        elif inputgrid is not None and targetgrid is None:
-            ops = np.einsum(INPUTGRID_ROTATION, ops, input_rot, optimize="optimal")
-            errs = (
-                np.einsum(INPUTGRID_ROTATION, errs, input_rot, optimize="optimal")
-                if errs is not None
-                else None
-            )
-        else:
-            ops = np.einsum(
-                SIMGRID_ROTATION, target_rot, ops, input_rot, optimize="optimal"
-            )
-            errs = (
-                np.einsum(
-                    SIMGRID_ROTATION, target_rot, errs, input_rot, optimize="optimal"
-                )
-                if errs is not None
-                else None
-            )
-        elem.operator = ops
-        elem.error = errs
+    for ep, elem in eko.items():
+        assert elem is not None
 
-        eko[q2] = elem
+        operands = [elem.operator]
+        operands_errs = [elem.error]
+
+        if targetrot is not None and inputrot is None:
+            contraction = TARGETGRID_ROTATION
+        elif inputrot is not None and targetrot is None:
+            contraction = INPUTGRID_ROTATION
+        else:
+            contraction = SIMGRID_ROTATION
+
+        if targetrot is not None:
+            operands.insert(0, targetrot)
+            operands_errs.insert(0, targetrot)
+        if inputrot is not None:
+            operands.append(inputrot)
+            operands_errs.append(inputrot)
+
+        new_operator = np.einsum(contraction, *operands, optimize="optimal")
+        if elem.error is not None:
+            new_error = np.einsum(contraction, *operands_errs, optimize="optimal")
+        else:
+            new_error = None
+
+        eko[ep] = Operator(operator=new_operator, error=new_error)
 
     eko.update()
 
@@ -124,8 +146,8 @@ SIMPIDS_ROTATION = "ca,ajbk,bd->cjdk"
 
 def flavor_reshape(
     eko: EKO,
-    targetpids: Optional[np.ndarray] = None,
-    inputpids: Optional[np.ndarray] = None,
+    targetpids: Optional[npt.NDArray] = None,
+    inputpids: Optional[npt.NDArray] = None,
     update: bool = True,
 ):
     """Change the operators to have in the output targetpids and/or in the input inputpids.
@@ -151,12 +173,12 @@ def flavor_reshape(
         raise ValueError("Nor inputpids nor targetpids was given")
     # now check to the current status
     if targetpids is not None and np.allclose(
-        targetpids, np.eye(len(eko.rotations.targetpids))
+        targetpids, np.eye(len(eko.bases.targetpids))
     ):
         targetpids = None
         warnings.warn("The new targetpids is close to current basis")
     if inputpids is not None and np.allclose(
-        inputpids, np.eye(len(eko.rotations.inputpids))
+        inputpids, np.eye(len(eko.bases.inputpids))
     ):
         inputpids = None
         warnings.warn("The new inputpids is close to current basis")
@@ -202,17 +224,15 @@ def flavor_reshape(
                 if errs is not None
                 else None
             )
-        elem.operator = ops
-        elem.error = errs
 
-        eko[q2] = elem
+        eko[q2] = Operator(operator=ops, error=errs)
 
     # drop PIDs - keeping them int nevertheless
     # there is no meaningful way to set them in general, after rotation
     if inputpids is not None:
-        eko.rotations.inputpids = np.array([0] * len(eko.rotations.inputpids))
+        eko.bases.inputpids = np.array([0] * len(eko.bases.inputpids))
     if targetpids is not None:
-        eko.rotations.targetpids = np.array([0] * len(eko.rotations.targetpids))
+        eko.bases.targetpids = np.array([0] * len(eko.bases.targetpids))
 
     if update:
         eko.update()
@@ -221,7 +241,7 @@ def flavor_reshape(
 def to_evol(eko: EKO, source: bool = True, target: bool = False):
     """Rotate the operator into evolution basis.
 
-    This also assigns also the pids. The operation is in-place.
+    This assigns also the pids. The operation is in-place.
 
     Parameters
     ----------
@@ -242,9 +262,9 @@ def to_evol(eko: EKO, source: bool = True, target: bool = False):
     flavor_reshape(eko, inputpids=inputpids, targetpids=targetpids, update=False)
     # assign pids
     if source:
-        eko.rotations.inputpids = inputpids
+        eko.bases.inputpids = inputpids
     if target:
-        eko.rotations.targetpids = targetpids
+        eko.bases.targetpids = targetpids
 
     eko.update()
 
@@ -252,7 +272,7 @@ def to_evol(eko: EKO, source: bool = True, target: bool = False):
 def to_uni_evol(eko: EKO, source: bool = True, target: bool = False):
     """Rotate the operator into evolution basis.
 
-    This also assigns also the pids. The operation is in-place.
+    This assigns also the pids. The operation is in-place.
 
     Parameters
     ----------
@@ -273,8 +293,8 @@ def to_uni_evol(eko: EKO, source: bool = True, target: bool = False):
     flavor_reshape(eko, inputpids=inputpids, targetpids=targetpids, update=False)
     # assign pids
     if source:
-        eko.rotations.inputpids = inputpids
+        eko.bases.inputpids = inputpids
     if target:
-        eko.rotations.targetpids = targetpids
+        eko.bases.targetpids = targetpids
 
     eko.update()

@@ -8,16 +8,15 @@ See :doc:`pQCD ingredients </theory/pQCD>`.
 
 """
 import logging
-import warnings
-from typing import List
+from typing import Iterable, List
 
 import numba as nb
 import numpy as np
 import scipy
 
-from . import constants, thresholds
+from . import constants, matchings
 from .beta import b_qcd, b_qed, beta_qcd, beta_qed
-from .io.types import EvolutionMethod, Order
+from .io.types import EvolutionMethod, Order, SquaredScale
 from .quantities.couplings import CouplingEvolutionMethod, CouplingsInfo
 from .quantities.heavy_quarks import QuarkMassScheme
 
@@ -424,9 +423,9 @@ class Couplings:
         couplings: CouplingsInfo,
         order: Order,
         method: CouplingEvolutionMethod,
-        masses: List[float],
+        masses: List[SquaredScale],
         hqm_scheme: QuarkMassScheme,
-        thresholds_ratios: List[float],
+        thresholds_ratios: Iterable[float],
     ):
         # Sanity checks
         def assert_positive(name, var):
@@ -446,24 +445,19 @@ class Couplings:
         self.method = method.value
 
         nf_ref = couplings.num_flavs_ref
-        max_nf = couplings.max_num_flavs
         scheme_name = hqm_scheme.name
         self.alphaem_running = couplings.em_running
         self.decoupled_running = False
 
         # create new threshold object
         self.a_ref = np.array(couplings.values) / 4.0 / np.pi  # convert to a_s and a_em
-        self.thresholds = thresholds.ThresholdsAtlas(
-            masses,
-            couplings.scale**2,
-            nf_ref,
-            thresholds_ratios=thresholds_ratios,
-            max_nf=max_nf,
-        )
+        matching_scales = (np.array(masses) * np.array(thresholds_ratios)).tolist()
+        self.thresholds_ratios = list(thresholds_ratios)
+        self.atlas = matchings.Atlas(matching_scales, (couplings.scale**2, nf_ref))
         self.hqm_scheme = scheme_name
         logger.info(
             "Strong Coupling: a_s(µ_R^2=%f)%s=%f=%f/(4π)",
-            self.q2_ref,
+            self.mu2_ref,
             f"^(nf={nf_ref})" if nf_ref else "",
             self.a_ref[0],
             self.a_ref[0] * 4 * np.pi,
@@ -472,7 +466,7 @@ class Couplings:
             logger.info(
                 "Electromagnetic Coupling: a_em(µ_R^2=%f)%s=%f=%f/(4π)\nalphaem"
                 " running: %r\ndecoupled running: %r",
-                self.q2_ref,
+                self.mu2_ref,
                 f"^(nf={nf_ref})" if nf_ref else "",
                 self.a_ref[1],
                 self.a_ref[1] * 4 * np.pi,
@@ -483,9 +477,9 @@ class Couplings:
         self.cache = {}
 
     @property
-    def q2_ref(self):
+    def mu2_ref(self):
         """Return reference scale."""
-        return self.thresholds.q2_ref
+        return self.atlas.origin[0]
 
     def unidimensional_exact(self, beta0, b_vec, u, a_ref, method, rtol):
         """Compute single coupling via decoupled |RGE|.
@@ -718,7 +712,6 @@ class Couplings:
     def a(
         self,
         scale_to,
-        fact_scale=None,
         nf_to=None,
     ):
         r"""Compute couplings :math:`a_i(\mu_R^2) = \frac{\alpha_i(\mu_R^2)}{4\pi}`.
@@ -727,8 +720,6 @@ class Couplings:
         ----------
         scale_to : float
             final scale to evolve to :math:`\mu_R^2`
-        fact_scale : float
-            factorization scale (if different from final scale)
         nf_to : int
             final nf value
 
@@ -737,29 +728,22 @@ class Couplings:
         numpy.ndarray
             couplings :math:`a_i(\mu_R^2) = \frac{\alpha_i(\mu_R^2)}{4\pi}`
         """
-        # Set up the path to follow in order to go from q2_0 to q2_ref
+        # Set up the path to follow in order to go from mu2_0 to mu2_ref
         final_a = self.a_ref.copy()
-        path = self.thresholds.path(scale_to, nf_to)
-        is_downward = thresholds.is_downward_path(path)
-        shift = thresholds.flavor_shift(is_downward)
+        path = self.atlas.path((scale_to, nf_to))
+        is_downward = matchings.is_downward_path(path)
+        shift = matchings.flavor_shift(is_downward)
 
-        # TODO remove in 0.13
-        if fact_scale is not None:
-            warnings.warn(
-                "The `fact_scale` argument is deprecated - use the ThresholdAtlas instead!",
-                DeprecationWarning,
-            )
         for k, seg in enumerate(path):
             # skip a very short segment, but keep the matching
-            if not np.isclose(seg.q2_from, seg.q2_to):
-                new_a = self.compute(final_a, seg.nf, seg.q2_from, seg.q2_to)
+            if not np.isclose(seg.origin, seg.target):
+                new_a = self.compute(final_a, seg.nf, seg.origin, seg.target)
             else:
                 new_a = final_a
             # apply matching conditions: see hep-ph/9706430
             # - if there is yet a step to go
             if k < len(path) - 1:
-                # q2_to is the threshold value
-                L = np.log(self.thresholds.thresholds_ratios[seg.nf - shift])
+                L = np.log(self.thresholds_ratios[seg.nf - shift])
                 m_coeffs = (
                     compute_matching_coeffs_down(self.hqm_scheme, seg.nf - 1)
                     if is_downward
@@ -774,7 +758,7 @@ class Couplings:
             final_a = new_a
         return final_a
 
-    def a_s(self, scale_to, fact_scale=None, nf_to=None):
+    def a_s(self, scale_to, nf_to=None):
         r"""Compute strong coupling.
 
         The strong oupling uses the normalization :math:`a_s(\mu_R^2) =
@@ -784,8 +768,6 @@ class Couplings:
         ----------
         scale_to : float
             final scale to evolve to :math:`\mu_R^2`
-        fact_scale : float
-            factorization scale (if different from final scale)
         nf_to : int
             final nf value
 
@@ -795,9 +777,9 @@ class Couplings:
             couplings :math:`a_s(\mu_R^2) = \frac{\alpha_s(\mu_R^2)}{4\pi}`
 
         """
-        return self.a(scale_to, fact_scale, nf_to)[0]
+        return self.a(scale_to, nf_to)[0]
 
-    def a_em(self, scale_to, fact_scale=None, nf_to=None):
+    def a_em(self, scale_to, nf_to=None):
         r"""Compute electromagnetic coupling.
 
         The electromagnetic oupling uses the normalization :math:`a_em(\mu_R^2)
@@ -807,8 +789,6 @@ class Couplings:
         ----------
         scale_to : float
             final scale to evolve to :math:`\mu_R^2`
-        fact_scale : float
-            factorization scale (if different from final scale)
         nf_to : int
             final nf value
 
@@ -817,7 +797,7 @@ class Couplings:
         a_em : float
             couplings :math:`a_em(\mu_R^2) = \frac{\alpha_em(\mu_R^2)}{4\pi}`
         """
-        return self.a(scale_to, fact_scale, nf_to)[1]
+        return self.a(scale_to, nf_to)[1]
 
 
 def compute_matching_coeffs_up(mass_scheme, nf):

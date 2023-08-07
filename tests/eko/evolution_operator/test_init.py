@@ -14,6 +14,7 @@ from eko.io.runcards import OperatorCard, ScaleVariationsMethod, TheoryCard
 from eko.kernels import non_singlet as ns
 from eko.kernels import non_singlet_qed as qed_ns
 from eko.kernels import singlet as s
+from eko.matchings import Segment
 
 
 def test_quad_ker_errors():
@@ -59,6 +60,7 @@ def test_quad_ker(monkeypatch):
     monkeypatch.setattr(s, "dispatcher", lambda *args: np.identity(2))
     params = [
         ((1, 0), br.non_singlet_pids_map["ns+"], 0, "", 0.0, 0.0),
+        ((1, 0), br.non_singlet_pids_map["ns+"], 0, "", 0.123, 1.0),
         ((3, 1), br.non_singlet_pids_map["ns+u"], 0, "", 0.0, 0.0),
         ((1, 0), 100, 100, "", 0.123, 1.0),
         ((1, 0), 100, 21, "", 0.0, 0.0),
@@ -190,9 +192,9 @@ def test_quad_ker(monkeypatch):
 class FakeCoupling:
     def __init__(self):
         self.alphaem_running = None
-        self.q2_ref = 0.0
+        self.mu2_ref = 10.0
 
-    def a(self, scale_to=None, fact_scale=None, nf_to=None):
+    def a(self, scale_to=None, nf_to=None):
         return (0.1, 0.01)
 
     def compute(self, a_ref, nf, scale_from, scale_to):
@@ -214,9 +216,7 @@ class TestOperator:
                 ev_op_iterations=1,
             ),
             fake_managers,
-            3,
-            1,
-            2,
+            Segment(1, 2, 3),
         )
         assert sorted(o.labels) == sorted(br.full_labels)
         o = Operator(
@@ -229,9 +229,7 @@ class TestOperator:
                 ev_op_iterations=1,
             ),
             fake_managers,
-            3,
-            1,
-            2,
+            Segment(1, 2, 3),
         )
         assert sorted(o.labels) == []
 
@@ -246,9 +244,7 @@ class TestOperator:
                 ev_op_iterations=1,
             ),
             fake_managers,
-            3,
-            1,
-            2,
+            Segment(1, 2, 3),
         )
         assert sorted(o.labels) == sorted(br.full_unified_labels)
         o = Operator(
@@ -261,9 +257,7 @@ class TestOperator:
                 ev_op_iterations=1,
             ),
             fake_managers,
-            3,
-            1,
-            2,
+            Segment(1, 2, 3),
         )
         assert sorted(o.labels) == []
 
@@ -282,9 +276,7 @@ class TestOperator:
                 ev_op_iterations=1,
             ),
             fake_managers,
-            3,
-            1,
-            10,
+            Segment(1, 10, 3),
         )
         assert o.n_pools == os.cpu_count() - excluded_cores
 
@@ -296,7 +288,7 @@ class TestOperator:
         r = eko.runner.legacy.Runner(tcard, ocard, path=tmp_path / "eko.tar")
         g = r.op_grid
         # setup objs
-        o = Operator(g.config, g.managers, 3, 2.0, 10.0)
+        o = Operator(g.config, g.managers, Segment(2.0, 10.0, 3))
         o.compute()
         self.check_lo(o)
 
@@ -307,7 +299,7 @@ class TestOperator:
         r = eko.runner.legacy.Runner(tcard, ocard, path=tmp_path / "eko.tar")
         g = r.op_grid
         # setup objs
-        o = Operator(g.config, g.managers, 3, 2.0, 10.0)
+        o = Operator(g.config, g.managers, Segment(2.0, 10.0, 3))
         # fake quad
         monkeypatch.setattr(
             scipy.integrate, "quad", lambda *args, **kwargs: np.random.rand(2)
@@ -337,7 +329,7 @@ class TestOperator:
         r = eko.runner.legacy.Runner(tcard, ocard, path=tmp_path / "eko.tar")
         g = r.op_grid
         # setup objs
-        o = Operator(g.config, g.managers, 3, 2.0, 2.0)
+        o = Operator(g.config, g.managers, Segment(2.0, 2.0, 3))
         # fake quad
         v = 0.1234
         monkeypatch.setattr(
@@ -357,7 +349,7 @@ class TestOperator:
         ocard: OperatorCard = operator_card
         r = eko.runner.legacy.Runner(tcard, ocard, path=tmp_path / "eko.tar")
         g = r.op_grid
-        o = Operator(g.config, g.managers, 3, 2.0, 10.0)
+        o = Operator(g.config, g.managers, Segment(2.0, 10.0, 3))
         # fake quad
         monkeypatch.setattr(
             scipy.integrate, "quad", lambda *args, **kwargs: np.random.rand(2)
@@ -379,7 +371,7 @@ class TestOperator:
 
         # unity operators
         for n in range(1, 3 + 1):
-            o1 = Operator(g.config, g.managers, 3, 2.0, 2.0)
+            o1 = Operator(g.config, g.managers, Segment(2.0, 2.0, 3))
             o1.config["order"] = (n, 0)
             o1.compute()
             for k in br.non_singlet_labels:
@@ -393,7 +385,7 @@ class TestOperator:
         for n in range(1, 3 + 1):
             for qed in range(1, 2 + 1):
                 g.config["order"] = (n, qed)
-                o1 = Operator(g.config, g.managers, 3, 2.0, 2.0)
+                o1 = Operator(g.config, g.managers, Segment(2.0, 2.0, 3))
                 # o1.config["order"] = (n, qed)
                 o1.compute()
                 for k in br.non_singlet_unified_labels:

@@ -72,7 +72,7 @@ def test_build_ome_nlo():
 
 
 def test_quad_ker_errors():
-    for p, t in [(True, False), (True, True)]:
+    for p, t in [(True, True)]:
         for mode0, mode1 in [
             (21, br.matching_hplus_pid),
             (200, br.matching_hminus_pid),
@@ -101,13 +101,75 @@ def test_quad_ker_errors():
 # Test OME integration
 def test_quad_ker(monkeypatch):
     monkeypatch.setattr(
-        mellin, "Talbot_path", lambda *args: 2
+        mellin, "Talbot_path", lambda *args: 3.0
     )  # N=2 is a safe evaluation point
     monkeypatch.setattr(
         mellin, "Talbot_jac", lambda *args: complex(0, np.pi)
     )  # negate mellin prefactor
     monkeypatch.setattr(interpolation, "log_evaluate_Nx", lambda *args: 1)
     monkeypatch.setattr(interpolation, "evaluate_Nx", lambda *args: 1)
+    for is_log in [True, False]:
+        for order, p, t in [((3, 0), False, False), ((2, 0), False, True)]:
+            for sv_mode in [sv.Modes.expanded, sv.Modes.exponentiated]:
+                res_ns = quad_ker(
+                    u=0,
+                    order=order,
+                    mode0=200,
+                    mode1=200,
+                    is_log=is_log,
+                    logx=0.123,
+                    areas=np.zeros(3),
+                    backward_method=None,
+                    a_s=0.0,
+                    nf=3,
+                    L=0.0,
+                    sv_mode=sv_mode,
+                    Lsv=0.0,
+                    is_msbar=False,
+                    is_polarized=p,
+                    is_time_like=t,
+                )
+                np.testing.assert_allclose(res_ns, 1.0)
+                res_s = quad_ker(
+                    u=0,
+                    order=order,
+                    mode0=100,
+                    mode1=100,
+                    is_log=is_log,
+                    logx=0.123,
+                    areas=np.zeros(3),
+                    backward_method=None,
+                    a_s=0.0,
+                    nf=3,
+                    L=0.0,
+                    sv_mode=sv_mode,
+                    Lsv=0.0,
+                    is_msbar=False,
+                    is_polarized=p,
+                    is_time_like=t,
+                )
+                np.testing.assert_allclose(res_s, 1.0)
+                res_s = quad_ker(
+                    u=0,
+                    order=order,
+                    mode0=100,
+                    mode1=21,
+                    is_log=is_log,
+                    logx=0.0,
+                    areas=np.zeros(3),
+                    backward_method=None,
+                    a_s=0.0,
+                    nf=3,
+                    L=0.0,
+                    sv_mode=sv_mode,
+                    Lsv=0.0,
+                    is_msbar=False,
+                    is_polarized=p,
+                    is_time_like=t,
+                )
+                np.testing.assert_allclose(res_s, 0.0)
+
+    # test expanded intrisic inverse kernels
     zeros = np.zeros((2, 2))
     monkeypatch.setattr(
         "ekore.operator_matrix_elements.unpolarized.space_like.A_non_singlet",
@@ -118,91 +180,31 @@ def test_quad_ker(monkeypatch):
         "ekore.operator_matrix_elements.unpolarized.space_like.A_singlet",
         lambda *args: np.array([zeros, zeros, zeros]),
     )
-    for is_log in [True, False]:
-        for order, p, t in [((3, 0), False, False), ((2, 0), False, True)]:
-            res_ns = quad_ker(
-                u=0,
-                order=order,
-                mode0=200,
-                mode1=200,
-                is_log=is_log,
-                logx=0.123,
-                areas=np.zeros(3),
-                backward_method=None,
-                a_s=0.0,
-                nf=3,
-                L=0.0,
-                sv_mode=sv.Modes.expanded,
-                Lsv=0.0,
-                is_msbar=False,
-                is_polarized=p,
-                is_time_like=t,
-            )
-            np.testing.assert_allclose(res_ns, 1.0)
-            res_s = quad_ker(
-                u=0,
-                order=order,
-                mode0=100,
-                mode1=100,
-                is_log=is_log,
-                logx=0.123,
-                areas=np.zeros(3),
-                backward_method=None,
-                a_s=0.0,
-                nf=3,
-                L=0.0,
-                sv_mode=sv.Modes.expanded,
-                Lsv=0.0,
-                is_msbar=False,
-                is_polarized=p,
-                is_time_like=t,
-            )
-            np.testing.assert_allclose(res_s, 1.0)
-            res_s = quad_ker(
-                u=0,
-                order=order,
-                mode0=100,
-                mode1=21,
-                is_log=is_log,
-                logx=0.0,
-                areas=np.zeros(3),
-                backward_method=None,
-                a_s=0.0,
-                nf=3,
-                L=0.0,
-                sv_mode=sv.Modes.expanded,
-                Lsv=0.0,
-                is_msbar=False,
-                is_polarized=p,
-                is_time_like=t,
-            )
-            np.testing.assert_allclose(res_s, 0.0)
-
-    # test expanded intrisic inverse kernels
     labels = [(200, 200), *br.singlet_labels]
     for label in labels:
-        res_ns = quad_ker(
-            u=0,
-            order=(3, 0),
-            mode0=label[0],
-            mode1=label[1],
-            is_log=True,
-            logx=0.123,
-            areas=np.zeros(3),
-            backward_method=InversionMethod.EXPANDED,
-            a_s=0.0,
-            nf=3,
-            L=0.0,
-            sv_mode=sv.Modes.expanded,
-            Lsv=0.0,
-            is_msbar=False,
-            is_polarized=False,
-            is_time_like=False,
-        )
-        if label[-1] == label[-2]:
-            np.testing.assert_allclose(res_ns, 1.0)
-        else:
-            np.testing.assert_allclose(res_ns, 0.0)
+        for sv_mode in [sv.Modes.expanded, sv.Modes.exponentiated]:
+            res_ns = quad_ker(
+                u=0,
+                order=(3, 0),
+                mode0=label[0],
+                mode1=label[1],
+                is_log=True,
+                logx=0.123,
+                areas=np.zeros(3),
+                backward_method=InversionMethod.EXPANDED,
+                a_s=0.0,
+                nf=3,
+                L=0.0,
+                sv_mode=sv_mode,
+                Lsv=0.0,
+                is_msbar=False,
+                is_polarized=False,
+                is_time_like=False,
+            )
+            if label[-1] == label[-2]:
+                np.testing.assert_allclose(res_ns, 1.0)
+            else:
+                np.testing.assert_allclose(res_ns, 0.0)
 
     # test exact intrinsic inverse kernel
     labels.extend(

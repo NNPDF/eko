@@ -5,7 +5,6 @@ import numpy as np
 from ekore import anomalous_dimensions as ad
 
 from .. import beta
-from . import utils
 
 
 @nb.njit(cache=True)

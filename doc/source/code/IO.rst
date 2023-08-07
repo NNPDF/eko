@@ -69,7 +69,7 @@ and environment. The benchmark settings are available at :mod:`banana.data.theor
   * - ``alphaqed``
     - :py:obj:`float`
     - Reference value of the electromagnetic coupling :math:`\alpha_{em}`.
-  * - ``QrefQED``
+  * - ``Qedref``
     - :py:obj:`float`
     - Reference scale at which the ``alphaqed`` value is given (in GeV).
   * - ``HQ``

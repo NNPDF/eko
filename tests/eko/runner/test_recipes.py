@@ -1,19 +1,43 @@
-from pathlib import Path
+from typing import List
 
-import pytest
+from eko.io.items import Evolution, Matching
+from eko.io.types import EvolutionPoint
+from eko.matchings import Atlas
+from eko.quantities.heavy_quarks import MatchingScales
+from eko.runner.recipes import create, elements
 
-from eko import EKO
-from eko.io.runcards import OperatorCard, TheoryCard
-
-
-@pytest.fixture
-def neweko(theory_card: TheoryCard, operator_card: OperatorCard, tmp_path: Path):
-    path = tmp_path / "eko.tar"
-    with EKO.create(path) as builder:
-        yield builder.load_cards(theory_card, operator_card).build()
-
-    path.unlink(missing_ok=True)
+SCALES = MatchingScales([10.0, 20.0, 30.0])
+ATLAS = Atlas(SCALES, (50.0, 5))
 
 
-def test_create(neweko: EKO):
-    pass
+def test_elements():
+    onestep = elements((60.0, 5), ATLAS)
+    assert len(onestep) == 1
+    assert isinstance(onestep[0], Evolution)
+    assert not onestep[0].cliff
+
+    backandforth = elements((60.0, 6), ATLAS)
+    assert len(backandforth) == 3
+    assert isinstance(backandforth[0], Evolution)
+    assert backandforth[0].cliff
+    assert isinstance(backandforth[1], Matching)
+    assert not backandforth[1].inverse
+
+    down = elements((5.0, 3), ATLAS)
+    assert all([isinstance(el, Evolution) for i, el in enumerate(down) if i % 2 == 0])
+    assert all([isinstance(el, Matching) for i, el in enumerate(down) if i % 2 == 1])
+
+
+def test_create():
+    evolgrid: List[EvolutionPoint] = [(60.0, 5)]
+
+    recs = create(evolgrid, ATLAS)
+    assert len(recs) == 1
+
+    evolgrid.append((60.0, 6))
+    recs = create(evolgrid, ATLAS)
+    assert len(recs) == 1 + 3
+
+    evolgrid.append((70.0, 6))
+    recs = create(evolgrid, ATLAS)
+    assert len(recs) == 1 + 3 + 1

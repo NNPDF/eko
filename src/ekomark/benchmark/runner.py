@@ -4,6 +4,7 @@ import logging
 import os
 import sys
 
+import numpy as np
 import pandas as pd
 from banana import cfg as banana_cfg
 from banana.benchmark.runner import BenchmarkRunner
@@ -219,7 +220,6 @@ class Runner(BenchmarkRunner):
         # return a proper log table
         log_tabs = {}
         xgrid = ext["target_xgrid"]
-        q2s = list(ext["values"].keys())
 
         # LHA NNLO VFNS needs a special treatment
         # Valence contains only u and d
@@ -237,7 +237,7 @@ class Runner(BenchmarkRunner):
             ):
                 rotate_to_evolution[3, :] = [0, 0, 0, 0, 0, -1, -1, 0, 1, 1, 0, 0, 0, 0]
 
-        with EKO.open(me) as eko:
+        with EKO.read(me) as eko:
             pdf_grid = apply.apply_pdf_flavor(
                 eko,
                 pdf,
@@ -245,10 +245,15 @@ class Runner(BenchmarkRunner):
                 flavor_rotation=rotate_to_evolution,
                 qed=qed,
             )
-        for q2 in q2s:
+        for q2, ref_pdfs in ext["values"].items():
             log_tab = dfdict.DFdict()
-            ref_pdfs = ext["values"][q2]
-            res = pdf_grid[q2]
+            # find the first hit, regardless of the flavor, since others can not deal with them appearing in parallel
+            eps = [ep for ep in pdf_grid.keys() if np.isclose(ep[0], q2)]
+            if len(eps) != 1:
+                if len(eps) == 0:
+                    raise KeyError(f"PDF at Q2={q2} not found")
+                raise KeyError(f"More than one evolution point found for Q2={q2}")
+            res = pdf_grid[eps[0]]
             my_pdfs = res["pdfs"]
             my_pdf_errs = res["errors"]
 

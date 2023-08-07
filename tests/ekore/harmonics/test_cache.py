@@ -1,4 +1,5 @@
 import numpy as np
+import pytest
 
 from ekore import harmonics as h
 
@@ -12,6 +13,15 @@ def test_reset():
         np.sum([isinstance(val, int) for val in h.cache.__dict__.values()]) - 1
     )
     assert c.shape == (available_items,)
+    assert c.shape == (h.cache.CACHE_SIZE,)
+
+
+def test_error():
+    c = h.cache.reset()
+    with pytest.raises(RuntimeError):
+        h.cache.get(-1, c, 1.0)
+    with pytest.raises(RuntimeError):
+        h.cache.get(h.cache.CACHE_SIZE, c, 1.0)
 
 
 def test_get():
