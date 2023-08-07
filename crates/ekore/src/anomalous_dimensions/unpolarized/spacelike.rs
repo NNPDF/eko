@@ -4,7 +4,7 @@ use num::Zero;
 mod as1;
 
 /// Compute the tower of the non-singlet anomalous dimensions.
-pub fn gamma_ns(order_qcd: usize, c: &mut Cache, nf: u8) -> Vec<Complex<f64>> {
+pub fn gamma_ns(order_qcd: usize, _mode: u8, c: &mut Cache, nf: u8) -> Vec<Complex<f64>> {
     let mut gamma_ns = vec![Complex::<f64>::zero(); order_qcd];
     gamma_ns[0] = as1::gamma_ns(c, nf);
     gamma_ns
