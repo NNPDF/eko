@@ -21,7 +21,7 @@ pub unsafe extern "C" fn rust_quad_ker_qcd(u: f64, rargs: *mut c_void) -> f64 {
             &mut c,
             args.nf,
         );
-        for k in 0..=args.order_qcd {
+        for k in 0..args.order_qcd {
             for l in 0..2 {
                 for m in 0..2 {
                     re.push(res[k][l][m].re);
@@ -36,7 +36,7 @@ pub unsafe extern "C" fn rust_quad_ker_qcd(u: f64, rargs: *mut c_void) -> f64 {
             &mut c,
             args.nf,
         );
-        for j in 0..=args.order_qcd {
+        for j in 0..args.order_qcd {
             re.push(res[j].re);
             im.push(res[j].im);
         }
@@ -80,8 +80,8 @@ type PyQuadKerQCDT = unsafe extern "C" fn(
     f64,
     usize,
     bool,
-    u8,
-    u8,
+    u16,
+    u16,
     u8,
     bool,
     f64,
@@ -103,8 +103,8 @@ type PyQuadKerQCDT = unsafe extern "C" fn(
 #[derive(Clone, Copy)]
 pub struct QuadQCDargs {
     pub order_qcd: usize,
-    pub mode0: u8,
-    pub mode1: u8,
+    pub mode0: u16,
+    pub mode1: u16,
     pub is_polarized: bool,
     pub is_time_like: bool,
     pub nf: u8,
@@ -134,8 +134,8 @@ pub unsafe extern "C" fn my_py(
     _im_jac: f64,
     _order_qcd: usize,
     _is_singlet: bool,
-    _mode0: u8,
-    _mode1: u8,
+    _mode0: u16,
+    _mode1: u16,
     _nf: u8,
     _is_log: bool,
     _logx: f64,
