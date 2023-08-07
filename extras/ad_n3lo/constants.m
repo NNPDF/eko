@@ -41,6 +41,7 @@ InvMellinRules={
 	InvMellinProblem[Lm13[1+n],n,x] -> Log[1-x]^3,
 	InvMellinProblem[Lm12[1+n],n,x] -> Log[1-x]^2,
 	InvMellinProblem[Lm11[1+n],n,x] -> Log[1-x],
+	InvMellinProblem[Lm15m1[1+n],n,x] -> (1-x)Log[1-x]^5,
 	InvMellinProblem[Lm14m1[1+n],n,x] -> (1-x)Log[1-x]^4,
 	InvMellinProblem[Lm13m1[1+n],n,x] -> (1-x)Log[1-x]^3,
 	InvMellinProblem[Lm12m1[1+n],n,x] -> (1-x)Log[1-x]^2,
@@ -140,7 +141,11 @@ hrep={
 	H[0,0,-1,x] -> -PolyLog[3,-x],
 	H[0,0,0,-1,x] -> -PolyLog[4,-x],
 	H[0,0,0,0,1,x] -> PolyLog[5,x],
-	H[0,0,0,1,1,x] -> PolyLog[3,2,x]
+	H[0,0,0,1,1,x] -> PolyLog[3,2,x],
+	H[0,-1,-1,x] ->1/2 (I \[Pi]+Log[x]) Log[1+x]^2+Log[1+x] PolyLog[2,1+x]-PolyLog[3,1+x]+Zeta[3],
+    H[0,-1,1,x] -> (I \[Pi]^3)/12-1/2 I \[Pi] Log[2]^2-Log[2]^3/3+I \[Pi] Log[2] Log[1-x]+Log[2]^2 Log[1-x]-1/2 Log[2] Log[1-x]^2-1/12 \[Pi]^2 Log[x]+1/2 Log[2]^2 Log[x]-Log[2] Log[x] Log[1+x]+Log[1-x] Log[x] Log[1+x]+(-I \[Pi]+Log[(1-x)/2]) PolyLog[2,(1-x)/2]+(I \[Pi]+Log[2 x]) PolyLog[2,-x]+I \[Pi] PolyLog[2,x/(-1+x)]+Log[2] PolyLog[2,x/(-1+x)]-Log[1-x] PolyLog[2,x/(-1+x)]+Log[x] PolyLog[2,x/(-1+x)]-I \[Pi] PolyLog[2,(2 x)/(-1+x)]-Log[2] PolyLog[2,(2 x)/(-1+x)]+Log[1-x] PolyLog[2,(2 x)/(-1+x)]-Log[x] PolyLog[2,(2 x)/(-1+x)]+Log[x] PolyLog[2,(1+x)/2]-PolyLog[3,(1-x)/2]-PolyLog[3,-x]-PolyLog[3,x/(-1+x)]+PolyLog[3,(2 x)/(-1+x)]+(7 Zeta[3])/8,
+    H[-1,1,x] -> 1/12 (-\[Pi]^2+6 Log[2]^2)-Log[2] Log[1+x]+PolyLog[2,(1+x)/2],
+    H[0,1,-1,x] -> -((I \[Pi]^3)/12)-1/6 \[Pi]^2 Log[2]+1/2 I \[Pi] Log[2]^2+Log[2]^3/3-I \[Pi] Log[2] Log[1-x]-Log[2]^2 Log[1-x]+1/2 I \[Pi] Log[1-x]^2+1/2 Log[2] Log[1-x]^2+1/12 \[Pi]^2 Log[x]-1/2 Log[2]^2 Log[x]+I \[Pi] Log[2] Log[1+x]-I \[Pi] Log[1-x] Log[1+x]+Log[4] Log[x] Log[1+x]-2 Log[1-x] Log[x] Log[1+x]+(I \[Pi]+Log[-(2/(-1+x))]) PolyLog[2,(1-x)/2]-Log[1-x] PolyLog[2,1-x]-I \[Pi] PolyLog[2,-x]-Log[x] PolyLog[2,-x]-I \[Pi] PolyLog[2,x/(-1+x)]-Log[2] PolyLog[2,x/(-1+x)]+Log[1-x] PolyLog[2,x/(-1+x)]-Log[x] PolyLog[2,x/(-1+x)]+I \[Pi] PolyLog[2,(2 x)/(-1+x)]+Log[2] PolyLog[2,(2 x)/(-1+x)]-Log[1-x] PolyLog[2,(2 x)/(-1+x)]+Log[x] PolyLog[2,(2 x)/(-1+x)]-Log[x] PolyLog[2,(1+x)/2]+Log[2] PolyLog[2,1+x]-Log[1+x] PolyLog[2,1+x]-Log[1-x] PolyLog[2,(1+x)/(1-x)]+Log[1+x] PolyLog[2,(1+x)/(1-x)]+Log[1-x] PolyLog[2,(1+x)/(-1+x)]-Log[1+x] PolyLog[2,(1+x)/(-1+x)]+PolyLog[3,(1-x)/2]+PolyLog[3,1-x]+PolyLog[3,-x]+PolyLog[3,x/(-1+x)]-PolyLog[3,(2 x)/(-1+x)]+PolyLog[3,1+x]-PolyLog[3,(1+x)/(1-x)]+PolyLog[3,(1+x)/(-1+x)]-(9 Zeta[3])/8
 };
 
 QCDConstantsRules = {
@@ -244,6 +249,7 @@ Lm11m1[n_Real]:= 1/(1+n)^2-(EulerGamma+PolyGamma[0,1+n])/(1+n)^2-(EulerGamma+Pol
 Lm12m1[n_Real]:= - (2/(1+n)^3)-(2 (EulerGamma+PolyGamma[0,1+n]))/(1+n)^2+(EulerGamma+PolyGamma[0,1+n])^2/n-(EulerGamma+PolyGamma[0,1+n])^2/(1+n)+(\[Pi]^2/6-PolyGamma[1,1+n])/n-(\[Pi]^2/6-PolyGamma[1,1+n])/(1+n);
 Lm13m1[n_Real]:= -(1/(2 n (1+n)))(-6 EulerGamma^2+2 EulerGamma^3-\[Pi]^2+EulerGamma \[Pi]^2+6 (-1+EulerGamma) PolyGamma[0,2+n]^2+2 PolyGamma[0,2+n]^3+PolyGamma[0,2+n] (-12 EulerGamma+6 EulerGamma^2+\[Pi]^2-6 PolyGamma[1,2+n])-6 (-1+EulerGamma) PolyGamma[1,2+n]+2 PolyGamma[2,2+n]+4 Zeta[3]);
 Lm14m1[n_Real]:= 1/20 (1/n (20 EulerGamma^4+20 EulerGamma^2 \[Pi]^2+3 \[Pi]^4+80 EulerGamma PolyGamma[0,1+n]^3+20 PolyGamma[0,1+n]^4+20 PolyGamma[0,1+n]^2 (6 EulerGamma^2+\[Pi]^2-6 PolyGamma[1,1+n])-20 (6 EulerGamma^2+\[Pi]^2) PolyGamma[1,1+n]+60 PolyGamma[1,1+n]^2+80 EulerGamma PolyGamma[2,1+n]-20 PolyGamma[3,1+n]+160 EulerGamma Zeta[3]+40 PolyGamma[0,1+n] (2 EulerGamma^3+EulerGamma \[Pi]^2-6 EulerGamma PolyGamma[1,1+n]+2 PolyGamma[2,1+n]+4 Zeta[3]))-1/(1+n) (20 EulerGamma^4+20 EulerGamma^2 \[Pi]^2+3 \[Pi]^4+80 EulerGamma PolyGamma[0,2+n]^3+20 PolyGamma[0,2+n]^4+20 PolyGamma[0,2+n]^2 (6 EulerGamma^2+\[Pi]^2-6 PolyGamma[1,2+n])-20 (6 EulerGamma^2+\[Pi]^2) PolyGamma[1,2+n]+60 PolyGamma[1,2+n]^2+80 EulerGamma PolyGamma[2,2+n]-20 PolyGamma[3,2+n]+160 EulerGamma Zeta[3]+40 PolyGamma[0,2+n] (2 EulerGamma^3+EulerGamma \[Pi]^2-6 EulerGamma PolyGamma[1,2+n]+2 PolyGamma[2,2+n]+4 Zeta[3])));
+Lm15m1[n_Real]:= (1/12 (-(1/n)(12 EulerGamma^5+20 EulerGamma^3 \[Pi]^2+9 EulerGamma \[Pi]^4+60 EulerGamma PolyGamma[0,1+n]^4+12 PolyGamma[0,1+n]^5+20 PolyGamma[0,1+n]^3 (6 EulerGamma^2+\[Pi]^2-6 PolyGamma[1,1+n])+180 EulerGamma PolyGamma[1,1+n]^2+120 EulerGamma^2 PolyGamma[2,1+n]+20 \[Pi]^2 PolyGamma[2,1+n]-60 EulerGamma PolyGamma[3,1+n]+12 PolyGamma[4,1+n]+240 EulerGamma^2 Zeta[3]+40 \[Pi]^2 Zeta[3]-60 PolyGamma[1,1+n] (2 EulerGamma^3+EulerGamma \[Pi]^2+2 PolyGamma[2,1+n]+4 Zeta[3])+60 PolyGamma[0,1+n]^2 (2 EulerGamma^3+EulerGamma \[Pi]^2-6 EulerGamma PolyGamma[1,1+n]+2 PolyGamma[2,1+n]+4 Zeta[3])+3 PolyGamma[0,1+n] (20 EulerGamma^4+20 EulerGamma^2 \[Pi]^2+3 \[Pi]^4-20 (6 EulerGamma^2+\[Pi]^2) PolyGamma[1,1+n]+60 PolyGamma[1,1+n]^2+80 EulerGamma PolyGamma[2,1+n]-20 PolyGamma[3,1+n]+160 EulerGamma Zeta[3])+288 Zeta[5])+1/(1+n) (12 EulerGamma^5+20 EulerGamma^3 \[Pi]^2+9 EulerGamma \[Pi]^4+60 EulerGamma PolyGamma[0,2+n]^4+12 PolyGamma[0,2+n]^5+20 PolyGamma[0,2+n]^3 (6 EulerGamma^2+\[Pi]^2-6 PolyGamma[1,2+n])+180 EulerGamma PolyGamma[1,2+n]^2+120 EulerGamma^2 PolyGamma[2,2+n]+20 \[Pi]^2 PolyGamma[2,2+n]-60 EulerGamma PolyGamma[3,2+n]+12 PolyGamma[4,2+n]+240 EulerGamma^2 Zeta[3]+40 \[Pi]^2 Zeta[3]-60 PolyGamma[1,2+n] (2 EulerGamma^3+EulerGamma \[Pi]^2+2 PolyGamma[2,2+n]+4 Zeta[3])+60 PolyGamma[0,2+n]^2 (2 EulerGamma^3+EulerGamma \[Pi]^2-6 EulerGamma PolyGamma[1,2+n]+2 PolyGamma[2,2+n]+4 Zeta[3])+3 PolyGamma[0,2+n] (20 EulerGamma^4+20 EulerGamma^2 \[Pi]^2+3 \[Pi]^4-20 (6 EulerGamma^2+\[Pi]^2) PolyGamma[1,2+n]+60 PolyGamma[1,2+n]^2+80 EulerGamma PolyGamma[2,2+n]-20 PolyGamma[3,2+n]+160 EulerGamma Zeta[3])+288 Zeta[5])));
 
 (*Integrate[(1-x)^2Log[1-x]^k x^(n-1),{x,0,1}, Assumptions\[Rule]{n>0}]*)
 Lm11m2[n_Real]:= (5+3 n-(2 (1+n) (2+n) (EulerGamma+PolyGamma[0,1+n]))/n)/((1+n)^2 (2+n)^2);
@@ -291,7 +297,10 @@ S[-4, Infinity] -> -((7 z2^2)/20),
 S[3,2,\[Infinity]]->3 z2 z3-(9 z5)/2,
 S[4,1,\[Infinity]]->-z2 z3+3 z5,
 S[3,1,1,\[Infinity]]->z2 z3-z5/2,
-S[2,3,\[Infinity]] -> (-2 z2 z3+(11 z5)/2)
+S[2,3,\[Infinity]] -> (-2 z2 z3+(11 z5)/2),
+S[1,1,\[Infinity]]->3/(8 n^2)-1/(2 n)+z2/2+(-(1/(12 n^2))+1/(2 n)) LG[n]+LG[n]^2/2,
+S[1,1,1,\[Infinity]]->(-(5/12)-z2/24)/n^2+z2/(4 n)+z3/3+(3/(8 n^2)-1/(2 n)+z2/2) LG[n]+(-(1/(24 n^2))+1/(4 n)) LG[n]^2+LG[n]^3/6,
+S[1,2,\[Infinity]]->(-9-z2)/(12 n^2)+(2+z2)/(2 n)-z3+z2 LG[n]
 };
 
 
@@ -302,29 +311,49 @@ S13m2[n_Real] := (PolyGamma[0, n + 1] + EulerGamma)^3/n^2;
 S12m2[n_Real] := (PolyGamma[0, n + 1] + EulerGamma)^2/n^2;
 
 
+(* ((1-x) Log[x])/x *)
+xm1Lm1[n_] := -(1/(-1+n)^2)+1/n^2;
+
+
 FastMellin = {
-	Log[x]^6 -> 6!/n^7,
-	Log[x]^5 -> - (5!/n^6),
-	Log[x]^4 -> 4!/n^5,
-	Log[x]^2/x  -> 2/(-1+n)^3,
+	(* large-x *)
+	Log[1-x] -> Lm11[n],
+	Log[1-x]^2 -> Lm12[n],
+	Log[1-x]^3 -> Lm13[n],
+	Log[1-x]^4 -> Lm14[n],
+	Log[1-x]^5 -> Lm15[n],
+
+	(* parametrized parts *)
+	(1-x) Log[1-x]^5 -> Lm15m1[n],
 	(1-x) Log[1-x]^4 -> Lm14m1[n],
 	(1-x) Log[1-x]^3 -> Lm13m1[n],
 
-	(* Note these 2 subleading terms where not included previously *)
-	(1-x)^2 Log[1-x]^3 -> Lm13m2[n],
 	(1-x)^2 Log[1-x]^4 -> Lm14m2[n],
+	(1-x)^2 Log[1-x]^3 -> Lm13m2[n],
+	(1-x)^2 Log[1-x]^2 ->  Lm12m2[n],
 
-	(* parametrized parts *)
-	((1-x) Log[x])/x->-(1/(-1+n)^2)+1/n^2,
-	(1-x)/x->1/((-1+n) n),
-	(1-x)^2 Log[1-x]^2-> Lm12m2[n],
-	(1-x) Log[1 -x]^2 -> Lm12m1[n],
-	(1-x) Log[1 -x] -> Lm11m1[n],
-	(1-x) Log[x] -> -(1/n^2)+1/(1+n)^2,
-	Log[x]^3 -> -(3!/n^4),
-	Log[x]^2 -> 2!/n^3,
+	(1-x) Log[1-x]^4 ->  Lm14m1[n],
+	(1-x) Log[1-x]^3 ->  Lm13m1[n],
+	(1-x) Log[1-x]^2 ->  Lm12m1[n],
+	(1-x) Log[1-x] ->  Lm11m1[n],
+
+	((1-x) Log[x])/x -> xm1Lm1[n],
+	(1-x)/x -> 1/((-1+n) n),
+	(1-x) Log[x] ->  -(1/n^2)+1/(1+n)^2,
 	(1-x)(1+ 2x)-> 1/n-n/(2+3 n+n^2),
-	(1-x)x^2 -> 1/(6+5 n+n^2),
-	(1-x) x (1+x)->2/(3+4 n+n^2),
-	1-x->1/(n+n^2)
+	(1-x)x^2 ->  1/(6+5 n+n^2),
+	(1-x) x (1+x) -> 2/(3+4 n+n^2),
+	(1-x) -> 1/(n+n^2),
+	(2-x) x -> (3+n)/(2+3 n+n^2),
+	Log[1-x] Log[x] -> (S[1,n]-n (\[Pi]^2/6-S[2,n]))/n^2,
+
+	(* small-x*)
+	Log[x]^6 -> 6!/n^7,
+	Log[x]^5 -> - 5!/n^6,
+	Log[x]^4 -> 4!/n^5,
+	Log[x]^3 ->  -3!/n^4,
+	Log[x]^2 ->  2!/n^3,
+	Log[x] ->  - 1!/n^2,
+	Log[x]^2/x -> 2/(-1+n)^3,
+	Log[x]/x -> -(1/(-1+n)^2)
 };

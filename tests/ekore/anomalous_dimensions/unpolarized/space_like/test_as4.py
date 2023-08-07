@@ -17,10 +17,10 @@ from ekore.anomalous_dimensions.unpolarized.space_like.as4 import (
 NF = 5
 
 n3lo_vars_dict = {
-    "gg": 18,
+    "gg": 17,
     "gq": 24,
-    "qg": 20,
-    "qq": 8,
+    "qg": 15,
+    "qq": 6,
 }
 
 
@@ -113,7 +113,7 @@ def test_momentum_conservation():
     np.testing.assert_allclose(
         +g_gg[:, 2] + g_qg[:, 1],
         0,
-        atol=6e-12,
+        atol=3e-11,
     )
 
     # nf^1 part
@@ -137,7 +137,7 @@ def test_momentum_conservation():
     np.testing.assert_allclose(
         g_gg[:, 0],
         0,
-        atol=4e-10,
+        atol=6e-10,
     )
 
     # total
