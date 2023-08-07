@@ -2,6 +2,8 @@ use std::ffi::c_void;
 
 use ekore;
 
+mod mellin;
+
 #[no_mangle]
 pub unsafe extern "C" fn quad_ker(x: f64, extra: *mut c_void) -> f64 {
     let ex = *(extra as *mut Extra);

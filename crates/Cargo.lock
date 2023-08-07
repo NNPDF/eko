@@ -13,6 +13,7 @@ name = "eko"
 version = "0.1.0"
 dependencies = [
  "ekore",
+ "num",
 ]
 
 [[package]]
