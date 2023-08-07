@@ -1,3 +1,5 @@
+//! LO QCD
+
 use num::complex::Complex;
 
 use crate::constants::{CA, CF, TR};
@@ -5,7 +7,9 @@ use crate::harmonics::cache::{Cache, K};
 
 /// Compute the leading-order non-singlet anomalous dimension.
 ///
-/// Implements Eq. (3.4) of :cite:`Moch:2004pa`.
+/// Implements Eq. (3.4) of [Moch:2004pa][cite Moch:2004pa].
+///
+/// [cite Moch:2004pa]: ./../../../../bib/index.html#moch2004pa
 pub fn gamma_ns(c: &mut Cache, _nf: u8) -> Complex<f64> {
     let N = c.n;
     let S1 = c.get(K::S1);
