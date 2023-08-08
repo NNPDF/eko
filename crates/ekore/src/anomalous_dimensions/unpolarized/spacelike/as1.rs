@@ -19,7 +19,7 @@ pub fn gamma_ns(c: &mut Cache, _nf: u8) -> Complex<f64> {
 
 /// Compute the leading-order quark-gluon anomalous dimension.
 ///
-/// Implements Eq. (3.5) of :cite:`Vogt:2004mw`.
+/// Implements Eq. (3.5) of [Vogt:2004mw](crate::bib2::Vogt2004mw).
 pub fn gamma_qg(c: &mut Cache, nf: u8) -> Complex<f64> {
     let N = c.n;
     let gamma = -(N.powu(2) + N + 2.0) / (N * (N + 1.0) * (N + 2.0));

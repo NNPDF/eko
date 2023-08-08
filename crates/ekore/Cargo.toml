@@ -9,3 +9,4 @@ license = "GPL-3.0-or-later"
 
 [dependencies]
 num = "0.4.1"
+bibliothek = "0.1.0"

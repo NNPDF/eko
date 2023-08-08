@@ -7,6 +7,10 @@ pub fn ciao(left: f64, right: f64) -> f64 {
     left + right
 }
 
+pub mod bib2 {
+    bibliothek::include_bibtex!("refs.bib");
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
