@@ -7,9 +7,7 @@ use crate::harmonics::cache::{Cache, K};
 
 /// Compute the leading-order non-singlet anomalous dimension.
 ///
-/// Implements Eq. (3.4) of [Moch:2004pa][cite Moch:2004pa].
-///
-/// [cite Moch:2004pa]: ./../../../../bib/index.html#moch2004pa
+/// Implements Eq. (3.4) of [Moch:2004pa][crate::bib::Moch2004pa].
 pub fn gamma_ns(c: &mut Cache, _nf: u8) -> Complex<f64> {
     let N = c.n;
     let S1 = c.get(K::S1);
@@ -19,7 +17,7 @@ pub fn gamma_ns(c: &mut Cache, _nf: u8) -> Complex<f64> {
 
 /// Compute the leading-order quark-gluon anomalous dimension.
 ///
-/// Implements Eq. (3.5) of [Vogt:2004mw](crate::bib2::Vogt2004mw).
+/// Implements Eq. (3.5) of [Vogt:2004mw](crate::bib::Vogt2004mw).
 pub fn gamma_qg(c: &mut Cache, nf: u8) -> Complex<f64> {
     let N = c.n;
     let gamma = -(N.powu(2) + N + 2.0) / (N * (N + 1.0) * (N + 2.0));
