@@ -9,4 +9,6 @@ license = "GPL-3.0-or-later"
 
 [dependencies]
 num = "0.4.1"
-bibliothek = "0.1.0"
+bibliothek = { version = "0.1.0" }
+# bibliothek = { version = "0.2.0", path = "../bibliothek" }
+katexit = "0.1.4"

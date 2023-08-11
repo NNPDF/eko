@@ -1,3 +1,3 @@
 pub mod cache;
-mod polygamma;
+pub mod polygamma;
 mod w1;

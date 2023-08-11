@@ -1,9 +1,10 @@
 use num::complex::Complex;
 use std::f64::consts::PI;
 
-/// Compute the polygamma functions :math:`\psi_k(z)`.
+#[cfg_attr(doc, katexit::katexit)]
+/// Compute the polygamma functions $\psi_k(z)$.
 ///
-/// Reimplementation of ``WPSIPG`` (C317) in `CERNlib <http://cernlib.web.cern.ch/cernlib/>`_ :cite:`KOLBIG1972221`.
+/// Reimplementation of ``WPSIPG`` (C317) in [CERNlib](http://cernlib.web.cern.ch/cernlib/) [KOLBIG1972221][crate::bib::KOLBIG1972221]
 pub fn cern_polygamma(Z: Complex<f64>, K: usize) -> Complex<f64> {
     const DELTA: f64 = 5e-13;
     const R1: f64 = 1.0;
@@ -63,7 +64,7 @@ pub fn cern_polygamma(Z: Complex<f64>, K: usize) -> Complex<f64> {
     // if (fabs(U.imag()) < DELTA && fabs(X+A_as_int) < DELTA)
     //     throw InvalidPolygammaArgument("Argument Z equals non-positive integer");
     let K1 = K + 1;
-    if (X < 0.) {
+    if X < 0. {
         U = -U;
     }
     let mut V = U;
@@ -86,7 +87,7 @@ pub fn cern_polygamma(Z: Complex<f64>, K: usize) -> Complex<f64> {
     H = (SGN[K] as f64)
         * ((FCT[K + 1] as f64) * H
             + (V * ((FCT[K - 1 + 1] as f64) + P) + HF * (FCT[K + 1] as f64)) / V.powu(K1 as u32));
-    if (0 == K) {
+    if 0 == K {
         H = H + V.ln();
     }
     if X < 0. {

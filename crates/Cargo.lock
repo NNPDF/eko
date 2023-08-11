@@ -85,6 +85,7 @@ name = "ekore"
 version = "0.1.0"
 dependencies = [
  "bibliothek",
+ "katexit",
  "num",
 ]
 
@@ -141,6 +142,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f80f221db1bc708b71128757b9396727c04de86968081e18e89b0575e03be071"
 dependencies = [
  "phf",
+]
+
+[[package]]
+name = "katexit"
+version = "0.1.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "eb1304c448ce2c207c2298a34bc476ce7ae47f63c23fa2b498583b26be9bc88c"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 1.0.109",
 ]
 
 [[package]]
