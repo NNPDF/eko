@@ -376,7 +376,7 @@ class EKO:
         path: Path,
         extract: bool = True,
         dest: Optional[Path] = None,
-        readonly: bool = False,
+        readonly: bool = True,
     ):
         """Load an existing EKO.
 
