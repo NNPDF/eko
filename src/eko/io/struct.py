@@ -2,12 +2,11 @@
 import contextlib
 import copy
 import logging
-import os
-import pathlib
 import shutil
 import tarfile
 import tempfile
 from dataclasses import dataclass
+from pathlib import Path
 from typing import List, Optional
 
 import numpy as np
@@ -30,7 +29,7 @@ logger = logging.getLogger(__name__)
 TEMP_PREFIX = "eko-"
 
 
-def inventories(path: pathlib.Path, access: AccessConfigs) -> dict:
+def inventories(path: Path, access: AccessConfigs) -> dict:
     """Set up empty inventories for object initialization."""
     paths = InternalPaths(path)
     return dict(
@@ -293,7 +292,7 @@ class EKO:
     # operator management
     # -------------------
 
-    def deepcopy(self, path: os.PathLike):
+    def deepcopy(self, path: Path):
         """Create a deep copy of current instance.
 
         The managed on-disk object is copied as well, to the new ``path``
@@ -327,11 +326,11 @@ class EKO:
         self.unload()
 
         new = copy.deepcopy(self)
-        new.access.path = pathlib.Path(path)
+        new.access.path = path
         new.access.readonly = False
         new.access.open = True
 
-        tmpdir = pathlib.Path(tempfile.mkdtemp(prefix=TEMP_PREFIX))
+        tmpdir = Path(tempfile.mkdtemp(prefix=TEMP_PREFIX))
         new.metadata.path = tmpdir
         # copy old dir to new dir
         tmpdir.rmdir()
@@ -339,17 +338,8 @@ class EKO:
         new.close()
 
     @staticmethod
-    def load(tarpath: os.PathLike, dest: os.PathLike):
-        """Load the content of archive in a target directory.
-
-        Parameters
-        ----------
-        tarpath: os.PathLike
-            the archive to extract
-        tmppath: os.PathLike
-            the destination directory
-
-        """
+    def load(tarpath: Path, dest: Path):
+        """Load the content of archive in a target directory."""
         try:
             with tarfile.open(tarpath) as tar:
                 raw.safe_extractall(tar, dest)
@@ -357,9 +347,8 @@ class EKO:
             raise exceptions.OutputNotTar(f"Not a valid tar archive: '{tarpath}'")
 
     @classmethod
-    def open(cls, path: os.PathLike, mode="r"):
+    def open(cls, path: Path, mode: str = "r"):
         """Open EKO object in the specified mode."""
-        path = pathlib.Path(path)
         access = AccessConfigs(path, readonly=False, open=True)
         load = False
         if mode == "r":
@@ -372,7 +361,7 @@ class EKO:
         else:
             raise ValueError(f"Unknown file mode: {mode}")
 
-        tmpdir = pathlib.Path(tempfile.mkdtemp(prefix=TEMP_PREFIX))
+        tmpdir = Path(tempfile.mkdtemp(prefix=TEMP_PREFIX))
         if load:
             cls.load(path, tmpdir)
             metadata = Metadata.load(tmpdir)
@@ -388,7 +377,7 @@ class EKO:
         return opened
 
     @classmethod
-    def read(cls, path: os.PathLike):
+    def read(cls, path: Path):
         """Read the content of an EKO.
 
         Type-safe alias for::
@@ -401,7 +390,7 @@ class EKO:
         return eko
 
     @classmethod
-    def create(cls, path: os.PathLike):
+    def create(cls, path: Path):
         """Create a new EKO.
 
         Type-safe alias for::
@@ -414,7 +403,7 @@ class EKO:
         return builder
 
     @classmethod
-    def edit(cls, path: os.PathLike):
+    def edit(cls, path: Path):
         """Read from and write on existing EKO.
 
         Type-safe alias for::
@@ -430,12 +419,12 @@ class EKO:
         """Allow EKO to be used in :obj:`with` statements."""
         return self
 
-    def dump(self, archive: Optional[os.PathLike] = None):
+    def dump(self, archive: Optional[Path] = None):
         """Dump the current content to archive.
 
         Parameters
         ----------
-        archive: os.PathLike or None
+        archive: Path or None
             path to archive, in general you should keep the default, that will
             make use of the registered path (default: ``None``)
 
@@ -494,7 +483,7 @@ class EKO:
 class Builder:
     """Build EKO instances."""
 
-    path: pathlib.Path
+    path: Path
     """Path on disk to ."""
     access: AccessConfigs
     """Access related configurations."""
