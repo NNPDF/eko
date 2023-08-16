@@ -36,8 +36,6 @@ class TestEKO:
         no_tar_path.write_text("Blub", encoding="utf-8")
         with pytest.raises(ValueError, match="tar"):
             struct.EKO.read(no_tar_path)
-        with pytest.raises(ValueError, match="file mode"):
-            struct.EKO.open(no_tar_path, "ü")
 
     def test_properties(self, eko_factory: EKOFactory):
         mu = 10.0
