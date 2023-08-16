@@ -90,7 +90,7 @@ In |EKO| they are implemented as follows:
         -   The large-N limit :cite:`Moch:2017uml`, which reads (Eq. 2.17):
 
             .. math ::
-                \gamma_{ns} \approx A^{(f)}_4 S_1(N) - B_4 + C_4 \frac{S_1(N)}{N} - (D_4 + \frac{1}{2} A^{(f)}_4) \frac{1}{N} + \mathcal{O}(\frac{\ln^k(N)}{N^2})
+                \gamma_{ns} \approx A^{(f)}_4 S_1(N) - B_4 + C_4 \frac{S_1(N)}{N} - D_4 \frac{1}{N}
 
             This limit is common for all :math:`\gamma_{ns,+}^{(3)},\gamma_{ns,-}^{(3)},\gamma_{ns,v}^{(3)}`.
             The coefficient :math:`A^{(f)}_4`, being related to the twist-2 spin-N operators,
