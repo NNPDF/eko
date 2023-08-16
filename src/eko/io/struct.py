@@ -338,8 +338,8 @@ class EKO:
         new.close()
 
     @staticmethod
-    def load(tarpath: Path, dest: Path):
-        """Load the content of archive in a target directory."""
+    def extract(tarpath: Path, dest: Path):
+        """Extract the content of archive in a target directory."""
         try:
             with tarfile.open(tarpath) as tar:
                 raw.safe_extractall(tar, dest)
@@ -347,73 +347,77 @@ class EKO:
             raise exceptions.OutputNotTar(f"Not a valid tar archive: '{tarpath}'")
 
     @classmethod
-    def open(cls, path: Path, mode: str = "r"):
-        """Open EKO object in the specified mode."""
-        access = AccessConfigs(path, readonly=False, open=True)
-        load = False
-        if mode == "r":
-            load = True
-            access.readonly = True
-        elif mode in "w":
-            pass
-        elif mode in "a":
-            load = True
-        else:
-            raise ValueError(f"Unknown file mode: {mode}")
+    def load(cls, path: Path):
+        """Load the EKO from disk information.
 
-        tmpdir = Path(tempfile.mkdtemp(prefix=TEMP_PREFIX))
-        if load:
-            cls.load(path, tmpdir)
-            metadata = Metadata.load(tmpdir)
-            opened = cls(
-                **inventories(tmpdir, access),
-                metadata=metadata,
-                access=access,
-            )
-            opened.operators.sync()
-        else:
-            opened = Builder(path=tmpdir, access=access)
-
-        return opened
-
-    @classmethod
-    def read(cls, path: Path):
-        """Read the content of an EKO.
-
-        Type-safe alias for::
-
-            EKO.open(... , "r")
+        Note
+        ----
+        No archive path is assigned to the :cls:`EKO` object, setting its
+        :attr:`EKO.access.path` to `None`.
+        If you want to properly load from an archive, use the :meth:`read`
+        constructor.
 
         """
-        eko = cls.open(path, "r")
-        assert isinstance(eko, EKO)
-        return eko
+        access = AccessConfigs(None, readonly=True, open=True)
+
+        metadata = Metadata.load(path)
+        loaded = cls(
+            **inventories(path, access),
+            metadata=metadata,
+            access=access,
+        )
+        loaded.operators.sync()
+
+        return loaded
+
+    @classmethod
+    def read(
+        cls,
+        path: Path,
+        extract: bool = True,
+        dest: Optional[Path] = None,
+        readonly: bool = False,
+    ):
+        """Load an existing EKO.
+
+        If the `extract` attribute is `True` the EKO is loaded from its archived
+        format. Otherwise, the `path` is interpreted as the location of an
+        already extracted folder.
+
+
+
+        """
+        if extract:
+            dir_ = Path(tempfile.mkdtemp(prefix=TEMP_PREFIX)) if dest is None else dest
+            cls.extract(path, dir_)
+        else:
+            dir_ = path
+
+        loaded = cls.load(dir_)
+
+        loaded.access.readonly = readonly
+        if extract:
+            loaded.access.path = path
+
+        return loaded
 
     @classmethod
     def create(cls, path: Path):
-        """Create a new EKO.
-
-        Type-safe alias for::
-
-            EKO.open(... , "w")
-
-        """
-        builder = cls.open(path, "w")
-        assert isinstance(builder, Builder)
+        """Create a new EKO."""
+        access = AccessConfigs(path, readonly=False, open=True)
+        builder = Builder(
+            path=Path(tempfile.mkdtemp(prefix=TEMP_PREFIX)), access=access
+        )
         return builder
 
     @classmethod
-    def edit(cls, path: Path):
+    def edit(cls, *args, **kwargs):
         """Read from and write on existing EKO.
 
-        Type-safe alias for::
-
-            EKO.open(... , "a")
+        Alias of `EKO.read(..., readonly=False)`, see :meth:`read`.
 
         """
-        eko = cls.open(path, "a")
-        assert isinstance(eko, EKO)
-        return eko
+        return cls.read(*args, readonly=False, **kwargs)
 
     def __enter__(self):
         """Allow EKO to be used in :obj:`with` statements."""
@@ -463,7 +467,8 @@ class EKO:
         if exc_type is not None:
             return
 
-        self.close()
+        if self.access.path is not None:
+            self.close()
 
     @property
     def raw(self) -> dict:
@@ -484,7 +489,7 @@ class Builder:
     """Build EKO instances."""
 
     path: Path
-    """Path on disk to ."""
+    """Path on disk to the EKO."""
     access: AccessConfigs
     """Access related configurations."""
 
