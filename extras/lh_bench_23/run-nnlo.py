@@ -7,42 +7,24 @@ import numpy as np
 import pandas as pd
 import yaml
 from banana import toy
-from cards import ffns_operator, ffns_theory, vfns_operator, vfns_theory
+from cfg import (
+    ffns_labels,
+    ffns_operator,
+    ffns_rotate_to_LHA,
+    ffns_theory,
+    vfns_labels,
+    vfns_operator,
+    vfns_rotate_to_LHA,
+    vfns_theory,
+)
 
 import eko
-from eko import basis_rotation as br
 from eko.runner.managed import solve
 from ekobox import apply
 from ekomark.benchmark.external.LHA_utils import here as there
 
 _sqrt2 = float(np.sqrt(2))
 
-# setup flavor rotations
-labels = ["u_v", "d_v", "L_m", "L_p", "s_v", "s_p", "c_p", "g"]
-rotate_to_LHA = np.zeros((len(labels), 14))
-# u_v = u - ubar
-rotate_to_LHA[0][br.flavor_basis_pids.index(-2)] = -1
-rotate_to_LHA[0][br.flavor_basis_pids.index(2)] = 1
-# d_v = d - dbar
-rotate_to_LHA[1][br.flavor_basis_pids.index(-1)] = -1
-rotate_to_LHA[1][br.flavor_basis_pids.index(1)] = 1
-# L_- = dbar - ubar
-rotate_to_LHA[2][br.flavor_basis_pids.index(-1)] = 1
-rotate_to_LHA[2][br.flavor_basis_pids.index(-2)] = -1
-# 2L_+ = 2dbar + 2ubar
-rotate_to_LHA[3][br.flavor_basis_pids.index(-1)] = 2
-rotate_to_LHA[3][br.flavor_basis_pids.index(-2)] = 2
-# s_v = s - sbar
-rotate_to_LHA[4][br.flavor_basis_pids.index(-3)] = -1
-rotate_to_LHA[4][br.flavor_basis_pids.index(3)] = 1
-# s_+ = s + sbar
-rotate_to_LHA[5][br.flavor_basis_pids.index(-3)] = 1
-rotate_to_LHA[5][br.flavor_basis_pids.index(3)] = 1
-# c_+ = c + cbar
-rotate_to_LHA[6][br.flavor_basis_pids.index(-4)] = 1
-rotate_to_LHA[6][br.flavor_basis_pids.index(4)] = 1
-# g = g
-rotate_to_LHA[7][br.flavor_basis_pids.index(21)] = 1
 
 # setup x rotation
 xgrid = np.array([1e-7, 1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 0.1, 0.3, 0.5, 0.7, 0.9])
@@ -86,11 +68,15 @@ if __name__ == "__main__":
         t = ffns_theory(xif)
         o = ffns_operator
         tab = 14
+        lab = ffns_labels
+        rot = ffns_rotate_to_LHA
     elif args.scheme == "VFNS":
         scheme = "VFNS"
         t = vfns_theory(xif)
         o = vfns_operator
         tab = 15
+        lab = vfns_labels
+        rot = vfns_rotate_to_LHA
     else:
         raise ValueError("scheme has to be FFNS or VFNS")
 
@@ -113,10 +99,8 @@ if __name__ == "__main__":
     # apply PDF
     out = {}
     with eko.EKO.read(p) as eko_:
-        pdf = apply.apply_pdf_flavor(
-            eko_, toy.mkPDF("ToyLH", 0), xgrid, rotate_to_LHA, labels
-        )
-        for lab, f in pdf[(10000.0, 4)]["pdfs"].items():
+        pdf = apply.apply_pdf_flavor(eko_, toy.mkPDF("ToyLH", 0), xgrid, rot, lab)
+        for lab, f in list(pdf.values())[0]["pdfs"].items():
             out[lab] = xgrid * f
 
     # display result
@@ -124,6 +108,8 @@ if __name__ == "__main__":
     me = pd.DataFrame(out)
     print("EKO")
     print(me)
+    # dump to file
+    me.to_csv(f"table{tab}-part{part}.csv")
 
     # load reference
     ref = pd.DataFrame(ref_data[f"table{tab}"][f"part{part}"])
