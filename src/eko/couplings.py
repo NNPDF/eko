@@ -381,6 +381,10 @@ def couplings_expanded_fixed_alphaem(order, couplings_ref, nf, scale_from, scale
     return np.array([res_as, aem])
 
 
+_CouplingsCacheKey = Tuple[float, float, int, float, float]
+"""Cache key containing (a0, a1, nf, scale_from, scale_to)."""
+
+
 class Couplings:
     r"""Compute the strong and electromagnetic coupling constants :math:`a_s, a_{em}`.
 
@@ -475,7 +479,7 @@ class Couplings:
                 self.decoupled_running,
             )
         # cache
-        self.cache: Dict[Tuple[float, float, int, float, float], npt.NDArray] = {}
+        self.cache: Dict[_CouplingsCacheKey, npt.NDArray] = {}
 
     @property
     def mu2_ref(self):
