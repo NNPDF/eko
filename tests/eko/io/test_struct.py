@@ -34,7 +34,7 @@ class TestEKO:
         # try to read from a non-tar path
         no_tar_path = tmp_path / "Blub.tar"
         no_tar_path.write_text("Blub", encoding="utf-8")
-        with pytest.raises(ValueError, match="tar"):
+        with pytest.raises(tarfile.ReadError):
             struct.EKO.read(no_tar_path)
 
     def test_properties(self, eko_factory: EKOFactory):
