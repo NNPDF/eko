@@ -36,12 +36,9 @@ def solve(theory: TheoryCard, operator: OperatorCard, path: Path):
             del eko.parts_matching[recipe]
 
         for ep in operator.evolgrid:
-            parts_ = operators.retrieve(
-                operators.parts(ep, eko), eko.parts, eko.parts_matching
-            )
+            components = operators.retrieve(ep, eko)
             target = Target.from_ep(ep)
-            eko.operators[target] = operators.join(parts_)
+            eko.operators[target] = operators.join(components)
             # flush the memory
             del eko.parts
-            del eko.parts_matching
             del eko.operators[target]
