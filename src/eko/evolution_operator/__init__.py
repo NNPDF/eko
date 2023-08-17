@@ -607,8 +607,8 @@ class Operator(sv.ModeMixin):
 
     log_label = "Evolution"
     # complete list of possible evolution operators labels
-    full_labels = list(br.full_labels)
-    full_labels_qed = list(br.full_unified_labels)
+    full_labels: Tuple[Tuple[int, int], ...] = br.full_labels
+    full_labels_qed: Tuple[Tuple[int, int], ...] = br.full_unified_labels
 
     def __init__(
         self, config, managers, segment: Segment, mellin_cut=5e-2, is_threshold=False

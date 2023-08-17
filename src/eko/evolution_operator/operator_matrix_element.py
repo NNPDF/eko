@@ -3,7 +3,7 @@
 import copy
 import functools
 import logging
-from typing import List, Tuple
+from typing import Tuple
 
 import numba as nb
 import numpy as np
@@ -196,7 +196,7 @@ class OperatorMatrixElement(Operator):
 
     log_label = "Matching"
     # complete list of possible matching operators labels
-    full_labels = [
+    full_labels = (
         *br.singlet_labels,
         (br.matching_hplus_pid, 21),
         (br.matching_hplus_pid, 100),
@@ -207,9 +207,9 @@ class OperatorMatrixElement(Operator):
         (200, br.matching_hminus_pid),
         (br.matching_hminus_pid, 200),
         (br.matching_hminus_pid, br.matching_hminus_pid),
-    ]
+    )
     # still valid in QED since Sdelta and Vdelta matchings are diagonal
-    full_labels_qed: List[Tuple[int, int]] = copy.deepcopy(full_labels)
+    full_labels_qed: Tuple[Tuple[int, int], ...] = copy.deepcopy(full_labels)
 
     def __init__(self, config, managers, nf, q2, is_backward, L, is_msbar):
         super().__init__(config, managers, Segment(q2, q2, nf))
