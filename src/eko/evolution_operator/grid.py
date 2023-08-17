@@ -127,7 +127,6 @@ class OperatorGrid(sv.ModeMixin):
         is_downward = is_downward_path(path)
         shift = flavor_shift(is_downward)
         for seg in path[:-1]:
-            new_op_key = seg
             kthr = self.config["thresholds_ratios"][seg.nf - shift]
             ome = OperatorMatrixElement(
                 self.config,
@@ -138,13 +137,13 @@ class OperatorGrid(sv.ModeMixin):
                 np.log(kthr),
                 self.config["HQ"] == "MSBAR",
             )
-            if new_op_key not in self._threshold_operators:
+            if seg not in self._threshold_operators:
                 # Compute the operator and store it
                 logger.info("Prepare threshold operator")
                 op_th = Operator(self.config, self.managers, seg, is_threshold=True)
                 op_th.compute()
-                self._threshold_operators[new_op_key] = op_th
-            thr_ops.append(self._threshold_operators[new_op_key])
+                self._threshold_operators[seg] = op_th
+            thr_ops.append(self._threshold_operators[seg])
 
             # Compute the matching conditions and store it
             if seg.target not in self._matching_operators:
