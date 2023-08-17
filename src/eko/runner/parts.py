@@ -22,7 +22,7 @@ from ..quantities.heavy_quarks import QuarkMassScheme
 from . import commons
 
 
-def managers(eko: EKO) -> dict:
+def _managers(eko: EKO) -> dict:
     """Collect managers for operator computation.
 
     .. todo::
@@ -39,7 +39,7 @@ def managers(eko: EKO) -> dict:
     )
 
 
-def blowup_info(eko: EKO) -> dict:
+def _blowup_info(eko: EKO) -> dict:
     """Prepare common information to blow up to flavor basis.
 
     Note
@@ -65,7 +65,7 @@ def blowup_info(eko: EKO) -> dict:
     return dict(intrinsic_range=[4, 5, 6], qed=eko.theory_card.order[1] > 0)
 
 
-def evolve_configs(eko: EKO) -> dict:
+def _evolution_configs(eko: EKO) -> dict:
     """Create configs for :class:`Operator`.
 
     .. todo::
@@ -94,11 +94,14 @@ def evolve_configs(eko: EKO) -> dict:
 def evolve(eko: EKO, recipe: Evolution) -> Operator:
     """Compute evolution in isolation."""
     op = evop.Operator(
-        evolve_configs(eko), managers(eko), recipe.as_atlas, is_threshold=recipe.cliff
+        _evolution_configs(eko),
+        _managers(eko),
+        recipe.as_atlas,
+        is_threshold=recipe.cliff,
     )
     op.compute()
 
-    binfo = blowup_info(eko)
+    binfo = _blowup_info(eko)
     res, err = physical.PhysicalOperator.ad_to_evol_map(
         op.op_members, op.nf, op.q2_to, **binfo
     ).to_flavor_basis_tensor(qed=binfo["qed"])
@@ -106,7 +109,7 @@ def evolve(eko: EKO, recipe: Evolution) -> Operator:
     return Operator(res, err)
 
 
-def matching_configs(eko: EKO) -> dict:
+def _matching_configs(eko: EKO) -> dict:
     """Create configs for :class:`OperatorMatrixElement`.
 
     .. todo::
@@ -117,7 +120,7 @@ def matching_configs(eko: EKO) -> dict:
     tcard = eko.theory_card
     ocard = eko.operator_card
     return dict(
-        **evolve_configs(eko),
+        **_evolution_configs(eko),
         backward_inversion=ocard.configs.inversion_method,
         intrinsic_range=tcard.heavy.intrinsic_flavors,
     )
@@ -138,8 +141,8 @@ def match(eko: EKO, recipe: Matching) -> Operator:
     """
     kthr = eko.theory_card.heavy.squared_ratios[recipe.hq - 4]
     op = ome.OperatorMatrixElement(
-        matching_configs(eko),
-        managers(eko),
+        _matching_configs(eko),
+        _managers(eko),
         recipe.hq - 1,
         recipe.scale,
         recipe.inverse,
@@ -148,7 +151,7 @@ def match(eko: EKO, recipe: Matching) -> Operator:
     )
     op.compute()
 
-    binfo = blowup_info(eko)
+    binfo = _blowup_info(eko)
     nf_match = op.nf - 1 if recipe.inverse else op.nf
     res, err = matching_condition.MatchingCondition.split_ad_to_evol_map(
         op.op_members, nf_match, recipe.scale, **binfo

@@ -12,7 +12,7 @@ but not automatically performed.
 """
 from pathlib import Path
 
-from ..io.items import Evolution, Matching, Target
+from ..io.items import Target
 from ..io.runcards import OperatorCard, TheoryCard
 from ..io.struct import EKO
 from . import operators, parts, recipes
@@ -27,12 +27,10 @@ def solve(theory: TheoryCard, operator: OperatorCard, path: Path):
         recipes.create(eko)
 
         for recipe in eko.recipes:
-            assert isinstance(recipe, Evolution)
             eko.parts[recipe] = parts.evolve(eko, recipe)
             # flush the memory
             del eko.parts[recipe]
         for recipe in eko.recipes_matching:
-            assert isinstance(recipe, Matching)
             eko.parts_matching[recipe] = parts.match(eko, recipe)
             # flush the memory
             del eko.parts_matching[recipe]
