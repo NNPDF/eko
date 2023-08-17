@@ -21,6 +21,7 @@ import ekore.anomalous_dimensions.unpolarized.time_like as ad_ut
 from .. import basis_rotation as br
 from .. import interpolation, mellin
 from .. import scale_variations as sv
+from ..io.types import OperatorLabel
 from ..kernels import non_singlet as ns
 from ..kernels import non_singlet_qed as qed_ns
 from ..kernels import singlet as s
@@ -579,7 +580,8 @@ def quad_ker_qed(
     return ker
 
 
-OpMembers = Dict[Tuple[int, int], OpMember]
+OpMembers = Dict[OperatorLabel, OpMember]
+"""Map of all operators."""
 
 
 class Operator(sv.ModeMixin):
@@ -607,8 +609,8 @@ class Operator(sv.ModeMixin):
 
     log_label = "Evolution"
     # complete list of possible evolution operators labels
-    full_labels: Tuple[Tuple[int, int], ...] = br.full_labels
-    full_labels_qed: Tuple[Tuple[int, int], ...] = br.full_unified_labels
+    full_labels: Tuple[OperatorLabel, ...] = br.full_labels
+    full_labels_qed: Tuple[OperatorLabel, ...] = br.full_unified_labels
 
     def __init__(
         self, config, managers, segment: Segment, mellin_cut=5e-2, is_threshold=False
