@@ -337,15 +337,6 @@ class EKO:
         shutil.copytree(self.paths.root, new.paths.root)
         new.close()
 
-    @staticmethod
-    def extract(tarpath: Path, dest: Path):
-        """Extract the content of archive in a target directory."""
-        try:
-            with tarfile.open(tarpath) as tar:
-                raw.safe_extractall(tar, dest)
-        except tarfile.ReadError:
-            raise exceptions.OutputNotTar(f"Not a valid tar archive: '{tarpath}'")
-
     @classmethod
     def load(cls, path: Path):
         """Load the EKO from disk information.
@@ -389,7 +380,8 @@ class EKO:
         """
         if extract:
             dir_ = Path(tempfile.mkdtemp(prefix=TEMP_PREFIX)) if dest is None else dest
-            cls.extract(path, dir_)
+            with tarfile.open(path) as tar:
+                raw.safe_extractall(tar, dir_)
         else:
             dir_ = path
 
