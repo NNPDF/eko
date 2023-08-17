@@ -1,86 +1,21 @@
 import argparse
-import copy
+import logging
 import pathlib
-from math import inf, nan
+import sys
 
 import numpy as np
 import pandas as pd
 import yaml
 from banana import toy
+from cards import ffns_operator, ffns_theory, vfns_operator, vfns_theory
 
 import eko
 from eko import basis_rotation as br
-from eko.interpolation import lambertgrid
-from eko.io import runcards
-from eko.io.types import ReferenceRunning
 from eko.runner.managed import solve
 from ekobox import apply
 from ekomark.benchmark.external.LHA_utils import here as there
 
 _sqrt2 = float(np.sqrt(2))
-
-# VFNS theory settings
-_t_vfns = dict(
-    order=[3, 0],
-    couplings=dict(
-        alphas=0.35,
-        alphaem=0.007496,
-        scale=_sqrt2,
-        num_flavs_ref=3,
-        max_num_flavs=6,
-    ),
-    heavy=dict(
-        num_flavs_init=3,
-        num_flavs_max_pdf=6,
-        intrinsic_flavors=[],
-        masses=[ReferenceRunning([mq, nan]) for mq in (_sqrt2, 4.5, 175.0)],
-        masses_scheme="POLE",
-        matching_ratios=[1.0, 1.0, 1.0],
-    ),
-    xif=1.0,
-    n3lo_ad_variation=(0, 0, 0, 0),
-)
-t_vfns = runcards.TheoryCard.from_dict(_t_vfns)
-
-# FFNS theory settings
-_t_ffns = copy.deepcopy(_t_vfns)
-_t_ffns["couplings"]["num_flavs_ref"] = 4
-_t_ffns["heavy"]["num_flavs_init"] = 4
-_t_ffns["heavy"]["masses"] = [
-    ReferenceRunning([0, nan]),
-    ReferenceRunning([inf, nan]),
-    ReferenceRunning([inf, nan]),
-]
-t_ffns = runcards.TheoryCard.from_dict(_t_ffns)
-
-# VFNS operator settings
-_o_vfns = dict(
-    mu0=_sqrt2,
-    mugrid=[(100.0, 5)],
-    xgrid=lambertgrid(60).tolist(),
-    configs=dict(
-        evolution_method="iterate-exact",
-        ev_op_max_order=[10, 0],
-        ev_op_iterations=30,
-        interpolation_polynomial_degree=4,
-        interpolation_is_log=True,
-        scvar_method="exponentiated",
-        inversion_method=None,
-        n_integration_cores=1,
-        polarized=False,
-        time_like=False,
-    ),
-    debug=dict(
-        skip_singlet=False,
-        skip_non_singlet=False,
-    ),
-)
-o_vfns = runcards.OperatorCard.from_dict(_o_vfns)
-
-# FFNS operator settings
-_o_ffns = copy.deepcopy(_o_vfns)
-_o_ffns["mugrid"] = [(100.0, 4)]
-o_ffns = runcards.OperatorCard.from_dict(_o_ffns)
 
 # setup flavor rotations
 labels = ["u_v", "d_v", "L_m", "L_p", "s_v", "s_p", "c_p", "g"]
@@ -112,8 +47,6 @@ rotate_to_LHA[7][br.flavor_basis_pids.index(21)] = 1
 # setup x rotation
 xgrid = np.array([1e-7, 1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 0.1, 0.3, 0.5, 0.7, 0.9])
 
-# eko path
-p = pathlib.Path("FFNS.tar")
 
 # reference values
 with open(there / "LHA.yaml", encoding="utf-8") as o:
@@ -121,14 +54,61 @@ with open(there / "LHA.yaml", encoding="utf-8") as o:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
+    parser.add_argument("scheme", help="FFNS or VFNS?")
+    parser.add_argument("sv", help="scale variation: up, central, or down")
     parser.add_argument("--rerun", help="Rerun eko", action="store_true")
+    parser.add_argument(
+        "-v", "--verbose", help="Print eko log to screen", action="store_true"
+    )
     args = parser.parse_args()
 
+    # determine xif
+    if "central".startswith(args.sv):
+        xif = 1.0
+        sv = "central"
+        part = 1
+    elif "up".startswith(args.sv):
+        xif = _sqrt2
+        sv = "up"
+        part = 2
+    elif "down".startswith(args.sv):
+        xif = 1.0 / _sqrt2
+        sv = "down"
+        part = 3
+    else:
+        raise ValueError(
+            "sv has to be up, central, or down - or any abbreviation there of"
+        )
+
+    # determine scheme
+    if args.scheme == "FFNS":
+        scheme = "FFNS"
+        t = ffns_theory(xif)
+        o = ffns_operator
+        tab = 14
+    elif args.scheme == "VFNS":
+        scheme = "VFNS"
+        t = vfns_theory(xif)
+        o = vfns_operator
+        tab = 15
+    else:
+        raise ValueError("scheme has to be FFNS or VFNS")
+
+    # eko path
+    p = pathlib.Path(f"{scheme}-{sv}.tar")
+
     # recompute?
-    if args.rerun:
-        print("Rerunning eko ...")
+    if not p.exists() or args.rerun:
+        print("(Re)running eko ...")
         p.unlink(True)
-        solve(t_ffns, o_ffns, p)
+        if args.verbose:
+            logStdout = logging.StreamHandler(sys.stdout)
+            logStdout.setLevel(logging.INFO)
+            logStdout.setFormatter(logging.Formatter("%(message)s"))
+            logging.getLogger("eko").handlers = []
+            logging.getLogger("eko").addHandler(logStdout)
+            logging.getLogger("eko").setLevel(logging.INFO)
+        solve(t, o, p)
 
     # apply PDF
     out = {}
@@ -146,6 +126,7 @@ if __name__ == "__main__":
     print(me)
 
     # load reference
-    ref = pd.DataFrame(ref_data["table14"]["part1"])
+    ref = pd.DataFrame(ref_data[f"table{tab}"][f"part{part}"])
+    print()
     print("rel. distance to reference")
     print((me - ref) / ref)
