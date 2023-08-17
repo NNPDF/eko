@@ -51,13 +51,16 @@ def apply_pdf(
 
 CONTRACTION = "ajbk,bk"
 
+_PdfLabel = Union[int, str]
+"""PDF identifier: either PID or label."""
+
 
 @dataclass
 class PdfResult:
     """Helper class to collect PDF results."""
 
-    pdfs: Dict[Union[int, str], float]
-    errors: Optional[Dict[Union[int, str], float]] = None
+    pdfs: Dict[_PdfLabel, float]
+    errors: Optional[Dict[_PdfLabel, float]] = None
 
 
 def apply_pdf_flavor(
