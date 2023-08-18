@@ -1,10 +1,12 @@
+//! Interface to the eko Python package.
+
 use ekore;
 use ekore::harmonics::cache::Cache;
 use std::ffi::c_void;
 
 mod mellin;
 
-/// QCD intergration kernel inside quad
+/// QCD intergration kernel inside quad.
 #[no_mangle]
 pub unsafe extern "C" fn rust_quad_ker_qcd(u: f64, rargs: *mut c_void) -> f64 {
     let args = *(rargs as *mut QuadQCDargs);
@@ -16,7 +18,7 @@ pub unsafe extern "C" fn rust_quad_ker_qcd(u: f64, rargs: *mut c_void) -> f64 {
     let mut re = Vec::<f64>::new();
     let mut im = Vec::<f64>::new();
     if is_singlet {
-        let res = ekore::anomalous_dimensions::unpolarized::spacelike::gamma_singlet(
+        let res = ekore::anomalous_dimensions::unpolarized::spacelike::gamma_singlet_qcd(
             args.order_qcd,
             &mut c,
             args.nf,
@@ -30,7 +32,7 @@ pub unsafe extern "C" fn rust_quad_ker_qcd(u: f64, rargs: *mut c_void) -> f64 {
             }
         }
     } else {
-        let res = ekore::anomalous_dimensions::unpolarized::spacelike::gamma_ns(
+        let res = ekore::anomalous_dimensions::unpolarized::spacelike::gamma_ns_qcd(
             args.order_qcd,
             args.mode0,
             &mut c,

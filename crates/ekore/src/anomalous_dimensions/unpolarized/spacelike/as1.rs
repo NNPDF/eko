@@ -5,7 +5,7 @@ use num::complex::Complex;
 use crate::constants::{CA, CF, TR};
 use crate::harmonics::cache::{Cache, K};
 
-/// Compute the LO QCD non-singlet anomalous dimension.
+/// Compute the non-singlet anomalous dimension.
 ///
 /// Implements Eq. (3.4) of [\[Moch:2004pa\]][crate::bib::Moch2004pa].
 pub fn gamma_ns(c: &mut Cache, _nf: u8) -> Complex<f64> {
@@ -15,7 +15,7 @@ pub fn gamma_ns(c: &mut Cache, _nf: u8) -> Complex<f64> {
     CF * gamma
 }
 
-/// Compute the LO QCD quark-gluon anomalous dimension.
+/// Compute the quark-gluon anomalous dimension.
 ///
 /// Implements Eq. (3.5) of [\[Vogt:2004mw\]](crate::bib::Vogt2004mw).
 pub fn gamma_qg(c: &mut Cache, nf: u8) -> Complex<f64> {
@@ -24,7 +24,7 @@ pub fn gamma_qg(c: &mut Cache, nf: u8) -> Complex<f64> {
     2.0 * TR * 2.0 * (nf as f64) * gamma
 }
 
-/// Compute the LO QCD gluon-quark anomalous dimension.
+/// Compute the gluon-quark anomalous dimension.
 ///
 /// Implements Eq. (3.5) of [\[Vogt:2004mw\]](crate::bib::Vogt2004mw).
 pub fn gamma_gq(c: &mut Cache, _nf: u8) -> Complex<f64> {
@@ -33,7 +33,7 @@ pub fn gamma_gq(c: &mut Cache, _nf: u8) -> Complex<f64> {
     2.0 * CF * gamma
 }
 
-/// Compute the LO QCD gluon-gluon anomalous dimension.
+/// Compute the gluon-gluon anomalous dimension.
 ///
 /// Implements Eq. (3.5) of [\[Vogt:2004mw\]](crate::bib::Vogt2004mw).
 pub fn gamma_gg(c: &mut Cache, nf: u8) -> Complex<f64> {
@@ -43,7 +43,7 @@ pub fn gamma_gg(c: &mut Cache, nf: u8) -> Complex<f64> {
     CA * (4.0 * gamma - 11.0 / 3.0) + 4.0 / 3.0 * TR * (nf as f64)
 }
 
-/// Compute the LO QCD singlet anomalous dimension matrix.
+/// Compute the singlet anomalous dimension matrix.
 pub fn gamma_singlet(c: &mut Cache, nf: u8) -> [[Complex<f64>; 2]; 2] {
     let gamma_qq = gamma_ns(c, nf);
     [

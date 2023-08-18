@@ -1,7 +1,20 @@
+//! Tools for Mellin inversion.
+//!
+//! We provide all necessary toold to deal with the
+//! [inverse Mellin transformation](https://en.wikipedia.org/wiki/Mellin_inversion_theorem).
+
 use num::complex::Complex;
 use std::f64::consts::PI;
 
-/// Talbot path in Mellin inversion
+#[cfg_attr(doc, katexit::katexit)]
+/// Talbot inversion path.
+///
+/// Implements the algorithm presented in [\[Abate\]](crate::bib::Abate).
+/// $p_{\text{Talbot}}(t) =  o + r \cdot ( \theta \cot(\theta) + i\theta)$ with $\theta = \pi(2t-1)$
+/// The default values for the parameters $r,o$ are given by $r = 1/2, o = 0$ for
+/// the non-singlet integrals and by $r = \frac{2}{5} \frac{16}{1 - \ln(x)}, o = 1$
+/// for the singlet sector. Note that the non-singlet kernels evolve poles only up to
+/// $N=0$ whereas the singlet kernels have poles up to $N=1$.
 pub struct TalbotPath {
     /// integration variable
     t: f64,
@@ -14,12 +27,12 @@ pub struct TalbotPath {
 }
 
 impl TalbotPath {
-    /// auxilary angle
+    /// Auxilary angle.
     fn theta(&self) -> f64 {
         PI * (2.0 * self.t - 1.0)
     }
 
-    /// Constructor from parameters
+    /// Constructor from parameters.
     pub fn new(t: f64, logx: f64, is_singlet: bool) -> Self {
         Self {
             t,
@@ -28,7 +41,7 @@ impl TalbotPath {
         }
     }
 
-    /// Mellin-N
+    /// Mellin N.
     pub fn n(&self) -> Complex<f64> {
         let theta = self.theta();
         // treat singular point separately
@@ -41,7 +54,7 @@ impl TalbotPath {
         self.o + self.r * Complex::<f64> { re, im }
     }
 
-    /// transformation jacobian
+    /// Transformation jacobian.
     pub fn jac(&self) -> Complex<f64> {
         let theta = self.theta();
         // treat singular point separately
@@ -54,7 +67,7 @@ impl TalbotPath {
         self.r * PI * 2.0 * Complex::<f64> { re, im }
     }
 
-    /// Mellin inversion prefactor
+    /// Mellin inversion prefactor.
     pub fn prefactor(&self) -> Complex<f64> {
         Complex::<f64> {
             re: 0.,
