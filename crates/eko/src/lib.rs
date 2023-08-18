@@ -101,6 +101,7 @@ type PyQuadKerQCDT = unsafe extern "C" fn(
 ) -> f64;
 
 /// Additional integration parameters
+#[allow(non_snake_case)]
 #[repr(C)]
 #[derive(Clone, Copy)]
 pub struct QuadQCDargs {
@@ -144,7 +145,7 @@ pub unsafe extern "C" fn my_py(
     _areas: *const f64,
     _areas_x: u8,
     _areas_y: u8,
-    _L: f64,
+    _l: f64,
     _method_num: u8,
     _as1: f64,
     _as0: f64,
