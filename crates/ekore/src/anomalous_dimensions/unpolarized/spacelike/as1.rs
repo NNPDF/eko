@@ -51,3 +51,65 @@ pub fn gamma_singlet(c: &mut Cache, nf: u8) -> [[Complex<f64>; 2]; 2] {
         [gamma_gq(c, nf), gamma_gg(c, nf)],
     ]
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::{anomalous_dimensions::unpolarized::spacelike::as1::*, harmonics::cache::Cache};
+    use float_cmp::assert_approx_eq;
+    use num::complex::Complex;
+    const NF: u8 = 5;
+
+    #[test]
+    fn number_conservation() {
+        const N: Complex<f64> = Complex::<f64> { re: 1., im: 0. };
+        let mut c = Cache::new(N);
+        let me = gamma_ns(&mut c, NF);
+        assert_approx_eq!(f64, me.re, 0., epsilon = 1e-12);
+        assert_approx_eq!(f64, me.im, 0., epsilon = 1e-12);
+    }
+
+    #[test]
+    fn quark_momentum_conservation() {
+        const N: Complex<f64> = Complex::<f64> { re: 2., im: 0. };
+        let mut c = Cache::new(N);
+        let me = gamma_ns(&mut c, NF) + gamma_gq(&mut c, NF);
+        assert_approx_eq!(f64, me.re, 0., epsilon = 1e-12);
+        assert_approx_eq!(f64, me.im, 0., epsilon = 1e-12);
+    }
+
+    #[test]
+    fn gluon_momentum_conservation() {
+        const N: Complex<f64> = Complex::<f64> { re: 2., im: 0. };
+        let mut c = Cache::new(N);
+        let me = gamma_qg(&mut c, NF) + gamma_gg(&mut c, NF);
+        assert_approx_eq!(f64, me.re, 0., epsilon = 1e-12);
+        assert_approx_eq!(f64, me.im, 0., epsilon = 1e-12);
+    }
+
+    #[test]
+    fn gamma_qg_() {
+        const N: Complex<f64> = Complex::<f64> { re: 1., im: 0. };
+        let mut c = Cache::new(N);
+        let me = gamma_qg(&mut c, NF);
+        assert_approx_eq!(f64, me.re, -20. / 3.0, ulps = 32);
+        assert_approx_eq!(f64, me.im, 0., epsilon = 1e-12);
+    }
+
+    #[test]
+    fn gamma_gq_() {
+        const N: Complex<f64> = Complex::<f64> { re: 0., im: 1. };
+        let mut c = Cache::new(N);
+        let me = gamma_gq(&mut c, NF);
+        assert_approx_eq!(f64, me.re, 4. / 3.0, ulps = 32);
+        assert_approx_eq!(f64, me.im, -4. / 3.0, ulps = 32);
+    }
+
+    #[test]
+    fn gamma_gg_() {
+        const N: Complex<f64> = Complex::<f64> { re: 0., im: 1. };
+        let mut c = Cache::new(N);
+        let me = gamma_gg(&mut c, NF);
+        assert_approx_eq!(f64, me.re, 5.195725159621, ulps = 32, epsilon = 1e-11);
+        assert_approx_eq!(f64, me.im, 10.52008856962, ulps = 32, epsilon = 1e-11);
+    }
+}

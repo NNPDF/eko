@@ -337,6 +337,7 @@ mod tests {
                 let fref = FORTRAN_REF[kit.0][zit.0];
                 let me = cern_polygamma(*zit.1, *kit.1);
                 assert_approx_eq!(f64, me.re, fref.re, ulps = 32);
+                assert_approx_eq!(f64, me.im, fref.im, ulps = 32);
             }
         }
     }
