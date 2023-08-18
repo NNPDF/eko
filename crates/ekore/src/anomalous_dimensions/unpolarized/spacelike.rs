@@ -1,3 +1,5 @@
+//! The unpolarized, space-like anomalous dimensions at various couplings power.
+
 use crate::harmonics::cache::Cache;
 use num::complex::Complex;
 use num::Zero;

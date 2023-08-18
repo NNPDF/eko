@@ -1,12 +1,16 @@
+//! Tools to compute [polygamma functions](https://en.wikipedia.org/wiki/Polygamma_function).
+
 use num::complex::Complex;
 use std::f64::consts::PI;
 
 #[cfg_attr(doc, katexit::katexit)]
 /// Compute the polygamma functions $\psi_k(z)$.
 ///
-/// Reimplementation of ``WPSIPG`` (C317) in [CERNlib](http://cernlib.web.cern.ch/cernlib/) [KOLBIG1972221][crate::bib::KOLBIG1972221]
+/// Reimplementation of ``WPSIPG`` (C317) in [CERNlib](http://cernlib.web.cern.ch/cernlib/) given by [[KOLBIG1972221]][crate::bib::KOLBIG1972221].
+///
+/// TODO: introduce back errors
 pub fn cern_polygamma(Z: Complex<f64>, K: usize) -> Complex<f64> {
-    const DELTA: f64 = 5e-13;
+    // const DELTA: f64 = 5e-13;
     const R1: f64 = 1.0;
     const HF: f64 = R1 / 2.0;
     let C1: f64 = PI.powi(2);
@@ -71,7 +75,7 @@ pub fn cern_polygamma(Z: Complex<f64>, K: usize) -> Complex<f64> {
     let mut H = Complex::<f64> { re: 0., im: 0. };
     if A < 15. {
         H = 1. / V.powu(K1 as u32);
-        for i in 1..(14 - A_as_int + 1) {
+        for _ in 1..(14 - A_as_int + 1) {
             V = V + 1.;
             H = H + 1. / V.powu(K1 as u32);
         }
