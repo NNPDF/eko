@@ -101,7 +101,7 @@ def test_momentum_conservation():
         ]
         g_ps[i, :] = [
             gps.gamma_ps_nf1(N, sx_cache, variation[3]),
-            gps.gamma_ps_nf2(N, sx_cache, variation[3]),
+            gps.gamma_ps_nf2(N, sx_cache),
         ]
 
     # nf^2 part

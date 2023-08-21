@@ -193,8 +193,10 @@ the following terms:
             - |T|
             - |T|
 
-Only the parts proportional to :math:`n_f^3` are known analytically
+The parts proportional to :math:`n_f^3` are known analytically
 :cite:`Davies:2016jie` and have been included so far.
+For the :math:`n_f^2` only the :math:`\gamma_{qq,ps}` component
+have been computed in :cite:`Gehrmann:2023cqm` and it's used in our code.
 The other parts are approximated using some known limits:
 
     *   The small-x limit, given in the large :math:`N_c` approximation by
