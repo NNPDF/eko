@@ -30,7 +30,7 @@ _t_vfns = dict(
         matching_ratios=[1.0, 1.0, 1.0],
     ),
     xif=1.0,
-    n3lo_ad_variation=(0, 0, 0, 0),
+    n3lo_ad_variation=(0, 0, 0, 0, 0, 0, 0),
     use_fhmv=False,
 )
 
