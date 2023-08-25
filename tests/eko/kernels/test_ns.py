@@ -207,7 +207,7 @@ def test_error(monkeypatch):
     with pytest.raises(NotImplementedError, match="order is not implemented"):
         ns.dispatcher((5, 0), "iterate-exact", np.random.rand(3) + 0j, 0.2, 0.1, 3, 10)
     with pytest.raises(NotImplementedError):
-        ad.gamma_ns((2, 0), 10202, 1, 3)
+        ad.gamma_ns((2, 0), 10202, 1, (0, 0, 0, 0, 0, 0, 0), 3)
 
 
 def test_gamma_usage():

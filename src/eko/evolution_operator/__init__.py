@@ -256,7 +256,7 @@ def quad_ker(
     is_threshold : boolean
         is this an intermediate threshold operator?
     n3lo_ad_variation : tuple
-        |N3LO| anomalous dimension variation ``(gg_var, gq_var, qg_var, qq_var)``
+        |N3LO| anomalous dimension variation ``(gg_var, gq_var, qg_var, qq_var, nsp_var, nsm_var, nsv_var)``
     is_polarized : boolean
         is polarized evolution ?
     is_time_like : boolean
@@ -368,7 +368,7 @@ def quad_ker_qcd(
     is_threshold : boolean
         is this an itermediate threshold operator?
     n3lo_ad_variation : tuple
-        |N3LO| anomalous dimension variation ``(gg_var, gq_var, qg_var, qq_var)``
+        |N3LO| anomalous dimension variation ``(gg_var, gq_var, qg_var, qq_var, nsp_var, nsm_var, nsv_var)``
     use_fhmv : bool
         if True use the Falcioni Herzog Moch Vogt N3LO anomalous dimensions
 
@@ -422,7 +422,9 @@ def quad_ker_qcd(
             if is_time_like:
                 gamma_ns = ad_ut.gamma_ns(order, mode0, ker_base.n, nf)
             else:
-                gamma_ns = ad_us.gamma_ns(order, mode0, ker_base.n, nf, use_fhmv)
+                gamma_ns = ad_us.gamma_ns(
+                    order, mode0, ker_base.n, nf, n3lo_ad_variation, use_fhmv
+                )
         if sv_mode == sv.Modes.exponentiated:
             gamma_ns = sv.exponentiated.gamma_variation(gamma_ns, order, nf, L)
         ker = ns.dispatcher(

@@ -48,7 +48,7 @@ class TheoryCard(DictLike):
     xif: float
     """Ratio between factorization scale and process scale."""
     n3lo_ad_variation: N3LOAdVariation
-    """|N3LO| anomalous dimension variation: ``(gg_var, gq_var, qg_var, qq_var)``."""
+    """|N3LO| anomalous dimension variation: ``(gg_var, gq_var, qg_var, qq_var, nsp_var, nsm_var, nsv_var)``."""
     use_fhmv: bool
     """If True use the Falcioni Herzog Moch Vogt N3LO anomalous dimensions"""
 
@@ -211,7 +211,7 @@ class Legacy:
             raise ValueError(f"Unknown mass scheme '{old['HQ']}'")
 
         new["xif"] = old["XIF"]
-        new["n3lo_ad_variation"] = old.get("n3lo_ad_variation", (0, 0, 0, 0))
+        new["n3lo_ad_variation"] = old.get("n3lo_ad_variation", (0, 0, 0, 0, 0, 0, 0))
         new["use_fhmv"] = old.get("use_fhmv", False)
 
         return TheoryCard.from_dict(new)
