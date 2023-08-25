@@ -38,16 +38,6 @@ def test_quark_number_conservation():
     N = 1
     sx_cache = h.cache.reset()
 
-    # (ns,s)
-    # the exact expression (nf^2 part) has an nonphysical pole at N=1,
-    # see also :cite:`Moch:2017uml` and :cite:`Davies:2016jie` eq 3.5
-    # where the \nu term is present.
-    # This should cancel when doing the limit, since the given moment for N=1 is 0
-    # np.testing.assert_allclose(gamma_nsv(N, NF, sx_cache), 0, rtol=3e-7)
-
-    # nf^1 part
-    np.testing.assert_allclose(gnsv.gamma_nss_nf1(N, sx_cache), 0.000400625, atol=2e-6)
-
     # (ns,-)
     # nf^3 part
     np.testing.assert_allclose(gnsp.gamma_ns_nf3(N, sx_cache), 0, atol=3e-15)
@@ -59,6 +49,16 @@ def test_quark_number_conservation():
     np.testing.assert_allclose(gnsm.gamma_nsm_nf0(N, sx_cache), 0, atol=2e-10)
     # total
     np.testing.assert_allclose(gnsm.gamma_nsm(N, NF, sx_cache), 0, atol=1e-10)
+
+    # (ns,s)
+    # the exact expression (nf^2 part) has an nonphysical pole at N=1,
+    # see also :cite:`Moch:2017uml` and :cite:`Davies:2016jie` eq 3.5
+    # where the \nu term is present.
+    # This should cancel when doing the limit, since the given moment for N=1 is 0
+    np.testing.assert_allclose(gnsv.gamma_nss_nf2(N + 1e-8, sx_cache), 0, atol=9e-6)
+
+    # nf^1 part
+    np.testing.assert_allclose(gnsv.gamma_nss_nf1(N, sx_cache), 0.000400625, atol=2e-6)
 
 
 def test_momentum_conservation():
