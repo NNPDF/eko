@@ -31,6 +31,7 @@ _t_vfns = dict(
     ),
     xif=1.0,
     n3lo_ad_variation=(0, 0, 0, 0),
+    use_fhmv=False,
 )
 
 

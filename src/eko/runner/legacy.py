@@ -77,6 +77,7 @@ class Runner:
             couplings=cs,
             interpol_dispatcher=bfd,
             n3lo_ad_variation=new_theory.n3lo_ad_variation,
+            use_fhmv=new_theory.use_fhmv,
         )
 
         with EKO.create(path) as builder:

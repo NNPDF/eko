@@ -209,6 +209,7 @@ def quad_ker(
     n3lo_ad_variation,
     is_polarized,
     is_time_like,
+    use_fhmv,
 ):
     """Raw evolution kernel inside quad.
 
@@ -260,6 +261,8 @@ def quad_ker(
         is polarized evolution ?
     is_time_like : boolean
         is time-like evolution ?
+    use_fhmv : bool
+        if True use the Falcioni Herzog Moch Vogt N3LO anomalous dimension
 
     Returns
     -------
@@ -288,6 +291,7 @@ def quad_ker(
             is_polarized,
             is_time_like,
             n3lo_ad_variation,
+            use_fhmv,
         )
     else:
         ker = quad_ker_qed(
@@ -331,6 +335,7 @@ def quad_ker_qcd(
     is_polarized,
     is_time_like,
     n3lo_ad_variation,
+    use_fhmv,
 ):
     """Raw evolution kernel inside quad.
 
@@ -364,6 +369,8 @@ def quad_ker_qcd(
         is this an itermediate threshold operator?
     n3lo_ad_variation : tuple
         |N3LO| anomalous dimension variation ``(gg_var, gq_var, qg_var, qq_var)``
+    use_fhmv : bool
+        if True use the Falcioni Herzog Moch Vogt N3LO anomalous dimensions
 
     Returns
     -------
@@ -382,7 +389,7 @@ def quad_ker_qcd(
                 gamma_singlet = ad_ut.gamma_singlet(order, ker_base.n, nf)
             else:
                 gamma_singlet = ad_us.gamma_singlet(
-                    order, ker_base.n, nf, n3lo_ad_variation
+                    order, ker_base.n, nf, n3lo_ad_variation, use_fhmv
                 )
         # scale var exponentiated is directly applied on gamma
         if sv_mode == sv.Modes.exponentiated:
@@ -415,7 +422,7 @@ def quad_ker_qcd(
             if is_time_like:
                 gamma_ns = ad_ut.gamma_ns(order, mode0, ker_base.n, nf)
             else:
-                gamma_ns = ad_us.gamma_ns(order, mode0, ker_base.n, nf)
+                gamma_ns = ad_us.gamma_ns(order, mode0, ker_base.n, nf, use_fhmv)
         if sv_mode == sv.Modes.exponentiated:
             gamma_ns = sv.exponentiated.gamma_variation(gamma_ns, order, nf, L)
         ker = ns.dispatcher(
@@ -821,6 +828,7 @@ class Operator(sv.ModeMixin):
             n3lo_ad_variation=self.config["n3lo_ad_variation"],
             is_polarized=self.config["polarized"],
             is_time_like=self.config["time_like"],
+            use_fhmv=self.config["use_fhmv"],
         )
 
     def initialize_op_members(self):
