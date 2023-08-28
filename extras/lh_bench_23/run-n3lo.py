@@ -96,9 +96,8 @@ if __name__ == "__main__":
     # eko path
     eko_dir.mkdir(exist_ok=True)
     approx_name = "FHMV" if args.use_fhmv else "NNPPDF"
-    p = pathlib.Path(
-        f"{eko_dir}/{scheme}-{sv}-{''.join([str(a) for a in args.ad_variation])}-{approx_name}.tar"
-    )
+    var_name = "-".join([str(a) for a in args.ad_variation])
+    p = pathlib.Path(f"{eko_dir}/{scheme}-{sv}-{var_name}-{approx_name}.tar")
 
     # recompute?
     if not p.exists() or args.rerun:
@@ -127,9 +126,7 @@ if __name__ == "__main__":
     print(me)
     # dump to file
     table_dir.mkdir(exist_ok=True)
-    me.to_csv(
-        f"{table_dir}/table{scheme}-{sv}-{''.join([str(a) for a in args.ad_variation])}-{approx_name}.csv"
-    )
+    me.to_csv(f"{table_dir}/table{scheme}-{sv}-{var_name}-{approx_name}.csv")
 
     # load reference
     ref = pd.DataFrame(ref_data[f"table{tab}"][f"part{part}"])
