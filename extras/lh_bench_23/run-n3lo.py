@@ -95,7 +95,7 @@ if __name__ == "__main__":
 
     # eko path
     eko_dir.mkdir(exist_ok=True)
-    approx_name = "FHMV" if args.use_fhmv else "NNPPDF"
+    approx_name = "FHMV" if args.use_fhmv else "NNPDF"
     var_name = "-".join([str(a) for a in args.ad_variation])
     p = pathlib.Path(f"{eko_dir}/{scheme}-{sv}-{var_name}-{approx_name}.tar")
 
