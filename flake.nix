@@ -3,6 +3,7 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-23.05";
     systems.url = "github:nix-systems/default";
     devenv.url = "github:cachix/devenv";
+    nixpkgs-python.url = "github:cachix/nixpkgs-python";
   };
 
   nixConfig = {
