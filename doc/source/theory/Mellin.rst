@@ -56,7 +56,7 @@ Plus Distributions
 ^^^^^^^^^^^^^^^^^^
 
 .. math ::
-    \mathcal M[1/(1-x)_+](N) = S_1(N)
+    \mathcal M[1/(1-x)_+](N) = - S_1(N - 1)
 
 with the harmonic sum :math:`S_1` (see :ref:`theory/mellin:harmonic sums`).
 
