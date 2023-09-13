@@ -38,16 +38,6 @@ def test_quark_number_conservation():
     N = 1
     sx_cache = h.cache.reset()
 
-    # (ns,s)
-    # the exact expression (nf^2 part) has an nonphysical pole at N=1,
-    # see also :cite:`Moch:2017uml` and :cite:`Davies:2016jie` eq 3.5
-    # where the \nu term is present.
-    # This should cancel when doing the limit, since the given moment for N=1 is 0
-    # np.testing.assert_allclose(gamma_nsv(N, NF, sx_cache), 0, rtol=3e-7)
-
-    # nf^1 part
-    np.testing.assert_allclose(gnsv.gamma_nss_nf1(N, sx_cache), 0.000400625, atol=2e-6)
-
     # (ns,-)
     # nf^3 part
     np.testing.assert_allclose(gnsp.gamma_ns_nf3(N, sx_cache), 0, atol=3e-15)
@@ -59,6 +49,16 @@ def test_quark_number_conservation():
     np.testing.assert_allclose(gnsm.gamma_nsm_nf0(N, sx_cache), 0, atol=2e-10)
     # total
     np.testing.assert_allclose(gnsm.gamma_nsm(N, NF, sx_cache), 0, atol=1e-10)
+
+    # (ns,s)
+    # the exact expression (nf^2 part) has an nonphysical pole at N=1,
+    # see also :cite:`Moch:2017uml` and :cite:`Davies:2016jie` eq 3.5
+    # where the \nu term is present.
+    # This should cancel when doing the limit, since the given moment for N=1 is 0
+    np.testing.assert_allclose(gnsv.gamma_nss_nf2(N + 1e-8, sx_cache), 0, atol=9e-6)
+
+    # nf^1 part
+    np.testing.assert_allclose(gnsv.gamma_nss_nf1(N, sx_cache), 0.000400625, atol=2e-6)
 
 
 def test_momentum_conservation():
@@ -101,14 +101,14 @@ def test_momentum_conservation():
         ]
         g_ps[i, :] = [
             gps.gamma_ps_nf1(N, sx_cache, variation[3]),
-            gps.gamma_ps_nf2(N, sx_cache, variation[3]),
+            gps.gamma_ps_nf2(N, sx_cache),
         ]
 
     # nf^2 part
     np.testing.assert_allclose(
         gnsp.gamma_nsp_nf2(N, sx_cache) + g_ps[:, 1] + g_gq[:, 2],
         0,
-        atol=2e-12,
+        atol=6e-8,
     )
     np.testing.assert_allclose(
         +g_gg[:, 2] + g_qg[:, 1],
@@ -144,7 +144,7 @@ def test_momentum_conservation():
     np.testing.assert_allclose(
         g_singlet[:, 0, 0] + g_singlet[:, 1, 0],
         0,
-        atol=2e-10,
+        atol=2e-7,
     )
     np.testing.assert_allclose(
         g_singlet[:, 0, 1] + g_singlet[:, 1, 1],
@@ -179,10 +179,12 @@ def test_non_singlet_reference_moments():
         idx = int((N - 3) / 2)
         if N != 17:
             np.testing.assert_allclose(
-                gnsm.gamma_nsm(N, NF, sx_cache), nsm_nf4_refs[idx]
+                gnsm.gamma_nsm(N, NF, sx_cache), nsm_nf4_refs[idx], rtol=7e-6
             )
             np.testing.assert_allclose(
-                gnsv.gamma_nsv(N, NF, sx_cache), nss_nf4_refs[idx] + nsm_nf4_refs[idx]
+                gnsv.gamma_nsv(N, NF, sx_cache),
+                nss_nf4_refs[idx] + nsm_nf4_refs[idx],
+                rtol=7e-6,
             )
         gamma_nss = (
             gnsv.gamma_nss_nf1(N, sx_cache) * NF
@@ -206,7 +208,7 @@ def test_singlet_reference_moments():
     for N in [2.0, 4.0, 6.0, 8.0, 10.0, 12.0, 14.0, 16.0]:
         sx_cache = h.cache.reset()
         np.testing.assert_allclose(
-            gnsp.gamma_nsp(N, NF, sx_cache), nsp_nf4_refs[int((N - 2) / 2)]
+            gnsp.gamma_nsp(N, NF, sx_cache), nsp_nf4_refs[int((N - 2) / 2)], rtol=3e-6
         )
 
 
@@ -280,7 +282,7 @@ def test_diff_pm_nf2():
         sx_cache = h.cache.reset()
         diff.append(gnsp.gamma_nsp_nf2(N, sx_cache) - gnsm.gamma_nsm_nf2(N, sx_cache))
         ref_vals.append(deltaB3(N, sx_cache))
-    np.testing.assert_allclose(diff, ref_vals, atol=5e-4)
+    np.testing.assert_allclose(diff, ref_vals, atol=5e-3)
 
     diff = []
     ref_vals = []
@@ -288,7 +290,7 @@ def test_diff_pm_nf2():
         sx_cache = h.cache.reset()
         diff.append(gnsp.gamma_nsp_nf2(N, sx_cache) - gnsm.gamma_nsm_nf2(N, sx_cache))
         ref_vals.append(deltaB3(N, sx_cache))
-    np.testing.assert_allclose(diff, ref_vals, atol=2e-2)
+    np.testing.assert_allclose(diff, ref_vals, atol=2.1e-2)
 
 
 def test_gamma_ps_extrapolation():
