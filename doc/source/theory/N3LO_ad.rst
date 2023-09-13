@@ -132,7 +132,7 @@ In |EKO| they are implemented as follows:
                 *   - :math:`\frac{x}{2}\ln^2(x)`
                     - :math:`\frac{1}{(N+1)^3}`
                 *   - :math:`x^{2}, x^{3}`
-                    - :math:`\frac{1}{(N-2)},\frac{1}{(N-3)}`
+                    - :math:`\frac{1}{(N+2)},\frac{1}{(N+3)}`
 
             The first five functions model the sub-leading differences in the :math:`N\to \infty` limit,
             while the last three help the convergence in the small-N region. Finally, we add a polynomial part
