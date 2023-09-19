@@ -3,8 +3,6 @@ r"""Contains the central operator classes.
 See :doc:`Operator overview </code/Operators>`.
 """
 
-import ctypes
-import functools
 import logging
 import os
 import time
