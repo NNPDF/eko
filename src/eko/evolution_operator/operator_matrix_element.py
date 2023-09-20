@@ -220,7 +220,7 @@ class OperatorMatrixElement(Operator):
         self.L = L
         self.is_msbar = is_msbar
         # Note for the moment only QCD matching is implemented
-        self.order = (self.order[0] - 1, self.order[1])
+        self.order = tuple(config["matching_order"])
 
     @property
     def labels(self):

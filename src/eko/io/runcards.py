@@ -49,6 +49,8 @@ class TheoryCard(DictLike):
     """Ratio between factorization scale and process scale."""
     n3lo_ad_variation: N3LOAdVariation
     """|N3LO| anomalous dimension variation: ``(gg_var, gq_var, qg_var, qq_var, nsp_var, nsm_var, nsv_var)``."""
+    matching_order: Order
+    """Matching conditions perturbative order tuple, ``(QCD, QED)``."""
     use_fhmv: bool
     """If True use the Falcioni Herzog Moch Vogt N3LO anomalous dimensions"""
 
@@ -212,8 +214,9 @@ class Legacy:
 
         new["xif"] = old["XIF"]
         new["n3lo_ad_variation"] = old.get("n3lo_ad_variation", (0, 0, 0, 0, 0, 0, 0))
+        # here PTO: 0 means truly LO
+        new["matching_order"] = old.get("PTO_matching", [old["PTO"], old["QED"]])
         new["use_fhmv"] = old.get("use_fhmv", False)
-
         return TheoryCard.from_dict(new)
 
     @property
