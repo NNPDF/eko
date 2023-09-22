@@ -1,7 +1,7 @@
 //! Cache harmonic sums for given Mellin N.
 
+use hashbrown::HashMap;
 use num::complex::Complex;
-use std::collections::HashMap;
 
 use crate::harmonics::w1;
 
