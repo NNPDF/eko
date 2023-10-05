@@ -75,6 +75,8 @@ def n3lo_theory(ad_variation, is_ffns, use_fhmv=False, xif=1.0):
     tt = copy.deepcopy(base)
     tt["xif"] = xif
     tt["order"] = [4, 0]
+    # here we keep the NNLO matching
+    tt["matching_order"] = [2, 0]
     tt["n3lo_ad_variation"] = ad_variation
     tt["use_fhmv"] = use_fhmv
     return runcards.TheoryCard.from_dict(tt)
