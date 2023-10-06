@@ -47,6 +47,7 @@ class Matching:
 
     scale: SquaredScale
     hq: FlavorIndex
+    inverse: bool
 
 
 MatchedPath = List[Union[Segment, Matching]]
@@ -157,11 +158,12 @@ class Atlas:
 
         """
         path = self.path(target)
+        inverse = is_downward_path(path)
 
         prev = path[0]
         matched: MatchedPath = [prev]
         for seg in path[1:]:
-            matching = Matching(prev.target, max(prev.nf, seg.nf))
+            matching = Matching(prev.target, max(prev.nf, seg.nf), inverse)
 
             matched.append(matching)
             matched.append(seg)
