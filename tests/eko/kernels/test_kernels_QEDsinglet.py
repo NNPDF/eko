@@ -79,7 +79,7 @@ def test_zero_true_gamma(monkeypatch):
         for qed in range(1, 2 + 1):
             order = (qcd, qed)
             n = np.random.rand()
-            gamma_s = ad.gamma_singlet_qed(order, n, nf)
+            gamma_s = ad.gamma_singlet_qed(order, n, nf, (0, 0, 0, 0))
             # monkeypatch.setattr(
             #     ad,
             #     "exp_matrix_2D",
