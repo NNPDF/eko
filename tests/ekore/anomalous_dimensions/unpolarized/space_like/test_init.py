@@ -208,7 +208,7 @@ def test_dim_singlet():
     nf = 3
     N = 2
     cache = h.cache.reset()
-    gamma_singlet = ad_us.gamma_singlet_qed((3, 2), N, nf)
+    gamma_singlet = ad_us.gamma_singlet_qed((3, 2), N, nf, (0, 0, 0, 0))
     assert gamma_singlet.shape == (4, 3, 4, 4)
     gamma_singlet_as1 = ad_us.as1.gamma_singlet_qed(N, cache, nf)
     assert gamma_singlet_as1.shape == (4, 4)
