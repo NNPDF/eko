@@ -302,7 +302,7 @@ def test_ode_true_gamma():
 
 def test_error():
     for running in [True, False]:
-        with pytest.raises(NotImplementedError):
+        with pytest.raises(ValueError):
             ns.dispatcher(
                 (5, 2),
                 "iterate-exact",
