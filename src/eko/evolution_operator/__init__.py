@@ -307,6 +307,7 @@ def quad_ker(
             ev_op_max_order,
             sv_mode,
             is_threshold,
+            n3lo_ad_variation,
         )
 
     # recombine everything
