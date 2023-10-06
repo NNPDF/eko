@@ -255,7 +255,7 @@ def choose_ns_ad_aem2(mode, n, nf, cache):
 
 
 @nb.njit(cache=True)
-def gamma_singlet_qed(order, n, nf):
+def gamma_singlet_qed(order, n, nf, n3lo_ad_variation):
     r"""
     Compute the grid of the QED singlet anomalous dimensions matrices.
 
@@ -267,6 +267,8 @@ def gamma_singlet_qed(order, n, nf):
         Mellin variable
     nf : int
         Number of active flavors
+    n3lo_ad_variation : tuple
+        |N3LO| anomalous dimension variation ``(gg_var, gq_var, qg_var, qq_var)``
 
     Returns
     -------
@@ -286,7 +288,7 @@ def gamma_singlet_qed(order, n, nf):
     if order[0] >= 3:
         gamma_s[3, 0] = as3.gamma_singlet_qed(n, nf, cache)
     if order[0] >= 4:
-        gamma_s[4, 0] = as4.gamma_singlet_qed(n, nf, cache)
+        gamma_s[4, 0] = as4.gamma_singlet_qed(n, nf, cache, n3lo_ad_variation)
     return gamma_s
 
 

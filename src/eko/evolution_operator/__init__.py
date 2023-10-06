@@ -450,6 +450,7 @@ def quad_ker_qed(
     ev_op_max_order,
     sv_mode,
     is_threshold,
+    n3lo_ad_variation,
 ):
     """Raw evolution kernel inside quad.
 
@@ -489,6 +490,8 @@ def quad_ker_qed(
         scale variation mode, see `eko.scale_variations.Modes`
     is_threshold : boolean
         is this an itermediate threshold operator?
+    n3lo_ad_variation : tuple
+        |N3LO| anomalous dimension variation ``(gg_var, gq_var, qg_var, qq_var)``
 
     Returns
     -------
@@ -497,7 +500,7 @@ def quad_ker_qed(
     """
     # compute the actual evolution kernel for QEDxQCD
     if ker_base.is_QEDsinglet:
-        gamma_s = ad_us.gamma_singlet_qed(order, ker_base.n, nf)
+        gamma_s = ad_us.gamma_singlet_qed(order, ker_base.n, nf, n3lo_ad_variation)
         # scale var exponentiated is directly applied on gamma
         if sv_mode == sv.Modes.exponentiated:
             gamma_s = sv.exponentiated.gamma_variation_qed(
