@@ -155,6 +155,11 @@ def gamma_ns_qed(order, mode, n, nf):
             gamma_ns[3, 0] = as3.gamma_nsp(n, nf, cache)
         elif mode in [10202, 10203]:
             gamma_ns[3, 0] = as3.gamma_nsm(n, nf, cache)
+    if order[0] >= 4:
+        if mode in [10102, 10103]:
+            gamma_ns[4, 0] = as4.gamma_nsp(n, nf, cache)
+        elif mode in [10202, 10203]:
+            gamma_ns[4, 0] = as4.gamma_nsm(n, nf, cache)
     return gamma_ns
 
 
@@ -280,6 +285,8 @@ def gamma_singlet_qed(order, n, nf):
         gamma_s[0, 2] = aem2.gamma_singlet(n, nf, cache)
     if order[0] >= 3:
         gamma_s[3, 0] = as3.gamma_singlet_qed(n, nf, cache)
+    if order[0] >= 4:
+        gamma_s[4, 0] = as4.gamma_singlet_qed(n, nf, cache)
     return gamma_s
 
 
@@ -314,4 +321,6 @@ def gamma_valence_qed(order, n, nf):
         gamma_v[0, 2] = aem2.gamma_valence(n, nf, cache)
     if order[0] >= 3:
         gamma_v[3, 0] = as3.gamma_valence_qed(n, nf, cache)
+    if order[0] >= 4:
+        gamma_v[4, 0] = as4.gamma_valence_qed(n, nf, cache)
     return gamma_v
