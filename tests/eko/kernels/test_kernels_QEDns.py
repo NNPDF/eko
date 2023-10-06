@@ -304,7 +304,7 @@ def test_error():
     for running in [True, False]:
         with pytest.raises(NotImplementedError):
             ns.dispatcher(
-                (4, 2),
+                (5, 2),
                 "iterate-exact",
                 np.random.rand(4, 3),
                 [0.1, 0.2],
