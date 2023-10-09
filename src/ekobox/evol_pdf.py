@@ -1,5 +1,6 @@
 """Tools to evolve actual PDFs."""
 import pathlib
+from collections import defaultdict
 
 import numpy as np
 
@@ -78,24 +79,31 @@ def evolve_pdfs(
     )
     all_member_blocks = []
     targetlist = targetgrid.raw.tolist()
+
+    # separate by nf the evolgrid (and order per nf/q)
+    by_nf = defaultdict(list)
+    for q, nf in sorted(eko_output.evolgrid, key=lambda ep: ep[1]):
+        by_nf[nf].append(q)
+    q2block_per_nf = {nf: sorted(qs) for nf, qs in by_nf.items()}
+
+    # loop on replicas
     for evolved_PDF in evolved_PDF_list:
         all_blocks = []
-        evolved_PDF_q2 = {q2: val for (q2, _), val in evolved_PDF.items()}
-        sorted_q2grid = [
-            float(q2) for q2, _ in np.sort(operators_card.evolgrid, axis=0)
-        ]
-        block = genpdf.generate_block(
-            lambda pid, x, Q2, evolved_PDF=evolved_PDF_q2: targetlist[
-                targetlist.index(x)
-            ]
-            * evolved_PDF[Q2]["pdfs"][pid][targetlist.index(x)],
-            xgrid=targetlist,
-            sorted_q2grid=sorted_q2grid,
-            pids=np.array(br.flavor_basis_pids),
-        )
-        # all_blocks will be useful in case there will be necessity to dump many blocks
-        # for a single member
-        all_blocks.append(block)
+
+        # loop on nf patches
+        for nf, q2grid in q2block_per_nf.items():
+
+            def pdf_xq2(pid, x, Q2):
+                x_idx = targetlist.index(x)
+                return x * evolved_PDF[(Q2, nf)]["pdfs"][pid][x_idx]
+
+            block = genpdf.generate_block(
+                pdf_xq2,
+                xgrid=targetlist,
+                sorted_q2grid=q2grid,
+                pids=br.flavor_basis_pids,
+            )
+            all_blocks.append(block)
         all_member_blocks.append(all_blocks)
 
     genpdf.export.dump_set(name, info, all_member_blocks)
