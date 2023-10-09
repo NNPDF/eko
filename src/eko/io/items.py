@@ -86,17 +86,17 @@ class Matching(Header):
 
     scale: SquaredScale
     hq: FlavorIndex
-    inverse: bool = False
+    inverse: bool
 
     @classmethod
-    def from_atlas(cls, matching: matchings.Matching, inverse: bool = False):
+    def from_atlas(cls, matching: matchings.Matching):
         """Create instance from analogous :class:`eko.matchings.Atlas` object."""
-        return cls(**asdict(matching), inverse=inverse)
+        return cls(**asdict(matching))
 
     @property
     def as_atlas(self) -> matchings.Matching:
         """The associated segment."""
-        return matchings.Matching(self.scale, self.hq)
+        return matchings.Matching(self.scale, self.hq, self.inverse)
 
 
 Recipe = Union[Evolution, Matching]
