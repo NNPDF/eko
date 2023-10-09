@@ -62,7 +62,7 @@ op_raw = dict(
 
 
 @pytest.mark.isolated
-def BenchmarkInverseMatching():
+def benchmark_inverse_matching():
     th_card = runcards.TheoryCard.from_dict(th_raw)
     op_card = runcards.OperatorCard.from_dict(op_raw)
 
