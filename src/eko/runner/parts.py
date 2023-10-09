@@ -88,7 +88,7 @@ def evolve_configs(eko: EKO) -> dict:
         n_integration_cores=ocard.configs.n_integration_cores,
         ModSV=ocard.configs.scvar_method,
         n3lo_ad_variation=tcard.n3lo_ad_variation,
-        matching_order=tcard.matching_order,
+        matching_order=tcard.matching_order if tcard.matching_order is not None else tcard.order,
     )
 
 
