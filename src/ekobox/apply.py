@@ -12,7 +12,6 @@ def apply_pdf(
     lhapdf_like,
     targetgrid=None,
     rotate_to_evolution_basis=False,
-    qed=False,
 ):
     """
     Apply all available operators to the input PDFs.
@@ -34,13 +33,14 @@ def apply_pdf(
         out_grid : dict
             output PDFs and their associated errors for the computed mu2grid
     """
+    qed = eko.theory_card.order[1] > 0
     if rotate_to_evolution_basis:
         if not qed:
             rotate_flavor_to_evolution = br.rotate_flavor_to_evolution
         else:
             rotate_flavor_to_evolution = br.rotate_flavor_to_unified_evolution
         return apply_pdf_flavor(
-            eko, lhapdf_like, targetgrid, rotate_flavor_to_evolution, qed
+            eko, lhapdf_like, targetgrid, rotate_flavor_to_evolution
         )
     return apply_pdf_flavor(eko, lhapdf_like, targetgrid)
 
@@ -48,9 +48,7 @@ def apply_pdf(
 CONTRACTION = "ajbk,bk"
 
 
-def apply_pdf_flavor(
-    eko: EKO, lhapdf_like, targetgrid=None, flavor_rotation=None, qed=False
-):
+def apply_pdf_flavor(eko: EKO, lhapdf_like, targetgrid=None, flavor_rotation=None):
     """
     Apply all available operators to the input PDFs.
 
@@ -65,8 +63,6 @@ def apply_pdf_flavor(
             if given, interpolates to the pdfs given at targetgrid (instead of xgrid)
         flavor_rotation : np.ndarray
             Rotation matrix in flavor space
-        qed : bool
-            activate qed
 
     Returns
     -------
@@ -97,6 +93,7 @@ def apply_pdf_flavor(
         if error_final is not None:
             out_grid[ep]["errors"] = dict(zip(eko.bases.targetpids, error_final))
 
+    qed = eko.theory_card.order[1] > 0
     # rotate to evolution basis
     if flavor_rotation is not None:
         for q2, op in out_grid.items():

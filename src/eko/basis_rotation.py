@@ -275,7 +275,7 @@ map_ad_to_unified_evolution = {
 }
 
 
-def ad_projector(ad_lab, nf, qed=False):
+def ad_projector(ad_lab, nf, qed):
     """
     Build a projector (as a numpy array) for the given anomalous dimension sector.
 
@@ -355,7 +355,7 @@ def select_light_flavors_uni_ev(ad_lab, nf):
         return map_ad_to_evolution[ad_lab]
 
 
-def ad_projectors(nf, qed=False):
+def ad_projectors(nf, qed):
     """
     Build projectors tensor (as a numpy array), collecting all the individual sector projectors.
 

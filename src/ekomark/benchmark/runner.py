@@ -243,7 +243,6 @@ class Runner(BenchmarkRunner):
                 pdf,
                 xgrid,
                 flavor_rotation=rotate_to_evolution,
-                qed=qed,
             )
         for q2, ref_pdfs in ext["values"].items():
             log_tab = dfdict.DFdict()
