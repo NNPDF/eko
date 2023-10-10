@@ -54,6 +54,7 @@ class OperatorGrid(sv.ModeMixin):
         intrinsic_flavors: list,
         xif: float,
         n3lo_ad_variation: tuple,
+        matching_order: Order,
         configs: Configs,
         debug: Debug,
         atlas: Atlas,
@@ -81,6 +82,7 @@ class OperatorGrid(sv.ModeMixin):
         config["debug_skip_non_singlet"] = debug.skip_non_singlet
         config["polarized"] = configs.polarized
         config["time_like"] = configs.time_like
+        config["matching_order"] = matching_order
 
         if order == (1, 0) and method != "iterate-exact":
             logger.warning("Evolution: In LO we use the exact solution always!")

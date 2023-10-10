@@ -37,10 +37,12 @@ def apply_pdf(
     if rotate_to_evolution_basis:
         if not qed:
             rotate_flavor_to_evolution = br.rotate_flavor_to_evolution
+            labels = br.evol_basis
         else:
             rotate_flavor_to_evolution = br.rotate_flavor_to_unified_evolution
+            labels = br.unified_evol_basis
         return apply_pdf_flavor(
-            eko, lhapdf_like, targetgrid, rotate_flavor_to_evolution, qed
+            eko, lhapdf_like, targetgrid, rotate_flavor_to_evolution, labels=labels
         )
     return apply_pdf_flavor(eko, lhapdf_like, targetgrid)
 
@@ -49,7 +51,7 @@ CONTRACTION = "ajbk,bk"
 
 
 def apply_pdf_flavor(
-    eko: EKO, lhapdf_like, targetgrid=None, flavor_rotation=None, qed=False
+    eko: EKO, lhapdf_like, targetgrid=None, flavor_rotation=None, labels=None
 ):
     """
     Apply all available operators to the input PDFs.
@@ -65,8 +67,8 @@ def apply_pdf_flavor(
             if given, interpolates to the pdfs given at targetgrid (instead of xgrid)
         flavor_rotation : np.ndarray
             Rotation matrix in flavor space
-        qed : bool
-            activate qed
+        labels : list
+            list of labels
 
     Returns
     -------
@@ -103,16 +105,14 @@ def apply_pdf_flavor(
             pdf = flavor_rotation @ np.array(
                 [op["pdfs"][pid] for pid in br.flavor_basis_pids]
             )
-            if not qed:
-                evol_basis = br.evol_basis
-            else:
-                evol_basis = br.unified_evol_basis
-            op["pdfs"] = dict(zip(evol_basis, pdf))
+            if labels is None:
+                labels = list(range(flavor_rotation.shape[0]))
+            op["pdfs"] = dict(zip(labels, pdf))
             if op["errors"] is not None:
                 errors = flavor_rotation @ np.array(
                     [op["errors"][pid] for pid in br.flavor_basis_pids]
                 )
-                op["errors"] = dict(zip(evol_basis, errors))
+                op["errors"] = dict(zip(labels, errors))
 
     # rotate/interpolate to target grid
     if targetgrid is not None:
