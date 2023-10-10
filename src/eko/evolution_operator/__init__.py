@@ -626,7 +626,7 @@ class Operator(sv.ModeMixin):
         self.alphaem_running = self.managers["couplings"].alphaem_running
         if self.log_label == "Evolution":
             self.a = self.compute_a()
-            self.compute_aem_list()
+            self.as_list, self.a_half_list = self.compute_aem_list()
 
     @property
     def n_pools(self):
@@ -701,8 +701,8 @@ class Operator(sv.ModeMixin):
         """
         ev_op_iterations = self.config["ev_op_iterations"]
         if self.order[1] == 0:
-            self.as_list = np.array([self.a_s[0], self.a_s[1]])
-            self.a_half_list = np.zeros((ev_op_iterations, 2))
+            as_list = np.array([self.a_s[0], self.a_s[1]])
+            a_half = np.zeros((ev_op_iterations, 2))
         else:
             as0 = self.a_s[0]
             as1 = self.a_s[1]
@@ -722,7 +722,7 @@ class Operator(sv.ModeMixin):
             couplings = self.managers["couplings"]
             mu2_steps = utils.geomspace(self.q2_from, self.q2_to, 1 + ev_op_iterations)
             mu2_l = mu2_steps[0]
-            self.as_list = np.array(
+            as_list = np.array(
                 [
                     couplings.compute(
                         a_ref=a_start, nf=self.nf, scale_from=mu2_start, scale_to=mu2
@@ -738,7 +738,7 @@ class Operator(sv.ModeMixin):
                 )
                 a_half[step] = [a_s, aem]
                 mu2_l = mu2_h
-            self.a_half_list = a_half
+        return as_list, a_half
 
     @property
     def labels(self):
