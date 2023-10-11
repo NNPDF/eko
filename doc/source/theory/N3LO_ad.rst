@@ -195,8 +195,11 @@ the following terms:
 
 The parts proportional to :math:`n_f^3` are known analytically
 :cite:`Davies:2016jie` and have been included so far.
-For the :math:`n_f^2` only the :math:`\gamma_{qq,ps}` component
-have been computed in :cite:`Gehrmann:2023cqm` and it's used in our code.
+For :math:`\gamma_{qq,ps}` and :math:`\gamma_{gq}` also the component
+proportional to :math:`n_f^2` has been computed in :cite:`Gehrmann:2023cqm`
+and :cite:`Falcioni:2023tzp` respectively and it's used in our code
+through an approximations obtained with 30 moments.
+
 The other parts are approximated using some known limits:
 
     *   The small-x limit, given in the large :math:`N_c` approximation by
@@ -337,9 +340,6 @@ final reduced sets of candidates.
     Note that this table refers only to the :math:`n_f^0` part where we assume no violation of the scaling with :math:`\gamma_{gg}`
     also for the |NLL| term, to help the convergence. We expect that any possible deviation can be parametrized as a shift in the |NNLL| terms
     and in the |NLL| :math:`n_f^1` which are free to vary independently.
-    Furthermore for the part :math:`\propto n_f^2` we adopt a slightly different
-    basis to account fot the fact that the leading
-    contribution for the pole at :math:`N=1` is :math:`\frac{1}{(N-1)^2}`.
 
 Slightly different choices are performed for :math:`\gamma_{gq}^{(3)}` and :math:`\gamma_{qq,ps}^{(3)}`
 where 10 moments are known. In this case we can select a larger number of functions in group 3
