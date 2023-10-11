@@ -185,8 +185,12 @@ class OperatorMatrixElement(Operator):
         configuration
     managers : dict
         managers
-    segment: Segment
-        path segment
+    nf: int
+        number of active flavor below threshold
+    q2: float
+        squared matching scale
+    is_backward: bool
+        True for backward matching
     L: float
         :math:`\ln(\mu_F^2 / m_h^2)`
     is_msbar: bool
