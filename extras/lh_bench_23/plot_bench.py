@@ -6,7 +6,8 @@ from cfg import here, table_dir, xgrid
 plot_dir = here / "plots"
 plot_dir.mkdir(exist_ok=True)
 
-USE_LINX = True
+USE_LINX = False
+REL_DIFF = False
 scheme = "VFNS"
 sv = "central"
 
@@ -122,16 +123,22 @@ plt.legend()
 plt.tight_layout()
 plt.savefig(f"{plot_dir}/{plot_name}.pdf")
 
-# relative diff plots
-eko_diff = (eko_central - nnlo_central) / nnlo_central
-eko_diff_std = np.abs(eko_std / nnlo_central)
-fhmv_diff = (fhmv_central - nnlo_central) / nnlo_central
-fhmv_diff_std = np.abs(fhmv_std / nnlo_central)
-# eko_4mom_diff = (eko_4mom_central - nnlo_central) / nnlo_central
-# eko_4mom_diff_std = np.abs(eko_4mom_std / nnlo_central)
+# relative, absolute diff plots
+norm = nnlo_central
+if not REL_DIFF:
+    norm = pd.DataFrame(np.full(nnlo_central.shape, 1), columns=nnlo_central.columns)
+eko_diff = (eko_central - nnlo_central) / norm
+eko_diff_std = np.abs(eko_std / norm)
+fhmv_diff = (fhmv_central - nnlo_central) / norm
+fhmv_diff_std = np.abs(fhmv_std / norm)
+# eko_4mom_diff = (eko_4mom_central - nnlo_central) / norm
+# eko_4mom_diff_std = np.abs(eko_4mom_std / norm)
 
 fig, axs = plt.subplots(2, 4, figsize=(15, 7))
-fig.suptitle("Relative difference to NNLO, $Q: \\sqrt{2} \\to 100 \\ GeV$")
+if REL_DIFF:
+    fig.suptitle("Relative difference to NNLO, $Q: \\sqrt{2} \\to 100 \\ GeV$")
+else:
+    fig.suptitle("Absolute difference to NNLO, $Q: \\sqrt{2} \\to 100 \\ GeV$")
 
 for i, ax in enumerate(
     axs.reshape(
@@ -178,4 +185,7 @@ for i, ax in enumerate(
 
 plt.legend()
 plt.tight_layout()
-plt.savefig(f"{plot_dir}/{plot_name}_diff.pdf")
+if REL_DIFF:
+    plt.savefig(f"{plot_dir}/{plot_name}_diff.pdf")
+else:
+    plt.savefig(f"{plot_dir}/{plot_name}_abs_diff.pdf")
