@@ -90,16 +90,16 @@ In |EKO| they are implemented as follows:
         -   The large-N limit :cite:`Moch:2017uml`, which reads (Eq. 2.17):
 
             .. math ::
-                \gamma_{ns} \approx A^{(f)}_4 S_1(N) - B_4 + C_4 \frac{S_1(N)}{N} - D_4 \frac{1}{N}
+                \gamma_{ns} \approx A^{(f)}_4 S_1(N) - B^{(f)}_4 + C^{(f)}_4 \frac{S_1(N)}{N} - D^{(f)}_4 \frac{1}{N}
 
             This limit is common for all :math:`\gamma_{ns,+}^{(3)},\gamma_{ns,-}^{(3)},\gamma_{ns,v}^{(3)}`.
             The coefficient :math:`A^{(f)}_4`, being related to the twist-2 spin-N operators,
             can be obtained from the |QCD| cusp calculation
-            :cite:`Henn:2019swt`, while the :math:`B_4` is fixed by the integral of the 4-loop splitting function
+            :cite:`Henn:2019swt`, while the :math:`B^{(f)}_4` is fixed by the integral of the 4-loop splitting function
             and has been firstly computed in :cite:`Moch:2017uml` in the large :math:`n_c` limit.
             More recently :cite:`Duhr:2022cob`, it has been determined  in the full color expansion
             by computing various |N3LO| cross sections in the soft limit.
-            :math:`C_4,D_4` instead can be computed directly from lower order splitting functions.
+            :math:`C^{(f)}_4,D^{(f)}_4` instead can be computed directly from lower order splitting functions.
             From large-x resummation :cite:`Davies:2016jie`, it is possible to infer further constrains
             on sub-leading terms :math:`\frac{\ln^k(N)}{N^2}`, since the non-singlet splitting
             functions contain only terms :math:`(1-x)^a\ln^k(1-x)` with :math:`a \ge 1`.
@@ -195,8 +195,11 @@ the following terms:
 
 The parts proportional to :math:`n_f^3` are known analytically
 :cite:`Davies:2016jie` and have been included so far.
-For the :math:`n_f^2` only the :math:`\gamma_{qq,ps}` component
-have been computed in :cite:`Gehrmann:2023cqm` and it's used in our code.
+For :math:`\gamma_{qq,ps}` and :math:`\gamma_{gq}` also the component
+proportional to :math:`n_f^2` has been computed in :cite:`Gehrmann:2023cqm`
+and :cite:`Falcioni:2023tzp` respectively and it's used in our code
+through an approximations obtained with 30 moments.
+
 The other parts are approximated using some known limits:
 
     *   The small-x limit, given in the large :math:`N_c` approximation by
@@ -231,11 +234,11 @@ The other parts are approximated using some known limits:
         It is known that :cite:`Albino:2000cp,Moch:2021qrk` the diagonal terms diverge in N-space as:
 
             .. math ::
-                \gamma_{kk} \approx A^{(r)}_4 S_1(N) + B^{(r)}_4 + C^{(r)}_4 \frac{S_1(N)}{N} + \mathcal{O}(\frac{1}{N})
+                \gamma_{kk} \approx A^{(r)}_4 S_1(N) + B^{(r)}_4 + C^{(r)}_4 \frac{S_1(N)}{N} - D^{(r)}_4 \frac{1}{N}
 
         Where again the coefficient :math:`A^{(r)}_4` is the |QCD| cusp anomalous dimension for the adjoint or fundamental representation,
         the coefficient :math:`B^{(r)}_4` has been extracted from soft anomalous dimensions :cite:`Duhr:2022cob`.
-        and :math:`C^{(r)}_4`can be estimate from lower orders :cite:`Dokshitzer:2005bf`.
+        and :math:`C^{(r)}_4,D^{(r)}_4`can be estimate from lower orders :cite:`Dokshitzer:2005bf`.
         However, :math:`\gamma_{qq,ps}^{(3)}` do not constrain any divergence at large-x or constant term so its expansion starts as
         :math:`\mathcal{O}(\frac{1}{N^2})`.
         The off-diagonal do not contain any +-distributions or delta distributions but can include divergent logarithms
@@ -254,14 +257,14 @@ The other parts are approximated using some known limits:
                 \gamma_{qq,ps} \approx (1-x)[c_{4} \ln^4(1-x) + c_{3} \ln^3(1-x)] + \mathcal{O}((1-x)\ln^2(1-x))
 
 
-    *   The 4 lowest even N moments provided in :cite:`Moch:2021qrk`, where we can use momentum conservation
-        to fix:
+    *   The 5 lowest even N moments provided in :cite:`Moch:2021qrk,Moch:2023tdj`,
+        where momentum conservation fixes:
 
             .. math ::
                 & \gamma_{qg}(2) + \gamma_{gg}(2) = 0 \\
                 & \gamma_{qq}(2) + \gamma_{gq}(2) = 0 \\
 
-        For :math:`\gamma_{qq,ps}, \gamma_{qg}` other 6 additional moments are available :cite:`Falcioni:2023luc,Falcioni:2023vqq`.
+        For :math:`\gamma_{qq,ps}, \gamma_{qg}` other 5 additional moments are available :cite:`Falcioni:2023luc,Falcioni:2023vqq`.
         making the parametrization of this splitting function much more accurate.
 
 The difference between the known moments and the known limits is parametrized
@@ -278,9 +281,9 @@ we need to account for a possible source of uncertainties arising during the app
 This uncertainty is neglected in the non-singlet case.
 
 The procedure is performed in two steps for each different anomalous dimension separately.
-First, we solve the system associated to the 4 known moments,
+First, we solve the system associated to the 5 (10) known moments,
 minus the known limits, using different functional bases.
-Any possible candidate contains 4 elements and is obtained with the following prescription:
+Any possible candidate contains 5 elements and is obtained with the following prescription:
 
     1. one function is leading small-N unknown contribution, which correspond to the highest power unknown for the pole at :math:`N=1`,
 
@@ -314,32 +317,29 @@ final reduced sets of candidates.
         :align: center
 
         *   - :math:`f_1(N)`
-            - :math:`\frac{S_2(N-2)}{N}`
+            - :math:`\frac{1}{(N-1)^2}`
         *   - :math:`f_2(N)`
-            - :math:`\frac{1}{N}`
+            - :math:`\mathcal{M}[(1-x)\ln^3(1-x)]`
         *   - :math:`f_3(N)`
-            - :math:`\frac{1}{N-1},\ \frac{S_1(N)}{N^2}`
+            - :math:`\frac{1}{N-1},`
         *   - :math:`f_4(N)`
-            - :math:`\frac{1}{N-1},\ \frac{1}{N^4},\ \frac{1}{N^3},\ \frac{1}{N^2},\ \frac{1}{(N+1)^3},\ \frac{1}{(N+1)^2},\ \frac{1}{N+1},\ \frac{1}{N+2},\ \mathcal{M}[(1-x)\ln(1-x)],\ \frac{S_1(N)}{N^2}, \ \mathcal{M}[(1-x)^2\ln(1-x)],`
+            - :math:`\frac{1}{N^4},\ \frac{1}{N^3},\ \frac{1}{N^2},\ \frac{1}{(N+1)},\ \frac{1}{(N+2)},\ \mathcal{M}[(1-x)\ln^2(1-x)],\ \mathcal{M}[(1-x)\ln(1-x)]`
 
     .. list-table::  :math:`\gamma_{gq}^{(3)}` parametrization basis
         :align: center
 
         *   - :math:`f_1(N)`
-            - :math:`\frac{S_2(N-2)}{N}`
+            - :math:`\frac{1}{(N-1)^2}`
         *   - :math:`f_2(N)`
-            - :math:`\frac{S_1^3(N)}{N}`
+            - :math:`\mathcal{M}[\ln^3(1-x)]`
         *   - :math:`f_3(N)`
-            - :math:`\frac{1}{N-1},\ \frac{1}{N^4}`
+            - :math:`\frac{1}{N-1}`
         *   - :math:`f_4(N)`
-            - :math:`\frac{1}{N-1},\ \frac{1}{N^4},\ \frac{1}{N^3},\ \frac{1}{N^2},\ \frac{1}{N},\ \frac{1}{(N+1)^3},\ \frac{1}{(N+1)^2},\ \frac{1}{N+1},\ \frac{1}{N+2},\ \frac{S_1(N-2)}{N},\ \mathcal{M}[\ln^3(1-x)],\ \mathcal{M}[\ln^2(1-x)], \frac{S_1(N)}{N},\ \frac{S_1^2(N)}{N}`
+            - :math:`\frac{1}{N^4},\ \frac{1}{N^3},\ \frac{1}{N^2},\ \frac{1}{(N+1)},\ \frac{1}{(N+2)},\ \mathcal{M}[\ln^2(1-x)],\ \mathcal{M}[\ln(1-x)]`
 
-    Note that this table refers only to the :math:`n_f^0` part where we assume no violation of the scaling with :math:`\gamma_{gg}`
-    also for the |NLL| term, to help the convergence. We expect that any possible deviation can be parametrized as a shift in the |NNLL| terms
-    and in the |NLL| :math:`n_f^1` which are free to vary independently.
-    Furthermore for the part :math:`\propto n_f^2` we adopt a slightly different
-    basis to account fot the fact that the leading
-    contribution for the pole at :math:`N=1` is :math:`\frac{1}{(N-1)^2}`.
+    Following :cite:`Moch:2023tdj` we have assumed no violation of the scaling with :math:`\gamma_{gg}`
+    also for the |NLL| small-x term, to help the convergence. We expect that any possible deviation can be parametrized as a shift in the |NNLL| terms
+    which are free to vary independently.
 
 Slightly different choices are performed for :math:`\gamma_{gq}^{(3)}` and :math:`\gamma_{qq,ps}^{(3)}`
 where 10 moments are known. In this case we can select a larger number of functions in group 3
