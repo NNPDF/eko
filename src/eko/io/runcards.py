@@ -49,10 +49,10 @@ class TheoryCard(DictLike):
     """Ratio between factorization scale and process scale."""
     n3lo_ad_variation: N3LOAdVariation
     """|N3LO| anomalous dimension variation: ``(gg_var, gq_var, qg_var, qq_var, nsp_var, nsm_var, nsv_var)``."""
-    matching_order: Optional[Order] = None
-    """Matching conditions perturbative order tuple, ``(QCD, QED)``."""
     use_fhmv: bool
     """If True use the Falcioni Herzog Moch Vogt N3LO anomalous dimensions"""
+    matching_order: Optional[Order] = None
+    """Matching conditions perturbative order tuple, ``(QCD, QED)``."""
 
 
 @dataclass
