@@ -43,7 +43,7 @@ plot_name = f"lh_n3lo_bench_{scheme}_{xscale}"
 def rotate_to_evol(df, scheme):
     if scheme == "FFNS":
         matrix = [
-            [1, 1, 0, 0, 1, 0, 0, 0],  # V
+            [1, 1, 0, 0, 0, 0, 0, 0],  # V
             [1, -1, 0, 0, 0, 0, 0, 0],  # V3
             [1, 1, 0, 0, -2, 0, 0, 0],  # V8
             [1, -1, -2, 0, 0, 0, 0, 0],  # T3
@@ -57,10 +57,10 @@ def rotate_to_evol(df, scheme):
             [1, 1, 0, 0, 0, 0, 0, 0],  # V, V8
             [1, -1, 0, 0, 0, 0, 0, 0],  # V3
             [1, -1, -2, 0, 0, 0, 0, 0],  # T3
-            [1, 1, 0, 2, -2, 0, 0, 0],  # T8
-            [1, 1, 0, 2, 1, -3, 0, 0],  # T15
-            [1, 1, 0, 2, 1, 1, -4, 0],  # T24
-            [1, 1, 0, 2, 1, 1, 1, 0],  # S
+            [1, 1, 0, 1, -2, 0, 0, 0],  # T8
+            [1, 1, 0, 1, 1, -3, 0, 0],  # T15
+            [1, 1, 0, 1, 1, 1, -4, 0],  # T24
+            [1, 1, 0, 1, 1, 1, 1, 0],  # S
             [0, 0, 0, 0, 0, 0, 0, 1],  # g
         ]
 
@@ -69,14 +69,16 @@ def rotate_to_evol(df, scheme):
 
 fhmv_dfs = []
 eko_dfs = []
-eko_dfs_4mom = []
+# eko_dfs_4mom = []
 
 # load tables
 for p in table_dir.iterdir():
+    if scheme not in p.stem:
+        continue
     if "FHMV" in p.stem:
         fhmv_dfs.append(rotate_to_evol(pd.read_csv(p), scheme))
-    elif "EKO-4mom" in p.stem:
-        eko_dfs_4mom.append(rotate_to_evol(pd.read_csv(p), scheme))
+    # elif "EKO-4mom" in p.stem:
+    #     eko_dfs_4mom.append(rotate_to_evol(pd.read_csv(p), scheme))
     elif "EKO" in p.stem:
         eko_dfs.append(rotate_to_evol(pd.read_csv(p), scheme))
 
@@ -95,8 +97,8 @@ eko_central = np.mean(eko_dfs, axis=0)[XCUT:]
 eko_std = np.std(eko_dfs, axis=0)[XCUT:]
 fhmv_central = np.mean(fhmv_dfs, axis=0)[XCUT:]
 fhmv_std = np.std(fhmv_dfs, axis=0)[XCUT:]
-eko_4mom_central = np.mean(eko_dfs_4mom, axis=0)[XCUT:]
-eko_4mom_std = np.std(eko_dfs_4mom, axis=0)[XCUT:]
+# eko_4mom_central = np.mean(eko_dfs_4mom, axis=0)[XCUT:]
+# eko_4mom_std = np.std(eko_dfs_4mom, axis=0)[XCUT:]
 
 
 # absolute plots
@@ -155,8 +157,8 @@ eko_diff = (eko_central - nnlo_central) / nnlo_central
 eko_diff_std = np.abs(eko_std / nnlo_central)
 fhmv_diff = (fhmv_central - nnlo_central) / nnlo_central
 fhmv_diff_std = np.abs(fhmv_std / nnlo_central)
-eko_4mom_diff = (eko_4mom_central - nnlo_central) / nnlo_central
-eko_4mom_diff_std = np.abs(eko_4mom_std / nnlo_central)
+# eko_4mom_diff = (eko_4mom_central - nnlo_central) / nnlo_central
+# eko_4mom_diff_std = np.abs(eko_4mom_std / nnlo_central)
 
 fig, axs = plt.subplots(2, 4, figsize=(15, 7))
 fig.suptitle("Relative difference to NNLO, $Q: \\sqrt{2} \\to 100 \\ GeV$")

@@ -6,9 +6,9 @@ from cfg import here, table_dir, xgrid
 plot_dir = here / "plots"
 plot_dir.mkdir(exist_ok=True)
 
-USE_LINX = False
-REL_DIFF = False
-scheme = "VFNS"
+USE_LINX = True
+REL_DIFF = True
+scheme = "FFNS"
 sv = "central"
 
 if scheme == "FFNS":
@@ -43,8 +43,10 @@ eko_dfs = []
 # eko_dfs_4mom = []
 
 # load tables
-n3lo_table_dir = table_dir / scheme
+n3lo_table_dir = table_dir  # / scheme
 for p in n3lo_table_dir.iterdir():
+    if scheme not in p.stem:
+        continue
     if "FHMV" in p.stem:
         fhmv_dfs.append(pd.read_csv(p))
     # elif "EKO-4mom" in p.stem:
