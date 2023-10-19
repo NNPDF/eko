@@ -307,6 +307,7 @@ def quad_ker(
             ev_op_max_order,
             sv_mode,
             is_threshold,
+            n3lo_ad_variation,
         )
 
     # recombine everything
@@ -450,6 +451,7 @@ def quad_ker_qed(
     ev_op_max_order,
     sv_mode,
     is_threshold,
+    n3lo_ad_variation,
 ):
     """Raw evolution kernel inside quad.
 
@@ -489,6 +491,8 @@ def quad_ker_qed(
         scale variation mode, see `eko.scale_variations.Modes`
     is_threshold : boolean
         is this an itermediate threshold operator?
+    n3lo_ad_variation : tuple
+        |N3LO| anomalous dimension variation ``(gg_var, gq_var, qg_var, qq_var)``
 
     Returns
     -------
@@ -497,7 +501,7 @@ def quad_ker_qed(
     """
     # compute the actual evolution kernel for QEDxQCD
     if ker_base.is_QEDsinglet:
-        gamma_s = ad_us.gamma_singlet_qed(order, ker_base.n, nf)
+        gamma_s = ad_us.gamma_singlet_qed(order, ker_base.n, nf, n3lo_ad_variation)
         # scale var exponentiated is directly applied on gamma
         if sv_mode == sv.Modes.exponentiated:
             gamma_s = sv.exponentiated.gamma_variation_qed(
@@ -622,7 +626,7 @@ class Operator(sv.ModeMixin):
         self.alphaem_running = self.managers["couplings"].alphaem_running
         if self.log_label == "Evolution":
             self.a = self.compute_a()
-            self.compute_aem_list()
+            self.as_list, self.a_half_list = self.compute_aem_list()
 
     @property
     def n_pools(self):
@@ -697,8 +701,8 @@ class Operator(sv.ModeMixin):
         """
         ev_op_iterations = self.config["ev_op_iterations"]
         if self.order[1] == 0:
-            self.as_list = np.array([self.a_s[0], self.a_s[1]])
-            self.a_half_list = np.zeros((ev_op_iterations, 2))
+            as_list = np.array([self.a_s[0], self.a_s[1]])
+            a_half = np.zeros((ev_op_iterations, 2))
         else:
             as0 = self.a_s[0]
             as1 = self.a_s[1]
@@ -718,7 +722,7 @@ class Operator(sv.ModeMixin):
             couplings = self.managers["couplings"]
             mu2_steps = utils.geomspace(self.q2_from, self.q2_to, 1 + ev_op_iterations)
             mu2_l = mu2_steps[0]
-            self.as_list = np.array(
+            as_list = np.array(
                 [
                     couplings.compute(
                         a_ref=a_start, nf=self.nf, scale_from=mu2_start, scale_to=mu2
@@ -734,7 +738,7 @@ class Operator(sv.ModeMixin):
                 )
                 a_half[step] = [a_s, aem]
                 mu2_l = mu2_h
-            self.a_half_list = a_half
+        return as_list, a_half
 
     @property
     def labels(self):
