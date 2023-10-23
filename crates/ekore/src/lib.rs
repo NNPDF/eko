@@ -6,6 +6,7 @@
 pub mod anomalous_dimensions;
 mod constants;
 pub mod harmonics;
+pub mod util;
 
 /// References
 pub mod bib {
