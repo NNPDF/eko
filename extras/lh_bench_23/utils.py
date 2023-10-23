@@ -87,8 +87,8 @@ def rotate_lha_to_evol(df: pd.DataFrame, scheme: str) -> pd.DataFrame:
             [1, 1, 0, 1, 1, 1, 1, 0],  # S
             [0, 0, 0, 0, 0, 0, 0, 1],  # g
         ]
-
-    return (matrix @ df.values[:, 1:].T).T
+    rotated = (matrix @ df.values.T).T
+    return pd.DataFrame(rotated, columns=evol_labels(scheme))
 
 
 def load_n3lo_tables(
@@ -100,7 +100,7 @@ def load_n3lo_tables(
         if scheme not in p.stem:
             continue
         if approx in p.stem:
-            table = pd.read_csv(p)
+            table = pd.read_csv(p, index_col=0)
             if rotate_to_evol:
                 table = rotate_lha_to_evol(table, scheme)
             dfs.append(table)
@@ -118,7 +118,7 @@ def load_nnlo_table(
     if sv == "central":
         part = 1
 
-    table = pd.read_csv(f"{table_dir}/table{tab}-part{part}.csv")
+    table = pd.read_csv(f"{table_dir}/table{tab}-part{part}.csv", index_col=0)
     if rotate_to_evol:
         table = rotate_lha_to_evol(table, scheme)
     return table
@@ -176,29 +176,21 @@ def plot_pdfs(
             central, err = tabs
             ax.errorbar(
                 xgrid,
-                central[xcut:, i + 1],
-                yerr=err[xcut:, i + 1],
+                central[xcut:, i],
+                yerr=err[xcut:, i],
                 fmt=FMT_LIST[j],
                 label=approx_label,
                 capsize=5,
             )
             # ax.errorbar(
             #     xgrid,
-            #     eko_4mom_central[:, i + 1],
-            #     yerr=eko_4mom_std[:, i + 1],
+            #     eko_4mom_central[:, i],
+            #     yerr=eko_4mom_std[:, i],
             #     fmt="x",
             #     label="aN3LO EKO (4 moments)",
             #     capsize=5,
             # )
-            # ax.errorbar(
-            #     xgrid,
-            #     fhmv_central[:, i + 1],
-            #     yerr=fhmv_std[:, i + 1],
-            #     fmt="o",
-            #     label="aN3LO FHMV",
-            #     capsize=5,
-            # )
-        ax.errorbar(xgrid, nnlo_df.values[xcut:, i + 1], fmt=".", label="NNLO")
+        ax.errorbar(xgrid, nnlo_df.values[xcut:, i], fmt=".", label="NNLO")
         ax.hlines(
             0,
             xgrid.min() - xgrid.min() / 3,
@@ -253,26 +245,18 @@ def plot_diff_to_nnlo(
             central, err = tabs
             ax.errorbar(
                 xgrid,
-                central.values[xcut:, i + 1],
-                yerr=err.values[xcut:, i + 1],
+                central.values[xcut:, i],
+                yerr=err.values[xcut:, i],
                 fmt=FMT_LIST[j],
                 label=approx_label,
                 capsize=5,
             )
             # ax.errorbar(
             #     xgrid,
-            #     eko_4mom_diff.values[:, i + 1],
-            #     yerr=eko_4mom_diff_std.values[:, i + 1],
+            #     eko_4mom_diff.values[:, i],
+            #     yerr=eko_4mom_diff_std.values[:, i],
             #     fmt="x",
             #     label="aN3LO EKO (4 moments)",
-            #     capsize=5,
-            # )
-            # ax.errorbar(
-            #     xgrid,
-            #     fhmv_diff.values[:, i + 1],
-            #     yerr=fhmv_diff_std.values[:, i + 1],
-            #     fmt="o",
-            #     label="aN3LO FHMV",
             #     capsize=5,
             # )
         ax.hlines(

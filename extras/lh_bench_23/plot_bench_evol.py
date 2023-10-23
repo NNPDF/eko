@@ -11,7 +11,7 @@ from utils import (
 
 USE_LINX = False
 REL_DIFF = True
-SCHEME = "FFNS"
+SCHEME = "VFNS"
 SV = "central"
 
 plot_dir = here / "plots_evol"
