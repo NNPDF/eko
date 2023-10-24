@@ -27,7 +27,7 @@ def subcommand(ctx, path: pathlib.Path):
 @click.pass_obj
 def sub_mu2(operator: EKO):
     """Check operator's mu2grid."""
-    rich.print_json(data=operator.mu2grid.tolist())
+    rich.print_json(data=operator.mu2grid)
 
 
 @subcommand.command("cards")

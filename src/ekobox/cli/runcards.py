@@ -34,6 +34,6 @@ def sub_example(destination: pathlib.Path):
     cards.dump(theory.raw, path=destination / "theory.yaml")
     operator = cards.example.operator()
     operator.mu0 = 1.65
-    operator.mu2grid = [1e5]
+    operator.mugrid = [(100.0, 5)]
     cards.dump(operator.raw, path=destination / "operator.yaml")
     _logger.info(f"Runcards generated to '{destination}'")

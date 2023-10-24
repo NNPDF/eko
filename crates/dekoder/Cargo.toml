@@ -1,0 +1,23 @@
+[package]
+name = "dekoder"
+readme = "README.md"
+description = "Read EKO files"
+authors.workspace = true
+categories.workspace = true
+edition.workspace = true
+keywords.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+version.workspace = true
+
+
+[dependencies]
+anyhow = "1.0.71"
+base64 = "0.21.0"
+lz4_flex = "0.10.0"
+ndarray = "0.15.6"
+ndarray-npy = "0.8.1"
+serde = { version = "1.0.162", features = ["derive"] }
+serde_yaml = "0.9.21"
+tar = "0.4.38"
