@@ -6,7 +6,14 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-FMT_LIST = ["x", "o", "V"]
+FMT_LIST = ["x", "o", "v"]
+LHA_LABELS_MAP = {
+    "L_m": r"L^- = \bar{d} - \bar{u}",
+    "L_p": r"L^+ = 2(\bar{u} + \bar{d})",
+    "b_p": "b^+",
+    "c_p": "c^+",
+    "s_p": "s^+",
+}
 
 
 def lha_labels(scheme: str) -> list:
@@ -101,6 +108,7 @@ def load_n3lo_tables(
             continue
         if approx in p.stem:
             table = pd.read_csv(p, index_col=0)
+            table.rename(columns=LHA_LABELS_MAP, inplace=True)
             if rotate_to_evol:
                 table = rotate_lha_to_evol(table, scheme)
             dfs.append(table)
@@ -119,16 +127,42 @@ def load_nnlo_table(
         part = 1
 
     table = pd.read_csv(f"{table_dir}/table{tab}-part{part}.csv", index_col=0)
+    table.rename(columns=LHA_LABELS_MAP, inplace=True)
     if rotate_to_evol:
         table = rotate_lha_to_evol(table, scheme)
     return table
 
 
+def load_fhmv_msht(
+    table_dir: pathlib.Path, scheme: str, rotate_to_evol: bool = False
+) -> list:
+    """Load MSHT files."""
+
+    if scheme != "VFNS":
+        raise ValueError(f"{scheme} not provided by MSHT, comment it out")
+    fhmv_msht_table_dir = table_dir / f"{scheme}_Moch_numbers"
+
+    columns = lha_labels(scheme)
+    # columns.insert(0,'x')
+    # columns.insert(0,'Q')
+    dfs = []
+
+    for p in fhmv_msht_table_dir.iterdir():
+        data = np.loadtxt(p)
+        data = pd.DataFrame(data[:, 2:], columns=columns)
+        if rotate_to_evol:
+            data = rotate_lha_to_evol(data, scheme)
+        dfs.append(data)
+    return dfs
+
+
 def compute_n3lo_avg_err(dfs: list) -> tuple:
     """Compute N3LO average and error."""
     df_central = np.mean(dfs, axis=0)
+    df_central = pd.DataFrame(df_central, columns=dfs[0].columns)
     # TODO: improve errors.
     df_std = np.std(dfs, axis=0)
+    df_std = pd.DataFrame(df_std, columns=dfs[0].columns)
     return df_central, df_std
 
 
@@ -148,7 +182,6 @@ def plot_pdfs(
     n3lo_dfs: tuple,
     nnlo_df: pd.DataFrame,
     scheme: str,
-    pdf_labels: list,
     use_linx: bool,
     plot_dir: pathlib.Path,
 ) -> None:
@@ -176,8 +209,8 @@ def plot_pdfs(
             central, err = tabs
             ax.errorbar(
                 xgrid,
-                central[xcut:, i],
-                yerr=err[xcut:, i],
+                central.values[xcut:, i],
+                yerr=err.values[xcut:, i],
                 fmt=FMT_LIST[j],
                 label=approx_label,
                 capsize=5,
@@ -202,7 +235,7 @@ def plot_pdfs(
         if not use_linx:
             ax.set_xscale("log")
         ax.set_xlabel("$x$")
-        ax.set_ylabel(f"${pdf_labels[i]}$")
+        ax.set_ylabel(f"${nnlo_df.columns[i]}$")
         ax.set_xlim(xgrid.min() - xgrid.min() / 3, 1)
 
     plt.legend()
@@ -214,7 +247,6 @@ def plot_diff_to_nnlo(
     xgrid: np.array,
     n3lo_dfs: tuple,
     scheme: str,
-    pdf_labels: list,
     use_linx: bool,
     plot_dir: pathlib.Path,
     rel_dff: bool,
@@ -270,7 +302,7 @@ def plot_diff_to_nnlo(
         if not use_linx:
             ax.set_xscale("log")
         ax.set_xlabel("$x$")
-        ax.set_ylabel(f"${pdf_labels[i]}$")
+        ax.set_ylabel(f"${central.columns[i]}$")
         ax.set_xlim(xgrid.min() - xgrid.min() / 3, 1)
 
     plt.legend()

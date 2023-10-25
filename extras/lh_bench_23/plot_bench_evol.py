@@ -2,7 +2,6 @@ from cfg import here, table_dir, xgrid
 from utils import (
     compute_n3lo_avg_err,
     compute_n3lo_nnlo_diff,
-    evol_labels,
     load_n3lo_tables,
     load_nnlo_table,
     plot_diff_to_nnlo,
@@ -17,7 +16,6 @@ SV = "central"
 plot_dir = here / "plots_evol"
 n3lo_table_dir = table_dir  # / SCHEME
 
-pdf_labels = evol_labels(SCHEME)
 
 # load tables
 eko_dfs = load_n3lo_tables(n3lo_table_dir, SCHEME, approx="EKO", rotate_to_evol=True)
@@ -34,7 +32,7 @@ n3lo_dfs = [
 ]
 
 # absolute plots
-plot_pdfs(xgrid, n3lo_dfs, nnlo_central, SCHEME, pdf_labels, USE_LINX, plot_dir)
+plot_pdfs(xgrid, n3lo_dfs, nnlo_central, SCHEME, USE_LINX, plot_dir)
 
 # relative, absolute diff plots
 eko_diff = compute_n3lo_nnlo_diff(eko_res, nnlo_central, REL_DIFF)
@@ -44,4 +42,4 @@ n3lo_dfs = [
     (fhmv_diff, "aN3LO FHMV"),
 ]
 
-plot_diff_to_nnlo(xgrid, n3lo_dfs, SCHEME, pdf_labels, USE_LINX, plot_dir, REL_DIFF)
+plot_diff_to_nnlo(xgrid, n3lo_dfs, SCHEME, USE_LINX, plot_dir, REL_DIFF)
