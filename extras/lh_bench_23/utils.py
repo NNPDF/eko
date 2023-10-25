@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-FMT_LIST = ["x", "o", "v"]
+FMT_LIST = ["x", "o", "v", "*"]
 LHA_LABELS_MAP = {
     "L_m": r"L^- = \bar{d} - \bar{u}",
     "L_p": r"L^+ = 2(\bar{u} + \bar{d})",
@@ -133,14 +133,18 @@ def load_nnlo_table(
     return table
 
 
-def load_fhmv_msht(
-    table_dir: pathlib.Path, scheme: str, rotate_to_evol: bool = False
+def load_msht(
+    table_dir: pathlib.Path, scheme: str, approx: str, rotate_to_evol: bool = False
 ) -> list:
     """Load MSHT files."""
 
     if scheme != "VFNS":
         raise ValueError(f"{scheme} not provided by MSHT, comment it out")
-    fhmv_msht_table_dir = table_dir / f"{scheme}_Moch_numbers"
+    APPROX_MAP = {
+        "FHMV": "Moch",
+        "MSHT": "Posterior",
+    }
+    fhmv_msht_table_dir = table_dir / f"{scheme}_{APPROX_MAP[approx]}_numbers"
 
     columns = lha_labels(scheme)
     # columns.insert(0,'x')
