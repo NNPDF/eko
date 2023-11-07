@@ -77,9 +77,7 @@ class Runner:
             couplings=cs,
             interpol_dispatcher=bfd,
             n3lo_ad_variation=new_theory.n3lo_ad_variation,
-            matching_order=new_theory.matching_order
-            if new_theory.matching_order is not None
-            else new_theory.order,
+            matching_order=new_theory.matching_order,
         )
 
         with EKO.create(path) as builder:
