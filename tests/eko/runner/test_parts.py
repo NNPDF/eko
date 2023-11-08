@@ -13,7 +13,7 @@ def test_evolve_configs(eko_factory):
     e43 = eko_factory.get({})
     assert e43.theory_card.order == (4, 3)
     p43 = parts.evolve_configs(e43)
-    assert p43["matching_order"] == (3, 2)
+    assert p43["matching_order"] == (3, 0)
     # QCD@N3LO + QED@N2LO w/ matching_order
     eko_factory.theory.matching_order = (3, 0)
     e43b = eko_factory.get({})
