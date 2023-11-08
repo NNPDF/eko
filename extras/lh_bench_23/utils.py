@@ -15,6 +15,9 @@ LHA_LABELS_MAP = {
     "s_p": "s^+",
 }
 
+HERE = pathlib.Path(__file__).parent
+plt.style.use(HERE / "plotstyle.mplstyle")
+
 
 def lha_labels(scheme: str) -> list:
     """PDFs labels in the LHA basis."""
