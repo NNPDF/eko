@@ -54,7 +54,7 @@ class TheoryCard(DictLike):
     def __post_init__(self):
         """Enforce defaults."""
         if self.matching_order is None:
-            self.matching_order = self.order
+            self.matching_order = (self.order[0] - 1, 0)
 
 
 @dataclass
