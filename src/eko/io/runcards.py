@@ -46,8 +46,7 @@ class TheoryCard(DictLike):
     xif: float
     """Ratio between factorization scale and process scale."""
     n3lo_ad_variation: N3LOAdVariation
-    """|N3LO| anomalous dimension variation: ``(gg_var, gq_var, qg_var,
-    qq_var)``."""
+    """|N3LO| anomalous dimension variation: ``(gg, gq, qg,qq)``."""
     matching_order: Optional[Order] = None
     """Matching conditions perturbative order tuple, ``(QCD, QED)``."""
 
