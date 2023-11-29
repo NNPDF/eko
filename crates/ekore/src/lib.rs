@@ -4,11 +4,7 @@
 #![allow(non_snake_case)]
 
 pub mod anomalous_dimensions;
+pub mod bib;
 mod constants;
 pub mod harmonics;
 pub mod util;
-
-/// References
-pub mod bib {
-    bibliothek::include_bibtex!("refs.bib");
-}
