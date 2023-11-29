@@ -6,14 +6,17 @@ import re
 import bibtexparser
 
 # path to bib file
-BIBFILE = "refs.bib"
+BIBFILE = pathlib.Path(__file__).parent / "ekore" / "refs.bib"
 
 # A single entry
 ENTRY = """/// {title}
 ///
 /// {author}
+///
 /// {publication}
+///
 /// {eprint}
+///
 /// {doi}"""
 # Combine publication information
 PUB = """Published in: {journal} {volume} ({year}), {pages}"""
@@ -42,8 +45,12 @@ for el in bib_database.entries:
         pages=el.fields_dict["pages"].value,
     )
     eprint = ""
-    if "arxiv" in el.fields_dict:
-        ar = el.fields_dict["arxiv"].value
+    if (
+        "eprint" in el.fields_dict
+        and "archivePrefix" in el.fields_dict
+        and el.fields_dict["archivePrefix"].value == "arXiv"
+    ):
+        ar = el.fields_dict["eprint"].value
         eprint = f"e-Print: [{ar}](https://arxiv.org/abs/{ar})"
     doi = ""
     if "doi" in el.fields_dict:
@@ -53,7 +60,8 @@ for el in bib_database.entries:
     doc = ENTRY.format(
         title=title, author=author, publication=publication, eprint=eprint, doi=doi
     )
-    out += doc + "\n" + f"pub fn {el.key} () {{}} \n\n"
+    out += doc + "\n" + f"pub fn {el.key}() {{}} \n\n"
 
 # Print to terminal - the user can dump to the relevant file
+out = re.sub(r" +\n", "\n", out.strip())
 print(out)
