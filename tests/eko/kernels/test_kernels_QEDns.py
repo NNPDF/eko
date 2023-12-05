@@ -25,7 +25,7 @@ def test_zero():
     nf = 3
     ev_op_iterations = 2
     running_alpha = [True, False]
-    for qcd in range(1, 3 + 1):
+    for qcd in range(1, 4 + 1):
         for qed in range(1, 2 + 1):
             order = (qcd, qed)
             gamma_ns = (
@@ -73,7 +73,7 @@ def test_zero_true_gamma():
     for mode in br.non_singlet_pids_map.values():
         if mode in [10201, 10101, 10200]:
             continue
-        for qcd in range(1, 3 + 1):
+        for qcd in range(1, 4 + 1):
             for qed in range(1, 2 + 1):
                 order = (qcd, qed)
                 n = np.random.rand()
@@ -136,7 +136,8 @@ def test_ode():
     for mode in br.non_singlet_pids_map.values():
         if mode in [10201, 10101, 10200]:
             continue
-        for qcd in range(1, 3 + 1):
+        max_qcd = 4
+        for qcd in range(1, max_qcd + 1):
             for qed in range(1, 2 + 1):
                 order = (qcd, qed)
                 sc = Couplings(
@@ -154,14 +155,17 @@ def test_ode():
                     )
                     a1 = sc.a_s(mu2_to)
                     gamma_ns = (
-                        np.random.rand(3 + 1, 2 + 1) + np.random.rand(3 + 1, 2 + 1) * 1j
+                        np.random.rand(max_qcd + 1, 2 + 1)
+                        + np.random.rand(max_qcd + 1, 2 + 1) * 1j
                     )
                     gamma_ns[0, 0] = 0.0
                     gamma_ns[2, 1] = 0.0
                     gamma_ns[3, 1] = 0.0
+                    gamma_ns[4, 1] = 0.0
                     gamma_ns[1, 2] = 0.0
                     gamma_ns[2, 2] = 0.0
                     gamma_ns[3, 2] = 0.0
+                    gamma_ns[4, 2] = 0.0
                     gammatot = 0.0
                     for i in range(0, order[0] + 1):
                         for j in range(0, order[1] + 1):
@@ -226,7 +230,7 @@ def test_ode_true_gamma():
     for mode in br.non_singlet_pids_map.values():
         if mode in [10201, 10101, 10200]:
             continue
-        for qcd in range(1, 3 + 1):
+        for qcd in range(1, 4 + 1):
             for qed in range(1, 2 + 1):
                 order = (qcd, qed)
                 sc = Couplings(
@@ -302,9 +306,9 @@ def test_ode_true_gamma():
 
 def test_error():
     for running in [True, False]:
-        with pytest.raises(NotImplementedError):
+        with pytest.raises(ValueError):
             ns.dispatcher(
-                (4, 2),
+                (5, 2),
                 "iterate-exact",
                 np.random.rand(4, 3),
                 [0.1, 0.2],

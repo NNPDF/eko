@@ -213,9 +213,10 @@ class Legacy:
             raise ValueError(f"Unknown mass scheme '{old['HQ']}'")
 
         new["xif"] = old["XIF"]
+
         new["n3lo_ad_variation"] = old.get("n3lo_ad_variation", (0, 0, 0, 0, 0, 0, 0))
-        # here PTO: 0 means truly LO
-        new["matching_order"] = old.get("PTO_matching", [old["PTO"], old["QED"]])
+        # here PTO: 0 means truly LO, no QED matching is available so far.
+        new["matching_order"] = old.get("PTO_matching", [old["PTO"], 0])
         new["use_fhmv"] = old.get("use_fhmv", False)
         return TheoryCard.from_dict(new)
 

@@ -387,7 +387,7 @@ class TestOperator:
                     err_msg=k,
                 )
 
-        for n in range(1, 3 + 1):
+        for n in range(1, 4 + 1):
             for qed in range(1, 2 + 1):
                 g.config["order"] = (n, qed)
                 o1 = Operator(g.config, g.managers, Segment(2.0, 2.0, 3))
