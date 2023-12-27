@@ -40,7 +40,9 @@ if __name__ == "__main__":
         type=int,
     )
     parser.add_argument(
-        "--use_fhmv", help="Use the FHMV N3LO ad approximation", action="store_true"
+        "--use_fhmruvv",
+        help="Use the FHMRUVV N3LO ad approximation",
+        action="store_true",
     )
     parser.add_argument("--rerun", help="Rerun eko", action="store_true")
     parser.add_argument(
@@ -71,7 +73,7 @@ if __name__ == "__main__":
         t = n3lo_theory(
             ad_variation=args.ad_variation,
             is_ffns=True,
-            use_fhmv=args.use_fhmv,
+            use_fhmruvv=args.use_fhmruvv,
             xif=xif,
         )
         o = ffns_operator
@@ -83,7 +85,7 @@ if __name__ == "__main__":
         t = n3lo_theory(
             ad_variation=args.ad_variation,
             is_ffns=False,
-            use_fhmv=args.use_fhmv,
+            use_fhmruvv=args.use_fhmruvv,
             xif=xif,
         )
         o = vfns_operator
@@ -95,7 +97,7 @@ if __name__ == "__main__":
 
     # eko path
     eko_dir.mkdir(exist_ok=True)
-    approx_name = "FHMV" if args.use_fhmv else "EKO"
+    approx_name = "FHMRUVV" if args.use_fhmruvv else "EKO"
     var_name = "-".join([str(a) for a in args.ad_variation])
     p = pathlib.Path(f"{eko_dir}/{scheme}-{sv}-{var_name}-{approx_name}.tar")
 
