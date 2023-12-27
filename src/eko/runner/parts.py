@@ -8,7 +8,6 @@
     After #242, the goal is to update :class:`Operator` and
     :class:`OperatorMatrixElement` to simplify the computation and passing down
     parameters.
-
 """
 import numpy as np
 
@@ -28,7 +27,6 @@ def managers(eko: EKO) -> dict:
     .. todo::
 
         Legacy interface, avoid managers usage.
-
     """
     tcard = eko.theory_card
     ocard = eko.operator_card
@@ -60,7 +58,6 @@ def blowup_info(eko: EKO) -> dict:
     evolution history (to determine if evolution is backward in flavor,
     irrespectively of happening for an increasing or decreasing interval in
     scale at fixed flavor).
-
     """
     return dict(intrinsic_range=[4, 5, 6], qed=eko.theory_card.order[1] > 0)
 
@@ -71,7 +68,6 @@ def evolve_configs(eko: EKO) -> dict:
     .. todo::
 
         Legacy interface, make use of a dedicated object.
-
     """
     tcard = eko.theory_card
     ocard = eko.operator_card
@@ -90,9 +86,7 @@ def evolve_configs(eko: EKO) -> dict:
         n3lo_ad_variation=tcard.n3lo_ad_variation,
         use_fhmv=tcard.use_fhmv,
         # Here order is shifted by one, no QED matching is available so far.
-        matching_order=tcard.matching_order
-        if tcard.matching_order is not None
-        else (tcard.order[0] - 1, 0),
+        matching_order=tcard.matching_order,
     )
 
 
@@ -117,7 +111,6 @@ def matching_configs(eko: EKO) -> dict:
     .. todo::
 
         Legacy interface, make use of a dedicated object.
-
     """
     tcard = eko.theory_card
     ocard = eko.operator_card
@@ -139,7 +132,6 @@ def match(eko: EKO, recipe: Matching) -> Operator:
     All the operators are blown up to flavor basis, and they are saved and
     joined in that unique basis. So, the only rotation used is towards that
     basis, and encoded in the blowing up prescription.
-
     """
     kthr = eko.theory_card.heavy.squared_ratios[recipe.hq - 4]
     op = ome.OperatorMatrixElement(
