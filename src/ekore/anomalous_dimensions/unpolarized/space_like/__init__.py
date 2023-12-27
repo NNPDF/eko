@@ -25,7 +25,7 @@ from . import aem1, aem2, as1, as1aem1, as2, as3, as4
 
 
 @nb.njit(cache=True)
-def gamma_ns(order, mode, n, nf, n3lo_ad_variation, use_fhmv=False):
+def gamma_ns(order, mode, n, nf, n3lo_ad_variation, use_fhmruvv=False):
     r"""Compute the tower of the non-singlet anomalous dimensions.
 
     Parameters
@@ -40,7 +40,7 @@ def gamma_ns(order, mode, n, nf, n3lo_ad_variation, use_fhmv=False):
         Number of active flavors
     n3lo_ad_variation : tuple
         |N3LO| anomalous dimension variation ``(gg_var, gq_var, qg_var, qq_var, nsp_var, nsm_var, nsv_var)``
-    use_fhmv: bool
+    use_fhmruvv: bool
         if True use the Falcioni Herzog Moch Vogt N3LO anomalous dimensions
 
     Returns
@@ -74,17 +74,17 @@ def gamma_ns(order, mode, n, nf, n3lo_ad_variation, use_fhmv=False):
         gamma_ns[2] = gamma_ns_2
     # N3LO
     if order[0] >= 4:
-        if use_fhmv:
+        if use_fhmruvv:
             if mode == 10101:
-                gamma_ns_3 = as4.fhmv_approximations.gamma_nsp(
+                gamma_ns_3 = as4.fhmruvv_approximations.gamma_nsp(
                     n, nf, cache, variation=n3lo_ad_variation[4]
                 )
             elif mode == 10201:
-                gamma_ns_3 = as4.fhmv_approximations.gamma_nsm(
+                gamma_ns_3 = as4.fhmruvv_approximations.gamma_nsm(
                     n, nf, cache, variation=n3lo_ad_variation[5]
                 )
             elif mode == 10200:
-                gamma_ns_3 = as4.fhmv_approximations.gamma_nsv(
+                gamma_ns_3 = as4.fhmruvv_approximations.gamma_nsv(
                     n, nf, cache, variation=n3lo_ad_variation[6]
                 )
         else:
@@ -99,7 +99,7 @@ def gamma_ns(order, mode, n, nf, n3lo_ad_variation, use_fhmv=False):
 
 
 @nb.njit(cache=True)
-def gamma_singlet(order, n, nf, n3lo_ad_variation, use_fhmv=False):
+def gamma_singlet(order, n, nf, n3lo_ad_variation, use_fhmruvv=False):
     r"""Compute the tower of the singlet anomalous dimensions matrices.
 
     Parameters
@@ -112,7 +112,7 @@ def gamma_singlet(order, n, nf, n3lo_ad_variation, use_fhmv=False):
         Number of active flavors
     n3lo_ad_variation : tuple
         |N3LO| anomalous dimension variation ``(gg_var, gq_var, qg_var, qq_var, nsp_var, nsm_var, nsv_var)``
-    use_fhmv: bool
+    use_fhmruvv: bool
         if True use the Falcioni Herzog Moch Vogt N3LO anomalous dimensions
 
     Returns
@@ -129,8 +129,8 @@ def gamma_singlet(order, n, nf, n3lo_ad_variation, use_fhmv=False):
     if order[0] >= 3:
         gamma_s[2] = as3.gamma_singlet(n, nf, cache)
     if order[0] >= 4:
-        if use_fhmv:
-            gamma_s[3] = as4.fhmv_approximations.gamma_singlet(
+        if use_fhmruvv:
+            gamma_s[3] = as4.fhmruvv_approximations.gamma_singlet(
                 n, nf, cache, n3lo_ad_variation
             )
         else:

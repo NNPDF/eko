@@ -6,7 +6,7 @@ For further documentation see :doc:`N3LO anomalous dimensions <../../../theory/N
 import numba as nb
 import numpy as np
 
-from . import fhmv_approximations
+from . import fhmruvv_approximations
 from .ggg import gamma_gg
 from .ggq import gamma_gq
 from .gnsm import gamma_nsm

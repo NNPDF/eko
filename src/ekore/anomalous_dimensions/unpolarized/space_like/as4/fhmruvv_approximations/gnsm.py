@@ -4,7 +4,7 @@ import numba as nb
 from eko.constants import CF, zeta3
 
 from ......harmonics import cache as c
-from ......harmonics.log_functions import lm11, lm13m1, lm12m1, lm11m1
+from ......harmonics.log_functions import lm11, lm11m1, lm12m1, lm13m1
 
 
 @nb.njit(cache=True)
@@ -61,7 +61,7 @@ def gamma_nsm(n, nf, cache, variation):
         - 254965.0 / (2 + n)
         + 83377.5 / (3 + n)
         - 45750.0 / (4 + n)
-        + (49150.0 * (6.803662258392675 + n) * S1) / (n**2* (1.0 + n))
+        + (49150.0 * (6.803662258392675 + n) * S1) / (n**2 * (1.0 + n))
         + (334400.0 * S2) / n
     )
     P3NSA1 = (
@@ -79,7 +79,7 @@ def gamma_nsm(n, nf, cache, variation):
         - 43057.8 / (2 + n)
         + 13803.8 / (3 + n)
         - 7896.0 / (4 + n)
-        - (120.0 * (-525.063 + n) * S1) / (n**2* (1.0 + n))
+        - (120.0 * (-525.063 + n) * S1) / (n**2 * (1.0 + n))
         + (63007.5 * S2) / n
     )
 
@@ -136,7 +136,7 @@ def gamma_nsm(n, nf, cache, variation):
     # nf^2 (parametrized) and nf^3 (exact)
     P3NSMA2 = -(
         -193.84583328013258
-        -23.7037032 / n**5
+        - 23.7037032 / n**5
         + 117.5967 / n**4
         - 256.5896 / n**3
         + 437.881 / n**2
@@ -176,7 +176,7 @@ def gamma_nsm(n, nf, cache, variation):
     )
 
     # Assembly regular piece.
-    P3NSMAI = P3NSA0 + nf * P3NSA1 + nf**3 * P3NSA3 + nf**2 * P3NSMA2 
+    P3NSMAI = P3NSA0 + nf * P3NSA1 + nf**3 * P3NSA3 + nf**2 * P3NSMA2
     if variation == 1:
         P3NSMA = P3NSMAI + P3NMA01 + nf * P3NMA11
     elif variation == 2:

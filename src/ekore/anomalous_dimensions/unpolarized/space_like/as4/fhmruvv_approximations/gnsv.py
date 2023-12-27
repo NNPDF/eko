@@ -2,8 +2,7 @@ r"""The unpolarized, space-like anomalous dimension :math:`\gamma_{ns,v}^{(3)}`.
 import numba as nb
 
 from ......harmonics import cache as c
-from ......harmonics.log_functions import lm13m1, lm12m1, lm11m1
-
+from ......harmonics.log_functions import lm11m1, lm12m1, lm13m1
 from .gnsm import gamma_nsm
 
 

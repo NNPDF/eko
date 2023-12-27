@@ -3,15 +3,15 @@ import numpy as np
 import pytest
 
 from ekore import harmonics as h
-from ekore.anomalous_dimensions.unpolarized.space_like.as4.fhmv_approximations import (
+from ekore.anomalous_dimensions.unpolarized.space_like.as4.fhmruvv_approximations import (
     gamma_singlet,
+    ggg,
+    ggq,
     gnsm,
     gnsp,
     gnsv,
     gps,
     gqg,
-    ggg,
-    ggq,
 )
 
 NF = 5

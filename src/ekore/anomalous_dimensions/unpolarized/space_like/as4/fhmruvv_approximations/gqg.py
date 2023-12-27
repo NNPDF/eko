@@ -3,7 +3,7 @@ import numba as nb
 import numpy as np
 
 from ......harmonics import cache as c
-from ......harmonics.log_functions import lm11, lm12, lm13, lm14, lm15, lm14m1, lm15m1
+from ......harmonics.log_functions import lm11, lm12, lm13, lm14, lm14m1, lm15, lm15m1
 
 
 @nb.njit(cache=True)

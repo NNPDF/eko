@@ -43,7 +43,7 @@ def test_quad_ker_errors():
                 is_polarized=True,
                 is_time_like=True,
                 n3lo_ad_variation=(0, 0, 0, 0, 0, 0, 0),
-                use_fhmv=False,
+                use_fhmruvv=False,
             )
 
 
@@ -96,7 +96,7 @@ def test_quad_ker(monkeypatch):
                     is_polarized=p,
                     is_time_like=t,
                     n3lo_ad_variation=(0, 0, 0, 0, 0, 0, 0),
-                    use_fhmv=False,
+                    use_fhmruvv=False,
                 )
                 np.testing.assert_allclose(res_ns, res)
     for label in [(br.non_singlet_pids_map["ns+"], 0), (100, 100)]:
@@ -125,7 +125,7 @@ def test_quad_ker(monkeypatch):
                     is_polarized=polarized,
                     is_time_like=False,
                     n3lo_ad_variation=(0, 0, 0, 0, 0, 0, 0),
-                    use_fhmv=False,
+                    use_fhmruvv=False,
                 )
                 np.testing.assert_allclose(res_sv, 1.0)
     for label in [
@@ -161,7 +161,7 @@ def test_quad_ker(monkeypatch):
                 n3lo_ad_variation=(0, 0, 0, 0, 0, 0, 0),
                 is_polarized=False,
                 is_time_like=False,
-                use_fhmv=False,
+                use_fhmruvv=False,
             )
             np.testing.assert_allclose(res_sv, 1.0)
 
@@ -189,7 +189,7 @@ def test_quad_ker(monkeypatch):
         n3lo_ad_variation=(0, 0, 0, 0, 0, 0, 0),
         is_polarized=False,
         is_time_like=False,
-        use_fhmv=False,
+        use_fhmruvv=False,
     )
     np.testing.assert_allclose(res_ns, 0.0)
 

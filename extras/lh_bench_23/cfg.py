@@ -41,7 +41,7 @@ _t_vfns = dict(
     xif=1.0,
     n3lo_ad_variation=(0, 0, 0, 0, 0, 0, 0),
     matching_order=[2, 0],
-    use_fhmv=False,
+    use_fhmruvv=False,
 )
 
 
@@ -69,7 +69,7 @@ def ffns_theory(xif=1.0):
     return runcards.TheoryCard.from_dict(tt)
 
 
-def n3lo_theory(ad_variation, is_ffns, use_fhmv=False, xif=1.0):
+def n3lo_theory(ad_variation, is_ffns, use_fhmruvv=False, xif=1.0):
     """Generate an N3LO theory card."""
     base = _t_ffns if is_ffns else _t_vfns
     tt = copy.deepcopy(base)
@@ -78,7 +78,7 @@ def n3lo_theory(ad_variation, is_ffns, use_fhmv=False, xif=1.0):
     # here we keep the NNLO matching
     tt["matching_order"] = [2, 0]
     tt["n3lo_ad_variation"] = ad_variation
-    tt["use_fhmv"] = use_fhmv
+    tt["use_fhmruvv"] = use_fhmruvv
     return runcards.TheoryCard.from_dict(tt)
 
 

@@ -1,5 +1,4 @@
-"""The |N3LO| Altarelli-Parisi splitting kernels, from Falcioni, Herzog, Moch, Vogt approximations.
-"""
+"""The |N3LO| Altarelli-Parisi splitting kernels, from Falcioni, Herzog, Moch, Ruijl, Ueda, Vermaseren, Vogt approximations."""
 import numba as nb
 import numpy as np
 
