@@ -39,7 +39,7 @@ def gamma_ns(order, mode, n, nf, n3lo_ad_variation, use_fhmruvv=False):
     nf : int
         Number of active flavors
     n3lo_ad_variation : tuple
-        |N3LO| anomalous dimension variation ``(gg_var, gq_var, qg_var, qq_var, nsp_var, nsm_var, nsv_var)``
+        |N3LO| anomalous dimension variation ``(gg, gq, qg, qq, nsp, nsm, nsv)``
     use_fhmruvv: bool
         if True use the Falcioni Herzog Moch Vogt N3LO anomalous dimensions
 
@@ -111,7 +111,7 @@ def gamma_singlet(order, n, nf, n3lo_ad_variation, use_fhmruvv=False):
     nf : int
         Number of active flavors
     n3lo_ad_variation : tuple
-        |N3LO| anomalous dimension variation ``(gg_var, gq_var, qg_var, qq_var, nsp_var, nsm_var, nsv_var)``
+        |N3LO| anomalous dimension variation ``(gg, gq, qg, qq, nsp, nsm, nsv)``
     use_fhmruvv: bool
         if True use the Falcioni Herzog Moch Vogt N3LO anomalous dimensions
 

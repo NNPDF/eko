@@ -46,7 +46,7 @@ class TheoryCard(DictLike):
     xif: float
     """Ratio between factorization scale and process scale."""
     n3lo_ad_variation: N3LOAdVariation
-    """|N3LO| anomalous dimension variation: ``(gg_var, gq_var, qg_var, qq_var, nsp_var, nsm_var, nsv_var)``."""
+    """|N3LO| anomalous dimension variation: ``(gg, gq, qg, qq, nsp, nsm, nsv)``."""
     use_fhmruvv: Optional[bool] = False
     """If True use the Falcioni, Herzog, Moch, Ruijl, Ueda, Vermaseren, Vogt N3LO anomalous dimensions"""
     matching_order: Optional[Order] = None

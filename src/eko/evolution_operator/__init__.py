@@ -256,7 +256,7 @@ def quad_ker(
     is_threshold : boolean
         is this an intermediate threshold operator?
     n3lo_ad_variation : tuple
-        |N3LO| anomalous dimension variation ``(gg_var, gq_var, qg_var, qq_var, nsp_var, nsm_var, nsv_var)``
+        |N3LO| anomalous dimension variation ``(gg, gq, qg, qq, nsp, nsm, nsv)``
     is_polarized : boolean
         is polarized evolution ?
     is_time_like : boolean
@@ -369,7 +369,7 @@ def quad_ker_qcd(
     is_threshold : boolean
         is this an itermediate threshold operator?
     n3lo_ad_variation : tuple
-        |N3LO| anomalous dimension variation ``(gg_var, gq_var, qg_var, qq_var, nsp_var, nsm_var, nsv_var)``
+        |N3LO| anomalous dimension variation ``(gg, gq, qg, qq, nsp, nsm, nsv)``
     use_fhmruvv : bool
         if True use the Falcioni, Herzog, Moch, Ruijl, Ueda, Vermaseren, Vogt N3LO anomalous dimensions
 
@@ -956,11 +956,12 @@ class Operator(sv.ModeMixin):
                 self.a_em[1],
             )
         logger.info(
-            "%s: order: (%d, %d), solution strategy: %s",
+            "%s: order: (%d, %d), solution strategy: %s, use fhmruvv: %s",
             self.log_label,
             self.order[0],
             self.order[1],
             self.config["method"],
+            self.config["use_fhmruvv"],
         )
 
         self.integrate()
