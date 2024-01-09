@@ -32,7 +32,7 @@ def beta_qcd_as2(nf):
 
 
 @nb.njit(cache=True)
-def beta_qed_aem2(nf, nl=3):
+def beta_qed_aem2(nf, nl):
     r"""Compute the first coefficient of the QED beta function.
 
     Implements Eq. (7) of :cite:`Surguladze:1996hx`.
@@ -82,7 +82,7 @@ def beta_qcd_as3(nf):
 
 
 @nb.njit(cache=True)
-def beta_qed_aem3(nf, nl=3):
+def beta_qed_aem3(nf, nl):
     r"""Compute the second coefficient of the QED beta function.
 
     Implements Eq. (7) of :cite:`Surguladze:1996hx`.
@@ -244,7 +244,7 @@ def beta_qcd(k, nf):
 
 
 @nb.njit(cache=True)
-def beta_qed(k, nf, nl=3):
+def beta_qed(k, nf, nl):
     r"""Compute value of a beta_qed coefficients.
 
     Parameters
@@ -293,7 +293,7 @@ def b_qcd(k, nf):
 
 
 @nb.njit(cache=True)
-def b_qed(k, nf, nl=3):
+def b_qed(k, nf, nl):
     r"""Compute b_qed coefficient.
 
     Parameters

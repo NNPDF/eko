@@ -28,7 +28,7 @@ def test_beta_aem2():
     """Test first beta function coefficient"""
     # from hep-ph/9803211
     np.testing.assert_approx_equal(
-        beta.beta_qed_aem2(5), -4.0 / 3 * (3 + 3 * (2 * 4 / 9 + 3 * 1 / 9))
+        beta.beta_qed_aem2(5, 3), -4.0 / 3 * (3 + 3 * (2 * 4 / 9 + 3 * 1 / 9))
     )
 
 
@@ -43,7 +43,7 @@ def test_beta_aem3():
     """Test second beta function coefficient"""
     # from hep-ph/9803211
     np.testing.assert_approx_equal(
-        beta.beta_qed_aem3(5), -4.0 * (3 + 3 * (2 * 16 / 81 + 3 * 1 / 81))
+        beta.beta_qed_aem3(5, 3), -4.0 * (3 + 3 * (2 * 16 / 81 + 3 * 1 / 81))
     )
 
 
@@ -66,21 +66,26 @@ def test_beta_as5():
 def test_beta():
     """beta-wrapper"""
     nf = 3
+    nl = 3
     np.testing.assert_allclose(beta.beta_qcd((2, 0), nf), beta.beta_qcd_as2(nf))
     np.testing.assert_allclose(beta.beta_qcd((3, 0), nf), beta.beta_qcd_as3(nf))
     np.testing.assert_allclose(beta.beta_qcd((4, 0), nf), beta.beta_qcd_as4(nf))
     np.testing.assert_allclose(beta.beta_qcd((5, 0), nf), beta.beta_qcd_as5(nf))
     np.testing.assert_allclose(beta.beta_qcd((2, 1), nf), beta.beta_qcd_as2aem1(nf))
-    np.testing.assert_allclose(beta.beta_qed((0, 2), nf), beta.beta_qed_aem2(nf))
-    np.testing.assert_allclose(beta.beta_qed((0, 3), nf), beta.beta_qed_aem3(nf))
-    np.testing.assert_allclose(beta.beta_qed((1, 2), nf), beta.beta_qed_aem2as1(nf))
+    np.testing.assert_allclose(
+        beta.beta_qed((0, 2), nf, nl), beta.beta_qed_aem2(nf, nl)
+    )
+    np.testing.assert_allclose(
+        beta.beta_qed((0, 3), nf, nl), beta.beta_qed_aem3(nf, nl)
+    )
+    np.testing.assert_allclose(beta.beta_qed((1, 2), nf, nl), beta.beta_qed_aem2as1(nf))
     with pytest.raises(ValueError):
         beta.beta_qcd((6, 0), 3)
     with pytest.raises(ValueError):
-        beta.beta_qed((0, 4), 3)
+        beta.beta_qed((0, 4), 3, 3)
 
 
 def test_b():
     """b-wrapper"""
     np.testing.assert_allclose(beta.b_qcd((2, 0), 3), 1.0)
-    np.testing.assert_allclose(beta.b_qed((0, 2), 3), 1.0)
+    np.testing.assert_allclose(beta.b_qed((0, 2), 3, 3), 1.0)

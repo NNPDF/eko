@@ -322,7 +322,7 @@ def couplings_expanded_alphaem_running(
             )
             res_aem += (
                 -couplings_ref[1] ** 2
-                * b_qed((1, 2), nf)
+                * b_qed((1, 2), nf, nl)
                 * np.log(1 + beta0_qed * couplings_ref[0] * lmu)
             )
     return np.array([res_as, res_aem])
