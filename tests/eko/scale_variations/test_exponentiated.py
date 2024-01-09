@@ -39,13 +39,13 @@ def test_gamma_ns_qed_fact():
             [0.15, 0.0, 0.0, 0.0, 0.0],
         ]
     ).transpose()
-    gamma_ns_as1aem1_0 = gamma_variation_qed(gamma_ns.copy(), (1, 1), 3, 0, True)
+    gamma_ns_as1aem1_0 = gamma_variation_qed(gamma_ns.copy(), (1, 1), 3, 3, 0, True)
     np.testing.assert_allclose(gamma_ns_as1aem1_0, gamma_ns)
-    gamma_ns_as1aem1_1 = gamma_variation_qed(gamma_ns.copy(), (1, 1), 3, -1, True)
+    gamma_ns_as1aem1_1 = gamma_variation_qed(gamma_ns.copy(), (1, 1), 3, 3, -1, True)
     np.testing.assert_allclose(gamma_ns_as1aem1_1, gamma_ns)
-    gamma_ns_as2aem2_1 = gamma_variation_qed(gamma_ns.copy(), (2, 2), 3, -1, True)
+    gamma_ns_as2aem2_1 = gamma_variation_qed(gamma_ns.copy(), (2, 2), 3, 3, -1, True)
     assert gamma_ns_as2aem2_1[2, 0] < gamma_ns[2, 0]
     assert gamma_ns_as2aem2_1[0, 2] > gamma_ns[0, 2]  # beta0qed < 0
-    gamma_ns_as4aem2_1 = gamma_variation_qed(gamma_ns.copy(), (4, 2), 3, -1, True)
+    gamma_ns_as4aem2_1 = gamma_variation_qed(gamma_ns.copy(), (4, 2), 3, 3, -1, True)
     gamma_ns_N3LO_1 = gamma_variation(gamma_ns.copy()[1:, 0], (4, 0), 3, -1)
     np.testing.assert_allclose(gamma_ns_as4aem2_1[1:, 0], gamma_ns_N3LO_1)
