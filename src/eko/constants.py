@@ -25,6 +25,9 @@ r"""Second Casimir constant in the fundamental representation.
 Defaults to :math:`\frac{N_C^2-1}{2N_C} = 4/3`.
 """
 
+MTAU = 1.777
+"""Mass of the tau."""
+
 eu2 = 4.0 / 9
 """Up quarks charge squared."""
 
@@ -114,3 +117,22 @@ def charge_combinations(nf):
     vde2m = nd / nf * (eu2 - ed2)
     e2delta = vde2m - vue2m + e2avg
     return e2avg, vue2m, vde2m, e2delta
+
+
+@nb.njit(cache=True)
+def lepton_number(q2):
+    """Compute the number of up flavors.
+
+    at the moment we never go below 1 GeV so we don't need muon and electron
+
+    Parameters
+    ----------
+    q : float
+        energy
+
+    Returns
+    -------
+    nl : int
+
+    """
+    return 3 if q2 > MTAU**2 else 2
