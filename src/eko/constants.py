@@ -84,6 +84,8 @@ def uplike_flavors(nf):
     nu : int
 
     """
+    if nf > 6:
+        raise NotImplementedError("Selected nf is not implemented")
     nu = nf // 2
     return nu
 
