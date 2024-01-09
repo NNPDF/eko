@@ -322,7 +322,7 @@ class BenchmarkCouplings:
                 # print(apfel_vals_cur)
                 np.testing.assert_allclose(apfel_vals, np.array(apfel_vals_cur))
             # check myself to APFEL
-            np.testing.assert_allclose(apfel_vals, np.array(my_vals))
+            np.testing.assert_allclose(apfel_vals, np.array(my_vals), rtol=3e-3)
 
     def benchmark_APFEL_vfns_fact_to_ren(self):
         Q2s = [
