@@ -707,7 +707,7 @@ class Operator(sv.ModeMixin):
             couplings = self.managers["couplings"]
             mu2_steps = utils.geomspace(self.q2_from, self.q2_to, 1 + ev_op_iterations)
             mu2_l = mu2_steps[0]
-            as_list = np.array([couplings.a_s(scale_to=mu2)[0] for mu2 in mu2_steps])
+            as_list = np.array([couplings.a_s(scale_to=mu2) for mu2 in mu2_steps])
             a_half = np.zeros((ev_op_iterations, 2))
             for step, mu2_h in enumerate(mu2_steps[1:]):
                 mu2_half = (mu2_h + mu2_l) / 2.0
