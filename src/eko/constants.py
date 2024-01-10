@@ -121,18 +121,19 @@ def charge_combinations(nf):
 
 @nb.njit(cache=True)
 def lepton_number(q2):
-    """Compute the number of up flavors.
+    """Compute the number of leptons.
 
-    at the moment we never go below 1 GeV so we don't need muon and electron
+    Note: at the moment we never go below 1 GeV so we don't need muon and electron.
 
     Parameters
     ----------
-    q : float
-        energy
+    q2 : float
+        scale
 
     Returns
     -------
-    nl : int
+    int :
+       Number of leptons
 
     """
     return 3 if q2 > MTAU**2 else 2
