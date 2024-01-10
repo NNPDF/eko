@@ -174,7 +174,7 @@ class BenchmarkMSbar:
                     )
                 # check myself to APFEL
                 np.testing.assert_allclose(
-                    apfel_vals, np.sqrt(np.array(my_vals)), rtol=2.6e-3
+                    apfel_vals, np.sqrt(np.array(my_vals)), rtol=2.3e-3
                 )
 
     def benchmark_APFEL_msbar_solution(

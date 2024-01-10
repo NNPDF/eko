@@ -740,7 +740,7 @@ class Couplings:
             if not np.isclose(seg.origin, seg.target):
                 nli = constants.lepton_number(seg.origin)
                 nlf = constants.lepton_number(seg.target)
-                if nli != nlf:
+                if self.order[1] != 0 and nli != nlf:
                     # it means that MTAU is between origin and target:
                     # first we evolve from origin to MTAU with nli leptons
                     a_tmp = self.compute(
