@@ -19,7 +19,6 @@ import ekore.anomalous_dimensions.unpolarized.time_like as ad_ut
 
 from .. import basis_rotation as br
 from .. import interpolation, mellin
-from ..matchings import lepton_number
 from .. import scale_variations as sv
 from ..kernels import non_singlet as ns
 from ..kernels import non_singlet_qed as qed_ns
@@ -27,7 +26,7 @@ from ..kernels import singlet as s
 from ..kernels import singlet_qed as qed_s
 from ..kernels import utils
 from ..kernels import valence_qed as qed_v
-from ..matchings import Segment
+from ..matchings import Segment, lepton_number
 from ..member import OpMember
 
 logger = logging.getLogger(__name__)
