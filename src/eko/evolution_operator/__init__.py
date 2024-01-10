@@ -18,7 +18,8 @@ import ekore.anomalous_dimensions.unpolarized.space_like as ad_us
 import ekore.anomalous_dimensions.unpolarized.time_like as ad_ut
 
 from .. import basis_rotation as br
-from .. import constants, interpolation, mellin
+from .. import interpolation, mellin
+from ..matchings import lepton_number
 from .. import scale_variations as sv
 from ..kernels import non_singlet as ns
 from ..kernels import non_singlet_qed as qed_ns
@@ -505,7 +506,7 @@ def quad_ker_qed(
         # scale var exponentiated is directly applied on gamma
         if sv_mode == sv.Modes.exponentiated:
             gamma_s = sv.exponentiated.gamma_variation_qed(
-                gamma_s, order, nf, constants.lepton_number(mu2_to), L, alphaem_running
+                gamma_s, order, nf, lepton_number(mu2_to), L, alphaem_running
             )
         ker = qed_s.dispatcher(
             order,
@@ -533,7 +534,7 @@ def quad_ker_qed(
         # scale var exponentiated is directly applied on gamma
         if sv_mode == sv.Modes.exponentiated:
             gamma_v = sv.exponentiated.gamma_variation_qed(
-                gamma_v, order, nf, constants.lepton_number(mu2_to), L, alphaem_running
+                gamma_v, order, nf, lepton_number(mu2_to), L, alphaem_running
             )
         ker = qed_v.dispatcher(
             order,
@@ -558,7 +559,7 @@ def quad_ker_qed(
         # scale var exponentiated is directly applied on gamma
         if sv_mode == sv.Modes.exponentiated:
             gamma_ns = sv.exponentiated.gamma_variation_qed(
-                gamma_ns, order, nf, constants.lepton_number(mu2_to), L, alphaem_running
+                gamma_ns, order, nf, lepton_number(mu2_to), L, alphaem_running
             )
         ker = qed_ns.dispatcher(
             order,
