@@ -3,6 +3,7 @@ import logging
 from dataclasses import dataclass
 from typing import List, Union
 
+import numba as nb
 import numpy as np
 
 from .constants import MTAU
@@ -212,6 +213,7 @@ def flavor_shift(is_downward: bool) -> int:
     return 4 if is_downward else 3
 
 
+@nb.njit(cache=True)
 def lepton_number(q2):
     """Compute the number of leptons.
 
