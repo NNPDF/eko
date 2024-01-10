@@ -217,7 +217,7 @@ def flavor_shift(is_downward: bool) -> int:
 def lepton_number(q2):
     """Compute the number of leptons.
 
-    Note: at the moment we never go below 1 GeV so we don't need muon and electron.
+    Note: muons and electrons are always massless as for up, down and strange.
 
     Parameters
     ----------
