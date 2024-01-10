@@ -291,6 +291,8 @@ def couplings_expanded_alphaem_running(
         reference alpha_s and alpha
     nf : int
         value of nf for computing the couplings
+    nl : int
+        number of leptons partecipating to alphaem running
     scale_from : float
         reference scale
     scale_to : float
@@ -530,6 +532,8 @@ class Couplings:
             reference alpha_s and alpha
         nf : int
             value of nf for computing alpha_i
+        nl : int
+            number of leptons partecipating to alphaem running
         scale_from : float
             reference scale
         scale_to : float
@@ -668,6 +672,8 @@ class Couplings:
             reference a
         nf : int
             value of nf for computing alpha
+        nl : int
+            number of leptons partecipating to alphaem running
         scale_from : float
             reference scale
         scale_to : float
@@ -738,8 +744,8 @@ class Couplings:
         for k, seg in enumerate(path):
             # skip a very short segment, but keep the matching
             if not np.isclose(seg.origin, seg.target):
-                nli = constants.lepton_number(seg.origin)
-                nlf = constants.lepton_number(seg.target)
+                nli = matchings.lepton_number(seg.origin)
+                nlf = matchings.lepton_number(seg.target)
                 if self.order[1] != 0 and nli != nlf:
                     # it means that MTAU is between origin and target:
                     # first we evolve from origin to MTAU with nli leptons
