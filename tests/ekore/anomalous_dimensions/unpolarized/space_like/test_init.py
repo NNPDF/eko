@@ -147,66 +147,90 @@ def test_gamma_ns_qed():
     nf = 3
     # aem1
     assert_almost_equal(
-        ad_us.gamma_ns_qed((1, 1), br.non_singlet_pids_map["ns-u"], 1, nf),
+        ad_us.gamma_ns_qed(
+            (1, 1), br.non_singlet_pids_map["ns-u"], 1, nf, (0, 0, 0, 0, 0, 0, 0)
+        ),
         np.zeros((2, 2)),
         decimal=5,
     )
     assert_almost_equal(
-        ad_us.gamma_ns_qed((1, 1), br.non_singlet_pids_map["ns-d"], 1, nf),
+        ad_us.gamma_ns_qed(
+            (1, 1), br.non_singlet_pids_map["ns-d"], 1, nf, (0, 0, 0, 0, 0, 0, 0)
+        ),
         np.zeros((2, 2)),
         decimal=5,
     )
     assert_almost_equal(
-        ad_us.gamma_ns_qed((1, 1), br.non_singlet_pids_map["ns+u"], 1, nf)[0, 1],
+        ad_us.gamma_ns_qed(
+            (1, 1), br.non_singlet_pids_map["ns+u"], 1, nf, (0, 0, 0, 0, 0, 0, 0)
+        )[0, 1],
         0,
         decimal=5,
     )
     assert_almost_equal(
-        ad_us.gamma_ns_qed((1, 1), br.non_singlet_pids_map["ns+d"], 1, nf)[0, 1],
+        ad_us.gamma_ns_qed(
+            (1, 1), br.non_singlet_pids_map["ns+d"], 1, nf, (0, 0, 0, 0, 0, 0, 0)
+        )[0, 1],
         0,
         decimal=5,
     )
     # as1aem1
     assert_almost_equal(
-        ad_us.gamma_ns_qed((1, 2), br.non_singlet_pids_map["ns-u"], 1, nf),
+        ad_us.gamma_ns_qed(
+            (1, 2), br.non_singlet_pids_map["ns-u"], 1, nf, (0, 0, 0, 0, 0, 0, 0)
+        ),
         np.zeros((2, 3)),
         decimal=5,
     )
     assert_almost_equal(
-        ad_us.gamma_ns_qed((1, 2), br.non_singlet_pids_map["ns-d"], 1, nf),
+        ad_us.gamma_ns_qed(
+            (1, 2), br.non_singlet_pids_map["ns-d"], 1, nf, (0, 0, 0, 0, 0, 0, 0)
+        ),
         np.zeros((2, 3)),
         decimal=5,
     )
     # aem2
     assert_almost_equal(
-        ad_us.gamma_ns_qed((1, 2), br.non_singlet_pids_map["ns-u"], 1, nf),
+        ad_us.gamma_ns_qed(
+            (1, 2), br.non_singlet_pids_map["ns-u"], 1, nf, (0, 0, 0, 0, 0, 0, 0)
+        ),
         np.zeros((2, 3)),
         decimal=5,
     )
     assert_almost_equal(
-        ad_us.gamma_ns_qed((1, 2), br.non_singlet_pids_map["ns-d"], 1, nf),
+        ad_us.gamma_ns_qed(
+            (1, 2), br.non_singlet_pids_map["ns-d"], 1, nf, (0, 0, 0, 0, 0, 0, 0)
+        ),
         np.zeros((2, 3)),
         decimal=5,
     )
     # ad_us.as2
     assert_almost_equal(
-        ad_us.gamma_ns_qed((2, 1), br.non_singlet_pids_map["ns-u"], 1, nf),
+        ad_us.gamma_ns_qed(
+            (2, 1), br.non_singlet_pids_map["ns-u"], 1, nf, (0, 0, 0, 0, 0, 0, 0)
+        ),
         np.zeros((3, 2)),
         decimal=5,
     )
     assert_almost_equal(
-        ad_us.gamma_ns_qed((2, 1), br.non_singlet_pids_map["ns-d"], 1, nf),
+        ad_us.gamma_ns_qed(
+            (2, 1), br.non_singlet_pids_map["ns-d"], 1, nf, (0, 0, 0, 0, 0, 0, 0)
+        ),
         np.zeros((3, 2)),
         decimal=5,
     )
     # ad_us.as3
     assert_almost_equal(
-        ad_us.gamma_ns_qed((3, 1), br.non_singlet_pids_map["ns-u"], 1, nf),
+        ad_us.gamma_ns_qed(
+            (3, 1), br.non_singlet_pids_map["ns-u"], 1, nf, (0, 0, 0, 0, 0, 0, 0)
+        ),
         np.zeros((4, 2)),
         decimal=3,
     )
     assert_almost_equal(
-        ad_us.gamma_ns_qed((3, 1), br.non_singlet_pids_map["ns-d"], 1, nf),
+        ad_us.gamma_ns_qed(
+            (3, 1), br.non_singlet_pids_map["ns-d"], 1, nf, (0, 0, 0, 0, 0, 0, 0)
+        ),
         np.zeros((4, 2)),
         decimal=3,
     )
@@ -238,7 +262,7 @@ def test_dim_valence():
     nf = 3
     N = 2
     cache = h.cache.reset()
-    gamma_valence = ad_us.gamma_valence_qed((3, 2), N, nf)
+    gamma_valence = ad_us.gamma_valence_qed((3, 2), N, nf, (0, 0, 0, 0, 0, 0, 0))
     assert gamma_valence.shape == (4, 3, 2, 2)
     gamma_valence_as1 = ad_us.as1.gamma_valence_qed(N, cache)
     assert gamma_valence_as1.shape == (2, 2)
@@ -251,9 +275,9 @@ def test_dim_valence():
 def test_dim_nsp():
     nf = 3
     N = 2
-    gamma_nsup = ad_us.gamma_ns_qed((3, 2), 10102, N, nf)
+    gamma_nsup = ad_us.gamma_ns_qed((3, 2), 10102, N, nf, (0, 0, 0, 0, 0, 0, 0))
     assert gamma_nsup.shape == (4, 3)
-    gamma_nsdp = ad_us.gamma_ns_qed((3, 2), 10103, N, nf)
+    gamma_nsdp = ad_us.gamma_ns_qed((3, 2), 10103, N, nf, (0, 0, 0, 0, 0, 0, 0))
     assert gamma_nsdp.shape == (4, 3)
     with pytest.raises(NotImplementedError):
-        ad_us.gamma_ns_qed((2, 0), 10106, N, nf)
+        ad_us.gamma_ns_qed((2, 0), 10106, N, nf, (0, 0, 0, 0, 0, 0, 0))
