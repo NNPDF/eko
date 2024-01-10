@@ -291,6 +291,8 @@ def couplings_expanded_alphaem_running(
         reference alpha_s and alpha
     nf : int
         value of nf for computing the couplings
+    nl : int
+        number of leptons partecipating to alphaem running
     scale_from : float
         reference scale
     scale_to : float
@@ -530,6 +532,8 @@ class Couplings:
             reference alpha_s and alpha
         nf : int
             value of nf for computing alpha_i
+        nl : int
+            number of leptons partecipating to alphaem running
         scale_from : float
             reference scale
         scale_to : float
@@ -668,6 +672,8 @@ class Couplings:
             reference a
         nf : int
             value of nf for computing alpha
+        nl : int
+            number of leptons partecipating to alphaem running
         scale_from : float
             reference scale
         scale_to : float

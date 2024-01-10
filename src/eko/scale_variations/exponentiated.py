@@ -57,6 +57,8 @@ def gamma_variation_qed(gamma, order, nf, nl, L, alphaem_running):
         perturbation order
     nf : int
         number of active flavors
+    nl : int
+        number of leptons partecipating to alphaem running
     L : float
         logarithmic ratio of factorization and renormalization scale
 
