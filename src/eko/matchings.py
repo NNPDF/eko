@@ -5,10 +5,10 @@ from typing import List, Union
 
 import numpy as np
 
+from .constants import MTAU
 from .io.types import EvolutionPoint as EPoint
 from .io.types import FlavorIndex, FlavorsNumber, SquaredScale
 from .quantities.heavy_quarks import MatchingScales
-from .constants import MTAU
 
 logger = logging.getLogger(__name__)
 
@@ -211,19 +211,21 @@ def flavor_shift(is_downward: bool) -> int:
     """Determine the shift to number of light flavors."""
     return 4 if is_downward else 3
 
-def lepton_number(q2):
-    """Compute the number of up flavors.
 
-    at the moment we never go below 1 GeV so we don't need muon and electron
+def lepton_number(q2):
+    """Compute the number of leptons.
+
+    Note: at the moment we never go below 1 GeV so we don't need muon and electron.
 
     Parameters
     ----------
-    q : float
-        energy
+    q2 : float
+        scale
 
     Returns
     -------
-    nl : int
+    int :
+       Number of leptons
 
     """
     return 3 if q2 > MTAU**2 else 2

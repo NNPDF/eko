@@ -744,8 +744,8 @@ class Couplings:
         for k, seg in enumerate(path):
             # skip a very short segment, but keep the matching
             if not np.isclose(seg.origin, seg.target):
-                nli = constants.lepton_number(seg.origin)
-                nlf = constants.lepton_number(seg.target)
+                nli = matchings.lepton_number(seg.origin)
+                nlf = matchings.lepton_number(seg.target)
                 if nli != nlf:
                     # it means that MTAU is between origin and target:
                     # first we evolve from origin to MTAU with nli leptons
