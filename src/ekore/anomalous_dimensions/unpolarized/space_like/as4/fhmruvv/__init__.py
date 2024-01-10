@@ -1,4 +1,7 @@
-"""The |FHMRUVV| |N3LO| Altarelli-Parisi splitting kernels approximations."""
+"""The |FHMRUVV| |N3LO| Altarelli-Parisi splitting kernels approximations.
+
+Authors follow Pegasus convention and so there is an additional global minus sign with respect to our conventions.
+"""
 import numba as nb
 import numpy as np
 

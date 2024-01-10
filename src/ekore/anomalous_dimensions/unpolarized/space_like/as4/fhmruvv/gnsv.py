@@ -13,7 +13,7 @@ def gamma_nss(n, nf, cache, variation):
     The routine is taken from :cite:`Moch:2017uml`.
 
     The :math:`nf^2` part is a high-accuracy (0.1% or better) parametrization
-    of the exact expression obtained in arXiv:1610.07477, see xpns3m.f
+    of the exact expression obtained in :cite:`Davies:2016jie`, see xpns3m.f
 
     The :math:`nf^1` part is an approximation based on the first 9 odd moments.
     The two sets spanning the error estimate are called via  IMOD = 1
