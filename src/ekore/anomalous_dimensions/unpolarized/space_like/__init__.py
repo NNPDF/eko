@@ -41,7 +41,7 @@ def gamma_ns(order, mode, n, nf, n3lo_ad_variation, use_fhmruvv=False):
     n3lo_ad_variation : tuple
         |N3LO| anomalous dimension variation ``(gg, gq, qg, qq, nsp, nsm, nsv)``
     use_fhmruvv: bool
-        if True use the Falcioni Herzog Moch Vogt N3LO anomalous dimensions
+        if True use the |FHMRUVV| N3LO anomalous dimensions
 
     Returns
     -------
@@ -76,15 +76,15 @@ def gamma_ns(order, mode, n, nf, n3lo_ad_variation, use_fhmruvv=False):
     if order[0] >= 4:
         if use_fhmruvv:
             if mode == 10101:
-                gamma_ns_3 = as4.fhmruvv_approximations.gamma_nsp(
+                gamma_ns_3 = as4.fhmruvv.gamma_nsp(
                     n, nf, cache, variation=n3lo_ad_variation[4]
                 )
             elif mode == 10201:
-                gamma_ns_3 = as4.fhmruvv_approximations.gamma_nsm(
+                gamma_ns_3 = as4.fhmruvv.gamma_nsm(
                     n, nf, cache, variation=n3lo_ad_variation[5]
                 )
             elif mode == 10200:
-                gamma_ns_3 = as4.fhmruvv_approximations.gamma_nsv(
+                gamma_ns_3 = as4.fhmruvv.gamma_nsv(
                     n, nf, cache, variation=n3lo_ad_variation[6]
                 )
         else:
@@ -113,7 +113,7 @@ def gamma_singlet(order, n, nf, n3lo_ad_variation, use_fhmruvv=False):
     n3lo_ad_variation : tuple
         |N3LO| anomalous dimension variation ``(gg, gq, qg, qq, nsp, nsm, nsv)``
     use_fhmruvv: bool
-        if True use the Falcioni Herzog Moch Vogt N3LO anomalous dimensions
+        if True use the |FHMRUVV| N3LO anomalous dimensions
 
     Returns
     -------
@@ -130,9 +130,7 @@ def gamma_singlet(order, n, nf, n3lo_ad_variation, use_fhmruvv=False):
         gamma_s[2] = as3.gamma_singlet(n, nf, cache)
     if order[0] >= 4:
         if use_fhmruvv:
-            gamma_s[3] = as4.fhmruvv_approximations.gamma_singlet(
-                n, nf, cache, n3lo_ad_variation
-            )
+            gamma_s[3] = as4.fhmruvv.gamma_singlet(n, nf, cache, n3lo_ad_variation)
         else:
             gamma_s[3] = as4.gamma_singlet(n, nf, cache, n3lo_ad_variation)
     return gamma_s
@@ -293,7 +291,7 @@ def gamma_singlet_qed(order, n, nf, n3lo_ad_variation):
     nf : int
         Number of active flavors
     n3lo_ad_variation : tuple
-        |N3LO| anomalous dimension variation ``(gg_var, gq_var, qg_var, qq_var)``
+        |N3LO| anomalous dimension variation ``(gg, gq, qg, qq)``
 
     Returns
     -------

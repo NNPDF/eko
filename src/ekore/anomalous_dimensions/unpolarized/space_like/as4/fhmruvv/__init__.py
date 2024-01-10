@@ -1,4 +1,4 @@
-"""The |N3LO| Altarelli-Parisi splitting kernels, from Falcioni, Herzog, Moch, Ruijl, Ueda, Vermaseren, Vogt approximations."""
+"""The |FHMRUVV| |N3LO| Altarelli-Parisi splitting kernels approximations."""
 import numba as nb
 import numpy as np
 
@@ -30,7 +30,7 @@ def gamma_singlet(N, nf, cache, variation):
     cache: numpy.ndarray
         Harmonic sum cache
     variation : tuple
-        |N3LO| anomalous dimension variation ``(gg_var, gq_var, qg_var, qq_var)``
+        |N3LO| anomalous dimension variation ``(gg, gq, qg, qq)``
 
     Returns
     -------

@@ -48,7 +48,7 @@ class TheoryCard(DictLike):
     n3lo_ad_variation: N3LOAdVariation
     """|N3LO| anomalous dimension variation: ``(gg, gq, qg, qq, nsp, nsm, nsv)``."""
     use_fhmruvv: Optional[bool] = False
-    """If True use the Falcioni, Herzog, Moch, Ruijl, Ueda, Vermaseren, Vogt N3LO anomalous dimensions"""
+    """If True use the |FHMRUVV| |N3LO| anomalous dimensions"""
     matching_order: Optional[Order] = None
     """Matching conditions perturbative order tuple, ``(QCD, QED)``."""
 

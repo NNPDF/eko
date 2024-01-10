@@ -6,7 +6,7 @@ For further documentation see :doc:`N3LO anomalous dimensions <../../../theory/N
 import numba as nb
 import numpy as np
 
-from . import fhmruvv_approximations
+from . import fhmruvv
 from .ggg import gamma_gg
 from .ggq import gamma_gq
 from .gnsm import gamma_nsm
@@ -35,7 +35,7 @@ def gamma_singlet(N, nf, cache, variation):
     cache: numpy.ndarray
         Harmonic sum cache
     variation : tuple
-        |N3LO| anomalous dimension variation ``(gg_var, gq_var, qg_var, qq_var)``
+        |N3LO| anomalous dimension variation ``(gg, gq, qg, qq)``
 
     Returns
     -------

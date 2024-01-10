@@ -3,7 +3,7 @@ import numpy as np
 import pytest
 
 from ekore import harmonics as h
-from ekore.anomalous_dimensions.unpolarized.space_like.as4.fhmruvv_approximations import (
+from ekore.anomalous_dimensions.unpolarized.space_like.as4.fhmruvv import (
     gamma_singlet,
     ggg,
     ggq,

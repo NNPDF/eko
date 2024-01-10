@@ -35,7 +35,7 @@ if __name__ == "__main__":
     parser.add_argument("sv", help="scale variation: up, central, or down")
     parser.add_argument(
         "ad_variation",
-        help="n3lo anomalous dimension variation: (gg_var, gq_var, qg_var, qq_var, nsp_var, nsm_var, nsv_var)",
+        help="n3lo anomalous dimension variation: (gg, gq, qg, qq, nsp, nsm, nsv)",
         nargs="*",
         type=int,
     )

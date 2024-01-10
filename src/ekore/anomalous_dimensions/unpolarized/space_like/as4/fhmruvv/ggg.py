@@ -1,4 +1,4 @@
-r"""The unpolarized, space-like anomalous dimension :math:`\gamma_{qg}^{(3)}`."""
+r"""The unpolarized, space-like anomalous dimension :math:`\gamma_{gg}^{(3)}`."""
 import numba as nb
 
 from ......harmonics import cache as c
@@ -116,7 +116,7 @@ def gamma_gg(n, nf, cache, variation):
             + 34362.0 * lm13m1(n, S1, S2, S3)
         )
     else:
-        raise NotImplementedError("nf^6 is not available at N3LO")
+        raise NotImplementedError("nf=6 is not available at N3LO")
 
     # We return (for now) one of the two error-band representatives
     # or the present best estimate, their average

@@ -152,7 +152,7 @@ def gamma_ps(n, nf, cache, variation):
             - 10295.0 * lm12m2(n, S1, S2)
         )
     else:
-        raise NotImplementedError("nf^6 is not available at N3LO")
+        raise NotImplementedError("nf=6 is not available at N3LO")
 
     # We return (for now) one of the two error-band boundaries
     # or the present best estimate, their average

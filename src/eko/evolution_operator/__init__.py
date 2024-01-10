@@ -262,7 +262,7 @@ def quad_ker(
     is_time_like : boolean
         is time-like evolution ?
     use_fhmruvv : bool
-        if True use the Falcioni, Herzog, Moch, Ruijl, Ueda, Vermaseren, Vogt N3LO anomalous dimension
+        if True use the |FHMRUVV| |N3LO| anomalous dimension
 
     Returns
     -------
@@ -371,7 +371,7 @@ def quad_ker_qcd(
     n3lo_ad_variation : tuple
         |N3LO| anomalous dimension variation ``(gg, gq, qg, qq, nsp, nsm, nsv)``
     use_fhmruvv : bool
-        if True use the Falcioni, Herzog, Moch, Ruijl, Ueda, Vermaseren, Vogt N3LO anomalous dimensions
+        if True use the |FHMRUVV| |N3LO| anomalous dimensions
 
     Returns
     -------
@@ -501,7 +501,7 @@ def quad_ker_qed(
     is_threshold : boolean
         is this an itermediate threshold operator?
     n3lo_ad_variation : tuple
-        |N3LO| anomalous dimension variation ``(gg_var, gq_var, qg_var, qq_var)``
+        |N3LO| anomalous dimension variation ``(gg, gq, qg, qq)``
 
     Returns
     -------

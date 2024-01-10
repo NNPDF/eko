@@ -84,12 +84,6 @@ def gamma_gq(n, nf, cache, variation):
         )
         P3gqApp2 = (
             P3GQ01
-            # + 5.0*bfkl1* (-(1 / (-1 + n) ** 2))
-            # - 469533.* 1/((-1 + n) * n)
-            # - 26199.2 * 1/n
-            # - 294828.* (-(1/n**2))
-            # + 9089.9* lm12(n, S1, S2)
-            # + 2440.9* lm13(n, S1, S2, S3)
             + 5.4 * bfkl1 * (-(1 / (-1 + n) ** 2))
             - 547215.0 * 1 / ((-1 + n) * n)
             - 41523.0 * 1 / n
@@ -117,7 +111,7 @@ def gamma_gq(n, nf, cache, variation):
             + 2727.3 * lm13(n, S1, S2, S3)
         )
     else:
-        raise NotImplementedError("nf^6 is not available at N3LO")
+        raise NotImplementedError("nf=6 is not available at N3LO")
 
     # We return (for now) one of the two error-band representatives
     # or the present best estimate, their average

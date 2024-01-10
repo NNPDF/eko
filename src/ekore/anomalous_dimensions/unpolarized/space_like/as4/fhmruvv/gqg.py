@@ -151,7 +151,7 @@ def gamma_qg(n, nf, cache, variation):
             + 385995.0 * (S1 - n * (np.pi**2 / 6 - S2)) / n**2
         )
     else:
-        raise NotImplementedError("nf^6 is not available at N3LO")
+        raise NotImplementedError("nf=6 is not available at N3LO")
 
     # We return one of the two error-band representatives
     # or the present best estimate, their average

@@ -13,11 +13,11 @@ def gamma_nsp(n, nf, cache, variation):
 
     The routine is taken from :cite:`Moch:2017uml`.
 
-    The nf^{0,1} leading large-nc contributions and the nf^2 part
+    The :math:`nf^{0,1}` leading large-nc contributions and the :math:`nf^2` part
     are high-accuracy (0.1% or better) parametrizations of the exact
-    results. The nf^3 expression is exact up to numerical truncations.
+    results. The :math:`nf^3` expression is exact up to numerical truncations.
 
-    The remaining nf^{0,1} terms are approximations based on the first
+    The remaining :math:`nf^{0,1}` terms are approximations based on the first
     eight even moments together with small-x and large-x constraints.
     The two sets spanning the error estimate are called via  IMOD = 1
     and  IMOD = 2.  Any other value of IMOD invokes their average.
