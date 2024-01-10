@@ -41,6 +41,8 @@ def beta_qed_aem2(nf, nl):
     ----------
         nf : int
             number of active flavors
+        nl : int
+            number of leptons partecipating to alphaem running
 
     Returns
     -------
@@ -91,6 +93,8 @@ def beta_qed_aem3(nf, nl):
     ----------
         nf : int
             number of active flavors
+        nl : int
+            number of leptons partecipating to alphaem running
 
     Returns
     -------
@@ -253,6 +257,8 @@ def beta_qed(k, nf, nl):
             perturbative order
         nf : int
             number of active flavors
+        nl : int
+            number of leptons partecipating to alphaem running
 
     Returns
     -------
@@ -302,6 +308,8 @@ def b_qed(k, nf, nl):
             perturbative order
         nf : int
             number of active flavors
+        nl : int
+            number of leptons partecipating to alphaem running
 
     Returns
     -------
