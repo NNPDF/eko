@@ -9,7 +9,7 @@ from ......harmonics.log_functions import lm12, lm13, lm14, lm15
 def gamma_gq(n, nf, cache, variation):
     r"""Compute the |N3LO| gluon-quark singlet anomalous dimension.
 
-    The routine is taken from a private file.
+    The routine is taken from :cite:`Moch:2023tdj`.
 
     Parameters
     ----------
