@@ -1,20 +1,6 @@
 [build-system]
-requires = ["maturin>=0.14.8,<0.15", "poetry-dynamic-versioning"]
-build-backend = "maturin"
-
-[project]
-name = "eko"
-requires-python = ">=3.8"
-classifiers = [
-  "Programming Language :: Rust",
-  "Programming Language :: Python :: Implementation :: CPython",
-  "Programming Language :: Python :: Implementation :: PyPy",
-]
-version = "0.0.0"
-
-[tool.maturin]
-manifest-path = "crates/eko/Cargo.toml"
-python-packages = ["ekomark", "ekobox"]
+requires = ["poetry-core>=1.0.0", "poetry-dynamic-versioning"]
+build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "eko"
@@ -138,11 +124,6 @@ asv-publish = "asv publish --config benchmarks/asv.conf.json"
 asv-show = "asv show --config benchmarks/asv.conf.json"
 asv-clean = { "shell" = "rm -rf benchmarks/env benchmarks/html benchmarks/results" }
 asv = ["asv-run", "asv-publish", "asv-preview"]
-compile = "pip install -e crates/eko/"
-rdocs = "cargo doc --workspace --manifest-path crates/Cargo.toml --no-deps"
-rdocs-view = "xdg-open crates/target/doc/ekors/index.html"
-rdocs-clean = "rm -rf crates/target/doc/"
-rtest = "cargo test --workspace --manifest-path crates/Cargo.toml"
 
 [tool.pytest.ini_options]
 testpaths = ['tests/', 'benchmarks/']
