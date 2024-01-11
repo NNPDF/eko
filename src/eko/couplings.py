@@ -529,7 +529,7 @@ class Couplings:
 
         Parameters
         ----------
-        as_ref : numpy.ndarray
+        a_ref : numpy.ndarray
             reference alpha_s and alpha
         nf : int
             value of nf for computing alpha_i
@@ -615,7 +615,7 @@ class Couplings:
 
         Parameters
         ----------
-        as_ref : numpy.ndarray
+        a_ref : numpy.ndarray
             reference alpha_s and alpha
         nf : int
             value of nf for computing alpha_i
