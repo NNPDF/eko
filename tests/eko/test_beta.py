@@ -101,3 +101,18 @@ def test_b():
     """b-wrapper"""
     np.testing.assert_allclose(beta.b_qcd((2, 0), 3), 1.0)
     np.testing.assert_allclose(beta.b_qed((0, 2), 3, 3), 1.0)
+
+
+def test_zero():
+    """test that beta_qed is zero for nf=nl=0"""
+    for ord in range(2, 3 + 1):
+        np.testing.assert_allclose(beta.beta_qed((0, ord), 0, 0), 0)
+
+
+def test_linearity():
+    """test linearity of QED beta function when nf=0"""
+    for ord in range(2, 3 + 1):
+        for nl in [0, 2]:
+            np.testing.assert_allclose(
+                beta.beta_qed((0, ord), 0, nl) / 2, beta.beta_qed((0, ord), 0, nl / 2)
+            )
