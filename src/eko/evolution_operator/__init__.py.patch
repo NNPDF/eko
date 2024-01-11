@@ -1,5 +1,5 @@
 diff --git a/src/eko/evolution_operator/__init__.py b/src/eko/evolution_operator/__init__.py
-index eab3c64d..90712225 100644
+index 29e67c19..08e768e3 100644
 --- a/src/eko/evolution_operator/__init__.py
 +++ b/src/eko/evolution_operator/__init__.py
 @@ -3,15 +3,15 @@ r"""Contains the central operator classes.
@@ -114,7 +114,7 @@ index eab3c64d..90712225 100644
  spec = [
      ("is_singlet", nb.boolean),
      ("is_QEDsinglet", nb.boolean),
-@@ -185,399 +103,6 @@ class QuadKerBase:
+@@ -185,403 +103,6 @@ class QuadKerBase:
          return self.path.prefactor * pj * self.path.jac
 
 
@@ -240,6 +240,7 @@ index eab3c64d..90712225 100644
 -            ev_op_max_order,
 -            sv_mode,
 -            is_threshold,
+-            n3lo_ad_variation,
 -        )
 -
 -    # recombine everything
@@ -383,6 +384,7 @@ index eab3c64d..90712225 100644
 -    ev_op_max_order,
 -    sv_mode,
 -    is_threshold,
+-    n3lo_ad_variation,
 -):
 -    """Raw evolution kernel inside quad.
 -
@@ -422,6 +424,8 @@ index eab3c64d..90712225 100644
 -        scale variation mode, see `eko.scale_variations.Modes`
 -    is_threshold : boolean
 -        is this an itermediate threshold operator?
+-    n3lo_ad_variation : tuple
+-        |N3LO| anomalous dimension variation ``(gg_var, gq_var, qg_var, qq_var)``
 -
 -    Returns
 -    -------
@@ -430,7 +434,7 @@ index eab3c64d..90712225 100644
 -    """
 -    # compute the actual evolution kernel for QEDxQCD
 -    if ker_base.is_QEDsinglet:
--        gamma_s = ad_us.gamma_singlet_qed(order, ker_base.n, nf)
+-        gamma_s = ad_us.gamma_singlet_qed(order, ker_base.n, nf, n3lo_ad_variation)
 -        # scale var exponentiated is directly applied on gamma
 -        if sv_mode == sv.Modes.exponentiated:
 -            gamma_s = sv.exponentiated.gamma_variation_qed(
@@ -514,7 +518,7 @@ index eab3c64d..90712225 100644
  class Operator(sv.ModeMixin):
      """Internal representation of a single EKO.
 
-@@ -780,49 +305,6 @@ class Operator(sv.ModeMixin):
+@@ -784,49 +305,6 @@ class Operator(sv.ModeMixin):
                  labels.extend(br.singlet_unified_labels)
          return labels
 
@@ -564,7 +568,7 @@ index eab3c64d..90712225 100644
      def initialize_op_members(self):
          """Init all operators with the identity or zeros."""
          eye = OpMember(
-@@ -845,10 +327,7 @@ class Operator(sv.ModeMixin):
+@@ -849,10 +327,7 @@ class Operator(sv.ModeMixin):
              else:
                  self.op_members[n] = zero.copy()
 
@@ -576,7 +580,7 @@ index eab3c64d..90712225 100644
          """Run the integration for each grid point.
 
          Parameters
-@@ -863,18 +342,56 @@ class Operator(sv.ModeMixin):
+@@ -867,18 +342,56 @@ class Operator(sv.ModeMixin):
          """
          column = []
          k, logx = log_grid
