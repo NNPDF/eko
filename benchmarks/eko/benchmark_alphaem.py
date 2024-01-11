@@ -1,4 +1,7 @@
-"""This module benchmarks alpha_em against alphaQED23."""
+"""This module benchmarks alpha_em against alphaQED23.
+
+alphaQED23 can be obtained from http://www-com.physik.hu-berlin.de/~fjeger/software.html .
+"""
 
 import numpy as np
 import pytest
