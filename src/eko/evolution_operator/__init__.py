@@ -716,8 +716,6 @@ class Operator(sv.ModeMixin):
                 a_s, aem = couplings.a(scale_to=mu2_half, nf_to=self.nf)
                 a_half[step] = [a_s, aem]
                 mu2_l = mu2_h
-        print(as_list.tolist())
-        print(a_half.tolist())
         return as_list, a_half
 
     @property
