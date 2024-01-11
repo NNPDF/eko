@@ -5,7 +5,7 @@ ci:
   skip: [fmt-eko, fmt-ekore]
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.4.0
+    rev: v4.5.0
     hooks:
       - id: trailing-whitespace
       - id: end-of-file-fixer
@@ -14,16 +14,16 @@ repos:
       - id: check-merge-conflict
       - id: debug-statements
   - repo: https://github.com/hadialqattan/pycln
-    rev: v2.2.2
+    rev: v2.4.0
     hooks:
       - id: pycln
         args: [--config=pyproject.toml]
   - repo: https://github.com/psf/black
-    rev: 23.7.0
+    rev: 23.11.0
     hooks:
       - id: black
   - repo: https://github.com/asottile/blacken-docs
-    rev: 1.15.0
+    rev: 1.16.0
     hooks:
       - id: blacken-docs
   - repo: https://github.com/pycqa/isort
@@ -32,7 +32,7 @@ repos:
       - id: isort
         args: ["--profile", "black"]
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.10.1
+    rev: v3.15.0
     hooks:
       - id: pyupgrade
   - repo: https://github.com/pycqa/pydocstyle
@@ -62,6 +62,6 @@ repos:
       files: ^crates/ekore/.*\.rs$
       args: []
   - repo: https://github.com/pre-commit/pre-commit
-    rev: v3.3.3
+    rev: v3.5.0
     hooks:
       - id: validate_manifest

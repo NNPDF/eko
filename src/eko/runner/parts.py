@@ -88,6 +88,10 @@ def evolve_configs(eko: EKO) -> dict:
         n_integration_cores=ocard.configs.n_integration_cores,
         ModSV=ocard.configs.scvar_method,
         n3lo_ad_variation=tcard.n3lo_ad_variation,
+        # Here order is shifted by one, no QED matching is available so far.
+        matching_order=tcard.matching_order
+        if tcard.matching_order is not None
+        else (tcard.order[0] - 1, 0),
     )
 
 
@@ -149,9 +153,8 @@ def match(eko: EKO, recipe: Matching) -> Operator:
     op.compute()
 
     binfo = blowup_info(eko)
-    nf_match = op.nf - 1 if recipe.inverse else op.nf
     res, err = matching_condition.MatchingCondition.split_ad_to_evol_map(
-        op.op_members, nf_match, recipe.scale, **binfo
+        op.op_members, op.nf, recipe.scale, **binfo
     ).to_flavor_basis_tensor(qed=binfo["qed"])
 
     return Operator(res, err)

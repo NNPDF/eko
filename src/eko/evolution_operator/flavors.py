@@ -52,7 +52,7 @@ def pids_from_intrinsic_evol(label, nf, normalize):
     return weights
 
 
-def get_range(evol_labels, qed=False):
+def get_range(evol_labels, qed):
     """Determine the number of light and heavy flavors participating in the input and output.
 
     Here, we assume that the T distributions (e.g. T15) appears *always*
@@ -73,7 +73,7 @@ def get_range(evol_labels, qed=False):
     nf_in = 3
     nf_out = 3
 
-    def update(label, qed=False):
+    def update(label, qed):
         nf = 3
         if label[0] == "T":
             if not qed:
@@ -129,7 +129,7 @@ def rotate_pm_to_flavor(label):
     return l
 
 
-def rotate_matching(nf, qed=False, inverse=False):
+def rotate_matching(nf, qed, inverse=False):
     """Rotation between matching basis (with e.g. S,g,...V8 and c+,c-) and new true evolution basis (with S,g,...V8,T15,V15).
 
     Parameters
@@ -206,7 +206,7 @@ def rotate_matching(nf, qed=False, inverse=False):
     return l
 
 
-def rotate_matching_inverse(nf, qed=False):
+def rotate_matching_inverse(nf, qed):
     """Inverse rotation between matching basis (with e.g. S,g,...V8 and c+,c-) and new true evolution basis (with S,g,...V8,T15,V15).
 
     Parameters
