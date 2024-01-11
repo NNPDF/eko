@@ -6,7 +6,7 @@ import numpy as np
 import pytest
 
 from eko import beta
-from eko.constants import zeta3
+from eko.constants import uplike_flavors, zeta3
 
 
 def _flav_test(function):
@@ -27,9 +27,14 @@ def test_beta_as2():
 def test_beta_aem2():
     """Test first beta function coefficient"""
     # from hep-ph/9803211
-    np.testing.assert_approx_equal(
-        beta.beta_qed_aem2(5, 3), -4.0 / 3 * (3 + 3 * (2 * 4 / 9 + 3 * 1 / 9))
-    )
+    for nf in range(3, 6 + 1):
+        for nl in range(2, 3 + 1):
+            nu = uplike_flavors(nf)
+            nd = nf - nu
+            np.testing.assert_approx_equal(
+                beta.beta_qed_aem2(nf, nl),
+                -4.0 / 3 * (nl + 3 * (nu * 4 / 9 + nd * 1 / 9)),
+            )
 
 
 def test_beta_as3():
@@ -42,9 +47,14 @@ def test_beta_as3():
 def test_beta_aem3():
     """Test second beta function coefficient"""
     # from hep-ph/9803211
-    np.testing.assert_approx_equal(
-        beta.beta_qed_aem3(5, 3), -4.0 * (3 + 3 * (2 * 16 / 81 + 3 * 1 / 81))
-    )
+    for nf in range(3, 6 + 1):
+        for nl in range(2, 3 + 1):
+            nu = uplike_flavors(nf)
+            nd = nf - nu
+            np.testing.assert_approx_equal(
+                beta.beta_qed_aem3(nf, nl),
+                -4.0 * (nl + 3 * (nu * 16 / 81 + nd * 1 / 81)),
+            )
 
 
 def test_beta_as4():
@@ -65,19 +75,21 @@ def test_beta_as5():
 
 def test_beta():
     """beta-wrapper"""
-    nf = 3
-    nl = 3
-    np.testing.assert_allclose(beta.beta_qcd((2, 0), nf), beta.beta_qcd_as2(nf))
-    np.testing.assert_allclose(beta.beta_qcd((3, 0), nf), beta.beta_qcd_as3(nf))
-    np.testing.assert_allclose(beta.beta_qcd((4, 0), nf), beta.beta_qcd_as4(nf))
-    np.testing.assert_allclose(beta.beta_qcd((5, 0), nf), beta.beta_qcd_as5(nf))
-    np.testing.assert_allclose(beta.beta_qcd((2, 1), nf), beta.beta_qcd_as2aem1(nf))
-    np.testing.assert_allclose(
-        beta.beta_qed((0, 2), nf, nl), beta.beta_qed_aem2(nf, nl)
-    )
-    np.testing.assert_allclose(
-        beta.beta_qed((0, 3), nf, nl), beta.beta_qed_aem3(nf, nl)
-    )
+    for nf in range(3, 6 + 1):
+        for nl in range(2, 3 + 1):
+            np.testing.assert_allclose(beta.beta_qcd((2, 0), nf), beta.beta_qcd_as2(nf))
+            np.testing.assert_allclose(beta.beta_qcd((3, 0), nf), beta.beta_qcd_as3(nf))
+            np.testing.assert_allclose(beta.beta_qcd((4, 0), nf), beta.beta_qcd_as4(nf))
+            np.testing.assert_allclose(beta.beta_qcd((5, 0), nf), beta.beta_qcd_as5(nf))
+            np.testing.assert_allclose(
+                beta.beta_qcd((2, 1), nf), beta.beta_qcd_as2aem1(nf)
+            )
+            np.testing.assert_allclose(
+                beta.beta_qed((0, 2), nf, nl), beta.beta_qed_aem2(nf, nl)
+            )
+            np.testing.assert_allclose(
+                beta.beta_qed((0, 3), nf, nl), beta.beta_qed_aem3(nf, nl)
+            )
     np.testing.assert_allclose(beta.beta_qed((1, 2), nf, nl), beta.beta_qed_aem2as1(nf))
     with pytest.raises(ValueError):
         beta.beta_qcd((6, 0), 3)
