@@ -60,6 +60,7 @@ class OperatorGrid(sv.ModeMixin):
         atlas: Atlas,
         couplings: Couplings,
         interpol_dispatcher: InterpolatorDispatcher,
+        use_fhmruvv: bool,
     ):
         # check
         config = {}
@@ -69,6 +70,7 @@ class OperatorGrid(sv.ModeMixin):
         config["HQ"] = mass_scheme
         config["ModSV"] = configs.scvar_method
         config["n3lo_ad_variation"] = n3lo_ad_variation
+        config["use_fhmruvv"] = use_fhmruvv
 
         for i, q in enumerate("cbt"):
             config[f"m{q}"] = masses[i]

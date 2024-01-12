@@ -42,7 +42,8 @@ def test_quad_ker_errors():
                 is_threshold=False,
                 is_polarized=True,
                 is_time_like=True,
-                n3lo_ad_variation=(0, 0, 0, 0),
+                n3lo_ad_variation=(0, 0, 0, 0, 0, 0, 0),
+                use_fhmruvv=False,
             )
 
 
@@ -94,7 +95,8 @@ def test_quad_ker(monkeypatch):
                     is_threshold=False,
                     is_polarized=p,
                     is_time_like=t,
-                    n3lo_ad_variation=(0, 0, 0, 0),
+                    n3lo_ad_variation=(0, 0, 0, 0, 0, 0, 0),
+                    use_fhmruvv=False,
                 )
                 np.testing.assert_allclose(res_ns, res)
     for label in [(br.non_singlet_pids_map["ns+"], 0), (100, 100)]:
@@ -122,7 +124,8 @@ def test_quad_ker(monkeypatch):
                     is_threshold=False,
                     is_polarized=polarized,
                     is_time_like=False,
-                    n3lo_ad_variation=(0, 0, 0, 0),
+                    n3lo_ad_variation=(0, 0, 0, 0, 0, 0, 0),
+                    use_fhmruvv=False,
                 )
                 np.testing.assert_allclose(res_sv, 1.0)
     for label in [
@@ -155,9 +158,10 @@ def test_quad_ker(monkeypatch):
                 ev_op_max_order=(1, 0),
                 sv_mode=sv,
                 is_threshold=False,
-                n3lo_ad_variation=(0, 0, 0, 0),
+                n3lo_ad_variation=(0, 0, 0, 0, 0, 0, 0),
                 is_polarized=False,
                 is_time_like=False,
+                use_fhmruvv=False,
             )
             np.testing.assert_allclose(res_sv, 1.0)
 
@@ -182,9 +186,10 @@ def test_quad_ker(monkeypatch):
         ev_op_max_order=(0, 0),
         sv_mode=1,
         is_threshold=False,
-        n3lo_ad_variation=(0, 0, 0, 0),
+        n3lo_ad_variation=(0, 0, 0, 0, 0, 0, 0),
         is_polarized=False,
         is_time_like=False,
+        use_fhmruvv=False,
     )
     np.testing.assert_allclose(res_ns, 0.0)
 
@@ -409,7 +414,9 @@ def test_pegasus_path():
         phi = 3 / 4 * np.pi
         c = 1.9
         n = complex(c + u * np.exp(1j * phi))
-        gamma_ns = ad.gamma_ns(order, mode0, n, nf)
+        gamma_ns = ad.gamma_ns(
+            order, mode0, n, nf, n3lo_ad_variation=(0, 0, 0, 0, 0, 0, 0)
+        )
         ker = ns.dispatcher(
             order,
             method,
@@ -464,6 +471,7 @@ def test_pegasus_path():
                     0,
                     False,
                     (0, 0, 0, 0),
+                    False,
                     False,
                     False,
                 ),

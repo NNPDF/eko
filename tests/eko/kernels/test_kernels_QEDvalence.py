@@ -67,7 +67,7 @@ def test_zero_true_gamma(monkeypatch):
             order = (qcd, qed)
             n = np.random.rand()
             gamma_v = anomalous_dimensions.unpolarized.space_like.gamma_valence_qed(
-                order, n, nf
+                order, n, nf, (0, 0, 0, 0, 0, 0, 0)
             )
             for method in methods:
                 np.testing.assert_allclose(

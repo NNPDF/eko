@@ -3,7 +3,6 @@ import logging
 import pathlib
 import sys
 
-import numpy as np
 import pandas as pd
 import yaml
 from banana import toy
@@ -13,12 +12,11 @@ from cfg import (
     ffns_labels,
     ffns_operator,
     ffns_rotate_to_LHA,
-    ffns_theory,
+    n3lo_theory,
     table_dir,
     vfns_labels,
     vfns_operator,
     vfns_rotate_to_LHA,
-    vfns_theory,
     xgrid,
 )
 
@@ -35,6 +33,17 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("scheme", help="FFNS or VFNS?")
     parser.add_argument("sv", help="scale variation: up, central, or down")
+    parser.add_argument(
+        "ad_variation",
+        help="n3lo anomalous dimension variation: (gg, gq, qg, qq, nsp, nsm, nsv)",
+        nargs="*",
+        type=int,
+    )
+    parser.add_argument(
+        "--use_fhmruvv",
+        help="Use the FHMRUVV N3LO ad approximation",
+        action="store_true",
+    )
     parser.add_argument("--rerun", help="Rerun eko", action="store_true")
     parser.add_argument(
         "-v", "--verbose", help="Print eko log to screen", action="store_true"
@@ -58,18 +67,27 @@ if __name__ == "__main__":
         raise ValueError(
             "sv has to be up, central, or down - or any abbreviation there of"
         )
-
     # determine scheme
     if args.scheme == "FFNS":
         scheme = "FFNS"
-        t = ffns_theory(xif)
+        t = n3lo_theory(
+            ad_variation=args.ad_variation,
+            is_ffns=True,
+            use_fhmruvv=args.use_fhmruvv,
+            xif=xif,
+        )
         o = ffns_operator
         tab = 14
         lab = ffns_labels
         rot = ffns_rotate_to_LHA
     elif args.scheme == "VFNS":
         scheme = "VFNS"
-        t = vfns_theory(xif)
+        t = n3lo_theory(
+            ad_variation=args.ad_variation,
+            is_ffns=False,
+            use_fhmruvv=args.use_fhmruvv,
+            xif=xif,
+        )
         o = vfns_operator
         tab = 15
         lab = vfns_labels
@@ -79,7 +97,9 @@ if __name__ == "__main__":
 
     # eko path
     eko_dir.mkdir(exist_ok=True)
-    p = pathlib.Path(f"{eko_dir}/{scheme}-{sv}.tar")
+    approx_name = "FHMRUVV" if args.use_fhmruvv else "EKO"
+    var_name = "-".join([str(a) for a in args.ad_variation])
+    p = pathlib.Path(f"{eko_dir}/{scheme}-{sv}-{var_name}-{approx_name}.tar")
 
     # recompute?
     if not p.exists() or args.rerun:
@@ -108,7 +128,7 @@ if __name__ == "__main__":
     print(me)
     # dump to file
     table_dir.mkdir(exist_ok=True)
-    me.to_csv(f"{table_dir}/table{tab}-part{part}.csv")
+    me.to_csv(f"{table_dir}/table{scheme}-{sv}-{var_name}-{approx_name}.csv")
 
     # load reference
     ref = pd.DataFrame(ref_data[f"table{tab}"][f"part{part}"])

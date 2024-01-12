@@ -77,6 +77,7 @@
 
 .. |BFKL| replace::
    :abbr:`BFKL (Balitsky-Fadin-Kuraev-Lipatov)`
+
 .. external
 
 .. |yadism| replace::
@@ -90,7 +91,6 @@
 
 .. |pineko| replace::
    :pineko:`\ `
-
 
 .. |APFEL| raw:: html
 
@@ -107,6 +107,9 @@
 .. |QCDNUM| raw:: html
 
    <a href="https://www.nikhef.nl/~h24/qcdnum/"><abbr title="Quantum ChromoDynamics NUM">QCDNUM</abbr></a>
+
+.. |FHMRUVV| replace::
+   :abbr:`FHMRUVV (Falcioni, Herzog, Moch, Ruijl, Ueda, Vermaseren and Vogt)`
 
 .. |T| raw:: html
 

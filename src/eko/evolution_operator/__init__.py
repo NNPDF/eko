@@ -209,6 +209,7 @@ def quad_ker(
     n3lo_ad_variation,
     is_polarized,
     is_time_like,
+    use_fhmruvv,
 ):
     """Raw evolution kernel inside quad.
 
@@ -255,11 +256,13 @@ def quad_ker(
     is_threshold : boolean
         is this an intermediate threshold operator?
     n3lo_ad_variation : tuple
-        |N3LO| anomalous dimension variation ``(gg_var, gq_var, qg_var, qq_var)``
+        |N3LO| anomalous dimension variation ``(gg, gq, qg, qq, nsp, nsm, nsv)``
     is_polarized : boolean
         is polarized evolution ?
     is_time_like : boolean
         is time-like evolution ?
+    use_fhmruvv : bool
+        if True use the |FHMRUVV| |N3LO| anomalous dimension
 
     Returns
     -------
@@ -288,6 +291,7 @@ def quad_ker(
             is_polarized,
             is_time_like,
             n3lo_ad_variation,
+            use_fhmruvv,
         )
     else:
         ker = quad_ker_qed(
@@ -308,6 +312,7 @@ def quad_ker(
             sv_mode,
             is_threshold,
             n3lo_ad_variation,
+            use_fhmruvv,
         )
 
     # recombine everything
@@ -332,6 +337,7 @@ def quad_ker_qcd(
     is_polarized,
     is_time_like,
     n3lo_ad_variation,
+    use_fhmruvv,
 ):
     """Raw evolution kernel inside quad.
 
@@ -364,7 +370,9 @@ def quad_ker_qcd(
     is_threshold : boolean
         is this an itermediate threshold operator?
     n3lo_ad_variation : tuple
-        |N3LO| anomalous dimension variation ``(gg_var, gq_var, qg_var, qq_var)``
+        |N3LO| anomalous dimension variation ``(gg, gq, qg, qq, nsp, nsm, nsv)``
+    use_fhmruvv : bool
+        if True use the |FHMRUVV| |N3LO| anomalous dimensions
 
     Returns
     -------
@@ -383,7 +391,7 @@ def quad_ker_qcd(
                 gamma_singlet = ad_ut.gamma_singlet(order, ker_base.n, nf)
             else:
                 gamma_singlet = ad_us.gamma_singlet(
-                    order, ker_base.n, nf, n3lo_ad_variation
+                    order, ker_base.n, nf, n3lo_ad_variation, use_fhmruvv
                 )
         # scale var exponentiated is directly applied on gamma
         if sv_mode == sv.Modes.exponentiated:
@@ -416,7 +424,9 @@ def quad_ker_qcd(
             if is_time_like:
                 gamma_ns = ad_ut.gamma_ns(order, mode0, ker_base.n, nf)
             else:
-                gamma_ns = ad_us.gamma_ns(order, mode0, ker_base.n, nf)
+                gamma_ns = ad_us.gamma_ns(
+                    order, mode0, ker_base.n, nf, n3lo_ad_variation, use_fhmruvv
+                )
         if sv_mode == sv.Modes.exponentiated:
             gamma_ns = sv.exponentiated.gamma_variation(gamma_ns, order, nf, L)
         ker = ns.dispatcher(
@@ -452,6 +462,7 @@ def quad_ker_qed(
     sv_mode,
     is_threshold,
     n3lo_ad_variation,
+    use_fhmruvv,
 ):
     """Raw evolution kernel inside quad.
 
@@ -492,7 +503,9 @@ def quad_ker_qed(
     is_threshold : boolean
         is this an itermediate threshold operator?
     n3lo_ad_variation : tuple
-        |N3LO| anomalous dimension variation ``(gg_var, gq_var, qg_var, qq_var)``
+        |N3LO| anomalous dimension variation ``(gg, gq, qg, qq, nsp, nsm, nsv)``
+    use_fhmruvv : bool
+        if True use the |FHMRUVV| |N3LO| anomalous dimensions
 
     Returns
     -------
@@ -501,7 +514,9 @@ def quad_ker_qed(
     """
     # compute the actual evolution kernel for QEDxQCD
     if ker_base.is_QEDsinglet:
-        gamma_s = ad_us.gamma_singlet_qed(order, ker_base.n, nf, n3lo_ad_variation)
+        gamma_s = ad_us.gamma_singlet_qed(
+            order, ker_base.n, nf, n3lo_ad_variation, use_fhmruvv
+        )
         # scale var exponentiated is directly applied on gamma
         if sv_mode == sv.Modes.exponentiated:
             gamma_s = sv.exponentiated.gamma_variation_qed(
@@ -529,7 +544,9 @@ def quad_ker_qed(
             ) @ np.ascontiguousarray(ker)
         ker = select_QEDsinglet_element(ker, mode0, mode1)
     elif ker_base.is_QEDvalence:
-        gamma_v = ad_us.gamma_valence_qed(order, ker_base.n, nf)
+        gamma_v = ad_us.gamma_valence_qed(
+            order, ker_base.n, nf, n3lo_ad_variation, use_fhmruvv
+        )
         # scale var exponentiated is directly applied on gamma
         if sv_mode == sv.Modes.exponentiated:
             gamma_v = sv.exponentiated.gamma_variation_qed(
@@ -554,7 +571,9 @@ def quad_ker_qed(
             ) @ np.ascontiguousarray(ker)
         ker = select_QEDvalence_element(ker, mode0, mode1)
     else:
-        gamma_ns = ad_us.gamma_ns_qed(order, mode0, ker_base.n, nf)
+        gamma_ns = ad_us.gamma_ns_qed(
+            order, mode0, ker_base.n, nf, n3lo_ad_variation, use_fhmruvv
+        )
         # scale var exponentiated is directly applied on gamma
         if sv_mode == sv.Modes.exponentiated:
             gamma_ns = sv.exponentiated.gamma_variation_qed(
@@ -803,6 +822,7 @@ class Operator(sv.ModeMixin):
             n3lo_ad_variation=self.config["n3lo_ad_variation"],
             is_polarized=self.config["polarized"],
             is_time_like=self.config["time_like"],
+            use_fhmruvv=self.config["use_fhmruvv"],
         )
 
     def initialize_op_members(self):
@@ -924,11 +944,12 @@ class Operator(sv.ModeMixin):
                 self.a_em[1],
             )
         logger.info(
-            "%s: order: (%d, %d), solution strategy: %s",
+            "%s: order: (%d, %d), solution strategy: %s, use fhmruvv: %s",
             self.log_label,
             self.order[0],
             self.order[1],
             self.config["method"],
+            self.config["use_fhmruvv"],
         )
 
         self.integrate()

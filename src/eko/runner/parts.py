@@ -84,6 +84,7 @@ def evolve_configs(eko: EKO) -> dict:
         n_integration_cores=ocard.configs.n_integration_cores,
         ModSV=ocard.configs.scvar_method,
         n3lo_ad_variation=tcard.n3lo_ad_variation,
+        use_fhmruvv=tcard.use_fhmruvv,
         # Here order is shifted by one, no QED matching is available so far.
         matching_order=tcard.matching_order,
     )

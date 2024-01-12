@@ -35,6 +35,7 @@ th_raw = dict(
     xif=1.0,
     n3lo_ad_variation=(0, 0, 0, 0, 0, 0, 0),
     matching_order=[2, 0],
+    use_fhmruvv=False,
 )
 
 # operator settings

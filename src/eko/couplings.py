@@ -390,10 +390,9 @@ class Couplings:
     - although, we only provide methods for
       :math:`a_i = \frac{\alpha_i(\mu^2)}{4\pi}` the reference value has to be
       given in terms of :math:`\alpha_i(\mu_0^2)` due to legacy reasons
-    - the ``order`` refers to the perturbative order of the beta function, thus
-      ``order=(0,0)`` means leading order beta function, means evolution with :math:`\beta_qcd_as2`,
-      means running at 1-loop - so there is a natural mismatch between ``order`` and the
-      number of loops by one unit
+    - the ``order`` refers to the perturbative order of the beta functions, i.e.
+      the number of loops for QCD and QED respectively. QCD is always running with
+      at least 1 loop, while QED might not run at all (so 0 loop).
 
     Normalization is given by :cite:`Herzog:2017ohr`:
 
@@ -409,9 +408,9 @@ class Couplings:
     couplings :
         reference configuration
     order :
-        Evaluated order of the beta function: ``0`` = LO, ...
+        Number of loops in beta functions (QCD, QED)
     method :
-        Applied method to solve the beta function
+        Applied method to solve the beta functions
     masses :
         list with quark masses squared
     hqm_scheme :
@@ -438,9 +437,13 @@ class Couplings:
         assert_positive("alpha_em_ref", couplings.alphaem)
         assert_positive("scale_ref", couplings.scale)
         if order[0] not in [1, 2, 3, 4]:
-            raise NotImplementedError("a_s beyond N3LO is not implemented")
+            raise NotImplementedError(
+                "QCD order has to be an integer between 1 (LO) and 4 (N3LO)"
+            )
         if order[1] not in [0, 1, 2]:
-            raise NotImplementedError("a_em beyond NLO is not implemented")
+            raise NotImplementedError(
+                "QED order has to be an integer between 0 (no running) and 2 (NLO)"
+            )
         self.order = tuple(order)
         if method.value not in ["expanded", "exact"]:
             raise ValueError(f"Unknown method {method.value}")
@@ -528,7 +531,7 @@ class Couplings:
 
         Parameters
         ----------
-        as_ref : numpy.ndarray
+        a_ref : numpy.ndarray
             reference alpha_s and alpha
         nf : int
             value of nf for computing alpha_i
@@ -616,7 +619,7 @@ class Couplings:
 
         Parameters
         ----------
-        as_ref : numpy.ndarray
+        a_ref : numpy.ndarray
             reference alpha_s and alpha
         nf : int
             value of nf for computing alpha_i
