@@ -26,7 +26,7 @@ from ..kernels import singlet as s
 from ..kernels import singlet_qed as qed_s
 from ..kernels import utils
 from ..kernels import valence_qed as qed_v
-from ..matchings import Segment
+from ..matchings import Segment, lepton_number
 from ..member import OpMember
 
 logger = logging.getLogger(__name__)
@@ -520,7 +520,7 @@ def quad_ker_qed(
         # scale var exponentiated is directly applied on gamma
         if sv_mode == sv.Modes.exponentiated:
             gamma_s = sv.exponentiated.gamma_variation_qed(
-                gamma_s, order, nf, L, alphaem_running
+                gamma_s, order, nf, lepton_number(mu2_to), L, alphaem_running
             )
         ker = qed_s.dispatcher(
             order,
@@ -550,7 +550,7 @@ def quad_ker_qed(
         # scale var exponentiated is directly applied on gamma
         if sv_mode == sv.Modes.exponentiated:
             gamma_v = sv.exponentiated.gamma_variation_qed(
-                gamma_v, order, nf, L, alphaem_running
+                gamma_v, order, nf, lepton_number(mu2_to), L, alphaem_running
             )
         ker = qed_v.dispatcher(
             order,
@@ -577,7 +577,7 @@ def quad_ker_qed(
         # scale var exponentiated is directly applied on gamma
         if sv_mode == sv.Modes.exponentiated:
             gamma_ns = sv.exponentiated.gamma_variation_qed(
-                gamma_ns, order, nf, L, alphaem_running
+                gamma_ns, order, nf, lepton_number(mu2_to), L, alphaem_running
             )
         ker = qed_ns.dispatcher(
             order,
@@ -723,38 +723,16 @@ class Operator(sv.ModeMixin):
             as_list = np.array([self.a_s[0], self.a_s[1]])
             a_half = np.zeros((ev_op_iterations, 2))
         else:
-            as0 = self.a_s[0]
-            as1 = self.a_s[1]
-            aem0 = self.a_em[0]
-            aem1 = self.a_em[1]
-            q2ref = self.managers["couplings"].mu2_ref
-            delta_from = abs(self.q2_from - q2ref)
-            delta_to = abs(self.q2_to - q2ref)
-            # I compute the values in aem_list starting from the mu2
-            # that is closer to mu_ref.
-            if delta_from > delta_to:
-                a_start = np.array([as1, aem1])
-                mu2_start = self.q2_to
-            else:
-                a_start = np.array([as0, aem0])
-                mu2_start = self.q2_from
             couplings = self.managers["couplings"]
             mu2_steps = utils.geomspace(self.q2_from, self.q2_to, 1 + ev_op_iterations)
             mu2_l = mu2_steps[0]
             as_list = np.array(
-                [
-                    couplings.compute(
-                        a_ref=a_start, nf=self.nf, scale_from=mu2_start, scale_to=mu2
-                    )[0]
-                    for mu2 in mu2_steps
-                ]
+                [couplings.a_s(scale_to=mu2, nf_to=self.nf) for mu2 in mu2_steps]
             )
             a_half = np.zeros((ev_op_iterations, 2))
             for step, mu2_h in enumerate(mu2_steps[1:]):
                 mu2_half = (mu2_h + mu2_l) / 2.0
-                a_s, aem = couplings.compute(
-                    a_ref=a_start, nf=self.nf, scale_from=mu2_start, scale_to=mu2_half
-                )
+                a_s, aem = couplings.a(scale_to=mu2_half, nf_to=self.nf)
                 a_half[step] = [a_s, aem]
                 mu2_l = mu2_h
         return as_list, a_half

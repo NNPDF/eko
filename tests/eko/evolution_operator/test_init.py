@@ -202,6 +202,12 @@ class FakeCoupling:
     def a(self, scale_to=None, nf_to=None):
         return (0.1, 0.01)
 
+    def a_s(self, scale_to=None, nf_to=None):
+        return self.a(scale_to, nf_to)[0]
+
+    def a_em(self, scale_to=None, nf_to=None):
+        return self.a(scale_to, nf_to)[1]
+
     def compute(self, a_ref, nf, scale_from, scale_to):
         return a_ref
 

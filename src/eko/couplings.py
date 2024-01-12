@@ -277,7 +277,7 @@ def expanded_qed(ref, order, beta0, b_vec, lmu):
 
 @nb.njit(cache=True)
 def couplings_expanded_alphaem_running(
-    order, couplings_ref, nf, scale_from, scale_to, decoupled_running
+    order, couplings_ref, nf, nl, scale_from, scale_to, decoupled_running
 ):
     r"""Compute coupled expanded expression of the couplings for running alphaem.
 
@@ -291,6 +291,8 @@ def couplings_expanded_alphaem_running(
         reference alpha_s and alpha
     nf : int
         value of nf for computing the couplings
+    nl : int
+        number of leptons partecipating to alphaem running
     scale_from : float
         reference scale
     scale_to : float
@@ -308,8 +310,8 @@ def couplings_expanded_alphaem_running(
     beta0_qcd = beta_qcd((2, 0), nf)
     b_vec_qcd = [b_qcd((i + 2, 0), nf) for i in range(order[0])]
     res_as = expanded_qcd(couplings_ref[0], order[0], beta0_qcd, b_vec_qcd, lmu)
-    beta0_qed = beta_qed((0, 2), nf)
-    b_vec_qed = [b_qed((0, i + 2), nf) for i in range(order[1])]
+    beta0_qed = beta_qed((0, 2), nf, nl)
+    b_vec_qed = [b_qed((0, i + 2), nf, nl) for i in range(order[1])]
     res_aem = expanded_qed(couplings_ref[1], order[1], beta0_qed, b_vec_qed, lmu)
     # if order[0] >= 1 and order[1] >= 1:
     # order[0] is always >=1
@@ -322,7 +324,7 @@ def couplings_expanded_alphaem_running(
             )
             res_aem += (
                 -couplings_ref[1] ** 2
-                * b_qed((1, 2), nf)
+                * b_qed((1, 2), nf, nl)
                 * np.log(1 + beta0_qed * couplings_ref[0] * lmu)
             )
     return np.array([res_as, res_aem])
@@ -524,7 +526,7 @@ class Couplings:
         )
         return res.y[0][-1]
 
-    def compute_exact_alphaem_running(self, a_ref, nf, scale_from, scale_to):
+    def compute_exact_alphaem_running(self, a_ref, nf, nl, scale_from, scale_to):
         """Compute couplings via |RGE| with running alphaem.
 
         Parameters
@@ -533,6 +535,8 @@ class Couplings:
             reference alpha_s and alpha
         nf : int
             value of nf for computing alpha_i
+        nl : int
+            number of leptons partecipating to alphaem running
         scale_from : float
             reference scale
         scale_to : float
@@ -579,12 +583,12 @@ class Couplings:
             # while aem is constant
             return np.array([rge_qcd, a_ref[1]])
         if self.order[1] >= 1:
-            beta_qed_vec = [beta_qed((0, 2), nf)]
+            beta_qed_vec = [beta_qed((0, 2), nf, nl)]
             if not self.decoupled_running:
                 beta_qcd_mix = beta_qcd((2, 1), nf)
-                beta_qed_mix = beta_qed((1, 2), nf)  # order[0] is always at least 1
+                beta_qed_mix = beta_qed((1, 2), nf, nl)  # order[0] is always at least 1
             if self.order[1] >= 2:
-                beta_qed_vec.append(beta_qed((0, 3), nf))
+                beta_qed_vec.append(beta_qed((0, 3), nf, nl))
 
         # integration kernel
         def rge(_t, a, beta_qcd_vec, beta_qcd_mix, beta_qed_vec, beta_qed_mix):
@@ -659,7 +663,7 @@ class Couplings:
         )
         return np.array([rge_qcd, a_ref[1]])
 
-    def compute(self, a_ref, nf, scale_from, scale_to):
+    def compute(self, a_ref, nf, nl, scale_from, scale_to):
         """Compute actual couplings.
 
         This is a wrapper in order to pass the computation to the corresponding method
@@ -671,6 +675,8 @@ class Couplings:
             reference a
         nf : int
             value of nf for computing alpha
+        nl : int
+            number of leptons partecipating to alphaem running
         scale_from : float
             reference scale
         scale_to : float
@@ -681,7 +687,7 @@ class Couplings:
         numpy.ndarray
             couplings at target scale :math:`a(Q^2)`
         """
-        key = (float(a_ref[0]), float(a_ref[1]), nf, scale_from, float(scale_to))
+        key = (float(a_ref[0]), float(a_ref[1]), nf, nl, scale_from, float(scale_to))
         try:
             return self.cache[key].copy()
         except KeyError:
@@ -689,7 +695,7 @@ class Couplings:
             if self.method == "exact":
                 if self.alphaem_running:
                     a_new = self.compute_exact_alphaem_running(
-                        a_ref.astype(float), nf, scale_from, scale_to
+                        a_ref.astype(float), nf, nl, scale_from, scale_to
                     )
                 else:
                     a_new = self.compute_exact_fixed_alphaem(
@@ -701,6 +707,7 @@ class Couplings:
                         self.order,
                         a_ref.astype(float),
                         nf,
+                        nl,
                         scale_from,
                         float(scale_to),
                         self.decoupled_running,
@@ -740,7 +747,20 @@ class Couplings:
         for k, seg in enumerate(path):
             # skip a very short segment, but keep the matching
             if not np.isclose(seg.origin, seg.target):
-                new_a = self.compute(final_a, seg.nf, seg.origin, seg.target)
+                nli = matchings.lepton_number(seg.origin)
+                nlf = matchings.lepton_number(seg.target)
+                if self.order[1] != 0 and nli != nlf:
+                    # it means that MTAU is between origin and target:
+                    # first we evolve from origin to MTAU with nli leptons
+                    a_tmp = self.compute(
+                        final_a, seg.nf, nli, seg.origin, constants.MTAU**2
+                    )
+                    # then from MTAU to target with nlf leptons
+                    new_a = self.compute(
+                        a_tmp, seg.nf, nlf, constants.MTAU**2, seg.target
+                    )
+                else:
+                    new_a = self.compute(final_a, seg.nf, nli, seg.origin, seg.target)
             else:
                 new_a = final_a
             # apply matching conditions: see hep-ph/9706430
