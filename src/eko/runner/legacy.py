@@ -77,6 +77,7 @@ class Runner:
             couplings=cs,
             interpol_dispatcher=bfd,
             n3lo_ad_variation=new_theory.n3lo_ad_variation,
+            use_fhmruvv=new_theory.use_fhmruvv,
             matching_order=new_theory.matching_order,
         )
 

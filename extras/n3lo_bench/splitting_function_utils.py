@@ -12,12 +12,12 @@ map_singlet_entries = {"gg": (1, 1), "gq": (1, 0), "qg": (0, 1), "qq": (0, 0)}
 map_non_singlet_modes = {"+": 10101, "-": 10201, "v": 10200}
 
 
-def compute_ad(nf, n_grid, ns_mode=None, n3lo_variation="best"):
+def compute_ad(nf, n_grid, ns_mode=None, n3lo_variation=(0, 0, 0, 0, 0, 0, 0)):
     ns_mode = map_non_singlet_modes.get(ns_mode, None)
     gs_list = []
     for n in n_grid:
         if ns_mode is not None:
-            gs_list.append(gamma_ns((4, 0), ns_mode, n, nf).real)
+            gs_list.append(gamma_ns((4, 0), ns_mode, n, nf, n3lo_variation).real)
         else:
             gs_list.append(gamma_singlet((4, 0), n, nf, n3lo_variation).real)
     return np.array(gs_list)
@@ -53,7 +53,7 @@ def integrand(u, x, order, entry, nf, ns_mode, n3lo_variation, L):
         idx1, idx2 = map_singlet_entries[entry]
         gamma = gamma[order, idx1, idx2]
     else:
-        gamma = gamma_ns((order + 1, 0), ns_mode, path.n, nf)
+        gamma = gamma_ns((order + 1, 0), ns_mode, path.n, nf, n3lo_variation)
         if L != 0:
             gamma = sv.exponentiated.gamma_variation(gamma, (order + 1, 0), nf, L)
         gamma = gamma[order]

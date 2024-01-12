@@ -1,4 +1,5 @@
 import copy
+import pathlib
 from math import inf, nan
 
 import numpy as np
@@ -8,7 +9,15 @@ from eko.interpolation import lambertgrid
 from eko.io import runcards
 from eko.io.types import ReferenceRunning
 
+here = pathlib.Path(__file__).parent
+eko_dir = here / "ekos"
+table_dir = here / "tables"
+
+
 _sqrt2 = float(np.sqrt(2))
+
+# setup x rotation
+xgrid = np.array([1e-7, 1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 0.1, 0.3, 0.5, 0.7, 0.9])
 
 # theory settings
 # ---------------
@@ -30,8 +39,9 @@ _t_vfns = dict(
         matching_ratios=[1.0, 1.0, 1.0],
     ),
     xif=1.0,
-    n3lo_ad_variation=(0, 0, 0, 0),
+    n3lo_ad_variation=(0, 0, 0, 0, 0, 0, 0),
     matching_order=[2, 0],
+    use_fhmruvv=False,
 )
 
 
@@ -56,6 +66,19 @@ def ffns_theory(xif=1.0):
     """Generate a VFNS theory card."""
     tt = copy.deepcopy(_t_ffns)
     tt["xif"] = xif
+    return runcards.TheoryCard.from_dict(tt)
+
+
+def n3lo_theory(ad_variation, is_ffns, use_fhmruvv=False, xif=1.0):
+    """Generate an N3LO theory card."""
+    base = _t_ffns if is_ffns else _t_vfns
+    tt = copy.deepcopy(base)
+    tt["xif"] = xif
+    tt["order"] = [4, 0]
+    # here we keep the NNLO matching
+    tt["matching_order"] = [2, 0]
+    tt["n3lo_ad_variation"] = ad_variation
+    tt["use_fhmruvv"] = use_fhmruvv
     return runcards.TheoryCard.from_dict(tt)
 
 

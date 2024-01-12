@@ -1,12 +1,10 @@
-"""The |N3LO| Altarelli-Parisi splitting kernels.
+"""The |FHMRUVV| |N3LO| Altarelli-Parisi splitting kernels approximations.
 
-For further documentation see :doc:`N3LO anomalous dimensions <../../../theory/N3LO_ad>`
-
+Authors follow Pegasus convention and so there is an additional global minus sign with respect to our conventions.
 """
 import numba as nb
 import numpy as np
 
-from . import fhmruvv
 from .ggg import gamma_gg
 from .ggq import gamma_gq
 from .gnsm import gamma_nsm
@@ -44,7 +42,9 @@ def gamma_singlet(N, nf, cache, variation):
         :math:`\gamma_{S}^{(3)}(N)`
 
     """
-    gamma_qq = gamma_nsp(N, nf, cache) + gamma_ps(N, nf, cache, variation[3])
+    gamma_qq = gamma_nsp(N, nf, cache, variation[3]) + gamma_ps(
+        N, nf, cache, variation[3]
+    )
     gamma_S_0 = np.array(
         [
             [gamma_qq, gamma_qg(N, nf, cache, variation[2])],
@@ -78,6 +78,8 @@ def gamma_singlet_qed(N, nf, cache, variation):
         Number of active flavors
     cache: numpy.ndarray
         Harmonic sum cache
+    variation : tuple
+        |N3LO| anomalous dimension variation ``(gg, gq, qg, qq)``
 
     Returns
     -------
@@ -85,7 +87,7 @@ def gamma_singlet_qed(N, nf, cache, variation):
         Leading-order singlet anomalous dimension matrix :math:`\\gamma_{S}^{(3,0)}(N)`
 
     """
-    gamma_np_p = gamma_nsp(N, nf, cache)
+    gamma_np_p = gamma_nsp(N, nf, cache, variation[3])
     gamma_qq = gamma_np_p + gamma_ps(N, nf, cache, variation[3])
     gamma_S = np.array(
         [
@@ -105,7 +107,7 @@ def gamma_singlet_qed(N, nf, cache, variation):
 
 
 @nb.njit(cache=True)
-def gamma_valence_qed(N, nf, cache):
+def gamma_valence_qed(N, nf, cache, variation):
     r"""Compute the leading-order valence anomalous dimension matrix for the unified evolution basis.
 
     .. math::
@@ -122,6 +124,8 @@ def gamma_valence_qed(N, nf, cache):
         Number of active flavors
     cache: numpy.ndarray
         Harmonic sum cache
+    variation : tuple
+        |N3LO| anomalous dimension variation ``(nsm, nsv)``
 
     Returns
     -------
@@ -131,8 +135,8 @@ def gamma_valence_qed(N, nf, cache):
     """
     gamma_V = np.array(
         [
-            [gamma_nsv(N, nf, cache), 0.0],
-            [0.0, gamma_nsm(N, nf, cache)],
+            [gamma_nsv(N, nf, cache, variation[-1]), 0.0],
+            [0.0, gamma_nsm(N, nf, cache, variation[-2])],
         ],
         np.complex_,
     )

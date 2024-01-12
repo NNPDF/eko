@@ -74,7 +74,7 @@ def msht_splitting(entry, x, nf, posterior):
         )
         qqns = np.array(
             [
-                msht.pqqps3a(x, ans0),
+                msht.p3nsa(x, ans0, 1, nf),
                 msht.p3nsa(x, ans1, 1, nf),
                 msht.p3nsa(x, ans2, 1, nf),
             ]

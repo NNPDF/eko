@@ -77,7 +77,7 @@ def test_zero_true_gamma():
             for qed in range(1, 2 + 1):
                 order = (qcd, qed)
                 n = np.random.rand()
-                gamma_ns = ad.gamma_ns_qed(order, mode, n, nf)
+                gamma_ns = ad.gamma_ns_qed(order, mode, n, nf, (0, 0, 0, 0, 0, 0, 0))
                 for method in methods:
                     for running in running_alpha:
                         np.testing.assert_allclose(
@@ -248,7 +248,9 @@ def test_ode_true_gamma():
                     )
                     a1 = sc.a_s(mu2_to)
                     n = 3 + np.random.rand()
-                    gamma_ns = ad.gamma_ns_qed(order, mode, n, nf)
+                    gamma_ns = ad.gamma_ns_qed(
+                        order, mode, n, nf, (0, 0, 0, 0, 0, 0, 0)
+                    )
                     gammatot = 0.0
                     for i in range(0, order[0] + 1):
                         for j in range(0, order[1] + 1):

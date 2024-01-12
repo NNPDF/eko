@@ -46,7 +46,9 @@ class TheoryCard(DictLike):
     xif: float
     """Ratio between factorization scale and process scale."""
     n3lo_ad_variation: N3LOAdVariation
-    """|N3LO| anomalous dimension variation: ``(gg, gq, qg,qq)``."""
+    """|N3LO| anomalous dimension variation: ``(gg, gq, qg, qq, nsp, nsm, nsv)``."""
+    use_fhmruvv: Optional[bool] = False
+    """If True use the |FHMRUVV| |N3LO| anomalous dimensions"""
     matching_order: Optional[Order] = None
     """Matching conditions perturbative order tuple, ``(QCD, QED)``."""
 
@@ -217,10 +219,11 @@ class Legacy:
             raise ValueError(f"Unknown mass scheme '{old['HQ']}'")
 
         new["xif"] = old["XIF"]
-        new["n3lo_ad_variation"] = old.get("n3lo_ad_variation", (0, 0, 0, 0))
+
+        new["n3lo_ad_variation"] = old.get("n3lo_ad_variation", (0, 0, 0, 0, 0, 0, 0))
         # here PTO: 0 means truly LO, no QED matching is available so far.
         new["matching_order"] = old.get("PTO_matching", [old["PTO"], 0])
-
+        new["use_fhmruvv"] = old.get("use_fhmruvv", False)
         return TheoryCard.from_dict(new)
 
     @property
