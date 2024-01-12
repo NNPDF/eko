@@ -29,7 +29,6 @@ base_theory = {
     "alphaqed": 0.007496,
     "QED": 0,
     "Qedref": 0.0,
-    "n3lo_ad_variation": (0, 0, 0, 0, 0, 0, 0),
 }
 """Global theory settings"""
 
