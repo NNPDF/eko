@@ -1,4 +1,4 @@
-"""This module benchmarks alpha_em against alphaQED23.
+"""This module benchmarks alpha_em against alphaQED23 and validphys.
 
 alphaQED23 can be obtained from http://www-com.physik.hu-berlin.de/~fjeger/software.html .
 """
@@ -6,10 +6,7 @@ alphaQED23 can be obtained from http://www-com.physik.hu-berlin.de/~fjeger/softw
 import numpy as np
 import pytest
 
-from eko import matchings
-from eko.beta import beta_qcd
 from eko.couplings import Couplings
-from eko.io.runcards import TheoryCard
 from eko.quantities.couplings import CouplingEvolutionMethod, CouplingsInfo
 from eko.quantities.heavy_quarks import QuarkMassScheme
 
