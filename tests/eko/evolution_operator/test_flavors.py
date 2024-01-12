@@ -61,13 +61,15 @@ def test_pids_from_intrinsic_evol():
 
 
 def test_get_range():
-    assert (3, 3) == flavors.get_range([])
-    assert (3, 3) == flavors.get_range([member.MemberName(n) for n in ["S.S", "V3.V3"]])
+    assert (3, 3) == flavors.get_range([], False)
+    assert (3, 3) == flavors.get_range(
+        [member.MemberName(n) for n in ["S.S", "V3.V3"]], False
+    )
     assert (3, 4) == flavors.get_range(
-        [member.MemberName(n) for n in ["S.S", "V3.V3", "T15.S"]]
+        [member.MemberName(n) for n in ["S.S", "V3.V3", "T15.S"]], False
     )
     assert (4, 4) == flavors.get_range(
-        [member.MemberName(n) for n in ["S.S", "V3.V3", "T15.T15"]]
+        [member.MemberName(n) for n in ["S.S", "V3.V3", "T15.T15"]], False
     )
     assert (3, 3) == flavors.get_range(
         [member.MemberName(n) for n in ["S.S", "Td3.Td3"]], True
@@ -113,7 +115,7 @@ def test_rotate_pm_to_flavor():
 
 
 def test_rotate_matching():
-    m = flavors.rotate_matching(4)
+    m = flavors.rotate_matching(4, False)
     assert len(list(filter(lambda e: "c+" in e, m.keys()))) == 2
     assert len(list(filter(lambda e: "b-" in e, m.keys()))) == 1
 
@@ -156,8 +158,8 @@ def test_rotate_matching_is_inv():
         return mm
 
     for nf in range(4, 6 + 1):
-        m = load(flavors.rotate_matching(nf))
-        minv = load(flavors.rotate_matching_inverse(nf))
+        m = load(flavors.rotate_matching(nf, False))
+        minv = load(flavors.rotate_matching_inverse(nf, False))
         np.testing.assert_allclose(m @ minv, np.eye(len(br.evol_basis)), atol=1e-10)
 
 

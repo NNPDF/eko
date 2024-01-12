@@ -46,7 +46,7 @@ def gamma_variation(gamma, order, nf, L):
 
 
 @nb.njit(cache=True)
-def gamma_variation_qed(gamma, order, nf, L, alphaem_running):
+def gamma_variation_qed(gamma, order, nf, nl, L, alphaem_running):
     """Adjust the anomalous dimensions with the scale variations.
 
     Parameters
@@ -57,6 +57,8 @@ def gamma_variation_qed(gamma, order, nf, L, alphaem_running):
         perturbation order
     nf : int
         number of active flavors
+    nl : int
+        number of leptons partecipating to alphaem running
     L : float
         logarithmic ratio of factorization and renormalization scale
 
@@ -71,6 +73,6 @@ def gamma_variation_qed(gamma, order, nf, L, alphaem_running):
     gamma[1:, 0] = gamma_variation(gamma[1:, 0], order, nf, L)
     if alphaem_running:
         if order[1] >= 2:
-            beta0qed = beta.beta_qed((0, 2), nf)
+            beta0qed = beta.beta_qed((0, 2), nf, nl)
             gamma[0, 2] += beta0qed * gamma[0, 1] * L
         return gamma

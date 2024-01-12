@@ -1,5 +1,6 @@
 """Tools to evolve actual PDFs."""
 import pathlib
+from collections import defaultdict
 
 import numpy as np
 
@@ -57,6 +58,7 @@ def evolve_pdfs(
         eko.solve(theory_card, operators_card, path=store_path)
         eko_path = store_path
 
+    # apply PDF to eko
     evolved_PDF_list = []
     with EKO.read(eko_path) as eko_output:
         for initial_PDF in initial_PDF_list:
@@ -64,6 +66,7 @@ def evolve_pdfs(
                 apply.apply_pdf(eko_output, initial_PDF, targetgrid)
             )
 
+    # update info file
     if targetgrid is None:
         targetgrid = operators_card.xgrid
     if info_update is None:
@@ -76,29 +79,58 @@ def evolve_pdfs(
         len(evolved_PDF_list),
         info_update=info_update,
     )
-    all_member_blocks = []
-    targetlist = targetgrid.raw.tolist()
-    for evolved_PDF in evolved_PDF_list:
-        all_blocks = []
-        evolved_PDF_q2 = {q2: val for (q2, _), val in evolved_PDF.items()}
-        sorted_q2grid = [
-            float(q2) for q2, _ in np.sort(operators_card.evolgrid, axis=0)
-        ]
-        block = genpdf.generate_block(
-            lambda pid, x, Q2, evolved_PDF=evolved_PDF_q2: targetlist[
-                targetlist.index(x)
-            ]
-            * evolved_PDF[Q2]["pdfs"][pid][targetlist.index(x)],
-            xgrid=targetlist,
-            sorted_q2grid=sorted_q2grid,
-            pids=np.array(br.flavor_basis_pids),
-        )
-        # all_blocks will be useful in case there will be necessity to dump many blocks
-        # for a single member
-        all_blocks.append(block)
-        all_member_blocks.append(all_blocks)
 
+    # separate by nf the evolgrid (and order per nf/q)
+    q2block_per_nf = regroup_evolgrid(eko_output.evolgrid)
+
+    # write all replicas
+    all_member_blocks = []
+    for evolved_PDF in evolved_PDF_list:
+        all_blocks = collect_blocks(
+            evolved_PDF, q2block_per_nf, targetgrid.raw.tolist()
+        )
+        all_member_blocks.append(all_blocks)
     genpdf.export.dump_set(name, info, all_member_blocks)
 
     if install:
         genpdf.install_pdf(name)
+
+
+def regroup_evolgrid(evolgrid: list):
+    """Split evolution points by nf and sort by scale."""
+    by_nf = defaultdict(list)
+    for q, nf in sorted(evolgrid, key=lambda ep: ep[1]):
+        by_nf[nf].append(q)
+    return {nf: sorted(qs) for nf, qs in by_nf.items()}
+
+
+def collect_blocks(evolved_PDF: dict, q2block_per_nf: dict, xgrid: list):
+    """Collect all LHAPDF blocks for a given replica.
+
+    Parameters
+    ----------
+    evolved_PDF :
+        PDF evaluated at grid
+    q2block_per_nf :
+        block coordinates
+    xgrid :
+        x grid
+
+    """
+    all_blocks = []
+
+    # fake xfxQ2
+    def pdf_xq2(pid, x, Q2):
+        x_idx = xgrid.index(x)
+        return x * evolved_PDF[(Q2, nf)]["pdfs"][pid][x_idx]
+
+    # loop on nf patches
+    for nf, q2grid in q2block_per_nf.items():
+        block = genpdf.generate_block(
+            pdf_xq2,
+            xgrid=xgrid,
+            sorted_q2grid=q2grid,
+            pids=np.array(br.flavor_basis_pids),
+        )
+        all_blocks.append(block)
+    return all_blocks

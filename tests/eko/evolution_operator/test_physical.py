@@ -138,7 +138,7 @@ class TestPhysicalOperator:
             ),
             1,
         )
-        vt, _ = a.to_flavor_basis_tensor()
+        vt, _ = a.to_flavor_basis_tensor(False)
         np.testing.assert_allclose(vt[6, :, 6, :], vt[6, :, 5, :])
         np.testing.assert_allclose(vt[6, :, 6, :], vt[5, :, 6, :])
         np.testing.assert_allclose(vt[6, :, 6, :], SS.value[:, :] / (2 * 3))
@@ -158,7 +158,7 @@ class TestPhysicalOperator:
             ),
             1,
         )
-        vt, _ = a.to_flavor_basis_tensor()
+        vt, _ = a.to_flavor_basis_tensor(False)
         np.testing.assert_allclose(vt[6, :, 6, :], 0)
         np.testing.assert_allclose(vt[7, :, 7, :], gg.value[:, :])
         np.testing.assert_allclose(vt[1, :, :, :], 0)
@@ -199,7 +199,7 @@ class TestPhysicalOperator:
             ),
             1,
         )
-        vt, _ = a.to_flavor_basis_tensor()
+        vt, _ = a.to_flavor_basis_tensor(False)
         np.testing.assert_allclose(vt[6, :, 6, :], 0)
         np.testing.assert_allclose(vt[7, :, 7, :], gg.value[:, :])
         np.testing.assert_allclose(vt[1, :, :, :], 0)

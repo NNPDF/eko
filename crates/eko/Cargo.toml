@@ -1,0 +1,13 @@
+[package]
+name = "eko"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "ekors"
+crate-type = ["cdylib"]
+
+[dependencies]
+num = "0.4.1"
+katexit = "0.1.4"
+ekore = { version = "0.1.0", path = "../ekore" }

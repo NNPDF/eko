@@ -161,3 +161,41 @@ ggg3z5Nreg = ggg3z5N - (
      - 1/3 * n*(n+1)
     )
 );
+
+(* Lower order cusp *)
+A1 = QCDcusp1 4^1;
+A2 = QCDcusp2 4^2;
+A3 = QCDcusp3 4^3;
+
+(* coefficient of delta(1-x)  eq 4.6 of 0404111 *)
+B1 = 11/3 ca;
+
+(* B2, coefficient of delta(1-x) in eq 4.10 of 0404111 *)
+B2 = 4 ca nf (-2/3) + 4 ca^2 (8/3 + 3 z3) + 4 cf nf (-1/2);
+(*
+B3, coefficient of delta(1-x) in eq 4.15 of 0404111
+this is copied form https://www.nikhef.nl/~avogt/xpij2e.f,
+see P2GDELT
+*)
+B3 = (
+	+ 79/2*ca^3
+    + 8/3*z2*ca^3
+    + 22/3*z2^2*ca^3
+    + 536/3*z3*ca^3
+    - 16*z2*z3*ca^3
+    - 80*z5*ca^3
+    + cf^2*nf
+    - 233/18*ca^2*nf
+    - 8/3*z2*ca^2*nf
+    - 80/3*z3*ca^2*nf
+    - 4/3*z2^2*ca^2*nf
+    - 241/18*ca*cf*nf
+    + 29/18*ca*nf^2
+    + 11/9*cf*nf^2
+);
+(* eq 3.11 of 1707.08315,
+	same as 11b of 0511302
+	for D4 it's not clear whether to use 16 or 17 ??
+*)
+C4 = A2^2 + 2 A1 A3;
+D4 = A1 (B3 - beta2) + A2 (B2- beta1) + A3(B1 - beta0) /. BetaRules;

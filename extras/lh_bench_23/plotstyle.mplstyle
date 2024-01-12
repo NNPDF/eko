@@ -1,0 +1,89 @@
+### FIGURE
+figure.facecolor      : white
+figure.dpi            : 150
+figure.titlesize      : 16
+figure.titleweight    : bold
+figure.figsize        : 6.4, 4.8
+
+
+### GRIDS
+grid.color            : 0.8
+grid.linestyle        : --
+grid.alpha            : 0.5
+
+
+### PATCHES
+patch.facecolor       : 4C72B0
+patch.linewidth       : 0.7
+
+#### IMAGE
+image.cmap            : Greys
+
+### LEGEND
+legend.fontsize       : 12
+legend.loc            : best
+legend.fancybox       : True
+legend.framealpha     : 0.3
+legend.facecolor      : white
+legend.frameon        : True
+legend.handleheight   : 1
+legend.numpoints      : 1
+legend.scatterpoints  : 1
+
+
+### XTICKS
+xtick.color           : ".6"
+xtick.labelcolor      : ".4"
+xtick.labelsize       : 10.0
+xtick.direction       : in
+xtick.major.size      : 4.0
+xtick.major.width     : 1.0
+xtick.major.top       : true
+xtick.major.bottom    : true
+xtick.minor.size      : 2.0
+xtick.minor.width     : 0.5
+xtick.minor.top       : true
+xtick.minor.bottom    : true
+
+### XTICKS
+ytick.color           : ".6"
+ytick.labelcolor      : ".4"
+ytick.labelsize       : 10.0
+ytick.direction       : in
+ytick.major.size      : 4.0
+ytick.major.width     : 1.0
+ytick.major.left      : true
+ytick.major.right     : true
+ytick.minor.size      : 2.0
+ytick.minor.width     : 0.5
+ytick.minor.left      : true
+ytick.minor.right     : true
+
+### FONTS
+font.family           : serif
+font.sans-serif       : Arial
+font.size             : 13
+font.weight           : bold
+
+### TEXTS
+text.usetex           : True
+text.latex.preamble   : \usepackage{amsmath}
+text.color            : ".15"
+
+### AXES
+axes.grid             : True
+axes.axisbelow        : True
+axes.facecolor        : white
+axes.edgecolor        : 0.8
+axes.linewidth        : 1.0
+axes.titlesize        : 16
+axes.titleweight      : bold
+axes.labelsize        : 16
+axes.labelcolor       : 0.15
+axes.titlepad         : 9.0
+axes.xmargin          : 0
+axes.labelweight      : bold
+axes.spines.top       : True
+axes.spines.right     : True
+# axes.prop_cycle       : cycler('color', ['001D66', 'da3b46', 'F6AE2D', '343434', '2ca02c', '9467bd', '8c564b'])
+# axes.prop_cycle       : cycler('color', ["001D66", "B01C64", "3D2E85", "FFBF33", "9467bd", "FF6000"])

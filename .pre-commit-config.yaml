@@ -2,9 +2,10 @@
 # See https://pre-commit.com/hooks.html for more hooks
 ci:
   autofix_prs: false
+  skip: [fmt-eko, fmt-ekore]
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.4.0
+    rev: v4.5.0
     hooks:
       - id: trailing-whitespace
       - id: end-of-file-fixer
@@ -13,25 +14,25 @@ repos:
       - id: check-merge-conflict
       - id: debug-statements
   - repo: https://github.com/hadialqattan/pycln
-    rev: v2.1.5
+    rev: v2.4.0
     hooks:
       - id: pycln
         args: [--config=pyproject.toml]
-  - repo: https://github.com/psf/black
-    rev: 23.7.0
+  - repo: https://github.com/psf/black-pre-commit-mirror
+    rev: 23.12.1
     hooks:
       - id: black
   - repo: https://github.com/asottile/blacken-docs
-    rev: 1.15.0
+    rev: 1.16.0
     hooks:
       - id: blacken-docs
   - repo: https://github.com/pycqa/isort
-    rev: 5.12.0
+    rev: 5.13.2
     hooks:
       - id: isort
         args: ["--profile", "black"]
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.9.0
+    rev: v3.15.0
     hooks:
       - id: pyupgrade
   - repo: https://github.com/pycqa/pydocstyle
@@ -49,7 +50,25 @@ repos:
         additional_dependencies: [types-PyYAML]
         pass_filenames: false
         args: ["--ignore-missing-imports", "src/"]
+  - repo: local
+    hooks:
+    - id: fmt-eko
+      name: fmt-eko
+      description: Format eko files with cargo fmt.
+      entry: cargo fmt --manifest-path crates/eko/Cargo.toml --
+      language: system
+      files: ^crates/eko/.*\.rs$
+      args: []
+  - repo: local
+    hooks:
+    - id: fmt-ekore
+      name: fmt-ekore
+      description: Format ekore files with cargo fmt.
+      entry: cargo fmt --manifest-path crates/ekore/Cargo.toml --
+      language: system
+      files: ^crates/ekore/.*\.rs$
+      args: []
   - repo: https://github.com/pre-commit/pre-commit
-    rev: v3.3.3
+    rev: v3.6.0
     hooks:
       - id: validate_manifest

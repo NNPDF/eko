@@ -26,6 +26,7 @@ def test_elements():
     down = elements((5.0, 3), ATLAS)
     assert all([isinstance(el, Evolution) for i, el in enumerate(down) if i % 2 == 0])
     assert all([isinstance(el, Matching) for i, el in enumerate(down) if i % 2 == 1])
+    assert all([el.inverse for i, el in enumerate(down) if i % 2 == 1])
 
 
 def test_create():
