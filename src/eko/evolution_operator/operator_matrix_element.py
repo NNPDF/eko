@@ -324,5 +324,12 @@ class OperatorMatrixElement(Operator):
         if self.order[0] == 0:
             logger.info("%s: no need to compute matching at LO", self.log_label)
             return
+        logger.info(
+            "%s: order: (%d, %d), backward method: %s",
+            self.log_label,
+            self.order[0],
+            self.order[1],
+            self.backward_method,
+        )
 
         self.integrate()
