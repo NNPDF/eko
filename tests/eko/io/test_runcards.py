@@ -7,7 +7,6 @@ import yaml
 from banana.data.theories import default_card as theory_card
 
 from eko.io import runcards as rc
-from eko.io.bases import Bases
 from ekomark.data.operators import default_card as operator_card
 
 

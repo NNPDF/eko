@@ -3,11 +3,11 @@ import logging
 import pytest
 import yaml
 
-from eko.io import bases, metadata, paths
+from eko.io import metadata, paths
 
 
 def test_metadata(tmp_path, caplog):
-    m = metadata.Metadata((1.0, 3), bases.Bases([0.1, 1.0]))
+    m = metadata.Metadata(origin=(1.0, 3), xgrid=[0.1, 1.0])
     # errors
     with caplog.at_level(logging.INFO):
         m.update()
@@ -26,7 +26,7 @@ def test_metadata(tmp_path, caplog):
     m.version = "0.0.0-a1~really1.0.0"
     m.update()
     # if I read back the thing should be what I set
-    mn = metadata.Metadata((1.0, 3), bases.Bases([0.1, 1.0]))
+    mn = metadata.Metadata(origin=(1.0, 3), xgrid=[0.1, 1.0])
     mm = metadata.Metadata.load(tmp_path)
     assert m.path == tmp_path
     assert mm.version != mn.version
