@@ -21,7 +21,7 @@ class MatchingCondition(member.OperatorBase):
         nf,
         q2_thr,
         intrinsic_range,
-        qed=False,
+        qed,
     ):
         """
         Create the instance from the |OME|.

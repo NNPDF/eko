@@ -26,7 +26,7 @@ from ..kernels import singlet as s
 from ..kernels import singlet_qed as qed_s
 from ..kernels import utils
 from ..kernels import valence_qed as qed_v
-from ..matchings import Segment
+from ..matchings import Segment, lepton_number
 from ..member import OpMember
 
 logger = logging.getLogger(__name__)
@@ -209,6 +209,7 @@ def quad_ker(
     n3lo_ad_variation,
     is_polarized,
     is_time_like,
+    use_fhmruvv,
 ):
     """Raw evolution kernel inside quad.
 
@@ -255,11 +256,13 @@ def quad_ker(
     is_threshold : boolean
         is this an intermediate threshold operator?
     n3lo_ad_variation : tuple
-        |N3LO| anomalous dimension variation ``(gg_var, gq_var, qg_var, qq_var)``
+        |N3LO| anomalous dimension variation ``(gg, gq, qg, qq, nsp, nsm, nsv)``
     is_polarized : boolean
         is polarized evolution ?
     is_time_like : boolean
         is time-like evolution ?
+    use_fhmruvv : bool
+        if True use the |FHMRUVV| |N3LO| anomalous dimension
 
     Returns
     -------
@@ -288,6 +291,7 @@ def quad_ker(
             is_polarized,
             is_time_like,
             n3lo_ad_variation,
+            use_fhmruvv,
         )
     else:
         ker = quad_ker_qed(
@@ -307,6 +311,8 @@ def quad_ker(
             ev_op_max_order,
             sv_mode,
             is_threshold,
+            n3lo_ad_variation,
+            use_fhmruvv,
         )
 
     # recombine everything
@@ -331,6 +337,7 @@ def quad_ker_qcd(
     is_polarized,
     is_time_like,
     n3lo_ad_variation,
+    use_fhmruvv,
 ):
     """Raw evolution kernel inside quad.
 
@@ -363,7 +370,9 @@ def quad_ker_qcd(
     is_threshold : boolean
         is this an itermediate threshold operator?
     n3lo_ad_variation : tuple
-        |N3LO| anomalous dimension variation ``(gg_var, gq_var, qg_var, qq_var)``
+        |N3LO| anomalous dimension variation ``(gg, gq, qg, qq, nsp, nsm, nsv)``
+    use_fhmruvv : bool
+        if True use the |FHMRUVV| |N3LO| anomalous dimensions
 
     Returns
     -------
@@ -382,7 +391,7 @@ def quad_ker_qcd(
                 gamma_singlet = ad_ut.gamma_singlet(order, ker_base.n, nf)
             else:
                 gamma_singlet = ad_us.gamma_singlet(
-                    order, ker_base.n, nf, n3lo_ad_variation
+                    order, ker_base.n, nf, n3lo_ad_variation, use_fhmruvv
                 )
         # scale var exponentiated is directly applied on gamma
         if sv_mode == sv.Modes.exponentiated:
@@ -415,7 +424,9 @@ def quad_ker_qcd(
             if is_time_like:
                 gamma_ns = ad_ut.gamma_ns(order, mode0, ker_base.n, nf)
             else:
-                gamma_ns = ad_us.gamma_ns(order, mode0, ker_base.n, nf)
+                gamma_ns = ad_us.gamma_ns(
+                    order, mode0, ker_base.n, nf, n3lo_ad_variation, use_fhmruvv
+                )
         if sv_mode == sv.Modes.exponentiated:
             gamma_ns = sv.exponentiated.gamma_variation(gamma_ns, order, nf, L)
         ker = ns.dispatcher(
@@ -450,6 +461,8 @@ def quad_ker_qed(
     ev_op_max_order,
     sv_mode,
     is_threshold,
+    n3lo_ad_variation,
+    use_fhmruvv,
 ):
     """Raw evolution kernel inside quad.
 
@@ -489,6 +502,10 @@ def quad_ker_qed(
         scale variation mode, see `eko.scale_variations.Modes`
     is_threshold : boolean
         is this an itermediate threshold operator?
+    n3lo_ad_variation : tuple
+        |N3LO| anomalous dimension variation ``(gg, gq, qg, qq, nsp, nsm, nsv)``
+    use_fhmruvv : bool
+        if True use the |FHMRUVV| |N3LO| anomalous dimensions
 
     Returns
     -------
@@ -497,11 +514,13 @@ def quad_ker_qed(
     """
     # compute the actual evolution kernel for QEDxQCD
     if ker_base.is_QEDsinglet:
-        gamma_s = ad_us.gamma_singlet_qed(order, ker_base.n, nf)
+        gamma_s = ad_us.gamma_singlet_qed(
+            order, ker_base.n, nf, n3lo_ad_variation, use_fhmruvv
+        )
         # scale var exponentiated is directly applied on gamma
         if sv_mode == sv.Modes.exponentiated:
             gamma_s = sv.exponentiated.gamma_variation_qed(
-                gamma_s, order, nf, L, alphaem_running
+                gamma_s, order, nf, lepton_number(mu2_to), L, alphaem_running
             )
         ker = qed_s.dispatcher(
             order,
@@ -525,11 +544,13 @@ def quad_ker_qed(
             ) @ np.ascontiguousarray(ker)
         ker = select_QEDsinglet_element(ker, mode0, mode1)
     elif ker_base.is_QEDvalence:
-        gamma_v = ad_us.gamma_valence_qed(order, ker_base.n, nf)
+        gamma_v = ad_us.gamma_valence_qed(
+            order, ker_base.n, nf, n3lo_ad_variation, use_fhmruvv
+        )
         # scale var exponentiated is directly applied on gamma
         if sv_mode == sv.Modes.exponentiated:
             gamma_v = sv.exponentiated.gamma_variation_qed(
-                gamma_v, order, nf, L, alphaem_running
+                gamma_v, order, nf, lepton_number(mu2_to), L, alphaem_running
             )
         ker = qed_v.dispatcher(
             order,
@@ -550,11 +571,13 @@ def quad_ker_qed(
             ) @ np.ascontiguousarray(ker)
         ker = select_QEDvalence_element(ker, mode0, mode1)
     else:
-        gamma_ns = ad_us.gamma_ns_qed(order, mode0, ker_base.n, nf)
+        gamma_ns = ad_us.gamma_ns_qed(
+            order, mode0, ker_base.n, nf, n3lo_ad_variation, use_fhmruvv
+        )
         # scale var exponentiated is directly applied on gamma
         if sv_mode == sv.Modes.exponentiated:
             gamma_ns = sv.exponentiated.gamma_variation_qed(
-                gamma_ns, order, nf, L, alphaem_running
+                gamma_ns, order, nf, lepton_number(mu2_to), L, alphaem_running
             )
         ker = qed_ns.dispatcher(
             order,
@@ -622,7 +645,7 @@ class Operator(sv.ModeMixin):
         self.alphaem_running = self.managers["couplings"].alphaem_running
         if self.log_label == "Evolution":
             self.a = self.compute_a()
-            self.compute_aem_list()
+            self.as_list, self.a_half_list = self.compute_aem_list()
 
     @property
     def n_pools(self):
@@ -697,44 +720,22 @@ class Operator(sv.ModeMixin):
         """
         ev_op_iterations = self.config["ev_op_iterations"]
         if self.order[1] == 0:
-            self.as_list = np.array([self.a_s[0], self.a_s[1]])
-            self.a_half_list = np.zeros((ev_op_iterations, 2))
+            as_list = np.array([self.a_s[0], self.a_s[1]])
+            a_half = np.zeros((ev_op_iterations, 2))
         else:
-            as0 = self.a_s[0]
-            as1 = self.a_s[1]
-            aem0 = self.a_em[0]
-            aem1 = self.a_em[1]
-            q2ref = self.managers["couplings"].mu2_ref
-            delta_from = abs(self.q2_from - q2ref)
-            delta_to = abs(self.q2_to - q2ref)
-            # I compute the values in aem_list starting from the mu2
-            # that is closer to mu_ref.
-            if delta_from > delta_to:
-                a_start = np.array([as1, aem1])
-                mu2_start = self.q2_to
-            else:
-                a_start = np.array([as0, aem0])
-                mu2_start = self.q2_from
             couplings = self.managers["couplings"]
             mu2_steps = utils.geomspace(self.q2_from, self.q2_to, 1 + ev_op_iterations)
             mu2_l = mu2_steps[0]
-            self.as_list = np.array(
-                [
-                    couplings.compute(
-                        a_ref=a_start, nf=self.nf, scale_from=mu2_start, scale_to=mu2
-                    )[0]
-                    for mu2 in mu2_steps
-                ]
+            as_list = np.array(
+                [couplings.a_s(scale_to=mu2, nf_to=self.nf) for mu2 in mu2_steps]
             )
             a_half = np.zeros((ev_op_iterations, 2))
             for step, mu2_h in enumerate(mu2_steps[1:]):
                 mu2_half = (mu2_h + mu2_l) / 2.0
-                a_s, aem = couplings.compute(
-                    a_ref=a_start, nf=self.nf, scale_from=mu2_start, scale_to=mu2_half
-                )
+                a_s, aem = couplings.a(scale_to=mu2_half, nf_to=self.nf)
                 a_half[step] = [a_s, aem]
                 mu2_l = mu2_h
-            self.a_half_list = a_half
+        return as_list, a_half
 
     @property
     def labels(self):
@@ -821,6 +822,7 @@ class Operator(sv.ModeMixin):
             n3lo_ad_variation=self.config["n3lo_ad_variation"],
             is_polarized=self.config["polarized"],
             is_time_like=self.config["time_like"],
+            use_fhmruvv=self.config["use_fhmruvv"],
         )
 
     def initialize_op_members(self):
@@ -942,11 +944,12 @@ class Operator(sv.ModeMixin):
                 self.a_em[1],
             )
         logger.info(
-            "%s: order: (%d, %d), solution strategy: %s",
+            "%s: order: (%d, %d), solution strategy: %s, use fhmruvv: %s",
             self.log_label,
             self.order[0],
             self.order[1],
             self.config["method"],
+            self.config["use_fhmruvv"],
         )
 
         self.integrate()

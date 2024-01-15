@@ -159,7 +159,13 @@ def test_scale_variation_a_vs_b():
         # for order in [(2, 0), (3, 0), (4, 0)]:
         for order in [(2, 0)]:
             # Non singlet kernels
-            gns = gamma_ns(order, br.non_singlet_pids_map["ns+"], n, nf)
+            gns = gamma_ns(
+                order,
+                br.non_singlet_pids_map["ns+"],
+                n,
+                nf,
+                n3lo_ad_variation=(0, 0, 0, 0, 0, 0, 0),
+            )
             ker = non_singlet.dispatcher(
                 order, method, gns, a1, a0, nf, ev_op_iterations=1
             )
@@ -177,7 +183,7 @@ def test_scale_variation_a_vs_b():
             )
 
             # Singlet kernels
-            gs = gamma_singlet(order, n, nf, n3lo_ad_variation=(0, 0, 0, 0))
+            gs = gamma_singlet(order, n, nf, n3lo_ad_variation=(0, 0, 0, 0, 0, 0, 0))
             ker = singlet.dispatcher(
                 order, method, gs, a1, a0, nf, ev_op_iterations=1, ev_op_max_order=1
             )

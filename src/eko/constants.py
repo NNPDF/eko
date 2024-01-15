@@ -25,6 +25,9 @@ r"""Second Casimir constant in the fundamental representation.
 Defaults to :math:`\frac{N_C^2-1}{2N_C} = 4/3`.
 """
 
+MTAU = 1.777
+"""Mass of the tau."""
+
 eu2 = 4.0 / 9
 """Up quarks charge squared."""
 
@@ -84,7 +87,7 @@ def uplike_flavors(nf):
     nu : int
 
     """
-    if nf not in range(2, 6 + 1):
+    if nf > 6:
         raise NotImplementedError("Selected nf is not implemented")
     nu = nf // 2
     return nu

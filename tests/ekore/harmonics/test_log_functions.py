@@ -33,18 +33,19 @@ def test_lm1pm1():
 
     Ns = [1.0, 1.5, 2.0, 2.34, 56.789]
     for N in Ns:
-        sx = hsx(N, 4)
+        sx = hsx(N, 5)
 
         ref_values = {
             1: h.log_functions.lm11m1(N, sx[0]),
             2: h.log_functions.lm12m1(N, sx[0], sx[1]),
             3: h.log_functions.lm13m1(N, sx[0], sx[1], sx[2]),
             4: h.log_functions.lm14m1(N, sx[0], sx[1], sx[2], sx[3]),
+            5: h.log_functions.lm15m1(N, sx[0], sx[1], sx[2], sx[3], sx[4]),
         }
 
-        for k in [1, 2, 3, 4]:
+        for k, ref in ref_values.items():
             test_value = quad(mellin_lm1pm1, 0, 1, args=(k, N))[0]
-            np.testing.assert_allclose(test_value, ref_values[k])
+            np.testing.assert_allclose(test_value, ref)
 
 
 def test_lm1p():
