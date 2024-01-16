@@ -310,6 +310,79 @@ class OperatorBase:
                     ] += out_weight * (op.error * in_weight)
         return value_tensor, error_tensor
 
+    # def to_flavor_basis_tensor_scet(self, qed: bool):
+    #         """Convert the computations into an rank 4 tensor.
+
+    #         A sparse tensor defined with dot-notation (e.g. ``S.g``) is converted
+    #         to a plain rank-4 array over flavor operator space and momentum
+    #         fraction operator space.
+
+    #         """
+            
+    #         len_pids = len(br.flavor_basis_pids)
+    #         len_xgrid = list(self.op_members.values())[0].value.shape[0]
+    #         # dimension will be pids^2 * xgrid^2
+    #         value_tensor = np.zeros((len_pids, len_xgrid, len_pids, len_xgrid))
+    #         error_tensor = value_tensor.copy()
+
+    #         for name, op in self.op_members.items():
+    #             
+    #             in_pids = (np.asarray(br.flavor_basis_names)==name.input).astype(int)
+    #             out_pids = (np.asarray(br.flavor_basis_names)==name.target).astype(int)
+
+    #             for out_idx, out_weight in enumerate(out_pids):
+    #                 for in_idx, in_weight in enumerate(in_pids):
+    #                     # keep the outer index to the left as we're multiplying from the right
+    #                     value_tensor[
+    #                         out_idx,  # output pid (position)
+    #                         :,  # output momentum fraction
+    #                         in_idx,  # input pid (position)
+    #                         :,  # input momentum fraction
+    #                     ] += out_weight * (op.value * in_weight)
+    #                     error_tensor[
+    #                         out_idx,  # output pid (position)
+    #                         :,  # output momentum fraction
+    #                         in_idx,  # input pid (position)
+    #                         :,  # input momentum fraction
+    #                     ] += out_weight * (op.error * in_weight)
+        
+    #         return value_tensor, error_tensor
+
+    def to_flavor_basis_tensor_scet(self):
+            """Convert the computations into an rank 4 tensor.
+
+            A sparse tensor defined with dot-notation (e.g. ``u.ubar``) is converted
+            to a plain rank-4 array over flavor operator space and momentum
+            fraction operator space.
+            """
+            
+            len_pids = len(br.flavor_basis_pids)
+            len_xgrid = list(self.op_members.values())[0].value.shape[0]
+            # dimension will be pids^2 * xgrid^2
+            value_tensor = np.zeros((len_pids, len_xgrid, len_pids, len_xgrid))
+            error_tensor = value_tensor.copy()
+
+            
+            for name, op in self.op_members.items():
+                
+                in_idx = np.where(np.asarray(br.flavor_basis_names)==name.input)[0][0]
+                out_idx = np.where(np.asarray(br.flavor_basis_names)==name.target)[0][0]
+                
+                value_tensor[
+                    out_idx,  # output pid (position)
+                    :,  # output momentum fraction
+                    in_idx,  # input pid (position)
+                    :,  # input momentum fraction
+                ] += op.value 
+                error_tensor[
+                    out_idx,  # output pid (position)
+                    :,  # output momentum fraction
+                    in_idx,  # input pid (position)
+                    :,  # input momentum fraction
+                ] += op.error 
+            return value_tensor, error_tensor
+
+
 
 class ScalarOperator(OperatorBase):
     """Operator above space of real numbers."""

@@ -14,10 +14,12 @@ import numpy as np
 
 from .. import evolution_operator as evop
 from ..evolution_operator import matching_condition
+from ..evolution_operator import scet_kernel
 from ..evolution_operator import operator_matrix_element as ome
+from ..evolution_operator import beam_function as bf
 from ..evolution_operator import physical
 from ..io import EKO
-from ..io.items import Evolution, Matching, Operator
+from ..io.items import Evolution, Matching, Operator, ScetKernel
 from ..quantities.heavy_quarks import QuarkMassScheme
 from . import commons
 
@@ -155,5 +157,37 @@ def match(eko: EKO, recipe: Matching) -> Operator:
     res, err = matching_condition.MatchingCondition.split_ad_to_evol_map(
         op.op_members, op.nf, recipe.scale, **binfo
     ).to_flavor_basis_tensor(qed=binfo["qed"])
+
+    return Operator(res, err)
+
+def scet_configs(eko: EKO) -> dict:
+    """Create configs for :class:`SCET_I`.
+    """
+    tcard = eko.theory_card
+    ocard = eko.operator_card
+    return dict(
+        order=tcard.order,
+        n_integration_cores=ocard.configs.n_integration_cores,
+        ModSV=ocard.configs.scvar_method,
+        matching_order=tcard.matching_order
+        if tcard.matching_order is not None
+        else tcard.order,
+    )
+
+def scetI(eko: EKO, recipe: ScetKernel) -> Operator:
+    """Compute scetI matching kernels"""
+    orders = recipe.order
+    kernel = bf.SCET_I(
+        scet_configs(eko),
+        managers(eko),
+        orders
+    )
+    kernel.compute()
+    
+    # dummy scale
+    scale=10
+    res, err = scet_kernel.ScetKernel.split_ad_to_evol_map(
+        kernel.op_members, scale
+    ).to_flavor_basis_tensor_scet()
 
     return Operator(res, err)

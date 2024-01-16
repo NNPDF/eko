@@ -50,3 +50,23 @@ def solve(theory: TheoryCard, operator: OperatorCard, path: Path):
             del eko.parts
             del eko.parts_matching
             del eko.operators[target]
+
+def solve_scet(theory: TheoryCard, operator: OperatorCard, path: Path):
+    """Compute SCET matching kernels in terms of evolution kernel operators (EKO)."""
+
+    with EKO.create(path) as builder:
+        eko = builder.load_cards(theory, operator).build()  # pylint: disable=E1101
+        
+        # Only required info is the order in alpha_s and in log
+        # This should be passed in the runcard
+        orders_alpha_L=[(1,0), (1,1), (1,2)]
+
+        # create a recipe for the scet matching kernel and load it.
+        rec = recipes.create_scet_recipe(orders_alpha_L)
+        eko.load_recipes(rec)
+        # compute scet kernel
+        for recipe in eko.recipes_scet:
+            eko.scet_kernels[recipe] = parts.scetI(eko, recipe)          
+            del eko.scet_kernels[recipe]
+
+

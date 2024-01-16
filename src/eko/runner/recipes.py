@@ -1,9 +1,11 @@
 """Recipes containing instructions for atomic computations."""
 from typing import List
 
-from ..io.items import Evolution, Matching, Recipe
+from ..io.items import Evolution, Matching, Recipe, ScetKernel
+from ..io.types import Order
 from ..io.types import EvolutionPoint as EPoint
 from ..matchings import Atlas, Segment
+from ..matchings import ScetKernel as sk
 
 
 def elements(ep: EPoint, atlas: Atlas) -> List[Recipe]:
@@ -32,4 +34,14 @@ def create(evolgrid: List[EPoint], atlas: Atlas) -> List[Recipe]:
     for ep in evolgrid:
         recipes.extend(elements(ep, atlas))
 
+    return list(set(recipes))
+
+def elements_scet(order: Order) -> ScetKernel:
+    block = sk(order)
+    return ScetKernel.from_atlas(block)
+
+def create_scet_recipe(orders: List[Order]) -> List[ScetKernel]:
+    recipes = []
+    for order in orders:
+        recipes.append(elements_scet(order))
     return list(set(recipes))
