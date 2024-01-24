@@ -80,16 +80,12 @@ class SCET_I(Operator):
         order in alpha_s and L
     """
 
-    log_label = "Matching"
-    # complete list of possible matching operators labels
+    log_label = "Scet_I"
     full_labels = br.scet_labels
 
     def __init__(self, config, managers, order):
-        # dummy values for nf and q2
-        nf=5
-        q2=1
-        super().__init__(config, managers, Segment(q2, q2, nf))
-        # this is the order (QCD, L) of the scet kernel
+        super().__init__(config, managers, Segment(origin=1, target=1, nf=5))
+        # order (alpha_s, L) of the SCET kernel
         self.order_scet = order
 
     @property
