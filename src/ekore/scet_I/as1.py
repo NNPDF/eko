@@ -4,7 +4,7 @@ r"""SCET 1 kernel entries.
 import numba as nb
 import numpy as np
 
-from eko.constants import CF
+from eko.constants import CF, zeta2
 from ..harmonics import cache as c
 
 
@@ -179,11 +179,11 @@ def Agg10(n, cache):
                 + 5 * np.power(n, 2)
                 + 2 * np.power(n, 3)
                 + 2 * np.power(n, 4)
-                + 2 * np.power(n, 2) * z2
-                - np.power(n, 3) * z2
-                - 3 * np.power(n, 4) * z2
-                + np.power(n, 5) * z2
-                + np.power(n, 6) * z2
+                + 2 * np.power(n, 2) * zeta2
+                - np.power(n, 3) * zeta2
+                - 3 * np.power(n, 4) * zeta2
+                + np.power(n, 5) * zeta2
+                + np.power(n, 6) * zeta2
             )
         )
         / (np.power(-1 + n, 2) * np.power(n, 2) * (1 + n) * (2 + n))
@@ -254,7 +254,7 @@ def Aqq10(n, cache):
     S1 = c.get(c.S1, cache, n)
     S2 = c.get(c.S2, cache, n)
     res = (
-        (2 * (1 + 2 * n + 2 * np.power(n, 2) * z2 + 2 * np.power(n, 3) * z2))
+        (2 * (1 + 2 * n + 2 * np.power(n, 2) * zeta2 + 2 * np.power(n, 3) * zeta2))
         / (3.0 * np.power(n, 2) * (1 + n))
         - (2 * S1) / (3.0 * n * (1 + n))
         + (2 * np.power(S1, 2)) / 3.0
