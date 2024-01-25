@@ -7,58 +7,33 @@ import numpy as np
 from eko.constants import CF
 from ..harmonics import cache as c
 
+
 @nb.njit(cache=True)
 def A_gg(n, order, cache):
     r"""
-
     Parameters
     ----------
     n : complex
         Mellin moment
     cache: numpy.ndarray
         Harmonic sum cache
-    L : int
-        logarithmic order
 
     Returns
     -------
     complex
-        |NLO| heavy-heavy |OME| :math:`A_{HH}^{(1)}`
+        |NLO| :math:`A_{gg}`
 
     """
 
-    S1n = c.get(c.S1, cache, n)
-    S1nm1 = c.get(c.S1, cache, n-1)
-    S1np1 = c.get(c.S1, cache, n+1)
-    S1np2 = c.get(c.S1, cache, n+2)
+    if order == (1, 0):
+        res = Agg10(n, cache)
 
-    S2nm1 = c.get(c.S2, cache, n-1)
-    S2n = c.get(c.S2, cache, n)
-    S2np1 = c.get(c.S2, cache, n+1)
-    S2nm1 = c.get(c.S2, cache, n-1)
-    S2np2 = c.get(c.S2, cache, n+2)
-    S2nm2 = c.get(c.S2, cache, n-2)
+    if order == (1, 1):
+        res = Agg11(n, cache)
 
-    S11nm1 = S1nm1 + 1./n
+    if order == (1, 2):
+        res = Agg12(n, cache)
 
-    if order==(1,0):
-
-        res = 3. * ( - (S1nm1 / (-1 + n) ) + ( 2. * S1n ) / n - S1np1 / (1 + n) + 
-        S1np2 / (2 + n) ) 
-        - 3. * ( -1./3. * np.pi**2 + S2nm2 - 2. * ( -1./6. * np.pi**2 + S2nm1 ) 
-        + 3. * ( -1/6*np.pi**2 + S2n ) - 2. * ( -1./6. * np.pi**2 + S2np1 ) 
-        + S2np2) + 3. * S11nm1
-        #HSum[{1, 1}, -1 + n]
-
-    if order==(1,1):
-
-        res = - 3. * ( 3. * ( (-1 + n)**(-1) - n**(-1) ) - 3./n +  3. / (1 + n) - 
-        (2. + n)**(-1) - 2. * ((-1. + n)**(-1) - 2./n + (1. + n)**(-1))) + 3. * S1nm1
- 
-    if order==(1,2):
-
-        res = 3./2. 
-    
     return res
 
 
@@ -69,82 +44,53 @@ def A_gq(n, order, cache):
     ----------
     n : complex
         Mellin moment
-    L : float
-        :math:`\ln(\mu_F^2 / m_h^2)`
+    cache: numpy.ndarray
+        Harmonic sum cache
 
     Returns
     -------
     complex
-        |NLO| gluon-heavy |OME| :math:`A_{gH}^{(1)}`
+        |NLO| :math:`A_{gq}`
 
     """
 
-    S1n = c.get(c.S1, cache, n)
-    S1nm1 = c.get(c.S1, cache, n-1)
-    S1np1 = c.get(c.S1, cache, n+1)
-    
-    if order==(1,0):
+    if order == (1, 0):
+        res = Agq10(n, cache)
 
-        2. / ( 3. * (1 + n) ) - ( 2. * (-2. / (-1. + n)**2 + 2. / n**2 - (1. + n)**(-2) ) ) / 3. 
-        + ( 2 * ( ( -2. * S1nm1 ) / (-1. + n) + (2. * S1n)/n 
-        - S1np1/(1. + n)) ) / 3.
+    if order == (1, 1):
+        res = Agq10(n, cache)
 
-
-    if order==(1,1):
-
-        res = ( -2. * ( 2./(-1. + n) - 2./n + (1. + n)**(-1) ) ) / 3.
- 
-    if order==(1,2):
-        
-        res = 0. 
+    if order == (1, 2):
+        res = Agq10(n, cache)
 
     return res
 
 
 @nb.njit(cache=True)
 def A_qg(n, order, cache):
-    r"""|
-
+    r"""
     Parameters
     ----------
     n : complex
         Mellin moment
-    L : float
-        :math:`\ln(\mu_F^2 / m_h^2)`
+    cache: numpy.ndarray
+        Harmonic sum cache
 
     Returns
     -------
     complex
-        |NLO| heavy-gluon |OME| :math:`A_{Hg}^{S,(1)}`
+        |NLO| :math:`A_{qg}`
 
     """
 
-    S1n = c.get(c.S1, cache, n)
-    S1nm1 = c.get(c.S1, cache, n-1)
-    S1np1 = c.get(c.S1, cache, n+1)
-    S2nm1 = c.get(c.S2, cache, n-1)
-    S1np2 = c.get(c.S1, cache, n+2)
+    if order == (1, 0):
+        res = Aqg10(n, cache)
 
-    
-    if order==(1,0):
+    if order == (1, 1):
+        res = Aqg10(n, cache)
 
-        ( n**(-2) - 2. / (1. + n)**2 + 2. / (2. + n)**2)/4. 
-        + ( (1. + n)**(-1) - (2. + n)**(-1)) / 2.  
-        + (- ( S1n / n ) + (2. * S1np1) / (1. + n) 
-        - (2 * S1np2) / (2. + n) )/4.
-
-
-
-    if order==(1,1):
-
-        res = (-n**(-1) + 2. * (n**(-1) - (1. + n)**(-1)) 
-        - 2. * (n**(-1) - 2./(1. + n) 
-        + (2. + n)**(-1)))/4.
-
- 
-    if order==(1,2):
-        
-        res = 0. 
+    if order == (1, 2):
+        res = Aqg10(n, cache)
 
     return res
 
@@ -152,111 +98,181 @@ def A_qg(n, order, cache):
 @nb.njit(cache=True)
 def A_qq(n, order, cache):
     r"""
-
     Parameters
     ----------
-    L : float
-        :math:`\ln(\mu_F^2 / m_h^2)`
+    n : complex
+        Mellin moment
+    cache: numpy.ndarray
+        Harmonic sum cache
 
     Returns
     -------
     complex
-        |NLO| gluon-gluon |OME| :math:`A_{gg,H}^{S,(1)}`
+        |NLO| :math:`A_{qq}`
 
     """
 
-    S1n = c.get(c.S1, cache, n)
-    S1nm1 = c.get(c.S1, cache, n-1)
-    S1np1 = c.get(c.S1, cache, n+1)
-    S1np2 = c.get(c.S1, cache, n+2)
+    if order == (1, 0):
+        res = Aqq10(n, cache)
 
-    S2nm1 = c.get(c.S2, cache, n-1)
-    S2n = c.get(c.S2, cache, n)
-    S2np1 = c.get(c.S2, cache, n+1)
-    S2nm1 = c.get(c.S2, cache, n-1)
-    S2np2 = c.get(c.S2, cache, n+2)
-    S2nm2 = c.get(c.S2, cache, n-2)
+    if order == (1, 1):
+        res = Aqq10(n, cache)
 
-    S11nm1 = S1nm1 + 1./n
-
-    if order==(1,0):
-
-        res = ( 2. * (n**(-1) - (1. + n)**(-1)) ) / 3.  
-        + (2. * ( S1n / n + S1np1 / (1. + n) ) ) / 3. 
-        - (2. * ( -1./3. * np.pi**2 + S2nm1 + S2np1) ) / 3.
-        + (4. * S11nm1 ) / 3.
-
-
-
-
-    if order==(1,1):
-
-        res = ( - 2. * ( - n**(-1) - (1. + n)**(-1)) ) / 3. 
-        + (4. * S1nm1) / 3.
-
-
- 
-    if order==(1,2):
-        
-        res = 2./3. 
+    if order == (1, 2):
+        res = Aqq10(n, cache)
 
     return res
+
 
 @nb.njit(cache=True)
 def A_qQ2(n, order):
+    if order == (1, 0):
+        res = 0.0
 
-    if order==(1,0):
+    if order == (1, 1):
+        res = 0.0
 
-        res = 0.
-
-    if order==(1,1):
-
-        res = 0.
-
-
- 
-    if order==(1,2):
-        
-        res = 0.
+    if order == (1, 2):
+        res = 0.0
 
     return res
+
 
 @nb.njit(cache=True)
 def A_qQ2bar(n, order):
+    if order == (1, 0):
+        res = 0.0
 
-    if order==(1,0):
+    if order == (1, 1):
+        res = 0.0
 
-        res = 0.
+    if order == (1, 2):
+        res = 0.0
 
-    if order==(1,1):
-
-        res = 0.
-
-
- 
-    if order==(1,2):
-        
-        res = 0.
-    
     return res
+
 
 @nb.njit(cache=True)
 def A_qqbar(n, order):
+    if order == (1, 0):
+        res = 0.0
 
-    if order==(1,0):
+    if order == (1, 1):
+        res = 0.0
 
-        res = 0.
+    if order == (1, 2):
+        res = 0.0
 
-    if order==(1,1):
-
-        res = 0.
+    return res
 
 
- 
-    if order==(1,2):
-        
-        res = 0.
+@nb.njit(cache=True)
+def Agg10(n, cache):
+    S1 = c.get(c.S1, cache, n)
+    S2 = c.get(c.S2, cache, n)
+    res = (
+        (
+            3
+            * (
+                -2
+                - n
+                + 5 * np.power(n, 2)
+                + 2 * np.power(n, 3)
+                + 2 * np.power(n, 4)
+                + 2 * np.power(n, 2) * z2
+                - np.power(n, 3) * z2
+                - 3 * np.power(n, 4) * z2
+                + np.power(n, 5) * z2
+                + np.power(n, 6) * z2
+            )
+        )
+        / (np.power(-1 + n, 2) * np.power(n, 2) * (1 + n) * (2 + n))
+        - (6 * (1 + n + np.power(n, 2)) * S1) / ((-1 + n) * n * (1 + n) * (2 + n))
+        + (3 * np.power(S1, 2)) / 2.0
+        - (3 * S2) / 2.0
+    )
+    return res
 
+
+@nb.njit(cache=True)
+def Agg11(n, cache):
+    S1 = c.get(c.S1, cache, n)
+    res = (-6 * (1 + n + np.power(n, 2))) / ((-1 + n) * n * (1 + n) * (2 + n)) + 3 * S1
+    return res
+
+
+@nb.njit(cache=True)
+def Agg12(n, cache):
+    res = 1.5
+    return res
+
+
+@nb.njit(cache=True)
+def Agq10(n, cache):
+    S1 = c.get(c.S1, cache, n)
+    res = (2 * (-2 + 5 * np.power(n, 2) + np.power(n, 4))) / (
+        3.0 * np.power(-1 + n, 2) * np.power(n, 2) * (1 + n)
+    ) - (2 * (2 + n + np.power(n, 2)) * S1) / (3.0 * (-1 + n) * n * (1 + n))
+    return res
+
+
+@nb.njit(cache=True)
+def Agq11(n, cache):
+    res = (-2 * (2 + n + np.power(n, 2))) / (3.0 * (-1 + n) * n * (1 + n))
+    return res
+
+
+@nb.njit(cache=True)
+def Agq12(n, cache):
+    res = 0
+    return res
+
+
+@nb.njit(cache=True)
+def Aqg10(n, cache):
+    S1 = c.get(c.S1, cache, n)
+    res = 1 / (4.0 * np.power(n, 2)) + ((-2 - n - np.power(n, 2)) * S1) / (
+        4.0 * n * (1 + n) * (2 + n)
+    )
+    return res
+
+
+@nb.njit(cache=True)
+def Aqg11(n, cache):
+    res = (-2 - n - np.power(n, 2)) / (4.0 * n * (1 + n) * (2 + n))
+    return res
+
+
+@nb.njit(cache=True)
+def Aqg12(n, cache):
+    res = 0
+    return res
+
+
+@nb.njit(cache=True)
+def Aqq10(n, cache):
+    S1 = c.get(c.S1, cache, n)
+    S2 = c.get(c.S2, cache, n)
+    res = (
+        (2 * (1 + 2 * n + 2 * np.power(n, 2) * z2 + 2 * np.power(n, 3) * z2))
+        / (3.0 * np.power(n, 2) * (1 + n))
+        - (2 * S1) / (3.0 * n * (1 + n))
+        + (2 * np.power(S1, 2)) / 3.0
+        - (2 * S2) / 3.0
+    )
+    return res
+
+
+@nb.njit(cache=True)
+def Aqq11(n, cache):
+    S1 = c.get(c.S1, cache, n)
+    res = -2 / (3.0 * n * (1 + n)) + (4 * S1) / 3.0
+    return res
+
+
+@nb.njit(cache=True)
+def Aqq12(n, cache):
+    res = 0.6666666666666666
     return res
 
 
@@ -287,11 +303,11 @@ def A_entries(n, order, cache):
 
     """
 
-    Agg = A_gg(n,order, cache)
+    Agg = A_gg(n, order, cache)
     Agq = A_gq(n, order, cache)
     Aqg = A_qg(n, order, cache)
     Aqq = A_qq(n, order, cache)
-    AqQ2 = A_qQ2(n, order) 
+    AqQ2 = A_qQ2(n, order)
     Aqqbar = A_qqbar(n, order)
     AqQ2bar = A_qQ2bar(n, order)
 
@@ -302,9 +318,7 @@ def A_entries(n, order, cache):
             [Aqg, Aqqbar, Aqq, AqQ2bar, AqQ2],
             [Aqg, AqQ2, AqQ2bar, Aqq, Aqqbar],
             [Aqg, AqQ2bar, AqQ2bar, Aqqbar, Aqq],
-
-        ], 
-        
+        ],
         np.complex_,
     )
     return A_S
