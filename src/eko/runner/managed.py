@@ -53,20 +53,30 @@ def solve(theory: TheoryCard, operator: OperatorCard, path: Path):
 
 def solve_scet(theory: TheoryCard, operator: OperatorCard, path: Path):
     """Compute SCET matching kernels in terms of evolution kernel operators (EKO)."""
-
     with EKO.create(path) as builder:
         eko = builder.load_cards(theory, operator).build()  # pylint: disable=E1101
         
         # Only required info is the order in alpha_s and in log
         # This should be passed in the runcard
+        # orders to be computed
         orders_alpha_L=[(1,0), (1,1), (1,2)]
-
+        # number of actiave flavors(?) Required starting from nnlo
+        nf = 5
+        
         # create a recipe for the scet matching kernel and load it.
         rec = recipes.create_scet_recipe(orders_alpha_L)
         eko.load_recipes(rec)
+        dummy_scale = 1000.
         # compute scet kernel
         for recipe in eko.recipes_scet:
-            eko.scet_kernels[recipe] = parts.scetI(eko, recipe)          
-            del eko.scet_kernels[recipe]
+            #eko.scet_kernels[recipe] = parts.scetI(eko, recipe)
+            target = Target(dummy_scale, nf)
+            eko.operators[target] = parts.scetI(eko, recipe)   # in order to load these object as ekos you need to save them in eko.operators using Target as indices
+            dummy_scale += 1 
+            #del eko.scet_kernels[recipe]
+            del eko.operators[target]
+
+        
+
 
 
