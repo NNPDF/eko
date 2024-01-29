@@ -1,4 +1,5 @@
 """Main application class of eko."""
+
 import logging
 import os
 from typing import Union

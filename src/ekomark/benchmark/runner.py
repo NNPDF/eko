@@ -1,4 +1,5 @@
 """Abstract layer for running the benchmarks."""
+
 import functools
 import logging
 import os

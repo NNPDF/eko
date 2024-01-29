@@ -165,10 +165,7 @@ def test_ode_n3lo():
     a0 = 0.3
     for a1 in [0.1, 0.2]:
         r = (
-            gamma_ns[0]
-            + a1 * gamma_ns[1]
-            + a1**2 * gamma_ns[2]
-            + a1**3 * gamma_ns[3]
+            gamma_ns[0] + a1 * gamma_ns[1] + a1**2 * gamma_ns[2] + a1**3 * gamma_ns[3]
         ) / (
             beta.beta_qcd((2, 0), nf) * a1
             + beta.beta_qcd((3, 0), nf) * a1**2

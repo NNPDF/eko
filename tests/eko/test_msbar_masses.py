@@ -1,4 +1,5 @@
 """Tests for the threshold class."""
+
 import numpy as np
 import pytest
 

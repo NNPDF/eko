@@ -1,4 +1,5 @@
 """Combine parts into operators."""
+
 from functools import reduce
 from typing import List
 

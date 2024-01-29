@@ -69,8 +69,7 @@ def Sm3(N, hS3, hS3mh, hS3h, is_singlet=None):
     """
     if is_singlet is None:
         return (
-            1 / 2**2 * ((1 - (-1) ** N) / 2 * hS3mh + ((-1) ** N + 1) / 2 * hS3h)
-            - hS3
+            1 / 2**2 * ((1 - (-1) ** N) / 2 * hS3mh + ((-1) ** N + 1) / 2 * hS3h) - hS3
         )
     if is_singlet:
         return 1 / 2**2 * hS3h - hS3

@@ -1,4 +1,5 @@
 """Manipulate output generate by EKO."""
+
 import logging
 import warnings
 from typing import Callable, Optional, Union

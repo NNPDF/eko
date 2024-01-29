@@ -1,4 +1,5 @@
 """Caching harmonic sums across :mod:`ekore`."""
+
 from typing import Optional
 
 import numba as nb

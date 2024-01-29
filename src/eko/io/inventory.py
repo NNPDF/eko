@@ -1,4 +1,5 @@
 """Manage assets used during computation."""
+
 import base64
 from dataclasses import asdict, dataclass, field
 from pathlib import Path

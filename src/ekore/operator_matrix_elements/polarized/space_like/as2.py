@@ -4,6 +4,7 @@ The equations are given in :cite:`Bierenbaum:2022biv`.
 As in the |NLO| |OME|, in the paper, an additional factor 2 can be found in front of the anomalous dimensions and factor (-1) for odd powers of L.
 The anomalous dimensions and beta function with the addition 'hat' are defined as in the |NLO| case.
 """
+
 import numba as nb
 import numpy as np
 
@@ -120,9 +121,7 @@ def A_hq_ps(n, cache, L, nf):
     )
     # term that differentiates between M scheme and Larin scheme,
     # we are computing in M scheme hence the addition of this term
-    z_qq_ps = (
-        -CF * TR * nf * ((8 * (2 + n) * (n**2 - n - 1)) / (n**3 * (n + 1) ** 3))
-    )
+    z_qq_ps = -CF * TR * nf * ((8 * (2 + n) * (n**2 - n - 1)) / (n**3 * (n + 1) ** 3))
     gamma1_ps_qqhat = (16 * CF * (2 + n) * (1 + 2 * n + n**3) * TR) / (
         n**3 * ((1 + n) ** 3)
     )
@@ -220,17 +219,9 @@ def A_hg(n, cache, L):
                     + 2 * n**8
                 )
                 + 8 * (-1 + n) * n**2 * (1 + n) ** 2 * (2 + n) ** 2 * np.pi**2
-                + 24
-                * n**3
-                * (1 + n)
-                * (2 - 10 * n - n**2 + 4 * n**3 + n**4)
-                * S1
+                + 24 * n**3 * (1 + n) * (2 - 10 * n - n**2 + 4 * n**3 + n**4) * S1
                 + 24 * n**3 * (1 + n) ** 2 * (5 + 4 * n + n**2) * S1**2
-                + 24
-                * n**2
-                * (1 + n) ** 2
-                * (-16 + 15 * n + 24 * n**2 + 7 * n**3)
-                * S2
+                + 24 * n**2 * (1 + n) ** 2 * (-16 + 15 * n + 24 * n**2 + 7 * n**3) * S2
                 - 24
                 * (1 - n)
                 * n**3
@@ -345,8 +336,7 @@ def A_gg(n, cache, L):
     S1 = c.get(c.S1, cache, n)
     ggg1_canf = (
         -5 * S1 / 9
-        + (-3 + 13 * n + 16 * n**2 + 6 * n**3 + 3 * n**4)
-        / (9 * n**2 * (1 + n) ** 2)
+        + (-3 + 13 * n + 16 * n**2 + 6 * n**3 + 3 * n**4) / (9 * n**2 * (1 + n) ** 2)
     ) * 4
     ggg1_cfnf = (4 + 2 * n - 8 * n**2 + n**3 + 5 * n**4 + 3 * n**5 + n**6) / (
         n**3 * (1 + n) ** 3
@@ -364,16 +354,7 @@ def A_gg(n, cache, L):
         - 8
     ) / (n**4 * (1 + n) ** 4)
     a_gg_a = (
-        2
-        * (
-            15 * n**6
-            + 45 * n**5
-            + 374 * n**4
-            + 601 * n**3
-            + 161 * n**2
-            - 24 * n
-            + 36
-        )
+        2 * (15 * n**6 + 45 * n**5 + 374 * n**4 + 601 * n**3 + 161 * n**2 - 24 * n + 36)
     ) / (27 * n**3 * (1 + n) ** 3) - (4 * S1 * (47 + 56 * n) / (27 * (1 + n)))
     a_gg_l0 = TR * (CF * a_gg_f + CA * a_gg_a)
 
