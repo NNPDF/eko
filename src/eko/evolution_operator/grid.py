@@ -4,6 +4,7 @@ The first is the driver class of eko as it is the one that collects all the
 previously instantiated information and does the actual computation of the Q2s.
 
 """
+
 import logging
 from dataclasses import astuple
 from typing import Dict, List, Optional

@@ -37,7 +37,7 @@ n3lo_dfs = [
     (eko_res, "EKO"),
     (fhmv_eko_res, "FHMV EKO"),
     (msht_res, "MSHT"),
-    (fhmv_msht_res, "FHMV MSHT")
+    (fhmv_msht_res, "FHMV MSHT"),
     # (eko_4mom_res, "aN3LO EKO 4 mom"),
 ]
 
@@ -54,7 +54,7 @@ n3lo_dfs = [
     (eko_diff, "EKO"),
     (fhmv_eko_diff, "FHMV EKO"),
     (msht_diff, "MSHT"),
-    (fhmv_msht_diff, "FHMV MSHT")
+    (fhmv_msht_diff, "FHMV MSHT"),
     # (eko_4mom_res, "aN3LO EKO 4 mom"),
 ]
 

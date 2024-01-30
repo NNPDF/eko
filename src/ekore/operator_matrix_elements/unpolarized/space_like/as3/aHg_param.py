@@ -1,4 +1,5 @@
 """The approximated incomplete part of renormalization constant :math:`a_{Hg}^{S,(3)}(N)`."""
+
 # pylint: skip-file
 import numba as nb
 import numpy as np

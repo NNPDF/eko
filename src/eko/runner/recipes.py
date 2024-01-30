@@ -1,4 +1,5 @@
 """Recipes containing instructions for atomic computations."""
+
 from typing import List
 
 from ..io.items import Evolution, Matching, Recipe

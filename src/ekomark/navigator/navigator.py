@@ -1,4 +1,5 @@
 """EKO implementation of navigator."""
+
 import os
 import webbrowser
 

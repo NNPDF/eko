@@ -1,4 +1,5 @@
 """Heavy quarks related quantities."""
+
 import enum
 from dataclasses import dataclass
 from typing import Generic, List, Sequence, TypeVar

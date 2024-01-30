@@ -1,4 +1,5 @@
 """Benchmark the NLO anomalous dimensions against PEGASUS"""
+
 import numpy as np
 import pytest
 

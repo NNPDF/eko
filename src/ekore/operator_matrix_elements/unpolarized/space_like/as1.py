@@ -5,6 +5,7 @@ and Mellin transformed with Mathematica.
 The other matching conditions for the |VFNS| at :math:`\mu_F^2 \neq m_H^2`
 are provided in :cite:`Buza_1998`.
 """
+
 import numba as nb
 import numpy as np
 
@@ -39,12 +40,7 @@ def A_hh(n, cache, L):
     S2m = c.get(c.S2, cache, n) - 1 / n**2  # harmonics.S2(n - 1)
     ahh_l = (2 + n - 3 * n**2) / (n * (1 + n)) + 4 * S1m
     ahh = 2 * (
-        2
-        + 5 * n
-        + n**2
-        - 6 * n**3
-        - 2 * n**4
-        - 2 * n * (-1 - 2 * n + n**3) * S1m
+        2 + 5 * n + n**2 - 6 * n**3 - 2 * n**4 - 2 * n * (-1 - 2 * n + n**3) * S1m
     ) / (n * (1 + n)) ** 2 + 4 * (S1m**2 + S2m)
     return -CF * (ahh_l * L + ahh)
 
@@ -70,9 +66,7 @@ def A_gh(n, L):
 
     """
     agh_l1 = (2 + n + n**2) / (n * (n**2 - 1))
-    agh_l0 = (-4 + 2 * n + n**2 * (15 + n * (3 + n - n**2))) / (
-        n * (n**2 - 1)
-    ) ** 2
+    agh_l0 = (-4 + 2 * n + n**2 * (15 + n * (3 + n - n**2))) / (n * (n**2 - 1)) ** 2
     return 2 * CF * (agh_l0 + agh_l1 * L)
 
 

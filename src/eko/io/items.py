@@ -1,4 +1,5 @@
 """Inventory items definition."""
+
 import io
 from dataclasses import asdict, dataclass
 from typing import BinaryIO, Optional, Union

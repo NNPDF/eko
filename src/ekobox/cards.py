@@ -1,4 +1,5 @@
 """Tools to generate runcards."""
+
 import os
 from math import nan
 

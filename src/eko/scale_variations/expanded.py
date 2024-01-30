@@ -88,12 +88,8 @@ def variation_as3(gamma, L, beta0, beta1, g0e2, g0e3, g1g0, g0g1):
     """
     return (
         gamma[2] * L
-        + (1.0 / 2.0)
-        * (beta1 * gamma[0] + 2.0 * beta0 * gamma[1] + g1g0 + g0g1)
-        * L**2
-        + (1.0 / 6.0)
-        * (2.0 * beta0**2 * gamma[0] + 3.0 * beta0 * g0e2 + g0e3)
-        * L**3
+        + (1.0 / 2.0) * (beta1 * gamma[0] + 2.0 * beta0 * gamma[1] + g1g0 + g0g1) * L**2
+        + (1.0 / 6.0) * (2.0 * beta0**2 * gamma[0] + 3.0 * beta0 * g0e2 + g0e3) * L**3
     )
 
 

@@ -1,4 +1,5 @@
 """Define paths inside an `eko.EKO` object."""
+
 import pathlib
 from dataclasses import dataclass
 

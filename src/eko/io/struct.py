@@ -1,4 +1,5 @@
 """Define output representation structures."""
+
 import contextlib
 import copy
 import logging

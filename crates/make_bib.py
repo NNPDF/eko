@@ -1,4 +1,5 @@
 """Parse bibtex file to rust crate."""
+
 import datetime
 import pathlib
 import re

@@ -1,4 +1,5 @@
 """PDF set writer."""
+
 import io
 import pathlib
 import re
