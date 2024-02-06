@@ -2,6 +2,7 @@
 
 import io
 import pprint
+from typing import Dict, List, Tuple
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -231,7 +232,7 @@ def save_operators_to_pdf(path, theory, ops, me: EKO, skip_pdfs, change_lab=Fals
     """
     ops_names = list(me.bases.targetpids)
     if np.allclose(ops_names, br.rotate_flavor_to_evolution):
-        ops_names = br.evol_basis_pids
+        ops_names = list(br.evol_basis_pids)
     else:
         raise ValueError("Can not reconstruct PDF names")
     ops_id = f"o{ops['hash'][:6]}_t{theory['hash'][:6]}"
@@ -245,16 +246,16 @@ def save_operators_to_pdf(path, theory, ops, me: EKO, skip_pdfs, change_lab=Fals
 
         # plot the operators
         # it's necessary to reshuffle the eko output
-        for mu2 in me.mu2grid:
-            results = me[mu2].operator
-            errors = me[mu2].error
+        for ep, op in me.items():
+            results = op.operator
+            errors = op.error
 
             # loop on pids
             for label_out, res, res_err in zip(ops_names, results, errors):
                 if label_out in skip_pdfs:
                     continue
-                new_op = {}
-                new_op_err = {}
+                new_op: Dict[Tuple[int, ...], List[float]] = {}
+                new_op_err: Dict[Tuple[int, ...], List[float]] = {}
                 # loop on xgrid point
                 for j in range(len(me.xgrid)):
                     # loop on pid in
@@ -280,7 +281,7 @@ def save_operators_to_pdf(path, theory, ops, me: EKO, skip_pdfs, change_lab=Fals
                     fig = None
                     try:
                         fig = plot_operator(
-                            f"Operator ({lab_in};{lab_out}) µ_F^2 = {mu2} GeV^2",
+                            f"Operator ({lab_in};{lab_out}) µ_F^2 = {ep[0]} GeV^2, nf = {ep[1]}",
                             new_op[label_in],
                             new_op_err[label_in],
                         )

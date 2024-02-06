@@ -9,10 +9,11 @@ See :doc:`pQCD ingredients </theory/pQCD>`.
 """
 
 import logging
-from typing import Iterable, List
+from typing import Dict, Iterable, List, Tuple
 
 import numba as nb
 import numpy as np
+import numpy.typing as npt
 import scipy
 
 from . import constants, matchings
@@ -383,6 +384,10 @@ def couplings_expanded_fixed_alphaem(order, couplings_ref, nf, scale_from, scale
     return np.array([res_as, aem])
 
 
+_CouplingsCacheKey = Tuple[float, float, int, float, float]
+"""Cache key containing (a0, a1, nf, scale_from, scale_to)."""
+
+
 class Couplings:
     r"""Compute the strong and electromagnetic coupling constants :math:`a_s, a_{em}`.
 
@@ -480,7 +485,7 @@ class Couplings:
                 self.decoupled_running,
             )
         # cache
-        self.cache = {}
+        self.cache: Dict[_CouplingsCacheKey, npt.NDArray] = {}
 
     @property
     def mu2_ref(self):

@@ -1,10 +1,14 @@
 """Apply operator evolution to PDF set."""
 
+from dataclasses import dataclass
+from typing import Dict, Optional, Union
+
 import numpy as np
 
 from eko import basis_rotation as br
 from eko import interpolation
 from eko.io import EKO
+from eko.io.types import EvolutionPoint
 
 
 def apply_pdf(
@@ -49,6 +53,17 @@ def apply_pdf(
 
 CONTRACTION = "ajbk,bk"
 
+_PdfLabel = Union[int, str]
+"""PDF identifier: either PID or label."""
+
+
+@dataclass
+class PdfResult:
+    """Helper class to collect PDF results."""
+
+    pdfs: Dict[_PdfLabel, float]
+    errors: Optional[Dict[_PdfLabel, float]] = None
+
 
 def apply_pdf_flavor(
     eko: EKO, lhapdf_like, targetgrid=None, flavor_rotation=None, labels=None
@@ -85,35 +100,34 @@ def apply_pdf_flavor(
         )
 
     # build output
-    out_grid = {}
+    out_grid: Dict[EvolutionPoint, PdfResult] = {}
     for ep, elem in eko.items():
         pdf_final = np.einsum(CONTRACTION, elem.operator, pdfs, optimize="optimal")
         if elem.error is not None:
             error_final = np.einsum(CONTRACTION, elem.error, pdfs, optimize="optimal")
         else:
             error_final = None
-        out_grid[ep] = {
-            "pdfs": dict(zip(eko.bases.targetpids, pdf_final)),
-            "errors": None,
-        }
+        out_grid[ep] = PdfResult(dict(zip(eko.bases.targetpids, pdf_final)))
         if error_final is not None:
-            out_grid[ep]["errors"] = dict(zip(eko.bases.targetpids, error_final))
+            out_grid[ep].errors = dict(zip(eko.bases.targetpids, error_final))
 
     qed = eko.theory_card.order[1] > 0
     # rotate to evolution basis
     if flavor_rotation is not None:
         for q2, op in out_grid.items():
             pdf = flavor_rotation @ np.array(
-                [op["pdfs"][pid] for pid in br.flavor_basis_pids]
+                [op.pdfs[pid] for pid in br.flavor_basis_pids]
             )
-            if labels is None:
-                labels = list(range(flavor_rotation.shape[0]))
-            op["pdfs"] = dict(zip(labels, pdf))
-            if op["errors"] is not None:
+            if not qed:
+                evol_basis = br.evol_basis
+            else:
+                evol_basis = br.unified_evol_basis
+            op.pdfs = dict(zip(evol_basis, pdf))
+            if op.errors is not None:
                 errors = flavor_rotation @ np.array(
-                    [op["errors"][pid] for pid in br.flavor_basis_pids]
+                    [op.errors[pid] for pid in br.flavor_basis_pids]
                 )
-                op["errors"] = dict(zip(labels, errors))
+                op.errors = dict(zip(evol_basis, errors))
 
     # rotate/interpolate to target grid
     if targetgrid is not None:
@@ -125,11 +139,12 @@ def apply_pdf_flavor(
 
         rot = b.get_interpolation(targetgrid)
         for evpdf in out_grid.values():
-            for pdf_label in evpdf["pdfs"]:
-                evpdf["pdfs"][pdf_label] = np.matmul(rot, evpdf["pdfs"][pdf_label])
-                if evpdf["errors"] is not None:
-                    evpdf["errors"][pdf_label] = np.matmul(
-                        rot, evpdf["errors"][pdf_label]
-                    )
-
-    return out_grid
+            for pdf_label in evpdf.pdfs:
+                evpdf.pdfs[pdf_label] = np.matmul(rot, evpdf.pdfs[pdf_label])
+                if evpdf.errors is not None:
+                    evpdf.errors[pdf_label] = np.matmul(rot, evpdf.errors[pdf_label])
+    # cast back to be backward compatible
+    real_out_grid = {}
+    for ep, res in out_grid.items():
+        real_out_grid[ep] = {"pdfs": res.pdfs, "errors": res.errors}
+    return real_out_grid

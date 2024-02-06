@@ -1,4 +1,5 @@
 import os
+from dataclasses import dataclass
 
 import numpy as np
 import pytest
@@ -212,7 +213,12 @@ class FakeCoupling:
         return a_ref
 
 
-fake_managers = {"couplings": FakeCoupling()}
+@dataclass(frozen=True)
+class FakeManagers:
+    couplings: FakeCoupling
+
+
+fake_managers = FakeManagers(couplings=FakeCoupling())
 
 
 class TestOperator:

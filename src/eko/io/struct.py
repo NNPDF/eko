@@ -273,7 +273,7 @@ class EKO:
         Raises
         ------
         ValueError
-            if multiple values are find in the neighbourhood
+            if multiple values are found in the neighbourhood
 
         """
         eps = np.array([ep_ for ep_ in self if ep_[1] == ep[1]])
@@ -281,7 +281,9 @@ class EKO:
         close = eps[np.isclose(ep[0], mu2s, rtol=rtol, atol=atol)]
 
         if len(close) == 1:
-            return tuple(close[0])
+            found = close[0]
+            assert isinstance(found[0], float)
+            return (found[0], int(found[1]))
         if len(close) == 0:
             return None
         raise ValueError(f"Multiple values of Q2 have been found close to {ep}")
@@ -374,17 +376,17 @@ class EKO:
             raise ValueError(f"Unknown file mode: {mode}")
 
         tmpdir = pathlib.Path(tempfile.mkdtemp(prefix=TEMP_PREFIX))
-        if load:
-            cls.load(path, tmpdir)
-            metadata = Metadata.load(tmpdir)
-            opened = cls(
-                **inventories(tmpdir, access),
-                metadata=metadata,
-                access=access,
-            )
-            opened.operators.sync()
-        else:
-            opened = Builder(path=tmpdir, access=access)
+        if not load:
+            return Builder(path=tmpdir, access=access)
+        # load existing instead
+        cls.load(path, tmpdir)
+        metadata = Metadata.load(tmpdir)
+        opened: EKO = cls(
+            **inventories(tmpdir, access),
+            metadata=metadata,
+            access=access,
+        )
+        opened.operators.sync()
 
         return opened
 
