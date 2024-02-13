@@ -2,7 +2,10 @@ import numpy as np
 
 from eko import basis_rotation as br
 from eko.beta import beta_qcd_as2, beta_qcd_as3
+from eko.couplings import CouplingEvolutionMethod, Couplings, CouplingsInfo
+from eko.io.types import ScaleVariationsMethod as svm
 from eko.kernels import non_singlet, singlet
+from eko.quantities.heavy_quarks import QuarkMassScheme
 from eko.scale_variations import Modes, expanded, exponentiated
 from ekore.anomalous_dimensions.unpolarized.space_like import gamma_ns, gamma_singlet
 
@@ -92,72 +95,64 @@ def test_valence_sv_dispacher_qed():
 
 
 def test_scale_variation_a_vs_b():
-    r"""
-    Test ``ModSV=exponentiated`` kernel vs ``ModSV=expanded``.
-    We test that the quantity :math:`(ker_A - ker_B)/ker_{unv}`
+    r"""Test ``ModSV=exponentiated`` kernel vs ``ModSV=expanded``.
 
-    Note this is NOT the real difference between scheme expanded
-    and exponentiated since here we don't take into account the
-    shifts in path length and :math:`\alpha_s` values.
-    The real difference is always higher order.
+    We test that the quantity :math:`(ker_A - ker_B)` for truncated solution,
+    is always higher order difference.
+
+    For simplicity we do FFNS nf=4.
     """
     nf = 5
     n = 10
-    a1 = 0.118 / (4 * np.pi)
-    a0 = 0.2 / (4 * np.pi)
-    method = "truncated"
+    q02 = 1.65**2
+    q12 = 100**2
+    ev_method = "truncated"
 
-    def scheme_diff(g, k, pto, is_singlet):
-        """
-        :math:`(ker_A - ker_B)/ker_{unv}` for truncated expansion
-        Effects due to non commutativity are neglected thus,
-        the accuracy of singlet quantities is slightly worse.
-        """
-        if pto[0] >= 2:
-            diff = -g[0] * k * a0  # - 2 * a1 * k * g[0]
-        # if pto[0] >= 3:
-        #     b0 = beta_qcd_as2(nf)
-        #     g02 = g[0] @ g[0] if is_singlet else g[0] ** 2
-        #     diff += (
-        #         -2 * a1**2 * g[1] * k
-        #         + a0**2 * g[1] * k
-        #         + a1**2 * b0 * g[0] * k**2
-        #         - 0.5 * a0**2 * b0 * g[0] * k**2
-        #         - a1 * a0 * g02 * k**2
-        #         + 0.5 * a0**2 * g02 * k**2
-        #         + a1**2 * g02 * k**2
-        #     )
-        # if pto[0] >= 4:
-        #     b1 = beta_qcd_as3(nf)
-        #     g0g1 = g[0] @ g[1] if is_singlet else g[0] * g[1]
-        #     g03 = g02 @ g[0] if is_singlet else g02 * g[0]
-        #     diff += (
-        #         a0**3 * g[2] * k
-        #         - 2 * a1**3 * g[2] * k
-        #         - 1 / 2 * a0**3 * b1 * g[0] * k**2
-        #         + a1**3 * b1 * g[0] * k**2
-        #         - a0**3 * b0 * g[1] * k**2
-        #         + 2 * a1**3 * b0 * g[1] * k**2
-        #         + a0**3 * g0g1 * k**2
-        #         - a0**2 * a1 * g0g1 * k**2
-        #         - a0 * a1**2 * g0g1 * k**2
-        #         + 2 * a1**3 * g0g1 * k**2
-        #         + 1 / 3 * a0**3 * b0**2 * g[0] * k**3
-        #         - 2 / 3 * a1**3 * b0**2 * g[0] * k**3
-        #         - 1 / 2 * a0**3 * b0 * g02 * k**3
-        #         + 1 / 2 * a0**2 * a1 * b0 * g02 * k**3
-        #         + 1 / 2 * a0 * a1**2 * b0 * g02 * k**3
-        #         - a1**3 * b0 * g02 * k**3
-        #         + 1 / 6 * a0**3 * g03 * k**3
-        #         - 1 / 2 * a0**2 * a1 * g03 * k**3
-        #         + 1 / 2 * a0 * a1**2 * g03 * k**3
-        #         - 1 / 3 * a1**3 * g03 * k**3
-        #     )
+    ref = CouplingsInfo(
+        alphas=0.1181,
+        alphaem=0.007496,
+        scale=91.00,
+        max_num_flavs=6,
+        num_flavs_ref=4,
+    )
+
+    def compute_a_s(q2, nf, order):
+        sc = Couplings(
+            couplings=ref,
+            order=order,
+            method=CouplingEvolutionMethod.EXPANDED,
+            masses=np.array([1.51, 4.92, 172.5]) ** 2,
+            hqm_scheme=QuarkMassScheme.POLE,
+            # thresholds_ratios=np.array([1.0, 1.0, 1.0]) ** 2 * (
+            #     xif2 if scvar_method == svm.EXPONENTIATED
+            #     else 1.0
+            # )
+            # Let's do FFNS nf=4 for simplicity
+            thresholds_ratios=np.array([0, np.inf, np.inf]),
+        )
+        # the multiplication for xif2 here it's done explicitly above
+        return sc.a_s(scale_to=q2, nf_to=nf)
+
+    def scheme_diff(g, L, order):
+        """:math:`(ker_A - ker_B)/ker_{unv}` for truncated expansion."""
+        if order == (1, 0):
+            a0 = compute_a_s(q02, nf, order)
+            diff = g[0] * L * a0
+        # TODO: add higher order expressions
         return diff
 
-    for L in [np.log(0.5), np.log(2)]:
+    for xif2 in [0.5**2, 2**2]:
+        L = np.log(xif2)
         # for order in [(2, 0), (3, 0), (4, 0)]:
-        for order in [(2, 0)]:
+        for order in [(1, 0)]:
+            # compute values of alphas
+            a0_b = compute_a_s(q02, nf, order)
+            a1_b = compute_a_s(q12 * xif2, nf, order)
+
+            a0_a = compute_a_s(q02 * xif2, nf, order)
+            # for FFNS these 2 will coincide
+            a1_a = a1_b
+
             # Non singlet kernels
             gns = gamma_ns(
                 order,
@@ -166,36 +161,58 @@ def test_scale_variation_a_vs_b():
                 nf,
                 n3lo_ad_variation=(0, 0, 0, 0, 0, 0, 0),
             )
-            ker = non_singlet.dispatcher(
-                order, method, gns, a1, a0, nf, ev_op_iterations=1
+
+            # build scheme B solution
+            ker_b = non_singlet.dispatcher(
+                order, ev_method, gns, a1_b, a0_b, nf, ev_op_iterations=1
             )
+            ker_b = ker_b * expanded.non_singlet_variation(gns, a1_b, order, nf, L)
+
+            # build scheme A solution
             gns_a = exponentiated.gamma_variation(gns.copy(), order, nf, L)
             ker_a = non_singlet.dispatcher(
-                order, method, gns_a, a1, a0, nf, ev_op_iterations=1
+                order, ev_method, gns_a, a1_a, a0_a, nf, ev_op_iterations=1
             )
-            ker_b = ker * expanded.non_singlet_variation(gns, a1, order, nf, L)
-            ns_diff = scheme_diff(gns, L, order, False)
+
+            ns_diff = scheme_diff(gns, L, order)
             np.testing.assert_allclose(
-                (ker_a - ker_b) / ker,
+                (ker_a - ker_b),
                 ns_diff,
-                atol=1e-3,
                 err_msg=f"L={L},order={order},non-singlet",
             )
 
             # Singlet kernels
             gs = gamma_singlet(order, n, nf, n3lo_ad_variation=(0, 0, 0, 0, 0, 0, 0))
-            ker = singlet.dispatcher(
-                order, method, gs, a1, a0, nf, ev_op_iterations=1, ev_op_max_order=1
+
+            # build scheme B solution
+            ker_b = singlet.dispatcher(
+                order,
+                ev_method,
+                gs,
+                a1_b,
+                a0_b,
+                nf,
+                ev_op_iterations=1,
+                ev_op_max_order=1,
             )
+            ker_b = ker_b @ expanded.singlet_variation(gs, a1_b, order, nf, L, 2)
+
+            # build scheme A solution
             gs_a = exponentiated.gamma_variation(gs.copy(), order, nf, L)
             ker_a = singlet.dispatcher(
-                order, method, gs_a, a1, a0, nf, ev_op_iterations=1, ev_op_max_order=1
+                order,
+                ev_method,
+                gs_a,
+                a1_a,
+                a0_a,
+                nf,
+                ev_op_iterations=1,
+                ev_op_max_order=1,
             )
-            ker_b = ker @ expanded.singlet_variation(gs, a1, order, nf, L, 2)
-            s_diff = scheme_diff(gs, L, order, True)
+
+            s_diff = scheme_diff(gs, L, order)
             np.testing.assert_allclose(
-                (ker_a - ker_b) @ np.linalg.inv(ker),
+                (ker_a - ker_b),
                 s_diff,
-                atol=5e-3,
                 err_msg=f"L={L},order={order},singlet",
             )
