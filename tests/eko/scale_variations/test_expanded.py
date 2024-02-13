@@ -7,6 +7,7 @@ from eko.io.types import ScaleVariationsMethod as svm
 from eko.kernels import non_singlet, singlet
 from eko.quantities.heavy_quarks import QuarkMassScheme
 from eko.scale_variations import Modes, expanded, exponentiated
+from ekore.anomalous_dimensions import exp_matrix_2D
 from ekore.anomalous_dimensions.unpolarized.space_like import gamma_ns, gamma_singlet
 
 
@@ -136,11 +137,12 @@ def test_scale_variation_a_vs_b():
     def scheme_diff(g, L, order, is_singlet):
         """:math:`ker_A / ker_B` for truncated expansion."""
 
-        idx = np.eye(2) if is_singlet else 1
         if order == (1, 0):
             a0 = compute_a_s(q02, nf, order)
             b0 = beta_qcd_as2(nf)
-            diff = (idx + b0 * L * a0) ** (g[0] / b0)
+            diff = (1.0 + b0 * L * a0) ** (g[0] / b0)
+            if is_singlet:
+                diff = exp_matrix_2D(np.log(1.0 + b0 * L * a0) * g[0] / b0)[0]
         # TODO: add higher order expressions
         return diff
 
@@ -215,8 +217,7 @@ def test_scale_variation_a_vs_b():
 
             s_diff = scheme_diff(gs, L, order, True)
             np.testing.assert_allclose(
-                np.diag(ker_a / ker_b),
-                np.diag(s_diff),
+                ker_a @ np.linalg.inv(ker_b),
+                s_diff,
                 err_msg=f"L={L},order={order},singlet",
-                rtol=4e-3,
             )
