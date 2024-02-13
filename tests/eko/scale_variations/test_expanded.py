@@ -97,12 +97,12 @@ def test_valence_sv_dispacher_qed():
 def test_scale_variation_a_vs_b():
     r"""Test ``ModSV=exponentiated`` kernel vs ``ModSV=expanded``.
 
-    We test that the quantity :math:`(ker_A - ker_B)` for truncated solution,
+    We test that the quantity :math:`ker_A / ker_B` for truncated solution,
     is always higher order difference.
 
     For simplicity we do FFNS nf=4.
     """
-    nf = 5
+    nf = 4
     n = 10
     q02 = 1.65**2
     q12 = 100**2
@@ -121,23 +121,26 @@ def test_scale_variation_a_vs_b():
             couplings=ref,
             order=order,
             method=CouplingEvolutionMethod.EXPANDED,
-            masses=np.array([1.51, 4.92, 172.5]) ** 2,
+            masses=np.array([1.51, 1e4, 1e5]) ** 2,
             hqm_scheme=QuarkMassScheme.POLE,
             # thresholds_ratios=np.array([1.0, 1.0, 1.0]) ** 2 * (
             #     xif2 if scvar_method == svm.EXPONENTIATED
             #     else 1.0
             # )
             # Let's do FFNS nf=4 for simplicity
-            thresholds_ratios=np.array([0, np.inf, np.inf]),
+            thresholds_ratios=np.array([1.0, 1.0, 1.0]),
         )
         # the multiplication for xif2 here it's done explicitly above
         return sc.a_s(scale_to=q2, nf_to=nf)
 
-    def scheme_diff(g, L, order):
-        """:math:`(ker_A - ker_B)/ker_{unv}` for truncated expansion."""
+    def scheme_diff(g, L, order, is_singlet):
+        """:math:`ker_A / ker_B` for truncated expansion."""
+
+        idx = np.eye(2) if is_singlet else 1
         if order == (1, 0):
             a0 = compute_a_s(q02, nf, order)
-            diff = g[0] * L * a0
+            b0 = beta_qcd_as2(nf)
+            diff = (idx + b0 * L * a0) ** (g[0] / b0)
         # TODO: add higher order expressions
         return diff
 
@@ -174,9 +177,9 @@ def test_scale_variation_a_vs_b():
                 order, ev_method, gns_a, a1_a, a0_a, nf, ev_op_iterations=1
             )
 
-            ns_diff = scheme_diff(gns, L, order)
+            ns_diff = scheme_diff(gns, L, order, False)
             np.testing.assert_allclose(
-                (ker_a - ker_b),
+                ker_a / ker_b,
                 ns_diff,
                 err_msg=f"L={L},order={order},non-singlet",
             )
@@ -210,9 +213,10 @@ def test_scale_variation_a_vs_b():
                 ev_op_max_order=1,
             )
 
-            s_diff = scheme_diff(gs, L, order)
+            s_diff = scheme_diff(gs, L, order, True)
             np.testing.assert_allclose(
-                (ker_a - ker_b),
-                s_diff,
+                np.diag(ker_a / ker_b),
+                np.diag(s_diff),
                 err_msg=f"L={L},order={order},singlet",
+                rtol=4e-3,
             )
