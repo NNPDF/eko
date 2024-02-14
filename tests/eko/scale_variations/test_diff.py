@@ -9,7 +9,7 @@ For simplicity we do FFNS nf=4.
 import numpy as np
 
 from eko import basis_rotation as br
-from eko.beta import beta_qcd_as2
+from eko.beta import beta_qcd_as2, beta_qcd_as3
 from eko.couplings import CouplingEvolutionMethod, Couplings, CouplingsInfo
 from eko.kernels import non_singlet, singlet
 from eko.quantities.heavy_quarks import QuarkMassScheme
@@ -41,25 +41,105 @@ def compute_a_s(q2, order):
     return sc.a_s(scale_to=q2)
 
 
-def scheme_diff_ns(g, a0, L, order):
+def scheme_diff_ns(g, a0, a1, L, order):
     """:math:`ker_A / ker_B` for truncated non-singlet expansion."""
 
     b0 = beta_qcd_as2(NF)
+    b1 = beta_qcd_as3(NF)
     if order == (1, 0):
         # series of (1.0 + b0 * L * a0) ** (g[0] / b0), L->0
         diff = 1 + a0 * g[0] * L + 1 / 2 * a0**2 * g[0] * (-b0 + g[0]) * L**2
-    # TODO: add higher order expressions
+    if order == (2, 0):
+        # this term is formally 1 + as^2
+        diff = (
+            1
+            - (a1**2 * g[0] * L * (-b1 * g[0] + b0 * (g[1] + b0 * g[0] * L))) / b0**2
+            + (
+                (a0 * a1 * g[0] * L)
+                * (
+                    -2 * b1 * (g[0] + 2 * a1 * b0 * g[0] * L)
+                    + b0 * (3 * b0 * g[0] * L + g[1] * (2 + 4 * a1 * b0 * L))
+                )
+            )
+            / b0**2
+            + (a0**2 * L / (2 * b0**5))
+            * (
+                -2 * a1**2 * b1**3 * g[0] ** 3
+                + 6 * a1**2 * b0 * b1**2 * g[0] ** 2 * g[1]
+                + 3 * b0**6 * g[0] * L
+                + b0**5
+                * (
+                    -3 * g[0] ** 2 * L
+                    + 2 * a1**2 * g[1] ** 2 * L
+                    + g[1] * (2 - 20 * a1 * g[0] * L)
+                )
+                + (2 * a1 * b0**2 * b1 * g[0])
+                * (-3 * a1 * g[1] ** 2 + b1 * g[0] * (-1 + 3 * a1 * g[0] * L))
+                + (2 * b0**3)
+                * (
+                    a1**2 * g[1] ** 3
+                    - 5 * a1**2 * b1**2 * g[0] ** 2 * L
+                    + b1 * g[0] * (g[0] + 2 * a1 * g[1] - 5 * a1**2 * g[0] * g[1] * L)
+                )
+                + b0**4
+                * (
+                    -2 * a1 * g[1] ** 2
+                    + 20 * a1 * b1 * g[0] ** 2 * L
+                    + 2 * g[0] * g[1] * (-1 + 2 * a1**2 * (2 * b1 + g[1]) * L)
+                )
+            )
+        )
     return diff
 
 
-def scheme_diff_s(g, a0, L, order):
+def scheme_diff_s(g, a0, a1, L, order):
     """:math:`ker_A / ker_B` for truncated singlet expansion."""
 
     b0 = beta_qcd_as2(NF)
+    b1 = beta_qcd_as3(NF)
     if order == (1, 0):
         # series of exp(log(1.0 + b0 * L * a0) * g[0] / b0)[0], L->0
         diff = np.eye(2) + a0 * g[0] * L + 1 / 2 * a0**2 * g[0] @ (-b0 + g[0]) * L**2
-    # TODO: add higher order expressions
+    elif order == (2, 0):
+        # this term is formally 1 + as^2
+        diff = (
+            np.eye(2)
+            - (a1**2 * g[0] * L @ (-b1 * g[0] + b0 * (g[1] + b0 * g[0] * L))) / b0**2
+            + (
+                (a0 * a1 * g[0] * L)
+                @ (
+                    -2 * b1 * (g[0] + 2 * a1 * b0 * g[0] * L)
+                    + b0 * (3 * b0 * g[0] * L + g[1] * (2 + 4 * a1 * b0 * L))
+                )
+            )
+            / b0**2
+            + (a0**2 * L / (2 * b0**5))
+            * (
+                -2 * a1**2 * b1**3 * g[0] @ g[0] @ g[0]
+                + 6 * a1**2 * b0 * b1**2 * g[0] @ g[0] @ g[1]
+                + 3 * b0**6 * g[0] * L
+                + b0**5
+                * (
+                    -3 * g[0] @ g[0] * L
+                    + 2 * a1**2 * g[1] @ g[1] * L
+                    + g[1] @ (2 - 20 * a1 * g[0] * L)
+                )
+                + (2 * a1 * b0**2 * b1 * g[0])
+                @ (-3 * a1 * g[1] @ g[1] + b1 * g[0] @ (-1 + 3 * a1 * g[0] * L))
+                + (2 * b0**3)
+                * (
+                    a1**2 * g[1] @ g[1] @ g[1]
+                    - 5 * a1**2 * b1**2 * g[0] @ g[0] * L
+                    + b1 * g[0] @ (g[0] + 2 * a1 * g[1] - 5 * a1**2 * g[0] @ g[1] * L)
+                )
+                + b0**4
+                * (
+                    -2 * a1 * g[1] @ g[1]
+                    + 20 * a1 * b1 * g[0] @ g[0] * L
+                    + 2 * g[0] @ g[1] @ (-1 + 2 * a1**2 * (2 * b1 + g[1]) * L)
+                )
+            )
+        )
     return diff
 
 
@@ -71,9 +151,10 @@ def test_scale_variation_a_vs_b():
     for xif2 in [0.9, 1.1]:
         L = np.log(xif2)
         # for order in [(2, 0), (3, 0), (4, 0)]:
-        for order in [(1, 0)]:
+        for order in [(1, 0), (2, 0)]:
             # compute values of alphas
             a0 = compute_a_s(Q02, order)
+            a1 = compute_a_s(Q12, order)
             a0_b = a0
             a1_b = compute_a_s(Q12 * xif2, order)
 
@@ -102,12 +183,12 @@ def test_scale_variation_a_vs_b():
                     order, EV_METHOD, gns_a, a1_a, a0_a, NF, ev_op_iterations=1
                 )
 
-                ns_diff = scheme_diff_ns(gns, a0, L, order)
+                ns_diff = scheme_diff_ns(gns, a0, a1, L, order)
                 np.testing.assert_allclose(
                     ker_a / ker_b,
                     ns_diff,
                     err_msg=f"{L=},{order=},{n=},non-singlet",
-                    rtol=2e-5,
+                    rtol=2e-5 if order == (1, 0) else 3e-3,
                 )
 
                 # Singlet kernels
@@ -141,10 +222,10 @@ def test_scale_variation_a_vs_b():
                     ev_op_max_order=1,
                 )
 
-                s_diff = scheme_diff_s(gs, a0, L, order)
+                s_diff = scheme_diff_s(gs, a0, a1, L, order)
                 np.testing.assert_allclose(
                     np.diag(ker_a @ np.linalg.inv(ker_b)),
                     np.diag(s_diff),
                     err_msg=f"{L=},{order=},{n=},singlet",
-                    rtol=2e-4,
+                    rtol=2e-4 if order == (1, 0) else 9e-3,
                 )
