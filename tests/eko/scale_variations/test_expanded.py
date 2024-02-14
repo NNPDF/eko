@@ -147,7 +147,7 @@ def test_scale_variation_a_vs_b():
                 + 1 / 6 * a0**3 * g[0] * (2 * b0**2 - 3 * b0 * g[0] + g[0] ** 2) * L**3
             )
             if is_singlet:
-                # series of exp_matrix_2D(np.log(1.0 + b0 * L * a0) * g[0] / b0)[0]
+                # series of exp_matrix_2D(np.log(1.0 + b0 * L * a0) * g[0] / b0)[0],  L->0
                 diff = (
                     np.eye(2)
                     + a0 * g[0] * L
