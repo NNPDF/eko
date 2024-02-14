@@ -1,12 +1,6 @@
 import numpy as np
 
-from eko import basis_rotation as br
-from eko.beta import beta_qcd_as2
-from eko.couplings import CouplingEvolutionMethod, Couplings, CouplingsInfo
-from eko.kernels import non_singlet, singlet
-from eko.quantities.heavy_quarks import QuarkMassScheme
-from eko.scale_variations import Modes, expanded, exponentiated
-from ekore.anomalous_dimensions.unpolarized.space_like import gamma_ns, gamma_singlet
+from eko.scale_variations import Modes, expanded
 
 
 def test_modes():
