@@ -49,7 +49,7 @@ def scheme_diff_ns(g, a0, a1, L, order):
     if order == (1, 0):
         # series of (1.0 + b0 * L * a0) ** (g[0] / b0), L->0
         diff = 1 + a0 * g[0] * L + 1 / 2 * a0**2 * g[0] * (-b0 + g[0]) * L**2
-    if order == (2, 0):
+    elif order == (2, 0):
         # this term is formally 1 + as^2
         diff = (
             1
@@ -106,17 +106,14 @@ def test_scale_variation_a_vs_b():
     # keep the expansions under control
     for xif2 in [0.9, 1.1]:
         L = np.log(xif2)
-        # for order in [(2, 0), (3, 0), (4, 0)]:
         for order in [(1, 0), (2, 0)]:
             # compute values of alphas
             a0 = compute_a_s(Q02, order)
             a1 = compute_a_s(Q12, order)
             a0_b = a0
             a1_b = compute_a_s(Q12 * xif2, order)
-
             a0_a = compute_a_s(Q02 * xif2, order)
-            # for FFNS these 2 will coincide
-            a1_a = a1_b
+            a1_a = a1_b  # for FFNS these 2 will coincide
             for n in [2.0, 3.0, 10.0]:
                 # Non singlet kernels
                 gns = gamma_ns(
