@@ -28,16 +28,14 @@ class TestEKO:
         for args in [(None, None), (theory_card, None), (None, operator_card)]:
             with pytest.raises(RuntimeError, match="missing"):
                 with struct.EKO.create(tmp_path / "Blub2.tar") as builder:
-                    eko = builder.load_cards(*args).build()
+                    _ = builder.load_cards(*args).build()
 
     def test_load_error(self, tmp_path):
         # try to read from a non-tar path
         no_tar_path = tmp_path / "Blub.tar"
         no_tar_path.write_text("Blub", encoding="utf-8")
-        with pytest.raises(ValueError, match="tar"):
+        with pytest.raises(tarfile.ReadError):
             struct.EKO.read(no_tar_path)
-        with pytest.raises(ValueError, match="file mode"):
-            struct.EKO.open(no_tar_path, "ü")
 
     def test_properties(self, eko_factory: EKOFactory):
         mu = 10.0
@@ -184,3 +182,16 @@ class TestEKO:
             assert isinstance(op, struct.Operator)
 
         assert eko.operators.cache[Target.from_ep(ep)] is None
+
+    def test_load_opened(self, tmp_path: pathlib.Path, eko_factory: EKOFactory):
+        """Test the loading of an already opened EKO."""
+        eko = eko_factory.get()
+        eko.close()
+        # drop from cache to avoid double close by the fixture
+        eko_factory.cache = None
+
+        assert eko.access.path is not None
+        read_closed = EKO.read(eko.access.path, dest=tmp_path)
+        read_opened = EKO.read(tmp_path, extract=False)
+
+        assert read_closed.metadata == read_opened.metadata
