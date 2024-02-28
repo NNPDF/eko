@@ -1,3 +1,7 @@
+# See https://docs.readthedocs.io/en/stable/config-file/v2.html for details
+# for poetry see https://docs.readthedocs.io/en/stable/build-customization.html#install-dependencies-with-poetry
+
+# Required
 version: 2
 
 build:
@@ -9,16 +13,12 @@ build:
   jobs:
     post_create_environment:
       - pip install poetry
-      - poetry config virtualenvs.create false
     post_install:
-      - poetry install --with docs
+      - VIRTUAL_ENV=$READTHEDOCS_VIRTUALENV_PATH poetry install --with docs
 
+# Build documentation in the docs/ directory with Sphinx
 sphinx:
-  configuration: doc/source/conf.py
-
-# Optionally build your docs in additional formats such as PDF
-# formats:
-# - pdf
+  configuration: docs/source/conf.py
 
 python:
   install:
