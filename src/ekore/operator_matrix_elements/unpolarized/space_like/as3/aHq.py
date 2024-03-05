@@ -9,7 +9,7 @@ from .....harmonics import cache as c
 
 @nb.njit(cache=True)
 def A_Hq(n, cache, nf, L):  # pylint: disable=too-many-locals
-    r"""Compute the |N3LO| singlet |OME| :math:`A_{Hq}^{(3)}(N)`.
+    r"""Compute the |N3LO| singlet |OME| :math:`A_{S,Hq}^{(3)}(N)`.
 
     The expression is presented in :cite:`Ablinger_2015` :eqref:`5.1`
     and :cite:`Blumlein:2017wxd` :eqref:`3.1`.
@@ -37,7 +37,7 @@ def A_Hq(n, cache, nf, L):  # pylint: disable=too-many-locals
     Returns
     -------
     complex
-        :math:`A_{Hq}^{(3)}(N)`
+        :math:`A_{Hq}^{S,(3)}(N)`
 
     """
     S1 = c.get(c.S1, cache, n)

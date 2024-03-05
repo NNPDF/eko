@@ -10,7 +10,7 @@ from .aHg_param import a_Hg3
 
 @nb.njit(cache=True)
 def A_Hg(n, cache, nf, L):
-    r"""Compute the |N3LO| singlet |OME| :math:`A_{Hg}^{(3)}(N)`.
+    r"""Compute the |N3LO| singlet |OME| :math:`A_{S,Hg}^{(3)}(N)`.
 
     The expression is presented in :cite:`Bierenbaum:2009mv,Blumlein:2017wxd,Ablinger:2024xtt`.
 
@@ -31,7 +31,7 @@ def A_Hg(n, cache, nf, L):
     Returns
     -------
     complex
-        :math:`A_{Hg}^{(3)}(N)`
+        :math:`A_{Hg}^{S,(3)}(N)`
 
     """
     S1 = c.get(c.S1, cache, n)

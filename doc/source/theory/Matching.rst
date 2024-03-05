@@ -92,7 +92,7 @@ During the matching we use :math:`a_s^{(n_f+1)}`: in fact the :math:`a_s` decoup
 Parts proportional to :math:`\ln(\mu_{h}^2/m_{h}^2)` are also included up to |N3LO|.
 
 All the contributions are now known analytically. Due to the lengthy and complex expressions
-some parts of :math:`A_{Hg}^{(3)},A_{Hq}^{(3)},A_{gg}^{(3)},A_{qq}^{NS,(3)}` have been parameterized.
+some parts of :math:`A_{Hg}^{S,(3)},A_{Hq}^{S,(3)},A_{gg}^{S,(3)},A_{qq}^{NS,(3)}` have been parameterized.
 
 We remark that contributions of the heavy quark initiated diagrams at |NNLO| and |N3LO| have not been computed yet,
 thus the elements :math:`A_{qH}^{(2)},A_{gH}^{(2)}A_{HH}^{(2)}` are not encoded in EKO despite of being present.
