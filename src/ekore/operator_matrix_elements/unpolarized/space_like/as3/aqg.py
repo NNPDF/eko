@@ -8,7 +8,7 @@ from .....harmonics import cache as c
 
 @nb.njit(cache=True)
 def A_qg(n, cache, nf, L):
-    r"""Compute the |N3LO| singlet |OME| :math:`A_{qg}^{S,(3)}(N)`.
+    r"""Compute the |N3LO| singlet |OME| :math:`A_{qg}^{(3)}(N)`.
 
     The expression is presented in :cite:`Bierenbaum:2009mv`.
 
@@ -29,7 +29,7 @@ def A_qg(n, cache, nf, L):
     Returns
     -------
     complex
-        :math:`A_{qg}^{S,(3)}(N)`
+        :math:`A_{qg}^{(3)}(N)`
 
     """
     S1 = c.get(c.S1, cache, n)

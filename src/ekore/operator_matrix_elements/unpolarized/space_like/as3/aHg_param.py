@@ -1,4 +1,4 @@
-"""The approximated incomplete part of renormalization constant :math:`a_{Hg}^{S,(3)}(N)`."""
+"""The approximated incomplete part of renormalization constant :math:`a_{Hg}^{(3)}(N)`."""
 
 # pylint: skip-file
 import numba as nb
@@ -10,16 +10,16 @@ from .....harmonics.log_functions import lm11, lm12, lm13, lm14, lm15
 
 @nb.njit(cache=True)
 def a_Hg3(n, cache, nf):
-    r"""Compute :math:`a_{Hg}^{S,(3)}(N)`.
+    r"""Compute :math:`a_{Hg}^{(3)}(N)`.
 
     This is composed by two parts:
 
         1. the exact part proportional to :math:`n_f T_{F}` and
         presented in :cite:`Blumlein:2017wxd` :eqref:`3.1`.
 
-        2. a parametrized expressions for the :math:`n_f^0`
-        derived from the 5 lowest moments, presented in
-        :cite:`Bierenbaum:2009mv` :eqref:`8.50-8.54`,
+        2. a parametrized expression for the :math:`n_f^0` piece
+        derived from: the 5 lowest moments, presented in
+        :cite:`Bierenbaum:2009mv` :eqref:`8.50-8.54`;
         and the :math:`x \to 0,1` limits from :eqref:`4.4-4.5`
         of :cite:`Ablinger:2024xtt`. The |LL| small-x contribution
         was originally computed in :math:`Kawamura:2012cr`, :eqref:`3.47`.
@@ -39,7 +39,7 @@ def a_Hg3(n, cache, nf):
     Returns
     -------
     complex
-        :math:`a_{Hg}^{S,(3)}(N)`
+        :math:`a_{Hg}^{(3)}(N)`
 
     """
     S1 = c.get(c.S1, cache, n)
