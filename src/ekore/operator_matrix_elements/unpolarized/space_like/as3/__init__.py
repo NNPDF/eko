@@ -63,6 +63,7 @@ The expressions are based on:
       Freitas, A. von Manteuffel, C. Schneider, K. Schönwald.
       The non-first-order-factorizable contributions to the three-loop single-mass
       operator matrix elements $A_{Qg}^{(3)}$ and $\Delta A_{Qg}^{(3)}$.
+
 """
 
 import numba as nb
