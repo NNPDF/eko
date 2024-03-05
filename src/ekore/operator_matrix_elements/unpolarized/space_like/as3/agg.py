@@ -9,7 +9,7 @@ from .....harmonics import cache as c
 
 @nb.njit(cache=True)
 def a_gg3(n, cache, nf):
-    r"""Compute the approximate part of :math:`a_{gg}^{S,(3)}(N)`.
+    r"""Compute the approximate part of :math:`a_{gg}^{(3)}(N)`.
 
     This is the part of :math:`A_{gg}^{S,(3)}(N)` proportional to :math:`\mathcal{O}(\epsilon^0)`,
     the expression is presented in  :cite:`Ablinger:2022wbb`.
@@ -30,7 +30,7 @@ def a_gg3(n, cache, nf):
     Returns
     -------
     complex
-        :math:`a_{gg}^{S,(3)}(N)`
+        :math:`a_{gg}^{(3)}(N)`
 
     """
     S1 = c.get(c.S1, cache, n)

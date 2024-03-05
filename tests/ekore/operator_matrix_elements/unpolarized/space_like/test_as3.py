@@ -26,7 +26,6 @@ def test_A_3():
         N = 2.0
         sx_cache = c.reset()
         # The accuracy of this test depends on the approximation of aHg3.
-        # which is not fully available.
         atol = 2e-4 if L == 0 else 2e-3
         np.testing.assert_allclose(
             as3.A_gg(N, sx_cache, nf, L)
