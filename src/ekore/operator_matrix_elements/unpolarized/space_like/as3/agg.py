@@ -16,7 +16,7 @@ def a_gg3(n, cache, nf):
     It contains binomial factors which are approximated.
 
     When using the code, please cite the complete list of references
-    available in :mod:`eko.matching_conditions.as3`.
+    available in :mod:`~ekore.operator_matrix_elements.unpolarized.space_like.as3`.
 
     Parameters
     ----------
@@ -254,7 +254,7 @@ def A_gg(n, cache, nf, L):
     The expression is presented in :cite:`Bierenbaum:2009mv`.
 
     When using the code, please cite the complete list of references
-    available in :mod:`ekore.matching_conditions.as3`.
+    available in :mod:`~ekore.operator_matrix_elements.unpolarized.space_like.as3`.
 
     Parameters
     ----------

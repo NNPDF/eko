@@ -14,18 +14,16 @@ def a_Hg3(n, cache, nf):
 
     This is composed by two parts:
 
-        1. the exact part proportional to :math:`n_f T_{F}` and
-        presented in :cite:`Blumlein:2017wxd` :eqref:`3.1`.
-
-        2. a parametrized expression for the :math:`n_f^0` piece
-        derived from: the 5 lowest moments, presented in
-        :cite:`Bierenbaum:2009mv` :eqref:`8.50-8.54`;
-        and the :math:`x \to 0,1` limits from :eqref:`4.4-4.5`
-        of :cite:`Ablinger:2024xtt`. The |LL| small-x contribution
-        was originally computed in :math:`Kawamura:2012cr`, :eqref:`3.47`.
+    1. the exact part proportional to :math:`n_f T_{F}` and presented in :cite:`Blumlein:2017wxd` :eqref:`3.1`.
+    2. a parametrized expression for the :math:`n_f^0` piece
+       derived from: the 5 lowest moments, presented in
+       :cite:`Bierenbaum:2009mv` :eqref:`8.50-8.54`;
+       and the :math:`x \to 0,1` limits from :eqref:`4.4-4.5`
+       of :cite:`Ablinger:2024xtt`. The |LL| small-x contribution
+       was originally computed in :cite:`Kawamura:2012cr`, :eqref:`3.47`.
 
     The parametrized part has been tested to be in reasonable agreement
-    with the one provided in :math:`Kawamura:2012cr` :eqref:`3.49`, :eqref:`3.50`.
+    with the one provided in :cite:`Kawamura:2012cr` :eqref:`3.49`, :eqref:`3.50`.
 
     Parameters
     ----------

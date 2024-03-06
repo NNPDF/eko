@@ -86,11 +86,11 @@ def A_singlet(n, cache, nf, L):
         A^{S,(3)} = \left(\begin{array}{cc}
             A_{gg, H}^{S,(3)} & A_{gq, H}^{S,(3)} & 0 \\
             A_{qg, H}^{S,(3)} & A_{qq,H}^{NS,(3)} + A_{qq,H}^{PS,(3)} & 0\\
-            A_{hg}^{S,(3)} & A_{hq}^{PS,(3)} & 0\\
+            A_{Hg}^{S,(3)} & A_{Hq}^{PS,(3)} & 0\\
         \end{array}\right)
 
     When using the code, please cite the complete list of references
-    available at the top of this module :mod:`ekore.matching_conditions.as3`.
+    available at the top of this module :mod:`~ekore.operator_matrix_elements.unpolarized.space_like.as3`.
 
     Parameters
     ----------
@@ -106,7 +106,7 @@ def A_singlet(n, cache, nf, L):
     Returns
     -------
     A_S : numpy.ndarray
-        |NNLO| singlet |OME| :math:`A^{S,(3)}(N)`
+        |N3LO| singlet |OME| :math:`A^{S,(3)}(N)`
 
     """
     A_hq_3 = A_Hq(n, cache, nf, L)
@@ -141,7 +141,7 @@ def A_ns(n, cache, nf, L):
         \end{array}\right)
 
     When using the code, please cite the complete list of references available
-    at the top of this module :mod:`ekore.matching_conditions.as3`.
+    at the top of this module :mod:`~ekore.operator_matrix_elements.unpolarized.space_like.as3`.
 
     Parameters
     ----------
