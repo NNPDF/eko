@@ -1,4 +1,4 @@
-"""The approximated incomplete part of renormalization constant :math:`a_{Hg}^{(3)}(N)`."""
+"""The approximated part of renormalization constant :math:`a_{Hg}^{(3)}(N)`."""
 
 # pylint: skip-file
 import numba as nb
