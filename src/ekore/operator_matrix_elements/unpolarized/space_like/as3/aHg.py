@@ -12,10 +12,10 @@ from .aHg_param import a_Hg3
 def A_Hg(n, cache, nf, L):
     r"""Compute the |N3LO| singlet |OME| :math:`A_{Hg}^{S,(3)}(N)`.
 
-    The expression is presented in :cite:`Bierenbaum:2009mv`.
+    The expression is presented in :cite:`Bierenbaum:2009mv,Blumlein:2017wxd,Ablinger:2024xtt`.
 
     When using the code, please cite the complete list of references
-    available in :mod:`ekore.matching_conditions.as3`.
+    available in :mod:`~ekore.operator_matrix_elements.unpolarized.space_like.as3`.
 
     Parameters
     ----------

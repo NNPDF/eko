@@ -1,12 +1,12 @@
 r"""The unpolarized, spacelike |NNLO| |OME|.
 
 See, :cite:`Buza_1998` appendix B.
-The expession for :math:`\mu_F^2 = m_H^2` are taken from :cite:`Vogt:2004ns` directly in N space.
+The expression for :math:`\mu_F^2 = m_H^2` are taken from :cite:`Vogt:2004ns` directly in N space.
 While the parts proportional to :math:`\ln(\mu_F^2 / m_h^2)` comes |QCDNUM|
 (https://github.com/N3PDF/external/blob/master/qcdnum/qcdnum/pij/ome.f)
 and Mellin transformed with Mathematica.
 
-The expession for ``A_Hg_l0`` comes form :cite:`Bierenbaum:2009zt`.
+The expression for ``A_Hg_l0`` comes form :cite:`Bierenbaum:2009zt`.
 """
 
 import numba as nb

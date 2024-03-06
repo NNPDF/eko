@@ -9,14 +9,14 @@ from .....harmonics import cache as c
 
 @nb.njit(cache=True)
 def a_gg3(n, cache, nf):
-    r"""Compute the approximate part of :math:`a_{gg}^{S,(3)}(N)`.
+    r"""Compute the approximate part of :math:`a_{gg}^{(3)}(N)`.
 
     This is the part of :math:`A_{gg}^{S,(3)}(N)` proportional to :math:`\mathcal{O}(\epsilon^0)`,
     the expression is presented in  :cite:`Ablinger:2022wbb`.
     It contains binomial factors which are approximated.
 
     When using the code, please cite the complete list of references
-    available in :mod:`eko.matching_conditions.as3`.
+    available in :mod:`~ekore.operator_matrix_elements.unpolarized.space_like.as3`.
 
     Parameters
     ----------
@@ -30,7 +30,7 @@ def a_gg3(n, cache, nf):
     Returns
     -------
     complex
-        :math:`a_{gg}^{S,(3)}(N)`
+        :math:`a_{gg}^{(3)}(N)`
 
     """
     S1 = c.get(c.S1, cache, n)
@@ -254,7 +254,7 @@ def A_gg(n, cache, nf, L):
     The expression is presented in :cite:`Bierenbaum:2009mv`.
 
     When using the code, please cite the complete list of references
-    available in :mod:`ekore.matching_conditions.as3`.
+    available in :mod:`~ekore.operator_matrix_elements.unpolarized.space_like.as3`.
 
     Parameters
     ----------

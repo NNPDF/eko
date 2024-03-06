@@ -26,7 +26,6 @@ def test_A_3():
         N = 2.0
         sx_cache = c.reset()
         # The accuracy of this test depends on the approximation of aHg3.
-        # which is not fully available.
         atol = 2e-4 if L == 0 else 2e-3
         np.testing.assert_allclose(
             as3.A_gg(N, sx_cache, nf, L)
@@ -123,18 +122,18 @@ def test_Blumlein_3():
     }
     ref_val_a_Hg = {
         0: [
-            -99.16581867356965,
-            -676.0759818186247,
-            -768.6183629349141,
-            -789.7519719852811,
-            -414.2873373741821,
+            -99.16581867356649,
+            -676.0759818186239,
+            -768.6183629349139,
+            -789.7519719852797,
+            -455.71655880271237,
         ],
         10: [
-            -99.16581867356965,
-            -676.0759818186247,
-            -768.6183629349141,
-            -789.7519719852811,
-            -414.2873373741821,
+            -99.16581867356649,
+            -676.0759818186239,
+            -768.6183629349139,
+            -789.7519719852797,
+            -455.71655880271237,
         ],
     }
     ref_val_Hq = {
@@ -209,9 +208,9 @@ def test_Blumlein_3():
             np.testing.assert_allclose(
                 aS3[2, 1], ref_val_Hq[L][idx], rtol=2e-5, atol=2e-6
             )
-            # np.testing.assert_allclose(
-            #     aS3[1, 1], ref_val_qqNS[L][idx] + ref_val_qqPS[L][idx], rtol=2e-6
-            # )
+            np.testing.assert_allclose(
+                aS3[1, 1], ref_val_qqNS[L][idx] + ref_val_qqPS[L][idx], rtol=2e-6
+            )
 
     # Here we test the critical parts
     for idx, N in enumerate([2.0, 4.0, 6.0, 10.0, 100.0]):
