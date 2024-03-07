@@ -8,7 +8,7 @@ n3lo_table_dir = table_dir
 latex_tab = here / "latex_tab"
 latex_tab.mkdir(exist_ok=True)
 
-SVS = ["central", "down", "up"]
+SVS = ["central", "up", "down"]
 
 MIDRULE1 = r"""
 \hline \hline
@@ -76,10 +76,13 @@ def insert_haedrule(scheme, approx, caption):
 
 def insert_midrule(sv):
     """Insert the middle rule."""
+    # TODO: is this mapping correct or the other way round ??
+    # xif2 = 2 -> up
+    # xif2 = 1/2 -> down
     label = {
-        "central": r"$\mu_R^2 = \ \mu_F^2$",
-        "down": r"$\mu_R^2 = 0.5 \ \mu_F^2$",
-        "up": r"$\mu_R^2 = 2 \ \mu_F^2$",
+        "central": r"$\mu_{\rm r}^2 = \ \mu_{\rm f}^2$",
+        "down": r"$\mu_{\rm r}^2 = 0.5 \ \mu_{\rm f}^2$",
+        "up": r"$\mu_{\rm r}^2 = 2 \ \mu_{\rm f}^2$",
     }
     return MIDRULE1 + label[sv] + MIDRULE2
 
@@ -97,7 +100,7 @@ def format_float(values):
 
 def dump_table(scheme: str, approx: str, caption: str):
     """Write a nice latex table."""
-    final_tab = insert_haedrule(scheme, approx, caption)
+    final_tab = insert_haedrule(scheme, approx.replace("EKO", "NNPDF"), caption)
     # loop on scales
     for sv in SVS:
         # load tables
@@ -113,7 +116,11 @@ def dump_table(scheme: str, approx: str, caption: str):
     final_tab += BOTTOMRULE
 
     # write
-    with open(latex_tab / f"table-{scheme}-{approx}.tex", "w", encoding="utf-8") as f:
+    with open(
+        latex_tab / f"table-{scheme}-{approx.replace('EKO', 'NNPDF')}.tex",
+        "w",
+        encoding="utf-8",
+    ) as f:
         f.writelines(final_tab)
 
 
@@ -135,5 +142,15 @@ if __name__ == "__main__":
         for the initial conditions and the input parton distributions
         given in Sec.~\ref{sec:toy_pdf},
         with the FHMRUVV splitting functions approximation.
+    """
+    dump_table(scheme, approx, caption)
+
+    approx = "EKO"
+    scheme = "FFNS"
+    caption = r"""
+        Results for the FFNS aN$^3$LO evolution
+        for the initial conditions and the input parton distributions
+        given in Sec.~\ref{sec:toy_pdf},
+        with the NNPDF splitting functions approximation.
     """
     dump_table(scheme, approx, caption)

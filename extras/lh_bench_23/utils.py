@@ -213,7 +213,7 @@ def plot_pdfs(
     plot_name = f"n3lo_bench_{scheme}_{xscale}"
     plot_dir.mkdir(exist_ok=True)
 
-    fig.suptitle(f"{scheme}" + r", $\mu_F^2 = 10^4 \ \mbox{GeV}^2$")
+    fig.suptitle(f"{scheme}" + r", $\mu_{\rm f}^2 = 10^4 \ \mbox{GeV}^2$")
 
     # loop on PDFs
     for i, ax in enumerate(
@@ -282,7 +282,7 @@ def plot_diff_to_nnlo(
     diff_type = "Relative" if rel_dff else "Absolute"
     fig.suptitle(
         f"{diff_type} difference to NNLO, {scheme}"
-        + r", $\mu_F^2 = 10^4 \ \mbox{GeV}^2$"
+        + r", $\mu_{\rm f}^2 = 10^4 \ \mbox{GeV}^2$"
     )
 
     for i, ax in enumerate(
