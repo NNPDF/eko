@@ -102,13 +102,20 @@ def rotate_lha_to_evol(df: pd.DataFrame, scheme: str) -> pd.DataFrame:
 
 
 def load_n3lo_tables(
-    n3lo_table_dir: pathlib.Path, scheme: str, approx: str, rotate_to_evol: bool = False
+    n3lo_table_dir: pathlib.Path,
+    scheme: str,
+    sv: str,
+    approx: str,
+    rotate_to_evol: bool = False,
 ) -> list:
     """Load the N3LO tables."""
     dfs = []
     for p in n3lo_table_dir.iterdir():
         if scheme not in p.stem:
             continue
+        if sv not in p.stem:
+            continue
+
         if approx in p.stem:
             table = pd.read_csv(p, index_col=0)
             table.rename(columns=LHA_LABELS_MAP, inplace=True)
@@ -144,17 +151,17 @@ def load_msht(
     if scheme != "VFNS":
         raise ValueError(f"{scheme} not provided by MSHT, comment it out")
     APPROX_MAP = {
-        "FHMV": "Moch",
+        "FHMRUVV": "Moch",
         "MSHT": "Posterior",
     }
-    fhmv_msht_table_dir = table_dir / f"{scheme}_{APPROX_MAP[approx]}_numbers"
+    fhmruvv_msht_table_dir = table_dir / f"{scheme}_{APPROX_MAP[approx]}_numbers"
 
     columns = lha_labels(scheme)
     # columns.insert(0,'x')
     # columns.insert(0,'Q')
     dfs = []
 
-    for p in fhmv_msht_table_dir.iterdir():
+    for p in fhmruvv_msht_table_dir.iterdir():
         data = np.loadtxt(p)
         data = pd.DataFrame(data[:, 2:], columns=columns)
         if rotate_to_evol:
