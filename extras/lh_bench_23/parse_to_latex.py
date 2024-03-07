@@ -103,7 +103,8 @@ def dump_table(scheme: str, approx: str, caption: str):
         # load tables
         dfs = load_n3lo_tables(n3lo_table_dir, scheme, sv=sv, approx=approx)
 
-        central = dfs[0]
+        central, err = compute_n3lo_avg_err(dfs)
+
         central.insert(0, "x", xgrid)
         values = central.to_latex(float_format="{:.4e}".format, index=False)
         values = "".join(e for e in values.split("\n")[4:-3])
@@ -121,6 +122,16 @@ if __name__ == "__main__":
     scheme = "FFNS"
     caption = r"""
         Results for the FFNS aN$^3$LO evolution
+        for the initial conditions and the input parton distributions
+        given in Sec.~\ref{sec:toy_pdf},
+        with the FHMRUVV splitting functions approximation.
+    """
+    dump_table(scheme, approx, caption)
+
+    approx = "FHMRUVV"
+    scheme = "VFNS"
+    caption = r"""
+        Results for the VFNS aN$^3$LO evolution
         for the initial conditions and the input parton distributions
         given in Sec.~\ref{sec:toy_pdf},
         with the FHMRUVV splitting functions approximation.

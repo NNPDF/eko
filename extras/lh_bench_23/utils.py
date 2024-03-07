@@ -174,10 +174,13 @@ def compute_n3lo_avg_err(dfs: list) -> tuple:
     """Compute N3LO average and error."""
     df_central = np.mean(dfs, axis=0)
     df_central = pd.DataFrame(df_central, columns=dfs[0].columns)
-    # TODO: improve errors.
-    df_std = np.std(dfs, axis=0)
-    df_std = pd.DataFrame(df_std, columns=dfs[0].columns)
-    return df_central, df_std
+
+    # NOTE: here we compute the error as an envelope
+    up = np.max(dfs, axis=0)
+    dw = np.min(dfs, axis=0)
+    df_err = (up - dw) / 2
+    df_err = pd.DataFrame(df_err, columns=dfs[0].columns)
+    return df_central, df_err
 
 
 def compute_n3lo_nnlo_diff(n3lo: tuple, nnlo: pd.DataFrame, rel_diff: bool) -> tuple:
@@ -201,16 +204,16 @@ def plot_pdfs(
 ) -> None:
     """Absolute PDFs plots."""
 
-    fig, axs = plt.subplots(2, 4, figsize=(15, 7))
+    fig, axs = plt.subplots(4, 2, figsize=(7, 14))
 
     xcut = 4 if use_linx else 0
     xgrid = xgrid[xcut:]
 
     xscale = "linx" if use_linx else "logx"
-    plot_name = f"lh_n3lo_bench_{scheme}_{xscale}"
+    plot_name = f"n3lo_bench_{scheme}_{xscale}"
     plot_dir.mkdir(exist_ok=True)
 
-    fig.suptitle(f"{scheme}" + " $Q: \\sqrt{2} \\to 100 \\ GeV$")
+    fig.suptitle(f"{scheme}" + r", $\mu_F^2 = 10^4 \ \mbox{GeV}^2$")
 
     # loop on PDFs
     for i, ax in enumerate(
@@ -267,18 +270,19 @@ def plot_diff_to_nnlo(
 ) -> None:
     """Difference w.r.t NNLO PDFs plots."""
 
-    fig, axs = plt.subplots(2, 4, figsize=(15, 7))
+    fig, axs = plt.subplots(4, 2, figsize=(7, 14))
 
     xcut = 4 if use_linx else 0
     xgrid = xgrid[xcut:]
     xscale = "linx" if use_linx else "logx"
 
     diff_type = "rel_diff" if rel_dff else "abs_diff"
-    plot_name = f"lh_n3lo_bench_{scheme}_{xscale}_{diff_type}"
+    plot_name = f"n3lo_bench_{scheme}_{xscale}_{diff_type}"
 
     diff_type = "Relative" if rel_dff else "Absolute"
     fig.suptitle(
-        f"{diff_type} difference to NNLO, {scheme}" + " $Q: \\sqrt{2} \\to 100 \\ GeV$"
+        f"{diff_type} difference to NNLO, {scheme}"
+        + r", $\mu_F^2 = 10^4 \ \mbox{GeV}^2$"
     )
 
     for i, ax in enumerate(

@@ -23,21 +23,21 @@ msht_table_dir = table_dir
 eko_dfs = load_n3lo_tables(n3lo_table_dir, SCHEME, SV, approx="EKO")
 fhmruvv_eko_dfs = load_n3lo_tables(n3lo_table_dir, SCHEME, SV, approx="FHMRUVV")
 msht_dfs = load_msht(msht_table_dir, SCHEME, approx="MSHT")
-fhmruvv_msht_dfs = load_msht(msht_table_dir, SCHEME, approx="FHMRUVV")
+# fhmruvv_msht_dfs = load_msht(msht_table_dir, SCHEME, approx="FHMRUVV")
 nnlo_central = load_nnlo_table(table_dir, SCHEME, SV)
 
 # compute avg and std
 eko_res = compute_n3lo_avg_err(eko_dfs)
 fhmruvv_eko_res = compute_n3lo_avg_err(fhmruvv_eko_dfs)
 msht_res = compute_n3lo_avg_err(msht_dfs)
-fhmruvv_msht_res = compute_n3lo_avg_err(fhmruvv_msht_dfs)
+# fhmruvv_msht_res = compute_n3lo_avg_err(fhmruvv_msht_dfs)
 # eko_4mom_res = = compute_n3lo_avg_err(eko_dfs_4mom)
 
 n3lo_dfs = [
     (eko_res, "EKO"),
-    (fhmruvv_eko_res, "FHMRUVV EKO"),
+    (fhmruvv_eko_res, "FHMRUVV"),
     (msht_res, "MSHT"),
-    (fhmruvv_msht_res, "FHMRUVV MSHT"),
+    # (fhmruvv_msht_res, "FHMRUVV MSHT"),
     # (eko_4mom_res, "aN3LO EKO 4 mom"),
 ]
 
@@ -48,13 +48,13 @@ plot_pdfs(xgrid, n3lo_dfs, nnlo_central, SCHEME, USE_LINX, plot_dir)
 eko_diff = compute_n3lo_nnlo_diff(eko_res, nnlo_central, REL_DIFF)
 fhmruvv_eko_diff = compute_n3lo_nnlo_diff(fhmruvv_eko_res, nnlo_central, REL_DIFF)
 msht_diff = compute_n3lo_nnlo_diff(msht_res, nnlo_central, REL_DIFF)
-fhmruvv_msht_diff = compute_n3lo_nnlo_diff(fhmruvv_msht_res, nnlo_central, REL_DIFF)
+# fhmruvv_msht_diff = compute_n3lo_nnlo_diff(fhmruvv_msht_res, nnlo_central, REL_DIFF)
 
 n3lo_dfs = [
     (eko_diff, "EKO"),
-    (fhmruvv_eko_diff, "FHMRUVV EKO"),
+    (fhmruvv_eko_diff, "FHMRUVV"),
     (msht_diff, "MSHT"),
-    (fhmruvv_msht_diff, "FHMRUVV MSHT"),
+    # (fhmruvv_msht_diff, "FHMRUVV MSHT"),
     # (eko_4mom_res, "aN3LO EKO 4 mom"),
 ]
 
