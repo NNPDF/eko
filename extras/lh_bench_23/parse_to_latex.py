@@ -148,9 +148,15 @@ if __name__ == "__main__":
     approx = "EKO"
     scheme = "FFNS"
     caption = r"""
-        Results for the FFNS aN$^3$LO evolution
-        for the initial conditions and the input parton distributions
-        given in Sec.~\ref{sec:toy_pdf},
-        with the NNPDF splitting functions approximation.
+        Same as \ref{tab:n3lo_ffns_fhmruvv} but now with
+        the NNPDF splitting functions approximation.
+    """
+    dump_table(scheme, approx, caption)
+
+    approx = "EKO"
+    scheme = "VFNS"
+    caption = r"""
+        Same as \ref{tab:n3lo_vfns_fhmruvv} but now with
+        the NNPDF splitting functions approximation.
     """
     dump_table(scheme, approx, caption)

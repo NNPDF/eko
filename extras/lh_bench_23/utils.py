@@ -204,7 +204,9 @@ def plot_pdfs(
 ) -> None:
     """Absolute PDFs plots."""
 
-    fig, axs = plt.subplots(4, 2, figsize=(7, 14))
+    ncols = 2
+    nrows = 4
+    fig, axs = plt.subplots(nrows, ncols, figsize=(ncols * 5, nrows * 3.5))
 
     xcut = 4 if use_linx else 0
     xgrid = xgrid[xcut:]
@@ -270,7 +272,9 @@ def plot_diff_to_nnlo(
 ) -> None:
     """Difference w.r.t NNLO PDFs plots."""
 
-    fig, axs = plt.subplots(4, 2, figsize=(7, 14))
+    ncols = 2
+    nrows = 4
+    fig, axs = plt.subplots(nrows, ncols, figsize=(ncols * 5, nrows * 3.5))
 
     xcut = 4 if use_linx else 0
     xgrid = xgrid[xcut:]
