@@ -5,15 +5,33 @@ import numba as nb
 import numpy as np
 
 from .....harmonics import cache as c
+from .....harmonics.log_functions import (
+    lm11,
+    lm11m1,
+    lm11m2,
+    lm12,
+    lm12m1,
+    lm12m2,
+    lm13,
+    lm13m1,
+    lm13m2,
+    lm14m1,
+    lm14m2,
+)
 
 
 @nb.njit(cache=True)
 def a_gg3(n, cache, nf):
-    r"""Compute the approximate part of :math:`a_{gg}^{(3)}(N)`.
+    r"""Compute :math:`a_{gg}^{(3)}(N)`.
 
-    This is the part of :math:`A_{gg}^{S,(3)}(N)` proportional to :math:`\mathcal{O}(\epsilon^0)`,
-    the expression is presented in  :cite:`Ablinger:2022wbb`.
-    It contains binomial factors which are approximated.
+    The expression is presented in  :cite:`Ablinger:2022wbb`.
+
+    The :math:`n_f^0` piece is parametrized from:
+    the known small-x (eq. 4.10) and large-x (eq. 4.11)
+    limits, the expansion of the local and singular parts
+    in eq. 4.6, 4.7 and the first 15 Mellin moments up to N=30.
+    The analytical expression contains binomial factors
+    which are not handy to use.
 
     When using the code, please cite the complete list of references
     available in :mod:`~ekore.operator_matrix_elements.unpolarized.space_like.as3`.
@@ -37,30 +55,47 @@ def a_gg3(n, cache, nf):
     S2 = c.get(c.S2, cache, n)
     S3 = c.get(c.S3, cache, n)
     S4 = c.get(c.S4, cache, n)
-    S5 = c.get(c.S5, cache, n)
+
+    Lm11 = lm11(n, S1)
+    Lm12 = lm12(n, S1, S2)
+    Lm13 = lm13(n, S1, S2, S3)
+    Lm11m1 = lm11m1(n, S1)
+    Lm12m1 = lm12m1(n, S1, S2)
+    Lm13m1 = lm13m1(n, S1, S2, S3)
+    Lm14m1 = lm14m1(n, S1, S2, S3, S4)
+    Lm11m2 = lm11m2(n, S1)
+    Lm12m2 = lm12m2(n, S1, S2)
+    Lm13m2 = lm13m2(n, S1, S2, S3)
+    Lm14m2 = lm14m2(n, S1, S2, S3, S4)
     # the nf^0 part is parametrized since it contains nasty binomial factors.
     agg3_nf0_param = (
-        119.55586399490849
-        + 643.5919221725146 / (-1.0 + n) ** 2
-        - 4243.672748386901 / (-1.0 + n)
-        - 1097.3959566791473 / n**6
-        - 2166.223781401583 / n**5
-        + 5864.212793800409 / n**4
-        + 31055.955132702067 / n**3
-        + 5195.523226994994 / n**2
-        + 4052.670326185617 / n
-        + 723.5270116330819 * S1
-        - (24416.76276706736 * S1) / n**4
-        - (12798.647797499609 * S1) / n**3
-        - (1191.9103600256221 * S1) / n**2
-        - (411.7226853758584 * S1) / n
-        - 1.0287077597852439 * S1**2
-        + 0.055958522352878494 * S1**3
-        - 0.0011488227245772988 * S1**4
-        + 68.79337566373333 * S2
-        + 100.07538288542415 * S3
-        + 110.06866836903241 * S4
-        + 115.46020088075208 * S5
+        619.2420126046355
+        + 701.1986854426286 / (-1.0 + n) ** 2
+        - 4954.442786280953 / (-1.0 + n)
+        + 305.77777777777777 / n**6
+        - 668.4444444444445 / n**5
+        + 2426.352476661977 / n**4
+        - 3148.735962235475 / n**3
+        + 9155.33153602228 / n**2
+        + 5069.820034891387 / n
+        - 6471.478696979203 / (1.0 + n) ** 2
+        - 8987.70366338934 / (n + n**2)
+        - 21902.776840085757 / (2.0 + 3.0 * n + n**2)
+        - 78877.91436146703 / (3.0 + 4.0 * n + n**2)
+        - 207627.85210030797 / (6.0 + 5.0 * n + n**2)
+        + 860105.1673083167 / (6.0 + 11.0 * n + 6.0 * n**2 + n**3)
+        + 714.9711186248866 * S1
+        + 576.0307099030653 * Lm11
+        - 14825.806057017968 * Lm11m1
+        + 368095.9894734118 * Lm11m2
+        + 40.908173376688424 * Lm12
+        - 6838.198890554838 * Lm12m1
+        + 474165.7099083288 * Lm12m2
+        + 5.333333333333333 * Lm13
+        - 4424.7425689765805 * Lm13m1
+        + 50838.65442166183 * Lm13m2
+        - 508.9445773396529 * Lm14m1
+        + 28154.716500168193 * Lm14m2
     )
     agg3_nf1 = 0.75 * (
         -(
