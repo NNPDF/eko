@@ -27,11 +27,14 @@ def a_gg3(n, cache, nf):
     The expression is presented in  :cite:`Ablinger:2022wbb`.
 
     The :math:`n_f^0` piece is parametrized from:
-    the known small-x (eq. 4.10) and large-x (eq. 4.11)
-    limits, the expansion of the local and singular parts
-    in eq. 4.6, 4.7 and the first 15 Mellin moments up to N=30.
+
+    - the small-x limit :eqref:`4.10`
+    - the large-x limit :eqref:`4.11`
+    - the expansion of the local and singular parts in :eqref:`4.6, 4.7`
+    - the first 15 Mellin moments up to :math:`N=30`
+
     The analytical expression contains binomial factors
-    which are not handy to use.
+    which are not practical to use.
 
     When using the code, please cite the complete list of references
     available in :mod:`~ekore.operator_matrix_elements.unpolarized.space_like.as3`.
@@ -40,7 +43,7 @@ def a_gg3(n, cache, nf):
     ----------
     n : complex
         Mellin moment
-    cache: numpy.ndarray
+    cache : numpy.ndarray
         Harmonic sum cache
     nf : int
         number of active flavor below the threshold
