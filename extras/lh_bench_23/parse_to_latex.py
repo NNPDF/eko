@@ -1,7 +1,5 @@
-import numpy as np
-import pandas as pd
 from cfg import here, table_dir, xgrid
-from utils import compute_n3lo_avg_err, compute_n3lo_nnlo_diff, load_n3lo_tables
+from utils import compute_n3lo_avg_err, load_n3lo_tables
 
 n3lo_table_dir = table_dir
 
@@ -130,7 +128,7 @@ if __name__ == "__main__":
     caption = r"""
         Results for the FFNS aN$^3$LO evolution
         for the initial conditions and the input parton distributions
-        given in Sec.~\ref{sec:toy_pdf},
+        given in \cref{sec:toy_pdf},
         with the FHMRUVV splitting functions approximation.
     """
     dump_table(scheme, approx, caption)
@@ -140,7 +138,7 @@ if __name__ == "__main__":
     caption = r"""
         Results for the VFNS aN$^3$LO evolution
         for the initial conditions and the input parton distributions
-        given in Sec.~\ref{sec:toy_pdf},
+        given in \cref{sec:toy_pdf},
         with the FHMRUVV splitting functions approximation.
     """
     dump_table(scheme, approx, caption)
@@ -148,7 +146,7 @@ if __name__ == "__main__":
     approx = "EKO"
     scheme = "FFNS"
     caption = r"""
-        Same as \ref{tab:n3lo_ffns_fhmruvv} but now with
+        Same as \cref{tab:n3lo_ffns_fhmruvv} but now with
         the NNPDF splitting functions approximation.
     """
     dump_table(scheme, approx, caption)
@@ -156,7 +154,7 @@ if __name__ == "__main__":
     approx = "EKO"
     scheme = "VFNS"
     caption = r"""
-        Same as \ref{tab:n3lo_vfns_fhmruvv} but now with
+        Same as \cref{tab:n3lo_vfns_fhmruvv} but now with
         the NNPDF splitting functions approximation.
     """
     dump_table(scheme, approx, caption)
