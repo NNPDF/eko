@@ -56,20 +56,23 @@ def solve_scet(theory: TheoryCard, operator: OperatorCard, path: Path):
     with EKO.create(path) as builder:
         eko = builder.load_cards(theory, operator).build()  # pylint: disable=E1101
         
-        # Only required info is the order in alpha_s and in log
-        # This should be passed in the runcard
-        # orders to be computed
-        orders_alpha_L=[(1,0), (1,1), (1,2)]
-        # number of actiave flavors(?) Required starting from nnlo
-        nf = 5
-        
+        # Only required info is 
+        #  - the order in alpha_s and in log
+        #  - whether the computation is in k or tau space
+        #  - nf to be used in beam function computation (required only starting from NNLO)
+     
+        # These info should be passed in the runcard (see cards.examples)
+    
+        orders_alpha_L=theory.orders
+        space=theory.space
+        nf= theory.nf
+               
         # create a recipe for the scet matching kernel and load it.
-        rec = recipes.create_scet_recipe(orders_alpha_L)
+        rec = recipes.create_scet_recipe(orders_alpha_L, space, nf)
         eko.load_recipes(rec)
-        dummy_scale = 1000.
+        dummy_scale = 1000. # this dummy scale labels the specific order which is going to be computed
         # compute scet kernel
         for recipe in eko.recipes_scet:
-            #eko.scet_kernels[recipe] = parts.scetI(eko, recipe)
             target = Target(dummy_scale, nf)
             eko.operators[target] = parts.scetI(eko, recipe)   # in order to load these object as ekos you need to save them in eko.operators using Target as indices
             dummy_scale += 1 

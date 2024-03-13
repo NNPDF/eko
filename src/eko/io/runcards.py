@@ -31,6 +31,8 @@ from .types import (
     ScaleVariationsMethod,
     SquaredScale,
     T,
+    Space,
+    FlavorsNumber,
 )
 
 
@@ -51,6 +53,12 @@ class TheoryCard(DictLike):
     """|N3LO| anomalous dimension variation: ``(gg_var, gq_var, qg_var, qq_var)``."""
     matching_order: Optional[Order] = None
     """Matching conditions perturbative order tuple, ``(QCD, QED)``."""
+    space: Optional[Space] = None 
+    """Space to compute beam function kernels"""
+    orders: Optional[List[Order]] = None
+    """Beam function order"""
+    nf: Optional[FlavorsNumber] = None
+    """Number of active flavors to use to compute beam function"""
 
 
 @dataclass

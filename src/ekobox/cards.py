@@ -52,6 +52,11 @@ _operator = dict(
     ),
 )
 
+_theory_scet = _theory 
+_theory_scet['space'] = 'k'
+_theory_scet['orders'] = [(0,1),(1,1),(2,1)]
+_theory_scet['nf'] = 5
+
 
 class example:
     """Provide runcards examples."""
@@ -65,6 +70,11 @@ class example:
     def operator(cls) -> runcards.OperatorCard:
         """Provide example operator card object."""
         return runcards.OperatorCard.from_dict(_operator)
+
+    @classmethod
+    def theory_scet(cls) -> runcards.TheoryCard:
+        """Provide example theory card object."""
+        return runcards.TheoryCard.from_dict(_theory_scet)
 
     @classmethod
     def raw_theory(cls):

@@ -11,7 +11,7 @@ from numpy.lib import npyio
 from .. import matchings
 from . import exceptions
 from .types import EvolutionPoint as EPoint
-from .types import FlavorIndex, FlavorsNumber, SquaredScale, Order
+from .types import FlavorIndex, FlavorsNumber, SquaredScale, Order, Space
 
 
 @dataclass(frozen=True)
@@ -105,6 +105,8 @@ class ScetKernel(Header):
     """
 
     order: Order
+    space: Space
+    nf: FlavorsNumber
 
     @classmethod
     def from_atlas(cls, scet_kernel: matchings.ScetKernel):
@@ -114,7 +116,7 @@ class ScetKernel(Header):
     @property
     def as_atlas(self) -> matchings.ScetKernel:
         """The associated segment."""
-        return matchings.ScetKernel(self.order)
+        return matchings.ScetKernel(self.order, self.space, self.nf)
 
 
 Recipe = Union[Evolution, Matching]

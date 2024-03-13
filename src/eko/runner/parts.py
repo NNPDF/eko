@@ -176,11 +176,15 @@ def scet_configs(eko: EKO) -> dict:
 
 def scetI(eko: EKO, recipe: ScetKernel) -> Operator:
     """Compute scetI matching kernels"""
-    orders = recipe.order
+    order = recipe.order
+    space = recipe.space
+    #nf = recipe.nf #starting from NNLO from here you can recover the flavor info
+
     kernel = bf.SCET_I(
         scet_configs(eko),
         managers(eko),
-        orders
+        order,
+        space
     )
     kernel.compute()
     

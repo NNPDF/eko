@@ -4,10 +4,11 @@ import numba as nb
 import numpy as np
 
 from ..harmonics import cache as c
-from . import as1
+from .k_space import as1 as k_as1
+from .tau_space import as1 as tau_as1
 
 @nb.njit(cache=True)
-def SCET_I_entry(order, n):
+def SCET_I_entry(order, space, n):
     r"""Compute the tower of the singlet |OME|.
 
     Parameters
@@ -29,5 +30,9 @@ def SCET_I_entry(order, n):
     """
     cache = c.reset()
     A = np.zeros((5, 5), np.complex_)
-    A = as1.A_entries(n, order, cache)
+    if space=='k':
+        A = k_as1.A_entries(n, order, cache)
+    if space=='tau':
+        A = tau_as1.A_entries(n, order, cache)
+
     return A

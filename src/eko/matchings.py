@@ -6,7 +6,7 @@ from typing import List, Union
 import numpy as np
 
 from .io.types import EvolutionPoint as EPoint
-from .io.types import FlavorIndex, FlavorsNumber, SquaredScale, Order
+from .io.types import FlavorIndex, FlavorsNumber, SquaredScale, Order, Space
 from .quantities.heavy_quarks import MatchingScales
 
 logger = logging.getLogger(__name__)
@@ -61,7 +61,9 @@ class ScetKernel:
 
     """
 
-    order: Order 
+    order: Order
+    space: Space
+    nf: FlavorsNumber
 
 
 class Atlas:

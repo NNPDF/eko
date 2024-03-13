@@ -5,7 +5,7 @@ import numba as nb
 import numpy as np
 
 from eko.constants import CF, zeta2
-from ..harmonics import cache as c
+from ...harmonics import cache as c
 
 
 @nb.njit(cache=True)
@@ -58,10 +58,10 @@ def A_gq(n, order, cache):
         res = Agq10(n, cache)
 
     if order == (1, 1):
-        res = Agq10(n, cache)
+        res = Agq11(n, cache)
 
     if order == (1, 2):
-        res = Agq10(n, cache)
+        res = Agq12(n, cache)
 
     return res
 
@@ -87,10 +87,10 @@ def A_qg(n, order, cache):
         res = Aqg10(n, cache)
 
     if order == (1, 1):
-        res = Aqg10(n, cache)
+        res = Aqg11(n, cache)
 
     if order == (1, 2):
-        res = Aqg10(n, cache)
+        res = Aqg12(n, cache)
 
     return res
 
@@ -116,10 +116,10 @@ def A_qq(n, order, cache):
         res = Aqq10(n, cache)
 
     if order == (1, 1):
-        res = Aqq10(n, cache)
+        res = Aqq11(n, cache)
 
     if order == (1, 2):
-        res = Aqq10(n, cache)
+        res = Aqq12(n, cache)
 
     return res
 
