@@ -30,6 +30,8 @@ from .types import (
     ScaleVariationsMethod,
     SquaredScale,
     T,
+    Space,
+    FlavorsNumber,
 )
 
 
@@ -52,6 +54,12 @@ class TheoryCard(DictLike):
     """If True use the |FHMRUVV| |N3LO| anomalous dimensions"""
     matching_order: Optional[Order] = None
     """Matching conditions perturbative order tuple, ``(QCD, QED)``."""
+    space: Optional[Space] = None 
+    """Space to compute beam function kernels"""
+    orders: Optional[List[Order]] = None
+    """Beam function order"""
+    nf: Optional[FlavorsNumber] = None
+    """Number of active flavors to use to compute beam function"""
 
     def __post_init__(self):
         """Enforce defaults."""

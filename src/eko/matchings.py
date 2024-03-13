@@ -9,7 +9,7 @@ import numpy as np
 
 from .constants import MTAU
 from .io.types import EvolutionPoint as EPoint
-from .io.types import FlavorIndex, FlavorsNumber, SquaredScale
+from .io.types import FlavorIndex, FlavorsNumber, SquaredScale, Order, Space
 from .quantities.heavy_quarks import MatchingScales
 
 logger = logging.getLogger(__name__)
@@ -54,6 +54,19 @@ class Matching:
 
 
 MatchedPath = List[Union[Segment, Matching]]
+
+
+@dataclass(frozen=True)
+class ScetKernel:
+    """ScetKernel.
+
+    The order refers to the power of alpha_s and L.
+
+    """
+
+    order: Order
+    space: Space
+    nf: FlavorsNumber
 
 
 class Atlas:
