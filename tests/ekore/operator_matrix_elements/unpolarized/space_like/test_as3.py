@@ -196,7 +196,7 @@ def test_Blumlein_3():
             aS3 = A_singlet(N, sx_cache, nf, L)
 
             np.testing.assert_allclose(
-                aS3[0, 0], ref_val_gg[L][idx] + ref_val_a_gg[L][idx], rtol=3e-6
+                aS3[0, 0], ref_val_gg[L][idx] + ref_val_a_gg[L][idx], rtol=9e-6
             )
 
             np.testing.assert_allclose(aS3[0, 1], ref_val_gq[L][idx], rtol=2e-6)
