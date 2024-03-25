@@ -1,12 +1,12 @@
 #!/bin/bash
 
-SCHEME="FFNS"
-SV="central"
+SCHEME="VFNS"
+SV="up"
 AD_VAR=(0 0 0 0 0 0 0)
 
 
 # run the central
-python run-n3lo.py $SCHEME $SV "${AD_VAR[@]}" "--use_fhmv"
+python run-n3lo.py $SCHEME $SV "${AD_VAR[@]}" "--use_fhmruvv"
 
 # loop on gammas
 for I in {0..6}
@@ -15,7 +15,7 @@ for I in {0..6}
     for VAR in {1..2}
         do
         AD_VAR[$I]=$VAR
-        python run-n3lo.py $SCHEME $SV "${AD_VAR[@]}" "--use_fhmv"
+        python run-n3lo.py $SCHEME $SV "${AD_VAR[@]}" "--use_fhmruvv"
         AD_VAR[$I]=0
         done
     done
