@@ -276,8 +276,10 @@ def plot_diff_to_nnlo(
     nrows = 4
     fig, axs = plt.subplots(nrows, ncols, figsize=(ncols * 5, nrows * 3.5))
 
-    xcut = 4 if use_linx else 0
-    xgrid = xgrid[xcut:]
+    # cut away small- and large-x values, for plotting
+    smallx_cut = 4 if use_linx else 3
+    largex_cut = -1 if not use_linx else None
+    xgrid = xgrid[smallx_cut:largex_cut]
     xscale = "linx" if use_linx else "logx"
 
     diff_type = "rel_diff" if rel_dff else "abs_diff"
@@ -299,8 +301,8 @@ def plot_diff_to_nnlo(
             central, err = tabs
             ax.errorbar(
                 xgrid,
-                central.values[xcut:, i],
-                yerr=err.values[xcut:, i],
+                central.values[smallx_cut:largex_cut, i],
+                yerr=err.values[smallx_cut:largex_cut, i],
                 fmt=FMT_LIST[j],
                 label=approx_label,
                 capsize=5,
