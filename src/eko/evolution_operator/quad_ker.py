@@ -11,7 +11,6 @@ from .. import interpolation
 from .. import scale_variations as sv
 from ..kernels import non_singlet as ns
 from ..kernels import singlet as s
-from ..kernels import utils
 from ..matchings import Segment
 from ..member import OpMember
 
