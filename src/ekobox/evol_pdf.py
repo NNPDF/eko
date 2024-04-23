@@ -8,7 +8,6 @@ import numpy as np
 import eko
 from eko import basis_rotation as br
 from eko.io import EKO
-from eko.runner import managed
 
 from . import apply, genpdf, info_file
 
@@ -57,7 +56,7 @@ def evolve_pdfs(
     else:
         if store_path is None:
             raise ValueError("'store_path' required if 'path' is not provided.")
-        managed.solve(theory_card, operators_card, path=store_path)
+        eko.solve(theory_card, operators_card, path=store_path)
         eko_path = store_path
 
     # apply PDF to eko
