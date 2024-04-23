@@ -223,7 +223,7 @@ class Path:
     def __init__(self, t, logx, axis_offset):
         self.t = t
         # TODO: shall we use: 0.4 * 16.0 / ( - logx) ?
-        self.r = 0.4 * 16.0 / (0.1 - logx)
+        self.r = 0.4 * 16.0 / (1.0 - logx)
         if axis_offset:
             self.o = 1.0
         else:
