@@ -23,3 +23,12 @@ pub const CA: f64 = NC as f64;
 ///
 /// Defaults to $C_F = \frac{N_C^2-1}{2N_C} = 4/3$.
 pub const CF: f64 = ((NC * NC - 1) as f64) / ((2 * NC) as f64);
+
+#[cfg_attr(doc, katexit::katexit)]
+/// Riemann zeta function at z = 2.
+///
+/// $\zeta(2) = \pi^2 / 6$.
+pub const ZETA2: f64 = 1.6449340668482264;
+
+/// Riemann zeta function at z = 3.
+pub const ZETA3: f64 = 1.2020569031595942;
