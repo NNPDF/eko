@@ -121,9 +121,8 @@ pub fn cern_polygamma(Z: Complex<f64>, K: usize) -> Complex<f64> {
 
 #[cfg(test)]
 mod tests {
-    use crate::cmplx;
     use crate::harmonics::polygamma::cern_polygamma;
-    use float_cmp::assert_approx_eq;
+    use crate::{assert_approx_eq_cmplx, cmplx};
     use num::complex::Complex;
 
     #[test]
@@ -202,8 +201,7 @@ mod tests {
             for zit in ZS.iter().enumerate() {
                 let fref = FORTRAN_REF[kit.0][zit.0];
                 let me = cern_polygamma(*zit.1, *kit.1);
-                assert_approx_eq!(f64, me.re, fref.re, ulps = 32);
-                assert_approx_eq!(f64, me.im, fref.im, ulps = 32);
+                assert_approx_eq_cmplx!(f64, me, fref, ulps = 32);
             }
         }
     }

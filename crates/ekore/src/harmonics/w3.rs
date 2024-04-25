@@ -3,6 +3,7 @@ use num::complex::Complex;
 use crate::constants::ZETA3;
 use crate::harmonics::polygamma::cern_polygamma;
 
+#[cfg_attr(doc, katexit::katexit)]
 /// Compute the harmonic sum $S_3(N)$.
 ///
 /// $$S_3(N) = \sum\limits_{j=1}^N \frac 1 {j^3} = \frac 1 2 \psi_2(N+1)+\zeta(3)$$

@@ -3,6 +3,7 @@ use num::complex::Complex;
 use crate::constants::ZETA2;
 use crate::harmonics::polygamma::cern_polygamma;
 
+#[cfg_attr(doc, katexit::katexit)]
 /// Compute the harmonic sum $S_2(N)$.
 ///
 /// $$S_2(N) = \sum\limits_{j=1}^N \frac 1 {j^2} = -\psi_1(N+1)+\zeta(2)$$

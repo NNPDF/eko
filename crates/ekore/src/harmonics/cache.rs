@@ -1,7 +1,7 @@
 //! Cache harmonic sums for given Mellin N.
 
 use hashbrown::HashMap;
-use num::complex::Complex;
+use num::{complex::Complex, Zero};
 
 use crate::harmonics::{w1, w2, w3};
 
@@ -65,5 +65,46 @@ impl Cache {
         // insert
         self.m.insert(k, val);
         val
+    }
+}
+
+#[cfg_attr(doc, katexit::katexit)]
+/// Recursive computation of harmonic sums.
+///
+/// Compute the harmonic sum $S_{w}(N+k)$ stating from the value $S_{w}(N)$ via the recurrence relations.
+pub fn recursive_harmonic_sum(
+    base_value: Complex<f64>,
+    n: Complex<f64>,
+    iterations: usize,
+    weight: u32,
+) -> Complex<f64> {
+    let mut fact = Complex::zero();
+    for i in 1..iterations + 1 {
+        fact = fact + (1.0 / (n + (i as f64))).powu(weight);
+    }
+    base_value + fact
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::harmonics::cache::recursive_harmonic_sum;
+    use crate::harmonics::w1;
+    use crate::{assert_approx_eq_cmplx, cmplx};
+    use num::complex::Complex;
+
+    #[test]
+    fn test_recursive_harmonic_sum() {
+        const NS: [Complex<f64>; 2] = [cmplx![1.0, 0.0], cmplx![2.34, 3.45]];
+        const ITERS: [usize; 2] = [1, 2];
+        for nit in NS.iter().enumerate() {
+            let n = *nit.1;
+            for iit in ITERS.iter().enumerate() {
+                let iterations = *iit.1;
+                let s1_base = w1::S1(n);
+                let s1_test = w1::S1(n + (iterations as f64));
+                let s1_ref = recursive_harmonic_sum(s1_base, n, iterations, 1);
+                assert_approx_eq_cmplx!(f64, s1_test, s1_ref);
+            }
+        }
     }
 }
