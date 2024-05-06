@@ -115,6 +115,8 @@ def ffns_operator(ev_method="iterate-exact"):
     op = copy.deepcopy(_o_vfns)
     op["mugrid"] = [(100.0, 4)]
     op["configs"]["evolution_method"] = ev_method
+    if ev_method == "truncated":
+        op["configs"]["ev_op_iterations"] = 1
     return runcards.OperatorCard.from_dict(op)
 
 
