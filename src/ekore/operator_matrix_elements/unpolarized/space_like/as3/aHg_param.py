@@ -5,7 +5,7 @@ import numba as nb
 import numpy as np
 
 from .....harmonics import cache as c
-from .....harmonics.log_functions import lm11, lm12, lm13, lm14, lm15
+from .....harmonics.log_functions import lm11, lm11m1, lm12, lm13, lm14, lm15
 
 
 @nb.njit(cache=True)
@@ -61,6 +61,7 @@ def a_Hg3(n, cache, nf):
     Lm13 = lm13(n, S1, S2, S3)
     Lm14 = lm14(n, S1, S2, S3, S4)
     Lm15 = lm15(n, S1, S2, S3, S4, S5)
+    Lm11m1 = lm11m1(n, S1)
 
     # parametrized nf^0 part
     aHg_nf0 = (
@@ -70,17 +71,17 @@ def a_Hg3(n, cache, nf):
         - 3084.5476332000003 / n**4
         - 1440.0967656 / n**3
         - 10739.21741 / n**2
-        - 3927.4067976978 / n
+        - 6890.392506169613 / n
         + (8956.649545 * n) / (-1.0 + n) ** 2
-        - 6284.528702278445 / (1 + n) ** 2
-        - 1681.066634246527 / (n + n**2)
-        + 8363.188029908768 / (2 + 3 * n + n**2)
+        + 7861.809052567688 / (1 + n) ** 2
+        - 795.4199930418246 / (n + n**2)
+        - 19687.320434140434 / (2 + 3 * n + n**2)
         + 737.165347 * Lm11
         - 332.5368214 * Lm12
         + 4.380199906 * Lm13
         - 8.20987654 * Lm14
         + 3.703703704 * Lm15
-        - 274.2066594574388 * (S1 / n + (1 / (1 + n) + S1) / (1 + n))
+        - 12429.982192922555 * Lm11m1
     )
 
     # exact nf^1 part
