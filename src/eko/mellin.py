@@ -222,8 +222,11 @@ class Path:
 
     def __init__(self, t, logx, axis_offset):
         self.t = t
-        # TODO: shall we use: 0.4 * 16.0 / ( - logx) ?
-        self.r = 0.4 * 16.0 / (1.0 - logx)
+        # The prescription suggested by :cite:`Abate` for r is 0.4 * M / ( - logx)
+        # with M the number of accurate digits; Maria Ubiali suggested in her thesis M = 16.
+        # However, this seems to yield unstable results for the OME in the large x region
+        # so we add an additional regularization, which makes the path less "edgy" there
+        self.r = 0.4 * 16.0 / (0.1 - logx)
         if axis_offset:
             self.o = 1.0
         else:

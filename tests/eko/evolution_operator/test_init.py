@@ -27,7 +27,7 @@ def test_quad_ker_errors():
                 mode1=0,
                 method="",
                 is_log=True,
-                logx=0.1,
+                logx=np.log(0.1),
                 areas=[[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]],
                 as_list=[2.0, 1.0],
                 mu2_from=1.0,
