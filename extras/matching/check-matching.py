@@ -121,7 +121,7 @@ def collect_data():
     data = {}
     pdf = toy.mkPDF("", 0)
     for id in th_updates.keys():
-        with eko.EKO.open(f"./eko_{id}.tar") as evolution_operator:
+        with eko.EKO.read(f"./eko_{id}.tar") as evolution_operator:
             x = evolution_operator.metadata.rotations.targetgrid.raw
             data[id] = {
                 mu2: el["pdfs"]
