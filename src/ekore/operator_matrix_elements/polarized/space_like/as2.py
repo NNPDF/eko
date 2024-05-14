@@ -8,7 +8,7 @@ The anomalous dimensions and beta function with the addition 'hat' are defined a
 import numba as nb
 import numpy as np
 
-from eko.constants import CA, CF, TR, log2, zeta2, zeta3
+from eko.constants import CA, CF, TR, zeta2, zeta3
 
 from ....anomalous_dimensions.polarized.space_like.as1 import gamma_gq as gamma0_gq
 from ....anomalous_dimensions.polarized.space_like.as1 import gamma_ns as gamma0_qq
