@@ -8,7 +8,7 @@ The anomalous dimensions and beta function with the addition 'hat' are defined a
 import numba as nb
 import numpy as np
 
-from eko.constants import CA, CF, TR, zeta2, zeta3
+from eko.constants import CA, CF, TR, zeta2, zeta3, log2
 
 from ....anomalous_dimensions.polarized.space_like.as1 import gamma_gq as gamma0_gq
 from ....anomalous_dimensions.polarized.space_like.as1 import gamma_ns as gamma0_qq
@@ -159,11 +159,12 @@ def A_hg(n, cache, L):
     S1 = c.get(c.S1, cache, n)
     S2 = c.get(c.S2, cache, n)
     S3 = c.get(c.S3, cache, n)
-    Sm21 = c.get(c.Sm21, cache, n, is_singlet=False)
+    Sm21 = c.get(c.Sm21, cache, n, is_singlet=True)
     S2h = c.get(c.S2h, cache, n)
     S3h = c.get(c.S3h, cache, n)
     S2ph = c.get(c.S2ph, cache, n)
     S3ph = c.get(c.S3ph, cache, n)
+    Sm1 = c.get(c.Sm1, cache, n, is_singlet=True)
 
     a_hg = (
         (1 / (6 * n**4 * (1 + n) ** 4 * (2 + n)))
@@ -172,7 +173,7 @@ def A_hg(n, cache, L):
             -2
             * CF
             * (
-                3
+                6
                 * (
                     4
                     + 8 * n
@@ -187,7 +188,7 @@ def A_hg(n, cache, L):
                 * n**2
                 * (1 + n) ** 2
                 * (2 + n)
-                * (2 + 3 * n + 3 * n**3)
+                * (2 + 3 * n + 3 * n**2)
                 * np.pi**2
                 + 12 * n**2 * (1 + n) ** 3 * (-36 - 22 * n - 2 * n**2 + n**3) * S1
                 + 12 * n**2 * (1 + n) ** 3 * (-2 + 3 * n + 3 * n**2) * S1**2
@@ -206,7 +207,6 @@ def A_hg(n, cache, L):
             + CA
             * (
                 -24
-                * (1 + n) ** 3
                 * (
                     4
                     + 12 * n
@@ -239,7 +239,7 @@ def A_hg(n, cache, L):
                     + 6 * (1 + n) ** 3 * S3ph
                     - 6 * (1 + n) ** 3 * (S3h - zeta3)
                     + 18 * (1 + n) ** 3 * zeta3
-                    - 12 * (1 + n) ** 3 * (8 * Sm21 + 5 * zeta3)
+                    - 12 * (1 + n) ** 3 * (8 * Sm21 + 5 * zeta3 - 8 * zeta2 * log2 - 8 * zeta2 * Sm1)
                 )
             )
         )
