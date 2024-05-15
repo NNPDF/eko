@@ -12,7 +12,7 @@ from numpy.lib import npyio
 from .. import matchings
 from . import exceptions
 from .types import EvolutionPoint as EPoint
-from .types import FlavorIndex, FlavorsNumber, SquaredScale
+from .types import FlavorIndex, FlavorsNumber, SquaredScale, Order, Space
 
 
 @dataclass(frozen=True)
@@ -98,6 +98,26 @@ class Matching(Header):
     def as_atlas(self) -> matchings.Matching:
         """The associated segment."""
         return matchings.Matching(self.scale, self.hq, self.inverse)
+
+@dataclass(frozen=True)
+class ScetKernel(Header):
+    """Information to compute a SCET matching operator.
+
+    """
+
+    order: Order
+    space: Space
+    nf: FlavorsNumber
+
+    @classmethod
+    def from_atlas(cls, scet_kernel: matchings.ScetKernel):
+        """Create instance from analogous :class:`eko.matchings.Atlas` object."""
+        return cls(**asdict(scet_kernel))
+    
+    @property
+    def as_atlas(self) -> matchings.ScetKernel:
+        """The associated segment."""
+        return matchings.ScetKernel(self.order, self.space, self.nf)
 
 
 Recipe = Union[Evolution, Matching]

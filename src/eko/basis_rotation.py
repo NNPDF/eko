@@ -149,6 +149,9 @@ non_singlet_unified_labels = (
     (non_singlet_pids_map["ns+u"], 0),
     (non_singlet_pids_map["ns-u"], 0),
 )
+
+scet_labels = ((1, 1), (1, 21), (21, 1), (21, 21), (1,2), (1,-1), (1,-2))
+
 full_labels = (*singlet_labels, *non_singlet_labels)
 full_unified_labels = (
     *singlet_unified_labels,

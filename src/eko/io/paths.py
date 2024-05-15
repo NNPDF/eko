@@ -12,6 +12,7 @@ RECIPESDIR = "recipes"
 PARTSDIR = "parts"
 MATCHINGDIR = "matching"
 OPERATORSDIR = "operators"
+SCETDIR = "scet"
 
 
 @dataclass
@@ -47,6 +48,11 @@ class InternalPaths:
         return self.root / RECIPESDIR / MATCHINGDIR
 
     @property
+    def recipes_scet(self):
+        """Scet recipes folder."""
+        return self.root / RECIPESDIR / SCETDIR
+
+    @property
     def parts(self):
         """Parts folder."""
         return self.root / PARTSDIR
@@ -55,6 +61,11 @@ class InternalPaths:
     def parts_matching(self):
         """Matching parts folder."""
         return self.root / PARTSDIR / MATCHINGDIR
+
+    @property
+    def parts_scet(self):
+        """Scet kernel folder."""
+        return self.root / PARTSDIR / SCETDIR
 
     @property
     def operators(self):
@@ -86,3 +97,5 @@ class InternalPaths:
         self.parts.mkdir()
         self.parts_matching.mkdir()
         self.operators.mkdir()
+        self.recipes_scet.mkdir()
+        self.parts_scet.mkdir()

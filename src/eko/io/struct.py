@@ -19,7 +19,7 @@ from . import exceptions, raw
 from .access import AccessConfigs
 from .bases import Bases
 from .inventory import Inventory
-from .items import Evolution, Matching, Operator, Recipe, Target
+from .items import Evolution, Matching, Operator, Recipe, Target, ScetKernel
 from .metadata import Metadata
 from .paths import InternalPaths
 from .runcards import OperatorCard, TheoryCard
@@ -50,6 +50,14 @@ def inventories(path: pathlib.Path, access: AccessConfigs) -> dict:
             paths.parts_matching, access, Matching, name="matching-parts"
         ),
         operators=Inventory(paths.operators, access, Target, name="operators"),
+        recipes_scet=Inventory(
+            paths.recipes_scet,
+            access,
+            ScetKernel,
+            contentless=True,
+            name="scet-recipes",
+        ),
+        scet_kernels=Inventory(paths.parts_scet, access, ScetKernel, name="scet_kernels"),
     )
 
 
@@ -91,6 +99,8 @@ class EKO:
     parts: Inventory[Evolution]
     parts_matching: Inventory[Matching]
     operators: Inventory[Target]
+    recipes_scet: Inventory[ScetKernel]
+    scet_kernels: Inventory[ScetKernel]
 
     # public containers
     # -----------------
@@ -180,8 +190,11 @@ class EKO:
             # leverage auto-save
             if isinstance(recipe, Evolution):
                 self.recipes[recipe] = None
-            else:
+            elif isinstance(recipe, Matching):
                 self.recipes_matching[recipe] = None
+            else:
+                self.recipes_scet[recipe] = None
+
 
     # operator management
     # -------------------
