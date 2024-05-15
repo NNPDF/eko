@@ -1,3 +1,4 @@
+//! Harmonic sums of weight 1.
 use num::complex::Complex;
 
 use crate::harmonics::polygamma::cern_polygamma;

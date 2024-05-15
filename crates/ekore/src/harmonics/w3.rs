@@ -1,3 +1,4 @@
+//! Harmonic sums of weight 3.
 use num::complex::Complex;
 
 use crate::constants::ZETA3;

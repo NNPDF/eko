@@ -3,7 +3,7 @@
 use hashbrown::HashMap;
 use num::{complex::Complex, Zero};
 
-use crate::harmonics::{w1, w2, w3};
+use crate::harmonics::{g_functions, w1, w2, w3};
 
 #[cfg_attr(doc, katexit::katexit)]
 /// List of available elements.
@@ -25,6 +25,8 @@ pub enum K {
     S2mh,
     /// $S_3((N-1)/2)$
     S3mh,
+    /// $g_3(N)$
+    G3,
 }
 
 /// Hold all cached values.
@@ -61,6 +63,7 @@ impl Cache {
             K::S1mh => w1::S1((self.n - 1.) / 2.),
             K::S2mh => w2::S2((self.n - 1.) / 2.),
             K::S3mh => w3::S3((self.n - 1.) / 2.),
+            K::G3 => g_functions::g3(self.n, self.get(K::S1)),
         };
         // insert
         self.m.insert(k, val);
