@@ -21,6 +21,7 @@ def quad_ker(
     u,
     order,
     space,
+    nf,
     mode0,
     mode1,
     is_log,
@@ -57,7 +58,7 @@ def quad_ker(
     if integrand == 0.0:
         return 0.0
     indices = {21: 0, 1: 1, -1: 2, 2: 3, -2: 4}
-    A = scet_I.SCET_I_entry(order, space, ker_base.n)
+    A = scet_I.SCET_I_entry(order, space, nf, ker_base.n)
     # select the needed matrix element
     ker = A[indices[mode0], indices[mode1]]
 
@@ -84,11 +85,12 @@ class SCET_I(Operator):
     log_label = "Scet_I"
     full_labels = br.scet_labels
 
-    def __init__(self, config, managers, order, space):
-        super().__init__(config, managers, Segment(origin=1, target=1, nf=5))
+    def __init__(self, config, managers, order, space, nf):
+        super().__init__(config, managers, Segment(origin=1, target=1, nf=nf))
         # order (alpha_s, L) of the SCET kernel
         self.order_scet = order
         self.space = space
+        self.nf = nf
 
     @property
     def labels(self):
@@ -131,6 +133,7 @@ class SCET_I(Operator):
             quad_ker,
             order=self.order_scet,
             space=self.space,
+            nf=self.nf,
             mode0=label[0],
             mode1=label[1],
             is_log=self.int_disp.log,
