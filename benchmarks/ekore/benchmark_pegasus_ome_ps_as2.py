@@ -24,7 +24,6 @@ def check_pegasus_ome_ps_as2_s(N, NF):
     S1 = h.S1(N)
     S2 = h.S2(N)
     S3 = h.S3(N)
-    ACG3 = h.g_functions.mellin_g3(N, S1)
     #
     NM = N - 1.0
     N1 = N + 1.0
@@ -41,6 +40,7 @@ def check_pegasus_ome_ps_as2_s(N, NF):
     S21 = S2 + N1I * N1I
     S31 = S3 + N1I**3
     S22 = S21 + N2I * N2I
+    ACG3 = h.g_functions.mellin_g3(N1, S11)
     #
     #   CALL BET(N1,V1)
     #   CALL BET1(N1,V2)
