@@ -1,4 +1,7 @@
-"""Benchmark the NLO anomalous dimensions against PEGASUS"""
+"""Benchmark the unpolarized NLO anomalous dimensions against PEGASUS.
+
+Recall that we obtained our representation not from PEGASUS, but derived it
+ourselves (see comment there)."""
 
 import numpy as np
 import pytest
@@ -21,7 +24,6 @@ def check_gamma_1_pegasus(N, NF):
     ZETA2 = zeta2
     ZETA3 = zeta3
 
-    # N = np.random.rand(1) + np.random.rand(1) * 1j
     S1 = h.S1(N)
     S2 = h.S2(N)
 

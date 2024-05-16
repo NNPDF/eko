@@ -1,4 +1,4 @@
-"""Benchmark the NLO anomalous dimensions against PEGASUS"""
+"""Benchmark the polarized NNLO OME against PEGASUS"""
 
 import numpy as np
 import pytest
