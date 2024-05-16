@@ -10,5 +10,4 @@ license = "GPL-3.0-or-later"
 [dependencies]
 num = "0.4.1"
 float-cmp = "0.9.0"
-katexit = "0.1.4"
 hashbrown = "0.14"
