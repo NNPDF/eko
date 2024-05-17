@@ -3,7 +3,6 @@
 use num::{complex::Complex, Zero};
 use std::f64::consts::PI;
 
-#[cfg_attr(doc, katexit::katexit)]
 /// Compute the polygamma functions $\psi_k(z)$.
 ///
 /// Reimplementation of ``WPSIPG`` (C317) in [CERNlib](http://cernlib.web.cern.ch/cernlib/) given by [[KOLBIG1972221]][crate::bib::KOLBIG1972221].

@@ -5,7 +5,6 @@ use num::{complex::Complex, Zero};
 
 use crate::harmonics::{g_functions, w1, w2, w3};
 
-#[cfg_attr(doc, katexit::katexit)]
 /// List of available elements.
 #[derive(Debug, PartialEq, Eq, Hash)]
 pub enum K {
