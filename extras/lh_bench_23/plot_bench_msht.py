@@ -10,7 +10,7 @@ from utils import (
 )
 
 USE_LINX = False
-REL_DIFF = False
+REL_DIFF = True
 SCHEME = "VFNS"
 SV = "central"
 
@@ -39,14 +39,14 @@ msht_prior_res = compute_n3lo_avg_err(msht_prior_dfs)
 # compute average of FHMRUVV
 fhmruvv_res = []
 for a, b in zip(fhmruvv_msht_res, fhmruvv_eko_res):
-    fhmruvv_res.append((a + b )/ 2)
+    fhmruvv_res.append((a + b) / 2)
 
 # PDFs plots
 n3lo_dfs = [
-    (eko_res, "EKO"),
     (fhmruvv_res, "FHMRUVV"),
     (msht_prior_res, "MSHT (prior)"),
     (msht_post_res, "MSHT (posterior)"),
+    (eko_res, "NNPDF"),
 ]
 plot_pdfs(xgrid, n3lo_dfs, nnlo_central, SCHEME, USE_LINX, plot_dir)
 
@@ -57,9 +57,9 @@ msht_prior_diff = compute_n3lo_nnlo_diff(msht_prior_res, nnlo_central, REL_DIFF)
 msht_post_diff = compute_n3lo_nnlo_diff(msht_post_res, nnlo_central, REL_DIFF)
 
 n3lo_dfs = [
-    (eko_diff, "EKO"),
     (fhmruvv_diff, "FHMRUVV"),
     (msht_prior_diff, "MSHT (prior)"),
     (msht_post_diff, "MSHT (posterior)"),
+    (eko_diff, "NNPDF"),
 ]
 plot_diff_to_nnlo(xgrid, n3lo_dfs, SCHEME, USE_LINX, plot_dir, REL_DIFF)

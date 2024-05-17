@@ -24,27 +24,16 @@ def load_table(method):
 
 
 def plot_diff(xgrid, dfs_trn, dfs_exa):
-    ncols = 3
-    nrows = 1
-    fig, axs = plt.subplots(nrows, ncols, figsize=(ncols * 5, nrows * 3.5))
-
     cut_smallx = 0
     cut_largex = -1
     xgrid = xgrid[cut_smallx:cut_largex]
 
     plot_dir.mkdir(exist_ok=True)
 
-    fig.suptitle(
-        r"\% difference Exact vs Truncated" + r", $\mu_{\rm f}^2 = 10^4 \ \mbox{GeV}^2$"
-    )
-
     # loop on PDFs
-    for i, ax in enumerate(
-        axs.reshape(
-            ncols * nrows,
-        )
-    ):
-        j = np.where(dfs_trn[1].columns == COLUMNS_TO_KEEP[i])[0][0]
+    for column in COLUMNS_TO_KEEP:
+        _, ax = plt.subplots(1, 1, figsize=(1 * 5, 1 * 3.5))
+        j = np.where(dfs_trn[1].columns == column)[0][0]
 
         # loop on ptos
         for pto, pto_label in PTOS.items():
@@ -64,9 +53,9 @@ def plot_diff(xgrid, dfs_trn, dfs_exa):
         ax.set_ylabel(f'${lha_labels("FFNS")[j]}$')
         ax.set_xlim(xgrid.min() - xgrid.min() / 3, 1)
 
-    plt.legend()
-    plt.tight_layout()
-    plt.savefig(f"{plot_dir}/diff_trn_exa.pdf")
+        plt.legend()
+        plt.tight_layout()
+        plt.savefig(f"{plot_dir}/diff_trn_exa_{column}.pdf")
 
 
 if __name__ == "__main__":
