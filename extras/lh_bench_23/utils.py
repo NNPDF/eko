@@ -147,20 +147,10 @@ def load_msht(
     table_dir: pathlib.Path, scheme: str, approx: str, rotate_to_evol: bool = False
 ) -> list:
     """Load MSHT files."""
-
-    if scheme != "VFNS":
-        raise ValueError(f"{scheme} not provided by MSHT, comment it out")
-    APPROX_MAP = {
-        "FHMRUVV": "Moch",
-        "MSHT": "Posterior",
-    }
-    fhmruvv_msht_table_dir = table_dir / f"{scheme}_{APPROX_MAP[approx]}_numbers"
+    fhmruvv_msht_table_dir = table_dir / "MSHT" / f"N3LO_{approx}_{scheme}"
 
     columns = lha_labels(scheme)
-    # columns.insert(0,'x')
-    # columns.insert(0,'Q')
     dfs = []
-
     for p in fhmruvv_msht_table_dir.iterdir():
         data = np.loadtxt(p)
         data = pd.DataFrame(data[:, 2:], columns=columns)
@@ -277,7 +267,7 @@ def plot_diff_to_nnlo(
     fig, axs = plt.subplots(nrows, ncols, figsize=(ncols * 5, nrows * 3.5))
 
     # cut away small- and large-x values, for plotting
-    smallx_cut = 4 if use_linx else 3
+    smallx_cut = 4 if use_linx else 2
     largex_cut = -1 if not use_linx else None
     xgrid = xgrid[smallx_cut:largex_cut]
     xscale = "linx" if use_linx else "logx"
@@ -299,7 +289,7 @@ def plot_diff_to_nnlo(
         # loop on n3lo
         for j, (tabs, approx_label) in enumerate(n3lo_dfs):
             central, err = tabs
-            ax.errorbar(
+            obj = ax.errorbar(
                 xgrid,
                 central.values[smallx_cut:largex_cut, i],
                 yerr=err.values[smallx_cut:largex_cut, i],
@@ -307,14 +297,18 @@ def plot_diff_to_nnlo(
                 label=approx_label,
                 capsize=5,
             )
-            # ax.errorbar(
-            #     xgrid,
-            #     eko_4mom_diff.values[:, i],
-            #     yerr=eko_4mom_diff_std.values[:, i],
-            #     fmt="x",
-            #     label="aN3LO EKO (4 moments)",
-            #     capsize=5,
-            # )
+            ax.plot(
+                xgrid,
+                central.values[smallx_cut:largex_cut, i],
+                color=obj[0].get_color(),
+                alpha=0.3,
+            )
+            ax.fill_between(
+                xgrid,
+                (central - err).values[smallx_cut:largex_cut, i],
+                (central + err).values[smallx_cut:largex_cut, i],
+                alpha=0.2,
+            )
         ax.hlines(
             0,
             xgrid.min() - xgrid.min() / 3,
