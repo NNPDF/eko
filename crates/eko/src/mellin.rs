@@ -6,7 +6,6 @@
 use num::complex::Complex;
 use std::f64::consts::PI;
 
-#[cfg_attr(doc, katexit::katexit)]
 /// Talbot inversion path.
 ///
 /// Implements the algorithm presented in [\[Abate\]](crate::bib::Abate).
