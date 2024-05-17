@@ -1,4 +1,8 @@
+cd ..
+
 let version = "x.x.x"
+
+open Cargo.toml | update workspace.package.version $version | save -f Cargo.toml
 
 let crates = ls crates | where type == dir | get name | filter {|n| $"($n)/Cargo.toml" | path exists } | each {|p| split row "/" | last} 
 
@@ -14,6 +18,7 @@ def update-manifest [] {
 def replace-manifest [] {
   let path = $"crates/($in)/Cargo.toml"
   open $path | update-manifest | to toml | save -f $path
+  $path
 }
 
-$crates | each {|p| $p | replace-manifest}
+$crates | each {|p| $p | replace-manifest} | prepend Cargo.toml
