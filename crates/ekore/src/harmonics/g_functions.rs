@@ -4,7 +4,6 @@ use crate::constants::ZETA2;
 use crate::harmonics::cache::recursive_harmonic_sum as s;
 use num::{complex::Complex, Zero};
 
-#[cfg_attr(doc, katexit::katexit)]
 /// Compute the Mellin transform of $\text{Li}_2(x)/(1+x)$.
 ///
 /// This function appears in the analytic continuation of the harmonic sum

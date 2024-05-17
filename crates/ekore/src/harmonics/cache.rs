@@ -70,7 +70,6 @@ impl Cache {
     }
 }
 
-#[cfg_attr(doc, katexit::katexit)]
 /// Recursive computation of harmonic sums.
 ///
 /// Compute the harmonic sum $S_{w}(N+k)$ stating from the value $S_{w}(N)$ via the recurrence relations.
