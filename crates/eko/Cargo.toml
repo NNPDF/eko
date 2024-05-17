@@ -21,4 +21,4 @@ crate-type = ["cdylib"]
 
 [dependencies]
 num = "0.4.1"
-ekore = { path = "../ekore" }
+ekore = { path = "../ekore", version = "0.0.1" }
