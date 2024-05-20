@@ -2,6 +2,8 @@ name: Deploy Maturin wheels
 
 on:
   push:
+    # TODO: remove branches
+    branches: ["*"]
     tags:
       - "*"
   workflow_dispatch:

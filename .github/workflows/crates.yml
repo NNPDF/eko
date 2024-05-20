@@ -1,0 +1,31 @@
+name: Deploy Crates
+
+on:
+  push:
+    # TODO: remove branches
+    branches: ["*"]
+    tags:
+      - "*"
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Setup Nushell
+        uses: hustcer/setup-nu@v3.10
+        with:
+          version: 0.93.0
+      - name: Bump versions
+        shell: nu {0}
+        run: |
+          do { cd crates; nu bump-versions.nu }
+      - name: Publish crates
+        shell: nu {0}
+        run: |
+          ls crates | where type == dir
+                    | get name
+                    | filter {|n| $"($n)/Cargo.toml" | path exists }
+                    | each {|p| split row "/" | last}
+                    | each {|p| cargo publish -p $p }
