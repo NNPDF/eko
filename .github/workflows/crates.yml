@@ -25,6 +25,6 @@ jobs:
           poe bump-version
       - name: Publish crates
         run: |
-          jq '.[]' release.json | xargs -I _ cargo publish -p _ --allow-dirty
+          jq '.[]' crates/release.json | xargs -I _ cargo publish -p _ --allow-dirty
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
