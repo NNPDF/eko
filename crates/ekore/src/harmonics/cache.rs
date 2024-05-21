@@ -3,7 +3,7 @@
 use hashbrown::HashMap;
 use num::{complex::Complex, Zero};
 
-use crate::harmonics::{g_functions, w1, w2, w3};
+use crate::harmonics::{g_functions, w1, w2, w3, w4};
 
 /// List of available elements.
 #[derive(Debug, PartialEq, Eq, Hash)]
@@ -12,6 +12,10 @@ pub enum K {
     S1,
     /// $S_2(N)$
     S2,
+    /// $S_3(N)$
+    S3,
+    /// $S_4(N)$
+    S4,
     /// $S_1(N/2)$
     S1h,
     /// $S_2(N/2)$
@@ -56,6 +60,8 @@ impl Cache {
         let val = match k {
             K::S1 => w1::S1(self.n),
             K::S2 => w2::S2(self.n),
+            K::S3 => w3::S3(self.n),
+            K::S4 => w4::S4(self.n),
             K::S1h => w1::S1(self.n / 2.),
             K::S2h => w2::S2(self.n / 2.),
             K::S3h => w3::S3(self.n / 2.),

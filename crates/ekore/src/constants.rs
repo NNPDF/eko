@@ -27,3 +27,8 @@ pub const ZETA2: f64 = 1.6449340668482264;
 
 /// Riemann zeta function at z = 3.
 pub const ZETA3: f64 = 1.2020569031595942;
+
+/// Riemann zeta function at z = 4.
+///
+/// $\zeta(4) = \pi^4 / 90$.
+pub const ZETA4: f64 = 1.082323233711138;
