@@ -14,17 +14,19 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - name: Setup Nushell
-        uses: hustcer/setup-nu@v3.10
+      - uses: actions/setup-python@v5
+      - name: Install and configure Poetry
+        uses: snok/install-poetry@v1
         with:
-          version: 0.93.0
+          virtualenvs-create: false
+      - name: Install task runner
+        run: pip install poethepoet
       - name: Bump versions
-        shell: nu {0}
         run: |
-          do { cd crates; nu bump-versions.nu }
+          poetry install --only version
+          poe bump-version
       - name: Publish crates
-        shell: nu {0}
         run: |
-          open crates/release.json | each {|p| cargo publish -p $p --allow-dirty }
+          jq '.[]' release.json | xargs -I _ cargo publish -p _ --allow-dirty
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
