@@ -4,6 +4,7 @@ use crate::harmonics::cache::Cache;
 use num::complex::Complex;
 use num::Zero;
 pub mod as1;
+pub mod as2;
 
 /// Compute the tower of the non-singlet anomalous dimensions.
 pub fn gamma_ns_qcd(order_qcd: usize, _mode: u16, c: &mut Cache, nf: u8) -> Vec<Complex<f64>> {
