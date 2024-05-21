@@ -21,7 +21,7 @@
 
       perSystem = {pkgs, ...}: {
         devenv.shells.default = {
-          packages = with pkgs; [pre-commit maturin];
+          packages = with pkgs; [pre-commit poethepoet maturin];
 
           languages = {
             python = {
