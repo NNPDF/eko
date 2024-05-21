@@ -9,7 +9,7 @@ use crate::harmonics::cache::{Cache, K};
 
 /// Compute the valence-like non-singlet anomalous dimension.
 ///
-/// Implements Eq. (3.5) of [\[Moch:2004pa\]][crate::bib::Moch2004pa].
+/// Implements Eq. (3.6) of [\[Moch:2004pa\]][crate::bib::Moch2004pa].
 pub fn gamma_nsm(c: &mut Cache, _nf: u8) -> Complex<f64> {
     let N = c.n;
     let S1 = c.get(K::S1);
