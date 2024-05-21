@@ -1,6 +1,6 @@
 cd ..
 
-let version = "0.1.1-alpha.3"
+let version = "0.1.1-alpha.4"
 
 open Cargo.toml | update workspace.package.version $version
                 | collect { save -f Cargo.toml }
