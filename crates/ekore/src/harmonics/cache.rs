@@ -95,22 +95,25 @@ pub fn recursive_harmonic_sum(
 #[cfg(test)]
 mod tests {
     use crate::harmonics::cache::recursive_harmonic_sum;
-    use crate::harmonics::w1;
+    use crate::harmonics::{w1, w2, w3, w4};
     use crate::{assert_approx_eq_cmplx, cmplx};
     use num::complex::Complex;
 
     #[test]
     fn test_recursive_harmonic_sum() {
+        const SX: [fn(Complex<f64>) -> Complex<f64>; 4] = [w1::S1, w2::S2, w3::S3, w4::S4];
         const NS: [Complex<f64>; 2] = [cmplx![1.0, 0.0], cmplx![2.34, 3.45]];
         const ITERS: [usize; 2] = [1, 2];
-        for nit in NS.iter().enumerate() {
-            let n = *nit.1;
-            for iit in ITERS.iter().enumerate() {
-                let iterations = *iit.1;
-                let s1_base = w1::S1(n);
-                let s1_test = w1::S1(n + (iterations as f64));
-                let s1_ref = recursive_harmonic_sum(s1_base, n, iterations, 1);
-                assert_approx_eq_cmplx!(f64, s1_test, s1_ref);
+        for sit in SX.iter().enumerate() {
+            for nit in NS.iter().enumerate() {
+                let n = *nit.1;
+                for iit in ITERS.iter().enumerate() {
+                    let iterations = *iit.1;
+                    let s_base = sit.1(n);
+                    let s_test = sit.1(n + (iterations as f64));
+                    let s_ref = recursive_harmonic_sum(s_base, n, iterations, 1 + (sit.0 as u32));
+                    assert_approx_eq_cmplx!(f64, s_test, s_ref);
+                }
             }
         }
     }
