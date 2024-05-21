@@ -1,5 +1,5 @@
 diff --git a/pyproject.toml b/pyproject.toml
-index 7404d871..a1e3ae66 100644
+index 7404d871..3d19827b 100644
 --- a/pyproject.toml
 +++ b/pyproject.toml
 @@ -1,6 +1,20 @@
@@ -30,11 +30,11 @@ index 7404d871..a1e3ae66 100644
  asv-clean = { "shell" = "rm -rf benchmarks/env benchmarks/html benchmarks/results" }
  asv = ["asv-run", "asv-publish", "asv-preview"]
 +compile = "pip install -e crates/eko/"
-+rdocs.cmd = "cargo doc --workspace --manifest-path crates/Cargo.toml --no-deps"
-+rdocs.env = { RUSTDOCFLAGS = "--html-in-header katex-header.html" }
-+rdocs-view = "xdg-open crates/target/doc/ekors/index.html"
-+rdocs-clean = "rm -rf crates/target/doc/"
-+rtest = "cargo test --workspace --manifest-path crates/Cargo.toml"
++rdocs.cmd = "cargo doc --workspace --no-deps"
++rdocs.env = { RUSTDOCFLAGS = "--html-in-header crates/katex-header.html" }
++rdocs-view = "xdg-open target/doc/ekors/index.html"
++rdocs-clean = "rm -rf target/doc/"
++rtest = "cargo test --workspace"
 
  [tool.pytest.ini_options]
  testpaths = ['tests/', 'benchmarks/']
