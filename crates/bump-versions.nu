@@ -1,11 +1,11 @@
 cd ..
 
-let version = "0.1.1-alpha.0"
+let version = "0.1.1-alpha.1"
 
 open Cargo.toml | update workspace.package.version $version
                 | collect { save -f Cargo.toml }
 
-let crates = ls crates | where type == dir | get name | filter {|n| $"($n)/Cargo.toml" | path exists } | each {|p| split row "/" | last}
+let crates = open crates/release.json
 
 def update-manifest [] {
   let manifest = $in
