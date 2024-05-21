@@ -30,3 +30,5 @@ jobs:
                     | filter {|n| $"($n)/Cargo.toml" | path exists }
                     | each {|p| split row "/" | last}
                     | each {|p| cargo publish -p $p }
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
