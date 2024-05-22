@@ -11,12 +11,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
-      - name: Install stable toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-            profile: minimal
-            toolchain: stable
-            override: true
       - name: Install task runner
         run: pip install poethepoet
       - name: Run Rust unit tests
