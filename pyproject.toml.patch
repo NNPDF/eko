@@ -25,16 +25,3 @@ index 7404d871..a1e3ae66 100644
 
  [tool.poetry]
  name = "eko"
-@@ -124,6 +138,12 @@ asv-publish = "asv publish --config benchmarks/asv.conf.json"
- asv-show = "asv show --config benchmarks/asv.conf.json"
- asv-clean = { "shell" = "rm -rf benchmarks/env benchmarks/html benchmarks/results" }
- asv = ["asv-run", "asv-publish", "asv-preview"]
-+compile = "pip install -e crates/eko/"
-+rdocs.cmd = "cargo doc --workspace --manifest-path crates/Cargo.toml --no-deps"
-+rdocs.env = { RUSTDOCFLAGS = "--html-in-header katex-header.html" }
-+rdocs-view = "xdg-open crates/target/doc/ekors/index.html"
-+rdocs-clean = "rm -rf crates/target/doc/"
-+rtest = "cargo test --workspace --manifest-path crates/Cargo.toml"
-
- [tool.pytest.ini_options]
- testpaths = ['tests/', 'benchmarks/']
