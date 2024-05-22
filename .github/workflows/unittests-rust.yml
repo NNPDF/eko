@@ -1,0 +1,15 @@
+name: Rust unit tests
+
+on: push
+
+jobs:
+  test-rust:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+      - name: Install task runner
+        run: pip install poethepoet
+      - name: Run Rust unit tests
+        run: |
+          poe rtest
