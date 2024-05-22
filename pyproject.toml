@@ -135,6 +135,8 @@ rdocs.env = { RUSTDOCFLAGS = "--html-in-header crates/katex-header.html" }
 rdocs-view = "xdg-open target/doc/ekors/index.html"
 rdocs-clean = "rm -rf target/doc/"
 rtest = "cargo test --workspace"
+fmtcheck = "cargo fmt --all -- --check"
+clippy = "cargo clippy --no-deps"
 
 [tool.pytest.ini_options]
 testpaths = ['tests/', 'benchmarks/']
