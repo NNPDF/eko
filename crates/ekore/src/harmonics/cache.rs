@@ -33,8 +33,8 @@ impl Cache {
     pub fn get(&mut self, k: K) -> Complex<f64> {
         let val = self.m.get(&k);
         // already there?
-        if val.is_some() {
-            return *val.unwrap();
+        if let Some(value) = val {
+            return *value;
         }
         // compute new
         let val = match k {
