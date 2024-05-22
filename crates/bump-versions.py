@@ -36,4 +36,4 @@ def main(version):
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         raise ValueError(f"Pass version to {sys.argv[0]}")
-    main(sys.argv[1])
+    main(sys.argv[1][1:])
