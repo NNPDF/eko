@@ -1,9 +1,6 @@
 name: Rust unit tests
 
-on:
-  push:
-    # TODO: remove branches
-    branches: ["*"]
+on: push
 
 jobs:
   test-rust:
