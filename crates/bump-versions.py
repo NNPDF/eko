@@ -1,12 +1,11 @@
 import json
+import sys
 from pathlib import Path
 
 import tomlkit
 
 HERE = Path(__file__).parent
 CRATES = json.loads((HERE / "release.json").read_text())
-
-VERSION = "0.1.1-alpha.5"
 
 
 def workspace(manifest, version):
@@ -28,11 +27,13 @@ def update(path, version, edit):
     path.write_text(tomlkit.dumps(manifest))
 
 
-def main():
-    update("..", VERSION, workspace)
+def main(version):
+    update("..", version, workspace)
     for name in CRATES:
-        update(name, VERSION, crate)
+        update(name, version, crate)
 
 
 if __name__ == "__main__":
-    main()
+    if len(sys.argv) < 2:
+        raise ValueError(f"Pass version to {sys.argv[0]}")
+    main(sys.argv[1])

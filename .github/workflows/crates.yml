@@ -3,7 +3,7 @@ name: Deploy Crates
 on:
   push:
     # TODO: remove branches
-    branches: ["*"]
+    # branches: ["*"]
     tags:
       - "*"
   workflow_dispatch:
