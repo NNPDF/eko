@@ -26,6 +26,28 @@ BOTTOMRULE = r"""
 \end{table}
 """
 
+VFNS_LABELS = r"""
+    \multicolumn{1}{c|} {$xu_v$} &
+    \multicolumn{1}{c|} {$xd_v$} &
+    \multicolumn{1}{c|} {$xL_-$} &
+    \multicolumn{1}{c|} {$xL_+$} &
+    \multicolumn{1}{c|} {$xs_+$} &
+    \multicolumn{1}{c|} {$xc_+$} &
+    \multicolumn{1}{c|} {$xb_+$} &
+    \multicolumn{1}{c||}{$xg$} \\[0.5mm]
+    """
+
+FFNS_LABELS = r"""
+    \multicolumn{1}{c|} {$xu_v$} &
+    \multicolumn{1}{c|} {$xd_v$} &
+    \multicolumn{1}{c|} {$xL_-$} &
+    \multicolumn{1}{c|} {$xL_+$} &
+    \multicolumn{1}{c|} {$xs_v$} &
+    \multicolumn{1}{c|} {$xs_+$} &
+    \multicolumn{1}{c|} {$xc_+$} &
+    \multicolumn{1}{c||}{$xg$}
+    """
+
 
 def insert_haedrule(scheme, approx, caption):
     """Insert the middle rule."""
@@ -53,22 +75,15 @@ def insert_haedrule(scheme, approx, caption):
         # + r"""aN$^3$LO, """
         + approx
         + scheme_label
-        + r"""
-        $\,\mu_{\rm f}^2 = 10^4 \mbox{ GeV}^2$} \\
+        + r"""$\,\mu_{\rm f}^2 = 10^4 \mbox{ GeV}^2$} \\
     \multicolumn{9}{||c||}{} \\[-0.3cm]
     \hline \hline
     \multicolumn{9}{||c||}{} \\[-3mm]
     \multicolumn{1}{||c||}{$x$} &
-    \multicolumn{1}{c|} {$xu_v$} &
-    \multicolumn{1}{c|} {$xd_v$} &
-    \multicolumn{1}{c|} {$xL_-$} &
-    \multicolumn{1}{c|} {$xL_+$} &
-    \multicolumn{1}{c|} {$xs_+$} &
-    \multicolumn{1}{c|} {$xc_+$} &
-    \multicolumn{1}{c|} {$xb_+$} &
-    \multicolumn{1}{c||}{$xg$} \\[0.5mm]
     """
     )
+    HEADRULE += VFNS_LABELS if scheme == "VFNS" else FFNS_LABELS
+    HEADRULE += r"""\\[0.5mm]"""
     return HEADRULE
 
 
@@ -128,8 +143,8 @@ if __name__ == "__main__":
     caption = r"""
         Results for the FFNS aN$^3$LO evolution
         for the initial conditions and the input parton distributions
-        given in \cref{sec:toy_pdf},
-        with the FHMRUVV splitting functions approximation.
+        given in Sec.~\ref{sec:toy_pdf},
+        with the FHMRUVV splitting functions approximation and the NNPDF code.
     """
     dump_table(scheme, approx, caption)
 
@@ -138,23 +153,27 @@ if __name__ == "__main__":
     caption = r"""
         Results for the VFNS aN$^3$LO evolution
         for the initial conditions and the input parton distributions
-        given in \cref{sec:toy_pdf},
-        with the FHMRUVV splitting functions approximation.
+        given in Sec.~\ref{sec:toy_pdf},
+        with the FHMRUVV splitting functions approximation and the NNPDF code.
     """
     dump_table(scheme, approx, caption)
 
     approx = "EKO"
     scheme = "FFNS"
     caption = r"""
-        Same as \cref{tab:n3lo_ffns_fhmruvv} but now with
-        the NNPDF splitting functions approximation.
+        Results for the FFNS aN$^3$LO evolution
+        for the initial conditions and the input parton distributions
+        given in Sec.~\ref{sec:toy_pdf},
+        with the NNPDF splitting functions approximation.
     """
     dump_table(scheme, approx, caption)
 
     approx = "EKO"
     scheme = "VFNS"
     caption = r"""
-        Same as \cref{tab:n3lo_vfns_fhmruvv} but now with
-        the NNPDF splitting functions approximation.
+        Results for the VFNS aN$^3$LO evolution
+        for the initial conditions and the input parton distributions
+        given in Sec.~\ref{sec:toy_pdf},
+        with the NNPDF splitting functions approximation.
     """
     dump_table(scheme, approx, caption)
