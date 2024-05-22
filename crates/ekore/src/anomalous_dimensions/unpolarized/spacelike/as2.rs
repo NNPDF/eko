@@ -111,9 +111,6 @@ pub fn gamma_singlet(c: &mut Cache, nf: u8) -> [[Complex<f64>; 2]; 2] {
     ]
 }
 
-pub fn test_const() -> f64 {
-    CA
-}
 
 #[cfg(test)]
 mod tests {
