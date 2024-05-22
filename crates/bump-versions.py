@@ -35,5 +35,6 @@ def main(version):
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        raise ValueError(f"Pass version to {sys.argv[0]}")
+        raise ValueError(f"Pass a version (e.g. v0.0.0) to {sys.argv[0]}")
+    # `git describe` starts with a `v` which we need to remove again
     main(sys.argv[1][1:])
