@@ -318,7 +318,7 @@ mod tests {
             (-79909.0 / 3375.0 + 194.0 * PI.pow(2) / 45.0 - 8.0 * ZETA3) * CA.pow(2)
                 - 967.0 / 270.0 * CA * (NF as f64)
                 + 541.0 / 216.0 * CF * (NF as f64),
-            epsilon = 1e-4 // lower numerical precision than python code?
+            epsilon = 3e-5
         );
     }
 
