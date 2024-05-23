@@ -49,7 +49,7 @@ FFNS_LABELS = r"""
     """
 
 
-def insert_haedrule(scheme, approx, caption):
+def insert_headrule(scheme, approx, caption):
     """Insert the middle rule."""
     label = r"\label{tab:" + f"n3lo_{scheme.lower()}_{approx.lower()}" + "}"
     scheme_label = (
@@ -113,7 +113,7 @@ def format_float(values):
 
 def dump_table(scheme: str, approx: str, caption: str):
     """Write a nice latex table."""
-    final_tab = insert_haedrule(scheme, approx.replace("EKO", "NNPDF"), caption)
+    final_tab = insert_headrule(scheme, approx.replace("EKO", "NNPDF"), caption)
     # loop on scales
     for sv in SVS:
         # load tables
