@@ -5,7 +5,8 @@ use std::f64::consts::PI;
 
 /// Compute the polygamma functions $\psi_k(z)$.
 ///
-/// Reimplementation of ``WPSIPG`` (C317) in [CERNlib](http://cernlib.web.cern.ch/cernlib/) given by [[KOLBIG1972221]][crate::bib::KOLBIG1972221].
+/// Reimplementation of ``WPSIPG`` (C317) in [CERNlib](http://cernlib.web.cern.ch/cernlib/)
+/// given by [\[KOLBIG1972221\]](crate::bib::KOLBIG1972221).
 ///
 /// TODO: introduce back errors
 pub fn cern_polygamma(Z: Complex<f64>, K: usize) -> Complex<f64> {
@@ -82,9 +83,7 @@ pub fn cern_polygamma(Z: Complex<f64>, K: usize) -> Complex<f64> {
     }
     let mut R = 1. / V.powu(2);
     let mut P = R * C[K][6 - 1];
-    for i in (1..=5).rev()
-    // (int i = 5; i>1-1; i--)
-    {
+    for i in (1..=5).rev() {
         P = R * (C[K][i - 1] + P);
     }
     H = (SGN[K] as f64)

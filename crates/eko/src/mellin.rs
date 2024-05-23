@@ -9,10 +9,13 @@ use std::f64::consts::PI;
 /// Talbot inversion path.
 ///
 /// Implements the algorithm presented in [\[Abate\]](crate::bib::Abate).
-/// $p_{\text{Talbot}}(t) =  o + r \cdot ( \theta \cot(\theta) + i\theta)$ with $\theta = \pi(2t-1)$
-/// The default values for the parameters $r,o$ are given by $r = 1/2, o = 0$ for
-/// the non-singlet integrals and by $r = \frac{2}{5} \frac{16}{0.1 - \ln(x)}, o = 1$
-/// for the singlet sector. Note that the non-singlet kernels evolve poles only up to
+///
+/// $$p_{\text{Talbot}}(t) =  o + r \cdot ( \theta \cot(\theta) + i\theta) ~ \text{with}~ \theta = \pi(2t-1)$$
+///
+/// The default values for the parameters $r,o$ are given by
+/// $r = \frac{2}{5} \frac{16}{0.1 - \ln(x)}$ and $o = 0$ for
+/// the non-singlet integrals and $o = 1$ for the singlet sector.
+/// Note that the non-singlet kernels evolve poles only up to
 /// $N=0$ whereas the singlet kernels have poles up to $N=1$.
 pub struct TalbotPath {
     /// integration variable

@@ -4,7 +4,8 @@ use ekore;
 use ekore::harmonics::cache::Cache;
 use std::ffi::c_void;
 
-mod mellin;
+pub mod bib;
+pub mod mellin;
 
 /// QCD intergration kernel inside quad.
 #[no_mangle]

@@ -9,8 +9,8 @@ use num::{complex::Complex, Zero};
 /// This function appears in the analytic continuation of the harmonic sum
 /// $S_{-2,1}(N)$ which in turn appears in the NLO anomalous dimension.
 ///
-/// We use the name from [[MuselliPhD]][crate::bib::MuselliPhD], but not his implementation - rather we use the
-/// Pegasus [[Vogt:2004ns]][crate::bib::Vogt2004ns] implementation.
+/// We use the name from [\[MuselliPhD\]](crate::bib::MuselliPhD), but not his implementation - rather we use the
+/// Pegasus [\[Vogt:2004ns\]](crate::bib::Vogt2004ns) implementation.
 pub fn g3(N: Complex<f64>, S1: Complex<f64>) -> Complex<f64> {
     const CS: [f64; 7] = [
         1.0000e0, -0.9992e0, 0.9851e0, -0.9005e0, 0.6621e0, -0.3174e0, 0.0699e0,
