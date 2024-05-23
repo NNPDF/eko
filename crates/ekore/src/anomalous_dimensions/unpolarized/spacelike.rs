@@ -1,7 +1,7 @@
 //! The unpolarized, space-like anomalous dimensions at various couplings power.
 
+use crate::constants::{PID_NSM, PID_NSP, PID_NSV};
 use crate::harmonics::cache::Cache;
-use crate::constants::{PID_NSP,PID_NSM,PID_NSV};
 use num::complex::Complex;
 use num::Zero;
 pub mod as1;
@@ -17,7 +17,7 @@ pub fn gamma_ns_qcd(order_qcd: usize, mode: u16, c: &mut Cache, nf: u8) -> Vec<C
             PID_NSP => as2::gamma_nsp(c, nf),
             // To fill the full valence vector in NNLO we need to add gamma_ns^1 explicitly here
             PID_NSM | PID_NSV => as2::gamma_nsm(c, nf),
-            _ => panic!("Unkown non-singlet sector element")
+            _ => panic!("Unkown non-singlet sector element"),
         };
         gamma_ns[1] = gamma_ns_1
     }

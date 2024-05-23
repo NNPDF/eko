@@ -17,7 +17,7 @@ pub fn gamma_nsm(c: &mut Cache, nf: u8) -> Complex<f64> {
     let Sp2m = c.get(K::S2mh);
     let Sp3m = c.get(K::S3mh);
     let g3n = c.get(K::G3);
-
+    #[rustfmt::skip]
     let gqq1m_cfca = 16.0 * g3n
         - (144.0 + N * (1.0 + N) * (156.0 + N * (340.0 + N * (655.0 + 51.0 * N * (2.0 + N)))))
             / (18.0 * N.powu(3) * (1. + N).powu(3))
@@ -27,6 +27,7 @@ pub fn gamma_nsm(c: &mut Cache, nf: u8) -> Complex<f64> {
         + 2.0 * Sp3m
         + 10.0 * ZETA3
         + ZETA2 * (16.0 * S1 - 16.0 * Sp1m - (16.0 * (1. + N * LN_2)) / N);
+    #[rustfmt::skip]
     let gqq1m_cfcf = -32. * g3n
         + (24. - N * (-32. + 3. * N * (-8. + N * (3. + N) * (3. + N.powu(2)))))
             / (2. * N.powu(3) * (1. + N).powu(3))
@@ -36,6 +37,7 @@ pub fn gamma_nsm(c: &mut Cache, nf: u8) -> Complex<f64> {
         - 4. * Sp3m
         - 20. * ZETA3
         + ZETA2 * (-32. * S1 + 32. * Sp1m + 32. * (1. / N + LN_2));
+    #[rustfmt::skip]
     let gqq1m_cfnf = (-12. + N * (20. + N * (47. + 3. * N * (2. + N))))
         / (9. * N.powu(2) * (1. + N).powu(2))
         - (40. * S1) / 9.
@@ -55,7 +57,7 @@ pub fn gamma_nsp(c: &mut Cache, nf: u8) -> Complex<f64> {
     let Sp2p = c.get(K::S2h);
     let Sp3p = c.get(K::S3h);
     let g3n = c.get(K::G3);
-
+    #[rustfmt::skip]
     let gqq1p_cfca = -16. * g3n
         + (132. - N * (340. + N * (655. + 51. * N * (2. + N))))
             / (18. * N.powu(2) * (1. + N).powu(2))
@@ -65,6 +67,7 @@ pub fn gamma_nsp(c: &mut Cache, nf: u8) -> Complex<f64> {
         + 2. * Sp3p
         + 10. * ZETA3
         + ZETA2 * (16. * S1 - 16. * Sp1p + 16. * (1. / N - LN_2));
+    #[rustfmt::skip]
     let gqq1p_cfcf = 32. * g3n
         - (8. + N * (32. + N * (40. + 3. * N * (3. + N) * (3. + N.powu(2)))))
             / (2. * N.powu(3) * (1. + N).powu(3))
@@ -74,6 +77,7 @@ pub fn gamma_nsp(c: &mut Cache, nf: u8) -> Complex<f64> {
         - 4. * Sp3p
         - 20. * ZETA3
         + ZETA2 * (-32. * S1 + 32. * Sp1p + 32. * (-(1. / N) + LN_2));
+    #[rustfmt::skip]
     let gqq1p_cfnf = (-12. + N * (20. + N * (47. + 3. * N * (2. + N))))
         / (9. * N.powu(2) * (1. + N).powu(2))
         - (40. * S1) / 9.
@@ -100,7 +104,7 @@ pub fn gamma_qg(c: &mut Cache, nf: u8) -> Complex<f64> {
     let S1 = c.get(K::S1);
     let S2 = c.get(K::S2);
     let Sp2p = c.get(K::S2h);
-
+    #[rustfmt::skip]
     let gqg1_nfca = (-4.
         * (16.
             + N * (64.
@@ -111,6 +115,7 @@ pub fn gamma_qg(c: &mut Cache, nf: u8) -> Complex<f64> {
         + (4. * (2. + N + N.powu(2)) * S1.powu(2)) / (N * (2. + 3. * N + N.powu(2)))
         - (4. * (2. + N + N.powu(2)) * S2) / (N * (2. + 3. * N + N.powu(2)))
         + (4. * (2. + N + N.powu(2)) * Sp2p) / (N * (2. + 3. * N + N.powu(2)));
+    #[rustfmt::skip]
     let gqg1_nfcf = (-2. * (4. + N * (8. + N * (1. + N) * (25. + N * (26. + 5. * N * (2. + N))))))
         / (N.powu(3) * (1. + N).powu(3) * (2. + N))
         + (8. * S1) / N.powu(2)
@@ -127,13 +132,14 @@ pub fn gamma_gq(c: &mut Cache, nf: u8) -> Complex<f64> {
     let S1 = c.get(K::S1);
     let S2 = c.get(K::S2);
     let Sp2p = c.get(K::S2h);
-
+    #[rustfmt::skip]
     let ggq1_cfcf = (-8.
         + 2. * N * (-12. + N * (-1. + N * (28. + N * (43. + 6. * N * (5. + 2. * N))))))
         / ((-1. + N) * N.powu(3) * (1. + N).powu(3))
         - (4. * (10. + N * (17. + N * (8. + 5. * N))) * S1) / ((-1. + N) * N * (1. + N).powu(2))
         + (4. * (2. + N + N.powu(2)) * S1.powu(2)) / (N * (-1. + N.powu(2)))
         + (4. * (2. + N + N.powu(2)) * S2) / (N * (-1. + N.powu(2)));
+    #[rustfmt::skip]
     let ggq1_cfca = (-4.
         * (144.
             + N * (432.
@@ -147,6 +153,7 @@ pub fn gamma_gq(c: &mut Cache, nf: u8) -> Complex<f64> {
         + ((8. + 4. * N + 4. * N.powu(2)) * S1.powu(2)) / (N - N.powu(3))
         + ((8. + 4. * N + 4. * N.powu(2)) * S2) / (N - N.powu(3))
         + (4. * (2. + N + N.powu(2)) * Sp2p) / (N * (-1. + N.powu(2)));
+    #[rustfmt::skip]
     let ggq1_cfnf = (8. * (16. + N * (27. + N * (13. + 8. * N))))
         / (9. * (-1. + N) * N * (1. + N).powu(2))
         - (8. * (2. + N + N.powu(2)) * S1) / (3. * N * (-1. + N.powu(2)));
@@ -163,6 +170,7 @@ pub fn gamma_gg(c: &mut Cache, nf: u8) -> Complex<f64> {
     let Sp2p = c.get(K::S2h);
     let Sp3p = c.get(K::S3h);
     let g3n = c.get(K::G3);
+    #[rustfmt::skip]
     let ggg1_caca = 16. * g3n
         - (2.
             * (576.
@@ -183,9 +191,11 @@ pub fn gamma_gg(c: &mut Cache, nf: u8) -> Complex<f64> {
         - 2. * Sp3p
         - 10. * ZETA3
         + ZETA2 * (-16. * S1 + 16. * Sp1p + 16. * (-(1. / N) + LN_2));
+    #[rustfmt::skip]
     let ggg1_canf = (8. * (6. + N * (1. + N) * (28. + N * (1. + N) * (13. + 3. * N * (1. + N)))))
         / (9. * N.powu(2) * (1. + N).powu(2) * (-2. + N + N.powu(2)))
         - (40. * S1) / 9.;
+    #[rustfmt::skip]
     let ggg1_cfnf = (2.
         * (-8.
             + N * (-8.
