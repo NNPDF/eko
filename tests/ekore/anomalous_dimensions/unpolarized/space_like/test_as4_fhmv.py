@@ -45,7 +45,7 @@ def test_momentum_conservation():
     # total
     np.testing.assert_allclose(
         g_singlet[:, 0, 0] + g_singlet[:, 1, 0],
-        [0.08617, 0.220242, -0.047901],
+        [0.053441, 0.225674, -0.118792],
         atol=2e-5,
     )
     np.testing.assert_allclose(
@@ -190,7 +190,7 @@ def test_vogt_parametriztions():
                     np.testing.assert_allclose(
                         ggq.gamma_gq(N, nf, cache, variation),
                         gq3_moment(N, nf),
-                        rtol=2e-4,
+                        rtol=4e-4,
                     )
 
     with pytest.raises(NotImplementedError):

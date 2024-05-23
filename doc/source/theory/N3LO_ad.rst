@@ -264,7 +264,8 @@ The other parts are approximated using some known limits:
                 & \gamma_{qg}(2) + \gamma_{gg}(2) = 0 \\
                 & \gamma_{qq}(2) + \gamma_{gq}(2) = 0 \\
 
-        For :math:`\gamma_{qq,ps}, \gamma_{qg}` other 5 additional moments are available :cite:`Falcioni:2023luc,Falcioni:2023vqq`.
+        For :math:`\gamma_{qq,ps}, \gamma_{qg},\gamma_{gq}` other 5 additional moments are available from
+        :cite:`Falcioni:2023luc,Falcioni:2023vqq,Falcioni:2024xyt` respectively.
         making the parametrization of this splitting function much more accurate.
 
 The difference between the known moments and the known limits is parametrized
@@ -337,7 +338,7 @@ final reduced sets of candidates.
         *   - :math:`f_4(N)`
             - :math:`\frac{1}{N^4},\ \frac{1}{N^3},\ \frac{1}{N^2},\ \frac{1}{(N+1)},\ \frac{1}{(N+2)},\ \mathcal{M}[\ln^2(1-x)],\ \mathcal{M}[\ln(1-x)]`
 
-    Following :cite:`Moch:2023tdj` we have assumed no violation of the scaling with :math:`\gamma_{gg}`
+    Following :cite:`Moch:2023tdj,Falcioni:2024xyt` we have assumed no violation of the scaling with :math:`\gamma_{gg}`
     also for the |NLL| small-x term, to help the convergence. We expect that any possible deviation can be parametrized as a shift in the |NNLL| terms
     which are free to vary independently.
 
