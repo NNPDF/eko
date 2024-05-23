@@ -231,13 +231,9 @@ mod tests {
         let mut c = Cache::new(cmplx![1., 0.]);
         assert_approx_eq!(f64, gamma_nsm(&mut c, NF).re, 0.0, epsilon = 2e-6);
 
+        // momentum conservation
         let mut c = Cache::new(cmplx![2., 0.]);
         let gS1 = gamma_singlet(&mut c, NF);
-
-        // check shape gS1
-        assert_eq!(gS1.len(), 2);
-        assert_eq!((gS1[0]).len(), 2);
-        assert_eq!((gS1[1]).len(), 2);
 
         // gluon momentum conservation
         assert_approx_eq!(f64, (gS1[0][1] + gS1[1][1]).re, 0.0, epsilon = 4e-5);
@@ -250,7 +246,7 @@ mod tests {
         // reference values are obtained from MMa
         let mut c = Cache::new(cmplx![2., 0.]);
 
-        // non-singlet sector
+        // ns+
         assert_approx_eq!(
             f64,
             gamma_nsp(&mut c, NF).re,
@@ -258,8 +254,16 @@ mod tests {
             epsilon = 2e-6
         );
 
+        // ns-
+        let check = ((34.0 / 27.0 * (-47.0 + 6. * PI.pow(2)) - 16.0 * ZETA3) * CF
+            + (373.0 / 9.0 - 34.0 * PI.pow(2) / 9.0 + 8.0 * ZETA3) * CA
+            - 64.0 * (NF as f64) / 27.0)
+            * CF;
+        assert_approx_eq!(f64, gamma_nsm(&mut c, NF).re, check, epsilon = 2e-6);
+
         // singlet sector
         let gS1 = gamma_singlet(&mut c, NF);
+        // ps
         assert_approx_eq!(
             f64,
             gamma_ps(&mut c, NF).re,
@@ -278,31 +282,26 @@ mod tests {
             (112.0 * CF - 376.0 * CA + 104.0 * (NF as f64)) * CF / 27.0,
             epsilon = 1e-13
         );
-
-        // add additional point at (analytical) continuation point
-        let check = ((34.0 / 27.0 * (-47.0 + 6. * PI.pow(2)) - 16.0 * ZETA3) * CF
-            + (373.0 / 9.0 - 34.0 * PI.pow(2) / 9.0 + 8.0 * ZETA3) * CA
-            - 64.0 * (NF as f64) / 27.0)
-            * CF;
-        assert_approx_eq!(f64, gamma_nsm(&mut c, NF).re, check, epsilon = 2e-6);
     }
 
     #[test]
     fn N3() {
         let mut c = Cache::new(cmplx![3., 0.]);
+        // ns+
         let check = ((-34487.0 / 432.0 + 86.0 * PI.pow(2) / 9.0 - 16.0 * ZETA3) * CF
             + (459.0 / 8.0 - 43.0 * PI.pow(2) / 9.0 + 8.0 * ZETA3) * CA
             - 415.0 * (NF as f64) / 108.0)
             * CF;
         assert_approx_eq!(f64, gamma_nsp(&mut c, NF).re, check, epsilon = 2e-6);
 
+        // singlet sector
+        let gS1 = gamma_singlet(&mut c, NF);
+        // ps
         assert_approx_eq!(
             f64,
             gamma_ps(&mut c, NF).re,
             -1391.0 * CF * (NF as f64) / 5400.0
         );
-
-        let gS1 = gamma_singlet(&mut c, NF);
         // gq
         assert_approx_eq!(
             f64,
@@ -312,7 +311,7 @@ mod tests {
                 + 61.0 / 54.0 * (NF as f64))
                 * CF
         );
-        //gg
+        // gg
         assert_approx_eq!(
             f64,
             gS1[1][1].re,
@@ -326,7 +325,9 @@ mod tests {
     #[test]
     fn N4() {
         let mut c = Cache::new(cmplx![4., 0.]);
+        // singlet sector
         let gS1 = gamma_singlet(&mut c, NF);
+        // qg
         assert_approx_eq!(
             f64,
             gS1[0][1].re,
