@@ -264,7 +264,7 @@ The other parts are approximated using some known limits:
                 & \gamma_{qg}(2) + \gamma_{gg}(2) = 0 \\
                 & \gamma_{qq}(2) + \gamma_{gq}(2) = 0 \\
 
-        For :math:`\gamma_{qq,ps}, \gamma_{qg},\gamma_{gq}` other 5 additional moments are available
+        For :math:`\gamma_{qq,ps}, \gamma_{qg},\gamma_{gq}` other 5 additional moments are available from
         :cite:`Falcioni:2023luc,Falcioni:2023vqq,Falcioni:2024xyt` respectively.
         making the parametrization of this splitting function much more accurate.
 
