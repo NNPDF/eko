@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/usr/bin/env bash
 
 # git diff --merge-base master pyproject.toml > pyproject.toml.patch
 patch -p1 <pyproject.toml.patch
