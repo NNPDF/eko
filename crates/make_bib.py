@@ -10,7 +10,8 @@ import bibtexparser
 BIBFILE = pathlib.Path(__file__).parent / "ekore" / "refs.bib"
 
 # A single entry
-ENTRY = """/// {title}
+ENTRY = """#[allow(non_snake_case)]
+/// {title}
 ///
 /// {author}
 ///

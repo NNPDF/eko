@@ -155,8 +155,7 @@ pub fn gamma_nsv(c: &mut Cache, nf: u8) -> Complex<f64> {
         + 46.18 * E2
     );
 
-    let result = gamma_nsm(c, nf) + (nf as f64) * ps2;
-    result
+    gamma_nsm(c, nf) + (nf as f64) * ps2
 }
 
 /// Compute the pure-singlet quark-quark anomalous dimension.

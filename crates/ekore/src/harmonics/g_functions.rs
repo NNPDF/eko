@@ -18,7 +18,7 @@ pub fn g3(N: Complex<f64>, S1: Complex<f64>) -> Complex<f64> {
     let mut g3 = Complex::zero();
     for cit in CS.iter().enumerate() {
         let Nj = N + (cit.0 as f64);
-        g3 = g3 + (*cit.1) * (ZETA2 - s(S1, N, cit.0, 1) / Nj) / Nj;
+        g3 += (*cit.1) * (ZETA2 - s(S1, N, cit.0, 1) / Nj) / Nj;
     }
     g3
 }

@@ -137,6 +137,7 @@ rdocs-clean = "rm -rf target/doc/"
 rtest = "cargo test --workspace"
 fmtcheck = "cargo fmt --all -- --check"
 clippy = "cargo clippy --no-deps"
+rbib = { "shell" = "python crates/make_bib.py > crates/ekore/src/bib.rs" }
 
 [tool.pytest.ini_options]
 testpaths = ['tests/', 'benchmarks/']
