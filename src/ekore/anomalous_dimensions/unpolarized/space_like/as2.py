@@ -18,7 +18,7 @@ from ....harmonics import cache as c
 def gamma_nsm(n, nf, cache):
     r"""Compute the |NLO| valence-like non-singlet anomalous dimension.
 
-    Implements Eq. (3.5) of :cite:`Moch:2004pa`.
+    Implements Eq. (3.6) of :cite:`Moch:2004pa`.
 
     Parameters
     ----------
