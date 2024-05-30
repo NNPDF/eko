@@ -21,15 +21,18 @@
 
       perSystem = {pkgs, ...}: {
         devenv.shells.default = {
-          packages = with pkgs; [pre-commit poethepoet maturin];
+          packages = with pkgs; [maturin poethepoet pre-commit stdenv.cc.cc.lib];
 
           languages = {
             python = {
               enable = true;
               poetry = {
                 enable = true;
-                install.enable = true;
-                install.allExtras = true;
+                install = {
+                  enable = true;
+                  allExtras = true;
+                  groups = ["dev" "test"];
+                };
               };
             };
             rust.enable = true;

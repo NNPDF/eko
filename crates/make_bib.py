@@ -21,6 +21,7 @@ ENTRY = """/// {title}
 /// {doi}"""
 # Combine publication information
 PUB = """Published in: {journal} {volume} ({year}), {pages}"""
+PHD = """Published as PhD thesis at {school} ({year})"""
 
 
 def clean_nl(t: str) -> str:
@@ -39,12 +40,18 @@ bib_database = bibtexparser.parse_string(bib_str)
 for el in bib_database.entries:
     title = re.sub(r"^\{(.+)\}$", r"\1", clean_nl(el.fields_dict["title"].value))
     author = el.fields_dict["author"].value
-    publication = PUB.format(
-        journal=el.fields_dict["journal"].value,
-        volume=el.fields_dict["volume"].value,
-        year=el.fields_dict["year"].value,
-        pages=el.fields_dict["pages"].value,
-    )
+    if el.entry_type == "phdthesis":
+        publication = PHD.format(
+            school=el.fields_dict["school"].value,
+            year=el.fields_dict["year"].value,
+        )
+    else:
+        publication = PUB.format(
+            journal=el.fields_dict["journal"].value,
+            volume=el.fields_dict["volume"].value,
+            year=el.fields_dict["year"].value,
+            pages=el.fields_dict["pages"].value,
+        )
     eprint = ""
     if (
         "eprint" in el.fields_dict
