@@ -1,6 +1,5 @@
 //! Interface to the eko Python package.
 
-use ekore;
 use ekore::harmonics::cache::Cache;
 use std::ffi::c_void;
 
@@ -8,6 +7,9 @@ pub mod bib;
 pub mod mellin;
 
 /// QCD intergration kernel inside quad.
+///
+/// # Safety
+/// This is the connection from Python, so we don't know what is on the other side.
 #[no_mangle]
 pub unsafe extern "C" fn rust_quad_ker_qcd(u: f64, rargs: *mut c_void) -> f64 {
     let args = *(rargs as *mut QuadQCDargs);
@@ -24,11 +26,11 @@ pub unsafe extern "C" fn rust_quad_ker_qcd(u: f64, rargs: *mut c_void) -> f64 {
             &mut c,
             args.nf,
         );
-        for k in 0..args.order_qcd {
-            for l in 0..2 {
-                for m in 0..2 {
-                    re.push(res[k][l][m].re);
-                    im.push(res[k][l][m].im);
+        for gamma_s in res.iter().take(args.order_qcd) {
+            for col in gamma_s.iter().take(2) {
+                for el in col.iter().take(2) {
+                    re.push(el.re);
+                    im.push(el.im);
                 }
             }
         }
@@ -39,9 +41,9 @@ pub unsafe extern "C" fn rust_quad_ker_qcd(u: f64, rargs: *mut c_void) -> f64 {
             &mut c,
             args.nf,
         );
-        for j in 0..args.order_qcd {
-            re.push(res[j].re);
-            im.push(res[j].im);
+        for el in res.iter().take(args.order_qcd) {
+            re.push(el.re);
+            im.push(el.im);
         }
     }
     // pass on
@@ -128,7 +130,10 @@ pub struct QuadQCDargs {
     pub is_threshold: bool,
 }
 
-/// empty placeholder function for python callback
+/// Empty placeholder function for python callback.
+///
+/// # Safety
+/// This is the connection back to Python, so we don't know what is on the other side.
 pub unsafe extern "C" fn my_py(
     _re_gamma: *const f64,
     _im_gamma: *const f64,
@@ -162,6 +167,9 @@ pub unsafe extern "C" fn my_py(
 ///
 /// This is required to make the arguments part of the API, otherwise it won't be added to the compiled
 /// package (since it does not appear in the signature of `quad_ker_qcd`).
+///
+/// # Safety
+/// This is the connection from and back to Python, so we don't know what is on the other side.
 #[no_mangle]
 pub unsafe extern "C" fn empty_qcd_args() -> QuadQCDargs {
     QuadQCDargs {

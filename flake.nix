@@ -1,7 +1,10 @@
 {
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    devenv.url = "github:cachix/devenv";
+    devenv = {
+      url = "github:cachix/devenv";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     flake-parts.url = "github:hercules-ci/flake-parts";
   };
 

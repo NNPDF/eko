@@ -3,6 +3,7 @@
 use num::{complex::Complex, Zero};
 use std::f64::consts::PI;
 
+#[allow(clippy::excessive_precision, clippy::assign_op_pattern)]
 /// Compute the polygamma functions $\psi_k(z)$.
 ///
 /// Reimplementation of ``WPSIPG`` (C317) in [CERNlib](http://cernlib.web.cern.ch/cernlib/)

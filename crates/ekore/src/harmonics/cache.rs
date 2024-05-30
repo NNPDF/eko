@@ -53,8 +53,8 @@ impl Cache {
     pub fn get(&mut self, k: K) -> Complex<f64> {
         let val = self.m.get(&k);
         // already there?
-        if val.is_some() {
-            return *val.unwrap();
+        if let Some(value) = val {
+            return *value;
         }
         // compute new
         let val = match k {
@@ -87,7 +87,7 @@ pub fn recursive_harmonic_sum(
 ) -> Complex<f64> {
     let mut fact = Complex::zero();
     for i in 1..iterations + 1 {
-        fact = fact + (1.0 / (n + (i as f64))).powu(weight);
+        fact += (1.0 / (n + (i as f64))).powu(weight);
     }
     base_value + fact
 }
