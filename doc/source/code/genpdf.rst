@@ -14,7 +14,7 @@ the pip extra `box`:
 The ``genpdf generate [NAME]`` command generates a custom |PDF|
 and saves it as ``[NAME]`` in the current directory.
 Afterwards, it can be conveniently installed using the ``genpdf install [NAME]`` command
-(which simply copies the generated folder into the LHAPDF folder)
+(which simply copies the generated folder into the LHAPDF folder).
 Note that the argument ``[NAME]`` is the only mandatory one.
 
 A custom |PDF| can be generated in three different ways which
