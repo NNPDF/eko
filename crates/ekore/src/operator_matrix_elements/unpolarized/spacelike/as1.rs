@@ -1,8 +1,8 @@
 //! NLO QCD
 
 use num::complex::Complex;
+use num::Zero;
 
-use crate::cmplx;
 use crate::constants::CF;
 use crate::harmonics::cache::{Cache, K};
 
@@ -55,18 +55,23 @@ pub fn A_gg(_c: &mut Cache, _nf: u8, L: f64) -> Complex<f64> {
 
 /// Compute the |NLO| singlet |OME|
 pub fn A_singlet(c: &mut Cache, _nf: u8, L: f64) -> [[Complex<f64>; 3]; 3] {
-    let zero = cmplx![0., 0.];
     [
-        [A_gg(c, _nf, L), zero, A_gh(c, _nf, L)],
-        [zero, zero, zero],
-        [A_hg(c, _nf, L), zero, A_hh(c, _nf, L)],
+        [A_gg(c, _nf, L), Complex::<f64>::zero(), A_gh(c, _nf, L)],
+        [
+            Complex::<f64>::zero(),
+            Complex::<f64>::zero(),
+            Complex::<f64>::zero(),
+        ],
+        [A_hg(c, _nf, L), Complex::<f64>::zero(), A_hh(c, _nf, L)],
     ]
 }
 
 /// Compute the |NLO| non singlet |OME|
 pub fn A_ns(c: &mut Cache, _nf: u8, L: f64) -> [[Complex<f64>; 2]; 2] {
-    let zero = cmplx![0., 0.];
-    [[zero, zero], [zero, A_hh(c, _nf, L)]]
+    [
+        [Complex::<f64>::zero(), Complex::<f64>::zero()],
+        [Complex::<f64>::zero(), A_hh(c, _nf, L)],
+    ]
 }
 
 #[cfg(test)]
