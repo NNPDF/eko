@@ -75,6 +75,80 @@ pub unsafe extern "C" fn rust_quad_ker_qcd(u: f64, rargs: *mut c_void) -> f64 {
     )
 }
 
+/// QCD intergration kernel for OME inside quad.
+///
+/// # Safety
+/// This is the connection from Python, so we don't know what is on the other side.
+#[no_mangle]
+pub unsafe extern "C" fn rust_quad_ker_ome(u: f64, rargs: *mut c_void) -> f64 {
+    let args = *(rargs as *mut QuadQCDargs);
+    let is_singlet = (100 == args.mode0) || (21 == args.mode0) || (90 == args.mode0);
+    // prepare gamma
+    let path = mellin::TalbotPath::new(u, args.logx, is_singlet);
+    let jac = path.jac() * path.prefactor();
+    let mut c = Cache::new(path.n());
+    let mut re = Vec::<f64>::new();
+    let mut im = Vec::<f64>::new();
+    if is_singlet {
+        let res = ekore::operator_matrix_elements::unpolarized::spacelike::A_singlet(
+            args.order_qcd,
+            &mut c,
+            args.nf,
+            args.L,
+        );
+        for aS in res.iter().take(args.order_qcd) {
+            for col in aS.iter().take(3) {
+                for el in col.iter().take(3) {
+                    re.push(el.re);
+                    im.push(el.im);
+                }
+            }
+        }
+    } else {
+        let res = ekore::operator_matrix_elements::unpolarized::spacelike::A_non_singlet(
+            args.order_qcd,
+            &mut c,
+            args.nf,
+            args.L,
+        );
+        for anS in res.iter().take(args.order_qcd) {
+            for col in anS.iter().take(2) {
+                for el in col.iter().take(2) {
+                    re.push(el.re);
+                    im.push(el.im);
+                }
+            }
+        }
+    }
+    // pass on
+    (args.py)(
+        re.as_ptr(),
+        im.as_ptr(),
+        c.n.re,
+        c.n.im,
+        jac.re,
+        jac.im,
+        args.order_qcd,
+        is_singlet,
+        args.mode0,
+        args.mode1,
+        args.nf,
+        args.is_log,
+        args.logx,
+        args.areas,
+        args.areas_x,
+        args.areas_y,
+        args.L,
+        args.method_num,
+        args.as1,
+        args.as0,
+        args.ev_op_iterations,
+        args.ev_op_max_order_qcd,
+        args.sv_mode_num,
+        args.is_threshold,
+    )
+}
+
 /// Python callback signature
 type PyQuadKerQCDT = unsafe extern "C" fn(
     *const f64,
