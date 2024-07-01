@@ -20,32 +20,68 @@ pub unsafe extern "C" fn rust_quad_ker_qcd(u: f64, rargs: *mut c_void) -> f64 {
     let mut c = Cache::new(path.n());
     let mut re = Vec::<f64>::new();
     let mut im = Vec::<f64>::new();
-    if is_singlet {
-        let res = ekore::anomalous_dimensions::unpolarized::spacelike::gamma_singlet_qcd(
-            args.order_qcd,
-            &mut c,
-            args.nf,
-        );
-        for gamma_s in res.iter().take(args.order_qcd) {
-            for col in gamma_s.iter().take(2) {
-                for el in col.iter().take(2) {
-                    re.push(el.re);
-                    im.push(el.im);
+
+    if args.is_ome {
+        if is_singlet {
+            let res = ekore::operator_matrix_elements::unpolarized::spacelike::A_singlet(
+                args.order_qcd,
+                &mut c,
+                args.nf,
+                args.L,
+            );
+            for aS in res.iter().take(args.order_qcd) {
+                for col in aS.iter().take(3) {
+                    for el in col.iter().take(3) {
+                        re.push(el.re);
+                        im.push(el.im);
+                    }
+                }
+            }
+        } else {
+            let res = ekore::operator_matrix_elements::unpolarized::spacelike::A_non_singlet(
+                args.order_qcd,
+                &mut c,
+                args.nf,
+                args.L,
+            );
+            for anS in res.iter().take(args.order_qcd) {
+                for col in anS.iter().take(2) {
+                    for el in col.iter().take(2) {
+                        re.push(el.re);
+                        im.push(el.im);
+                    }
                 }
             }
         }
     } else {
-        let res = ekore::anomalous_dimensions::unpolarized::spacelike::gamma_ns_qcd(
-            args.order_qcd,
-            args.mode0,
-            &mut c,
-            args.nf,
-        );
-        for el in res.iter().take(args.order_qcd) {
-            re.push(el.re);
-            im.push(el.im);
+        if is_singlet {
+            let res = ekore::anomalous_dimensions::unpolarized::spacelike::gamma_singlet_qcd(
+                args.order_qcd,
+                &mut c,
+                args.nf,
+            );
+            for gamma_s in res.iter().take(args.order_qcd) {
+                for col in gamma_s.iter().take(2) {
+                    for el in col.iter().take(2) {
+                        re.push(el.re);
+                        im.push(el.im);
+                    }
+                }
+            }
+        } else {
+            let res = ekore::anomalous_dimensions::unpolarized::spacelike::gamma_ns_qcd(
+                args.order_qcd,
+                args.mode0,
+                &mut c,
+                args.nf,
+            );
+            for el in res.iter().take(args.order_qcd) {
+                re.push(el.re);
+                im.push(el.im);
+            }
         }
     }
+
     // pass on
     (args.py)(
         re.as_ptr(),
@@ -72,6 +108,7 @@ pub unsafe extern "C" fn rust_quad_ker_qcd(u: f64, rargs: *mut c_void) -> f64 {
         args.ev_op_max_order_qcd,
         args.sv_mode_num,
         args.is_threshold,
+        args.Lsv,
     )
 }
 
@@ -101,6 +138,7 @@ type PyQuadKerQCDT = unsafe extern "C" fn(
     u8,
     u8,
     bool,
+    f64,
 ) -> f64;
 
 /// Additional integration parameters
@@ -128,6 +166,8 @@ pub struct QuadQCDargs {
     pub ev_op_max_order_qcd: u8,
     pub sv_mode_num: u8,
     pub is_threshold: bool,
+    pub is_ome: bool,
+    pub Lsv: f64,
 }
 
 /// Empty placeholder function for python callback.
@@ -159,6 +199,7 @@ pub unsafe extern "C" fn my_py(
     _ev_op_max_order_qcd: u8,
     _sv_mode_num: u8,
     _is_threshold: bool,
+    _lsv: f64,
 ) -> f64 {
     0.
 }
@@ -193,5 +234,7 @@ pub unsafe extern "C" fn empty_qcd_args() -> QuadQCDargs {
         ev_op_max_order_qcd: 0,
         sv_mode_num: 0,
         is_threshold: false,
+        is_ome: false,
+        Lsv: 0.,
     }
 }

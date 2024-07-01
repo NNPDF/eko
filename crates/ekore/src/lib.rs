@@ -7,4 +7,5 @@ pub mod anomalous_dimensions;
 pub mod bib;
 mod constants;
 pub mod harmonics;
+pub mod operator_matrix_elements;
 pub mod util;
