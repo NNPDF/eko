@@ -1,9 +1,9 @@
 """The |OME| for the non-trivial matching conditions in the |VFNS| evolution."""
 
 import copy
-import functools
 import logging
 
+import ekors
 import numba as nb
 import numpy as np
 
@@ -15,7 +15,8 @@ from .. import basis_rotation as br
 from .. import scale_variations as sv
 from ..io.types import InversionMethod
 from ..matchings import Segment
-from . import Operator, QuadKerBase
+from . import Operator
+from .quad_ker import cb_quad_ker_ome
 
 logger = logging.getLogger(__name__)
 
@@ -71,106 +72,6 @@ def build_ome(A, matching_order, a_s, backward_method):
         if backward_method is InversionMethod.EXACT:
             ome = np.linalg.inv(ome)
     return ome
-
-
-@nb.njit(cache=True)
-def quad_ker(
-    u,
-    order,
-    mode0,
-    mode1,
-    is_log,
-    logx,
-    areas,
-    a_s,
-    nf,
-    L,
-    sv_mode,
-    Lsv,
-    backward_method,
-    is_msbar,
-    is_polarized,
-    is_time_like,
-):
-    r"""Raw kernel inside quad.
-
-    Parameters
-    ----------
-    u : float
-        quad argument
-    order : tuple(int,int)
-        perturbation matching order
-    mode0 : int
-        pid for first element in the singlet sector
-    mode1 : int
-        pid for second element in the singlet sector
-    is_log : boolean
-        logarithmic interpolation
-    logx : float
-        Mellin inversion point
-    areas : tuple
-        basis function configuration
-    a_s : float
-        strong coupling, needed only for the exact inverse
-    nf: int
-        number of active flavor below threshold
-    L : float
-        :math:``\ln(\mu_F^2 / m_h^2)``
-    backward_method : InversionMethod or None
-        empty or method for inverting the matching condition (exact or expanded)
-    is_msbar: bool
-        add the |MSbar| contribution
-    is_polarized : boolean
-        is polarized evolution ?
-    is_time_like : boolean
-        is time-like evolution ?
-
-    Returns
-    -------
-    ker : float
-        evaluated integration kernel
-
-    """
-    ker_base = QuadKerBase(u, is_log, logx, mode0)
-    integrand = ker_base.integrand(areas)
-    if integrand == 0.0:
-        return 0.0
-    # compute the ome
-    if ker_base.is_singlet or ker_base.is_QEDsinglet:
-        indices = {21: 0, 100: 1, 90: 2}
-        if is_polarized:
-            if is_time_like:
-                raise NotImplementedError("Polarized, time-like is not implemented")
-            A = ome_ps.A_singlet(order, ker_base.n, nf, L)
-        else:
-            if is_time_like:
-                A = ome_ut.A_singlet(order, ker_base.n, L)
-            else:
-                A = ome_us.A_singlet(order, ker_base.n, nf, L, is_msbar)
-    else:
-        indices = {200: 0, 91: 1}
-        if is_polarized:
-            if is_time_like:
-                raise NotImplementedError("Polarized, time-like is not implemented")
-            A = ome_ps.A_non_singlet(order, ker_base.n, L)
-        else:
-            if is_time_like:
-                A = ome_ut.A_non_singlet(order, ker_base.n, L)
-            else:
-                A = ome_us.A_non_singlet(order, ker_base.n, nf, L)
-
-    # correct for scale variations
-    if sv_mode == sv.Modes.exponentiated:
-        A = sv.exponentiated.gamma_variation(A, order, nf, Lsv)
-
-    # build the expansion in alpha_s depending on the strategy
-    ker = build_ome(A, order, a_s, backward_method)
-
-    # select the needed matrix element
-    ker = ker[indices[mode0], indices[mode1]]
-
-    # recombine everything
-    return np.real(ker * integrand)
 
 
 class OperatorMatrixElement(Operator):
@@ -267,41 +168,89 @@ class OperatorMatrixElement(Operator):
                 )
         return labels
 
-    def quad_ker(self, label, logx, areas):
-        """Return partially initialized integrand function.
+    def run_op_integration(self, log_grid):
+        """Run the integration for each grid point.
 
         Parameters
         ----------
-        label: tuple
-            operator element pids
-        logx: float
-            Mellin inversion point
-        areas : tuple
-            basis function configuration
+        log_grid : tuple(k, logx)
+            log grid point with relative index
 
         Returns
         -------
-        functools.partial
-            partially initialized integration kernel
+        list
+            computed operators at the give grid point
         """
-        return functools.partial(
-            quad_ker,
-            order=self.order,
-            mode0=label[0],
-            mode1=label[1],
-            is_log=self.int_disp.log,
-            logx=logx,
-            areas=areas,
-            a_s=self.a_s,
-            nf=self.nf,
-            L=self.L,
-            sv_mode=self.sv_mode,
-            Lsv=np.log(self.xif2),
-            backward_method=self.backward_method,
-            is_msbar=self.is_msbar,
-            is_polarized=self.config["polarized"],
-            is_time_like=self.config["time_like"],
+        column = []
+        k, logx = log_grid
+        # call(!) self.labels only once
+        labels = self.labels
+        start_time = time.perf_counter()
+        # start preparing C arguments
+        cfg = ekors.lib.empty_qcd_args()
+        cfg.order_qcd = self.order[0]
+        cfg.is_polarized = self.config["polarized"]
+        cfg.is_time_like = self.config["time_like"]
+        cfg.nf = self.nf
+        cfg.py = ekors.ffi.cast("void *", cb_quad_ker_ome.address)
+        cfg.is_log = self.int_disp.log
+        cfg.logx = logx
+        cfg.L = self.L
+        # cfg.method_num = 1
+        cfg.as1 = self.as_list[1]
+        cfg.as0 = self.as_list[0]
+        # cfg.ev_op_iterations = self.config["ev_op_iterations"]
+        # cfg.ev_op_max_order_qcd = self.config["ev_op_max_order"][0]
+        # cfg.sv_mode_num = 1
+        # cfg.is_threshold = self.is_threshold
+        cfg.Lsv = np.log(self.xif2)
+
+        # iterate basis functions
+        for l, bf in enumerate(self.int_disp):
+            if k == l and l == self.grid_size - 1:
+                continue
+            # add emtpy labels with 0s
+            if bf.is_below_x(np.exp(logx)):
+                column.append({label: (0.0, 0.0) for label in labels})
+                continue
+            temp_dict = {}
+            # prepare areas for C
+            curareas = bf.areas_representation
+            areas_len = curareas.shape[0] * curareas.shape[1]
+            # force the variable in scope
+            areas_ffi = ekors.ffi.new(
+                f"double[{areas_len}]", curareas.flatten().tolist()
+            )
+            cfg.areas = areas_ffi
+            cfg.areas_x = curareas.shape[0]
+            cfg.areas_y = curareas.shape[1]
+            # iterate sectors
+            for label in labels:
+                cfg.mode0 = label[0]
+                cfg.mode1 = label[1]
+                # construct the low level object
+                func = LowLevelCallable(
+                    ekors.lib.rust_quad_ker_ome, ekors.ffi.addressof(cfg)
+                )
+                res = integrate.quad(
+                    func,
+                    0.5,
+                    1.0 - self._mellin_cut,
+                    epsabs=1e-12,
+                    epsrel=1e-5,
+                    limit=100,
+                    full_output=1,
+                )
+                temp_dict[label] = res[:2]
+            column.append(temp_dict)
+        logger.info(
+            "%s: computing operators - %u/%u took: %6f s",
+            self.log_label,
+            k + 1,
+            self.grid_size,
+            (time.perf_counter() - start_time),
         )
+        return column
 
     @property
     def a_s(self):
