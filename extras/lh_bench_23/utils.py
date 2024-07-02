@@ -110,6 +110,7 @@ def load_n3lo_tables(
 ) -> list:
     """Load the N3LO tables."""
     dfs = []
+    n3lo_table_dir = n3lo_table_dir / "EKO" / f"N3LO_{approx}_{scheme}"
     for p in n3lo_table_dir.iterdir():
         if scheme not in p.stem:
             continue
