@@ -62,10 +62,12 @@ _t_ffns["heavy"]["masses"] = [
 ]
 
 
-def ffns_theory(xif=1.0):
+def ffns_theory(xif=1.0, pto=2):
     """Generate a VFNS theory card."""
     tt = copy.deepcopy(_t_ffns)
     tt["xif"] = xif
+    tt["order"] = (pto + 1, 0)
+    tt["matching_order"] = (pto, 0)
     return runcards.TheoryCard.from_dict(tt)
 
 
@@ -107,9 +109,15 @@ _o_vfns = dict(
 )
 vfns_operator = runcards.OperatorCard.from_dict(_o_vfns)
 
-_o_ffns = copy.deepcopy(_o_vfns)
-_o_ffns["mugrid"] = [(100.0, 4)]
-ffns_operator = runcards.OperatorCard.from_dict(_o_ffns)
+
+def ffns_operator(ev_method="iterate-exact"):
+    """Generate a FFNS theory card."""
+    op = copy.deepcopy(_o_vfns)
+    op["mugrid"] = [(100.0, 4)]
+    op["configs"]["evolution_method"] = ev_method
+    if ev_method == "truncated":
+        op["configs"]["ev_op_iterations"] = 1
+    return runcards.OperatorCard.from_dict(op)
 
 
 # flavor rotations

@@ -76,7 +76,7 @@ if __name__ == "__main__":
             use_fhmruvv=args.use_fhmruvv,
             xif=xif,
         )
-        o = ffns_operator
+        o = ffns_operator()
         tab = 14
         lab = ffns_labels
         rot = ffns_rotate_to_LHA

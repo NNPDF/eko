@@ -102,13 +102,21 @@ def rotate_lha_to_evol(df: pd.DataFrame, scheme: str) -> pd.DataFrame:
 
 
 def load_n3lo_tables(
-    n3lo_table_dir: pathlib.Path, scheme: str, approx: str, rotate_to_evol: bool = False
+    n3lo_table_dir: pathlib.Path,
+    scheme: str,
+    sv: str,
+    approx: str,
+    rotate_to_evol: bool = False,
 ) -> list:
     """Load the N3LO tables."""
     dfs = []
+    n3lo_table_dir = n3lo_table_dir / "EKO" / f"N3LO_{approx}_{scheme}"
     for p in n3lo_table_dir.iterdir():
         if scheme not in p.stem:
             continue
+        if sv not in p.stem:
+            continue
+
         if approx in p.stem:
             table = pd.read_csv(p, index_col=0)
             table.rename(columns=LHA_LABELS_MAP, inplace=True)
@@ -140,21 +148,11 @@ def load_msht(
     table_dir: pathlib.Path, scheme: str, approx: str, rotate_to_evol: bool = False
 ) -> list:
     """Load MSHT files."""
-
-    if scheme != "VFNS":
-        raise ValueError(f"{scheme} not provided by MSHT, comment it out")
-    APPROX_MAP = {
-        "FHMV": "Moch",
-        "MSHT": "Posterior",
-    }
-    fhmv_msht_table_dir = table_dir / f"{scheme}_{APPROX_MAP[approx]}_numbers"
+    fhmruvv_msht_table_dir = table_dir / "MSHT" / f"N3LO_{approx}_{scheme}"
 
     columns = lha_labels(scheme)
-    # columns.insert(0,'x')
-    # columns.insert(0,'Q')
     dfs = []
-
-    for p in fhmv_msht_table_dir.iterdir():
+    for p in fhmruvv_msht_table_dir.iterdir():
         data = np.loadtxt(p)
         data = pd.DataFrame(data[:, 2:], columns=columns)
         if rotate_to_evol:
@@ -167,10 +165,13 @@ def compute_n3lo_avg_err(dfs: list) -> tuple:
     """Compute N3LO average and error."""
     df_central = np.mean(dfs, axis=0)
     df_central = pd.DataFrame(df_central, columns=dfs[0].columns)
-    # TODO: improve errors.
-    df_std = np.std(dfs, axis=0)
-    df_std = pd.DataFrame(df_std, columns=dfs[0].columns)
-    return df_central, df_std
+
+    # NOTE: here we compute the error as an envelope
+    up = np.max(dfs, axis=0)
+    dw = np.min(dfs, axis=0)
+    df_err = (up - dw) / 2
+    df_err = pd.DataFrame(df_err, columns=dfs[0].columns)
+    return df_central, df_err
 
 
 def compute_n3lo_nnlo_diff(n3lo: tuple, nnlo: pd.DataFrame, rel_diff: bool) -> tuple:
@@ -194,16 +195,18 @@ def plot_pdfs(
 ) -> None:
     """Absolute PDFs plots."""
 
-    fig, axs = plt.subplots(2, 4, figsize=(15, 7))
+    ncols = 2
+    nrows = 4
+    fig, axs = plt.subplots(nrows, ncols, figsize=(ncols * 5, nrows * 3.5))
 
     xcut = 4 if use_linx else 0
     xgrid = xgrid[xcut:]
 
     xscale = "linx" if use_linx else "logx"
-    plot_name = f"lh_n3lo_bench_{scheme}_{xscale}"
+    plot_name = f"n3lo_bench_{scheme}_{xscale}"
     plot_dir.mkdir(exist_ok=True)
 
-    fig.suptitle(f"{scheme}" + " $Q: \\sqrt{2} \\to 100 \\ GeV$")
+    fig.suptitle(f"{scheme}" + r", $\mu_{\rm f}^2 = 10^4 \ \mbox{GeV}^2$")
 
     # loop on PDFs
     for i, ax in enumerate(
@@ -260,18 +263,23 @@ def plot_diff_to_nnlo(
 ) -> None:
     """Difference w.r.t NNLO PDFs plots."""
 
-    fig, axs = plt.subplots(2, 4, figsize=(15, 7))
+    ncols = 2
+    nrows = 4
+    fig, axs = plt.subplots(nrows, ncols, figsize=(ncols * 5, nrows * 3.5))
 
-    xcut = 4 if use_linx else 0
-    xgrid = xgrid[xcut:]
+    # cut away small- and large-x values, for plotting
+    smallx_cut = 4 if use_linx else 2
+    largex_cut = -1 if not use_linx else None
+    xgrid = xgrid[smallx_cut:largex_cut]
     xscale = "linx" if use_linx else "logx"
 
     diff_type = "rel_diff" if rel_dff else "abs_diff"
-    plot_name = f"lh_n3lo_bench_{scheme}_{xscale}_{diff_type}"
+    plot_name = f"n3lo_bench_{scheme}_{xscale}_{diff_type}"
 
     diff_type = "Relative" if rel_dff else "Absolute"
     fig.suptitle(
-        f"{diff_type} difference to NNLO, {scheme}" + " $Q: \\sqrt{2} \\to 100 \\ GeV$"
+        f"{diff_type} difference to NNLO, {scheme}"
+        + r", $\mu_{\rm f}^2 = 10^4 \ \mbox{GeV}^2$"
     )
 
     for i, ax in enumerate(
@@ -282,22 +290,26 @@ def plot_diff_to_nnlo(
         # loop on n3lo
         for j, (tabs, approx_label) in enumerate(n3lo_dfs):
             central, err = tabs
-            ax.errorbar(
+            obj = ax.errorbar(
                 xgrid,
-                central.values[xcut:, i],
-                yerr=err.values[xcut:, i],
+                central.values[smallx_cut:largex_cut, i],
+                yerr=err.values[smallx_cut:largex_cut, i],
                 fmt=FMT_LIST[j],
                 label=approx_label,
                 capsize=5,
             )
-            # ax.errorbar(
-            #     xgrid,
-            #     eko_4mom_diff.values[:, i],
-            #     yerr=eko_4mom_diff_std.values[:, i],
-            #     fmt="x",
-            #     label="aN3LO EKO (4 moments)",
-            #     capsize=5,
-            # )
+            ax.plot(
+                xgrid,
+                central.values[smallx_cut:largex_cut, i],
+                color=obj[0].get_color(),
+                alpha=0.3,
+            )
+            ax.fill_between(
+                xgrid,
+                (central - err).values[smallx_cut:largex_cut, i],
+                (central + err).values[smallx_cut:largex_cut, i],
+                alpha=0.2,
+            )
         ax.hlines(
             0,
             xgrid.min() - xgrid.min() / 3,
