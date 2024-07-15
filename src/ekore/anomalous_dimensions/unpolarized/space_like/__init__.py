@@ -65,6 +65,7 @@ def gamma_ns(order, mode, n, nf, n3lo_ad_variation, use_fhmruvv=False):
         gamma_ns[1] = gamma_ns_1
     # NNLO and beyond
     if order[0] >= 3:
+        gamma_ns_2 = 0.0
         if mode == 10101:
             gamma_ns_2 = as3.gamma_nsp(n, nf, cache)
         elif mode == 10201:
@@ -74,6 +75,7 @@ def gamma_ns(order, mode, n, nf, n3lo_ad_variation, use_fhmruvv=False):
         gamma_ns[2] = gamma_ns_2
     # N3LO
     if order[0] >= 4:
+        gamma_ns_3 = 0.0
         if use_fhmruvv:
             if mode == 10101:
                 gamma_ns_3 = as4.fhmruvv.gamma_nsp(
