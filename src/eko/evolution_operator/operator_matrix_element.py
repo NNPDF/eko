@@ -185,8 +185,12 @@ class OperatorMatrixElement(Operator):
         configuration
     managers : dict
         managers
-    segment: Segment
-        path segment
+    nf: int
+        number of active flavor below threshold
+    q2: float
+        squared matching scale
+    is_backward: bool
+        True for backward matching
     L: float
         :math:`\ln(\mu_F^2 / m_h^2)`
     is_msbar: bool
@@ -220,7 +224,7 @@ class OperatorMatrixElement(Operator):
         self.L = L
         self.is_msbar = is_msbar
         # Note for the moment only QCD matching is implemented
-        self.order = (self.order[0] - 1, self.order[1])
+        self.order = tuple(config["matching_order"])
 
     @property
     def labels(self):
@@ -320,5 +324,12 @@ class OperatorMatrixElement(Operator):
         if self.order[0] == 0:
             logger.info("%s: no need to compute matching at LO", self.log_label)
             return
+        logger.info(
+            "%s: order: (%d, %d), backward method: %s",
+            self.log_label,
+            self.order[0],
+            self.order[1],
+            self.backward_method,
+        )
 
         self.integrate()

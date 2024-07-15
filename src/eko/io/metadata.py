@@ -1,4 +1,5 @@
 """Define `eko.EKO` metadata."""
+
 import logging
 import os
 import pathlib

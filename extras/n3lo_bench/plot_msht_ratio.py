@@ -11,7 +11,7 @@ from eko.interpolation import lambertgrid
 plt.style.use(utils.load_style())
 
 
-def plot_ad_ratio(entry, q2=None, nf=4):
+def plot_ad_ratio(entry, q2=None, nf=4, posterior=False):
     fig = plt.figure(figsize=(7, 5))
     gs = fig.add_gridspec(5, 1)
     ax = plt.subplot(gs[:, 0])
@@ -34,8 +34,9 @@ def plot_ad_ratio(entry, q2=None, nf=4):
     g_n3lo_min = g_n3lo - g_n3lo_var.std(axis=0) * a_s**4
     g_n3lo_max = g_n3lo + g_n3lo_var.std(axis=0) * a_s**4
 
-    g_msht_n3lo_min, g_msht_n3lo_max = msht_splitting_xpx(entry, grid, nf)
-    g_msht_n3lo = (g_msht_n3lo_min + g_msht_n3lo_max) / 2
+    g_msht_n3lo, g_msht_n3lo_min, g_msht_n3lo_max = msht_splitting_xpx(
+        entry, grid, nf, posterior=False
+    )
 
     g_msht_n3lo_min = g_msht_n3lo_min * a_s**4 + g_nnlo
     g_msht_n3lo_max = g_msht_n3lo_max * a_s**4 + g_nnlo
@@ -49,13 +50,27 @@ def plot_ad_ratio(entry, q2=None, nf=4):
         alpha=0.2,
     )
 
-    ax.plot(grid, g_n3lo / g_nnlo, label="N3LO")
+    ax.plot(grid, g_n3lo / g_nnlo, label="aN3LO")
     ax.fill_between(
         grid,
         g_n3lo_min / g_nnlo,
         g_n3lo_max / g_nnlo,
         alpha=0.2,
     )
+    if posterior:
+        g_msht_n3lo, g_msht_n3lo_min, g_msht_n3lo_max = msht_splitting_xpx(
+            entry, grid, nf, posterior
+        )
+        g_msht_n3lo_min = g_msht_n3lo_min * a_s**4 + g_nnlo
+        g_msht_n3lo_max = g_msht_n3lo_max * a_s**4 + g_nnlo
+        g_msht_n3lo = g_msht_n3lo * a_s**4 + g_nnlo
+        ax.plot(grid, g_msht_n3lo / g_nnlo, label="MSHTaN3LO (posterior)")
+        ax.fill_between(
+            grid,
+            g_msht_n3lo_min / g_nnlo,
+            g_msht_n3lo_max / g_nnlo,
+            alpha=0.2,
+        )
     ax.plot(grid, g_nnlo / g_nlo, linestyle="dashed", label="NNLO")
     # ax.plot(grid, g_nlo / g_lo, linestyle="dashed", label="NLO")
 
@@ -90,12 +105,15 @@ def plot_ad_ratio(entry, q2=None, nf=4):
 
     # save
     plt.tight_layout()
-    pathlib.Path(utils.here / "compare_msht").mkdir(parents=True, exist_ok=True)
-    plt.savefig(f"compare_msht/gamma_{entry}_msht_ratio.pdf")
+    folder = "compare_msht"
+    if posterior:
+        folder += "_posterior"
+    pathlib.Path(utils.here / folder).mkdir(parents=True, exist_ok=True)
+    plt.savefig(f"{folder}/gamma_{entry}_msht_ratio_new.pdf")
 
 
 if __name__ == "__main__":
-    for k in ["gq", "gg", "qg", "qq"]:
+    for k in ["gg"]:  # ["gq", "gg", "qg", "qq"]:
         # linear plots
         x_grid = lambertgrid(60, x_min=1e-1)
-        plot_ad_ratio(k)
+        plot_ad_ratio(k, posterior=True)

@@ -1,6 +1,7 @@
 """
     This module tests the implemented gamma functions
 """
+
 import numpy as np
 import pytest
 

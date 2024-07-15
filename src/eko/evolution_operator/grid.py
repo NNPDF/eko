@@ -4,6 +4,7 @@ The first is the driver class of eko as it is the one that collects all the
 previously instantiated information and does the actual computation of the Q2s.
 
 """
+
 import logging
 from dataclasses import astuple
 from typing import Dict, List, Optional
@@ -54,11 +55,13 @@ class OperatorGrid(sv.ModeMixin):
         intrinsic_flavors: list,
         xif: float,
         n3lo_ad_variation: tuple,
+        matching_order: Order,
         configs: Configs,
         debug: Debug,
         atlas: Atlas,
         couplings: Couplings,
         interpol_dispatcher: InterpolatorDispatcher,
+        use_fhmruvv: bool,
     ):
         # check
         config = {}
@@ -68,6 +71,7 @@ class OperatorGrid(sv.ModeMixin):
         config["HQ"] = mass_scheme
         config["ModSV"] = configs.scvar_method
         config["n3lo_ad_variation"] = n3lo_ad_variation
+        config["use_fhmruvv"] = use_fhmruvv
 
         for i, q in enumerate("cbt"):
             config[f"m{q}"] = masses[i]
@@ -81,6 +85,7 @@ class OperatorGrid(sv.ModeMixin):
         config["debug_skip_non_singlet"] = debug.skip_non_singlet
         config["polarized"] = configs.polarized
         config["time_like"] = configs.time_like
+        config["matching_order"] = matching_order
 
         if order == (1, 0) and method != "iterate-exact":
             logger.warning("Evolution: In LO we use the exact solution always!")

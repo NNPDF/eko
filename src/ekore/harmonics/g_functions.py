@@ -3,6 +3,7 @@
 Implementations of some Mellin transformations :math:`g_k(N)` :cite:`MuselliPhD`
 appearing in the analytic continuation of harmonics sums of weight = 3,4.
 """
+
 import numba as nb
 import numpy as np
 

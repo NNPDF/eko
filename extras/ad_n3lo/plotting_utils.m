@@ -103,6 +103,13 @@ LogPlotList[fitted_, fasy_, NF_, color_]:=Module[{},
 	]]
 ];
 
+LogPlotListLargeX[fitted_, fasy_, NF_, color_]:=Module[{},
+	Parallelize[
+		MapThread[
+			LogLinearPlot[ pifact (# + fasy) /. nf -> NF /. x -> 1-z, {z, 10^-7, 1}, PlotStyle->clist[[color]]] &,
+		{fitted}
+	]]
+];
 ShowPlots[fit1_, fit2_, fasy_, NF_, legends_]:=Module[{g1list, g2list, g1listlog, g2listlog, gtotlog, gtot},
 	g1list = PlotList[fit1, fasy, NF, 1];
 	g1listlog = LogPlotList[fit1, fasy, NF, 1];
@@ -131,6 +138,12 @@ LogPlotErrorBand[fasy_,  avg_, sigma_, NF_, color_ ]:=Module[{ftot},
 		Filling -> {1 -> {2}}, PlotStyle -> myStyle[color]]
 ];
 
+LogPlotErrorBandLargeX[fasy_,  avg_, sigma_, NF_, color_ ]:=Module[{ftot},
+	ftot = fasy + avg ;
+	LogLinearPlot[{ pifact (ftot - sigma) /. nf -> NF /. x -> 1-z, pifact (ftot + sigma) /. nf -> NF /. x -> 1-z , pifact ftot /. nf -> NF  /. x -> 1-z}, {z, 10^-9, 1},
+		Filling -> {1 -> {2}}, PlotStyle -> myStyle[color]]
+];
+
 PlotErrorBand[fasy_, flist_, NF_, color_ ]:=Module[{mean, sigma,g1, g1log},
 	{mean, sigma} = Parallelize[{
 		(Mean[flist] // Simplify)  /. hrep /. InvMellinRules,
@@ -139,6 +152,16 @@ PlotErrorBand[fasy_, flist_, NF_, color_ ]:=Module[{mean, sigma,g1, g1log},
 	Parallelize[{
 		LinearPlotErrorBand[fasy, mean, sigma, NF, color],
 		LogPlotErrorBand[fasy, mean, sigma, NF, color]
+	}]
+];
+
+PlotErrorBandLargeX[fasy_, flist_, NF_, color_ ]:=Module[{mean, sigma,g1, g1log},
+	{mean, sigma} = Parallelize[{
+		(Mean[flist] // Simplify)  /. hrep /. InvMellinRules,
+		(StandardDeviation[flist] // Simplify ) /. hrep /. InvMellinRules
+	}];
+	Parallelize[{
+		LogPlotErrorBandLargeX[fasy, mean,  sigma, NF, color]
 	}]
 ];
 

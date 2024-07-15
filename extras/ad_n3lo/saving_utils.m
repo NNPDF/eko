@@ -10,6 +10,7 @@ LogFunctionRules = {
    	Lm12m1[x_] -> lm12m1[x, S1, S2],
    	Lm13m1[x_] -> lm13m1[x, S1, S2, S3],
    	Lm14m1[x_] -> lm14m1[x, S1, S2, S3, S4],
+   	Lm15m1[x_] -> lm15m1[x, S1, S2, S3, S4, S5],
    	Lm11m2[x_] -> lm11m2[x, S1],
    	Lm12m2[x_] -> lm12m2[x, S1, S2],
    	Lm13m2[x_] -> lm13m2[x, S1, S2, S3],

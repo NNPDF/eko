@@ -1,6 +1,7 @@
 """
     Benchmark EKO to Apfel
 """
+
 import numpy as np
 from banana import register
 from banana.data import cartesian_product
@@ -20,7 +21,6 @@ def tolist(input_dict):
 
 
 class ApfelBenchmark(Runner):
-
     """
     Globally set the external program to Apfel
     """

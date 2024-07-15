@@ -68,8 +68,7 @@ def Sm5(N, hS5, hS5mh, hS5h, is_singlet=None):
     """
     if is_singlet is None:
         return (
-            1 / 2**4 * ((1 - (-1) ** N) / 2 * hS5mh + ((-1) ** N + 1) / 2 * hS5h)
-            - hS5
+            1 / 2**4 * ((1 - (-1) ** N) / 2 * hS5mh + ((-1) ** N + 1) / 2 * hS5h) - hS5
         )
     if is_singlet:
         return 1 / 2**4 * hS5h - hS5

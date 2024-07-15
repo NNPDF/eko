@@ -1,4 +1,5 @@
 """Abstract layer for running the benchmarks."""
+
 import functools
 import logging
 import os
@@ -215,12 +216,15 @@ class Runner(BenchmarkRunner):
         # LHA NNLO VFNS needs a special treatment
         # Valence contains only u and d
         rotate_to_evolution = None
+        labels = None
         qed = theory["QED"] > 0
         if self.rotate_to_evolution_basis:
             if not qed:
                 rotate_to_evolution = br.rotate_flavor_to_evolution.copy()
+                labels = br.evol_basis
             else:
                 rotate_to_evolution = br.rotate_flavor_to_unified_evolution.copy()
+                labels = br.unified_evol_basis
             if (
                 self.external == "LHA"
                 and theory["PTO"] == 2
@@ -234,7 +238,7 @@ class Runner(BenchmarkRunner):
                 pdf,
                 xgrid,
                 flavor_rotation=rotate_to_evolution,
-                qed=qed,
+                labels=labels,
             )
         for q2, ref_pdfs in ext["values"].items():
             log_tab = dfdict.DFdict()

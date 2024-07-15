@@ -1,4 +1,5 @@
 """ekomark specialization of the navigator."""
+
 import argparse
 import pathlib
 

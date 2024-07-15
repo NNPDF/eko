@@ -1,4 +1,5 @@
 """Implementation of :cite:`Giele:2002hx` and  :cite:`Dittmar:2005ed` (NNLO and polarized)."""
+
 import pathlib
 
 import numpy as np

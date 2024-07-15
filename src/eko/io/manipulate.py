@@ -1,4 +1,5 @@
-"""Manipulate operators."""
+"""Manipulate output generate by EKO."""
+
 import copy
 import logging
 import warnings
@@ -167,6 +168,7 @@ def flavor_reshape(
         return copy.deepcopy(elem)
 
     # flip input around
+    inv_inputpids = np.zeros_like(inputpids)
     if inputpids is not None:
         inv_inputpids = np.linalg.inv(inputpids)
 

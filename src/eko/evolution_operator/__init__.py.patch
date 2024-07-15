@@ -1,0 +1,663 @@
+diff --git a/src/eko/evolution_operator/__init__.py b/src/eko/evolution_operator/__init__.py
+index 1c759c5c..5eb394d0 100644
+--- a/src/eko/evolution_operator/__init__.py
++++ b/src/eko/evolution_operator/__init__.py
+@@ -3,15 +3,15 @@ r"""Contains the central operator classes.
+ See :doc:`Operator overview </code/Operators>`.
+ """
+
+-import functools
+ import logging
+ import os
+ import time
+ from multiprocessing import Pool
+
++import ekors
+ import numba as nb
+ import numpy as np
+-from scipy import integrate
++from scipy import LowLevelCallable, integrate
+
+ import ekore.anomalous_dimensions.polarized.space_like as ad_ps
+ import ekore.anomalous_dimensions.unpolarized.space_like as ad_us
+@@ -27,92 +27,10 @@ from ..kernels import singlet_qed as qed_s
+ from ..kernels import valence_qed as qed_v
+ from ..matchings import Segment, lepton_number
+ from ..member import OpMember
++from .quad_ker import cb_quad_ker_qcd
+
+ logger = logging.getLogger(__name__)
+
+-
+-@nb.njit(cache=True)
+-def select_singlet_element(ker, mode0, mode1):
+-    """Select element of the singlet matrix.
+-
+-    Parameters
+-    ----------
+-    ker : numpy.ndarray
+-        singlet integration kernel
+-    mode0 : int
+-        id for first sector element
+-    mode1 : int
+-        id for second sector element
+-
+-    Returns
+-    -------
+-    complex
+-        singlet integration kernel element
+-    """
+-    k = 0 if mode0 == 100 else 1
+-    l = 0 if mode1 == 100 else 1
+-    return ker[k, l]
+-
+-
+-@nb.njit(cache=True)
+-def select_QEDsinglet_element(ker, mode0, mode1):
+-    """Select element of the QEDsinglet matrix.
+-
+-    Parameters
+-    ----------
+-    ker : numpy.ndarray
+-        QEDsinglet integration kernel
+-    mode0 : int
+-        id for first sector element
+-    mode1 : int
+-        id for second sector element
+-    Returns
+-    -------
+-    ker : complex
+-        QEDsinglet integration kernel element
+-    """
+-    if mode0 == 21:
+-        index1 = 0
+-    elif mode0 == 22:
+-        index1 = 1
+-    elif mode0 == 100:
+-        index1 = 2
+-    else:
+-        index1 = 3
+-    if mode1 == 21:
+-        index2 = 0
+-    elif mode1 == 22:
+-        index2 = 1
+-    elif mode1 == 100:
+-        index2 = 2
+-    else:
+-        index2 = 3
+-    return ker[index1, index2]
+-
+-
+-@nb.njit(cache=True)
+-def select_QEDvalence_element(ker, mode0, mode1):
+-    """
+-    Select element of the QEDvalence matrix.
+-
+-    Parameters
+-    ----------
+-    ker : numpy.ndarray
+-        QEDvalence integration kernel
+-    mode0 : int
+-        id for first sector element
+-    mode1 : int
+-        id for second sector element
+-    Returns
+-    -------
+-    ker : complex
+-        QEDvalence integration kernel element
+-    """
+-    index1 = 0 if mode0 == 10200 else 1
+-    index2 = 0 if mode1 == 10200 else 1
+-    return ker[index1, index2]
+-
+-
+ spec = [
+     ("is_singlet", nb.boolean),
+     ("is_QEDsinglet", nb.boolean),
+@@ -184,422 +102,6 @@ class QuadKerBase:
+         return self.path.prefactor * pj * self.path.jac
+
+
+-@nb.njit(cache=True)
+-def quad_ker(
+-    u,
+-    order,
+-    mode0,
+-    mode1,
+-    method,
+-    is_log,
+-    logx,
+-    areas,
+-    as_list,
+-    mu2_from,
+-    mu2_to,
+-    a_half,
+-    alphaem_running,
+-    nf,
+-    L,
+-    ev_op_iterations,
+-    ev_op_max_order,
+-    sv_mode,
+-    is_threshold,
+-    n3lo_ad_variation,
+-    is_polarized,
+-    is_time_like,
+-    use_fhmruvv,
+-):
+-    """Raw evolution kernel inside quad.
+-
+-    Parameters
+-    ----------
+-    u : float
+-        quad argument
+-    order : int
+-        perturbation order
+-    mode0: int
+-        pid for first sector element
+-    mode1 : int
+-        pid for second sector element
+-    method : str
+-        method
+-    is_log : boolean
+-        is a logarithmic interpolation
+-    logx : float
+-        Mellin inversion point
+-    areas : tuple
+-        basis function configuration
+-    as1 : float
+-        target coupling value
+-    as0 : float
+-        initial coupling value
+-    mu2_from : float
+-        initial value of mu2
+-    mu2_from : float
+-        final value of mu2
+-    aem_list : list
+-        list of electromagnetic coupling values
+-    alphaem_running : bool
+-        whether alphaem is running or not
+-    nf : int
+-        number of active flavors
+-    L : float
+-        logarithm of the squared ratio of factorization and renormalization scale
+-    ev_op_iterations : int
+-        number of evolution steps
+-    ev_op_max_order : int
+-        perturbative expansion order of U
+-    sv_mode: int, `enum.IntEnum`
+-        scale variation mode, see `eko.scale_variations.Modes`
+-    is_threshold : boolean
+-        is this an intermediate threshold operator?
+-    n3lo_ad_variation : tuple
+-        |N3LO| anomalous dimension variation ``(gg, gq, qg, qq, nsp, nsm, nsv)``
+-    is_polarized : boolean
+-        is polarized evolution ?
+-    is_time_like : boolean
+-        is time-like evolution ?
+-    use_fhmruvv : bool
+-        if True use the |FHMRUVV| |N3LO| anomalous dimension
+-
+-    Returns
+-    -------
+-    float
+-        evaluated integration kernel
+-    """
+-    ker_base = QuadKerBase(u, is_log, logx, mode0)
+-    integrand = ker_base.integrand(areas)
+-    if integrand == 0.0:
+-        return 0.0
+-    if order[1] == 0:
+-        ker = quad_ker_qcd(
+-            ker_base,
+-            order,
+-            mode0,
+-            mode1,
+-            method,
+-            as_list[-1],
+-            as_list[0],
+-            nf,
+-            L,
+-            ev_op_iterations,
+-            ev_op_max_order,
+-            sv_mode,
+-            is_threshold,
+-            is_polarized,
+-            is_time_like,
+-            n3lo_ad_variation,
+-            use_fhmruvv,
+-        )
+-    else:
+-        ker = quad_ker_qed(
+-            ker_base,
+-            order,
+-            mode0,
+-            mode1,
+-            method,
+-            as_list,
+-            mu2_from,
+-            mu2_to,
+-            a_half,
+-            alphaem_running,
+-            nf,
+-            L,
+-            ev_op_iterations,
+-            ev_op_max_order,
+-            sv_mode,
+-            is_threshold,
+-            n3lo_ad_variation,
+-            use_fhmruvv,
+-        )
+-
+-    # recombine everything
+-    return np.real(ker * integrand)
+-
+-
+-@nb.njit(cache=True)
+-def quad_ker_qcd(
+-    ker_base,
+-    order,
+-    mode0,
+-    mode1,
+-    method,
+-    as1,
+-    as0,
+-    nf,
+-    L,
+-    ev_op_iterations,
+-    ev_op_max_order,
+-    sv_mode,
+-    is_threshold,
+-    is_polarized,
+-    is_time_like,
+-    n3lo_ad_variation,
+-    use_fhmruvv,
+-):
+-    """Raw evolution kernel inside quad.
+-
+-    Parameters
+-    ----------
+-    quad_ker : float
+-        quad argument
+-    order : int
+-        perturbation order
+-    mode0: int
+-        pid for first sector element
+-    mode1 : int
+-        pid for second sector element
+-    method : str
+-        method
+-    as1 : float
+-        target coupling value
+-    as0 : float
+-        initial coupling value
+-    nf : int
+-        number of active flavors
+-    L : float
+-        logarithm of the squared ratio of factorization and renormalization scale
+-    ev_op_iterations : int
+-        number of evolution steps
+-    ev_op_max_order : int
+-        perturbative expansion order of U
+-    sv_mode: int, `enum.IntEnum`
+-        scale variation mode, see `eko.scale_variations.Modes`
+-    is_threshold : boolean
+-        is this an itermediate threshold operator?
+-    n3lo_ad_variation : tuple
+-        |N3LO| anomalous dimension variation ``(gg, gq, qg, qq, nsp, nsm, nsv)``
+-    use_fhmruvv : bool
+-        if True use the |FHMRUVV| |N3LO| anomalous dimensions
+-
+-    Returns
+-    -------
+-    float
+-        evaluated integration kernel
+-    """
+-    # compute the actual evolution kernel for pure QCD
+-    if ker_base.is_singlet:
+-        if is_polarized:
+-            if is_time_like:
+-                raise NotImplementedError("Polarized, time-like is not implemented")
+-            else:
+-                gamma_singlet = ad_ps.gamma_singlet(order, ker_base.n, nf)
+-        else:
+-            if is_time_like:
+-                gamma_singlet = ad_ut.gamma_singlet(order, ker_base.n, nf)
+-            else:
+-                gamma_singlet = ad_us.gamma_singlet(
+-                    order, ker_base.n, nf, n3lo_ad_variation, use_fhmruvv
+-                )
+-        # scale var exponentiated is directly applied on gamma
+-        if sv_mode == sv.Modes.exponentiated:
+-            gamma_singlet = sv.exponentiated.gamma_variation(
+-                gamma_singlet, order, nf, L
+-            )
+-        ker = s.dispatcher(
+-            order,
+-            method,
+-            gamma_singlet,
+-            as1,
+-            as0,
+-            nf,
+-            ev_op_iterations,
+-            ev_op_max_order,
+-        )
+-        # scale var expanded is applied on the kernel
+-        if sv_mode == sv.Modes.expanded and not is_threshold:
+-            ker = np.ascontiguousarray(
+-                sv.expanded.singlet_variation(gamma_singlet, as1, order, nf, L, dim=2)
+-            ) @ np.ascontiguousarray(ker)
+-        ker = select_singlet_element(ker, mode0, mode1)
+-    else:
+-        if is_polarized:
+-            if is_time_like:
+-                raise NotImplementedError("Polarized, time-like is not implemented")
+-            else:
+-                gamma_ns = ad_ps.gamma_ns(order, mode0, ker_base.n, nf)
+-        else:
+-            if is_time_like:
+-                gamma_ns = ad_ut.gamma_ns(order, mode0, ker_base.n, nf)
+-            else:
+-                gamma_ns = ad_us.gamma_ns(
+-                    order, mode0, ker_base.n, nf, n3lo_ad_variation, use_fhmruvv
+-                )
+-        if sv_mode == sv.Modes.exponentiated:
+-            gamma_ns = sv.exponentiated.gamma_variation(gamma_ns, order, nf, L)
+-        ker = ns.dispatcher(
+-            order,
+-            method,
+-            gamma_ns,
+-            as1,
+-            as0,
+-            nf,
+-            ev_op_iterations,
+-        )
+-        if sv_mode == sv.Modes.expanded and not is_threshold:
+-            ker = sv.expanded.non_singlet_variation(gamma_ns, as1, order, nf, L) * ker
+-    return ker
+-
+-
+-@nb.njit(cache=True)
+-def quad_ker_qed(
+-    ker_base,
+-    order,
+-    mode0,
+-    mode1,
+-    method,
+-    as_list,
+-    mu2_from,
+-    mu2_to,
+-    a_half,
+-    alphaem_running,
+-    nf,
+-    L,
+-    ev_op_iterations,
+-    ev_op_max_order,
+-    sv_mode,
+-    is_threshold,
+-    n3lo_ad_variation,
+-    use_fhmruvv,
+-):
+-    """Raw evolution kernel inside quad.
+-
+-    Parameters
+-    ----------
+-    ker_base : QuadKerBase
+-        quad argument
+-    order : int
+-        perturbation order
+-    mode0: int
+-        pid for first sector element
+-    mode1 : int
+-        pid for second sector element
+-    method : str
+-        method
+-    as1 : float
+-        target coupling value
+-    as0 : float
+-        initial coupling value
+-    mu2_from : float
+-        initial value of mu2
+-    mu2_from : float
+-        final value of mu2
+-    aem_list : list
+-        list of electromagnetic coupling values
+-    alphaem_running : bool
+-        whether alphaem is running or not
+-    nf : int
+-        number of active flavors
+-    L : float
+-        logarithm of the squared ratio of factorization and renormalization scale
+-    ev_op_iterations : int
+-        number of evolution steps
+-    ev_op_max_order : int
+-        perturbative expansion order of U
+-    sv_mode: int, `enum.IntEnum`
+-        scale variation mode, see `eko.scale_variations.Modes`
+-    is_threshold : boolean
+-        is this an itermediate threshold operator?
+-    n3lo_ad_variation : tuple
+-        |N3LO| anomalous dimension variation ``(gg, gq, qg, qq, nsp, nsm, nsv)``
+-    use_fhmruvv : bool
+-        if True use the |FHMRUVV| |N3LO| anomalous dimensions
+-
+-    Returns
+-    -------
+-    float
+-        evaluated integration kernel
+-    """
+-    # compute the actual evolution kernel for QEDxQCD
+-    if ker_base.is_QEDsinglet:
+-        gamma_s = ad_us.gamma_singlet_qed(
+-            order, ker_base.n, nf, n3lo_ad_variation, use_fhmruvv
+-        )
+-        # scale var exponentiated is directly applied on gamma
+-        if sv_mode == sv.Modes.exponentiated:
+-            gamma_s = sv.exponentiated.gamma_variation_qed(
+-                gamma_s, order, nf, lepton_number(mu2_to), L, alphaem_running
+-            )
+-        ker = qed_s.dispatcher(
+-            order,
+-            method,
+-            gamma_s,
+-            as_list,
+-            a_half,
+-            nf,
+-            ev_op_iterations,
+-            ev_op_max_order,
+-        )
+-        # scale var expanded is applied on the kernel
+-        # TODO : in this way a_half[-1][1] is the aem value computed in
+-        # the middle point of the last step. Instead we want aem computed in mu2_final.
+-        # However the distance between the two is very small and affects only the running aem
+-        if sv_mode == sv.Modes.expanded and not is_threshold:
+-            ker = np.ascontiguousarray(
+-                sv.expanded.singlet_variation_qed(
+-                    gamma_s, as_list[-1], a_half[-1][1], alphaem_running, order, nf, L
+-                )
+-            ) @ np.ascontiguousarray(ker)
+-        ker = select_QEDsinglet_element(ker, mode0, mode1)
+-    elif ker_base.is_QEDvalence:
+-        gamma_v = ad_us.gamma_valence_qed(
+-            order, ker_base.n, nf, n3lo_ad_variation, use_fhmruvv
+-        )
+-        # scale var exponentiated is directly applied on gamma
+-        if sv_mode == sv.Modes.exponentiated:
+-            gamma_v = sv.exponentiated.gamma_variation_qed(
+-                gamma_v, order, nf, lepton_number(mu2_to), L, alphaem_running
+-            )
+-        ker = qed_v.dispatcher(
+-            order,
+-            method,
+-            gamma_v,
+-            as_list,
+-            a_half,
+-            nf,
+-            ev_op_iterations,
+-            ev_op_max_order,
+-        )
+-        # scale var expanded is applied on the kernel
+-        if sv_mode == sv.Modes.expanded and not is_threshold:
+-            ker = np.ascontiguousarray(
+-                sv.expanded.valence_variation_qed(
+-                    gamma_v, as_list[-1], a_half[-1][1], alphaem_running, order, nf, L
+-                )
+-            ) @ np.ascontiguousarray(ker)
+-        ker = select_QEDvalence_element(ker, mode0, mode1)
+-    else:
+-        gamma_ns = ad_us.gamma_ns_qed(
+-            order, mode0, ker_base.n, nf, n3lo_ad_variation, use_fhmruvv
+-        )
+-        # scale var exponentiated is directly applied on gamma
+-        if sv_mode == sv.Modes.exponentiated:
+-            gamma_ns = sv.exponentiated.gamma_variation_qed(
+-                gamma_ns, order, nf, lepton_number(mu2_to), L, alphaem_running
+-            )
+-        ker = qed_ns.dispatcher(
+-            order,
+-            method,
+-            gamma_ns,
+-            as_list,
+-            a_half[:, 1],
+-            alphaem_running,
+-            nf,
+-            ev_op_iterations,
+-            mu2_from,
+-            mu2_to,
+-        )
+-        if sv_mode == sv.Modes.expanded and not is_threshold:
+-            ker = (
+-                sv.expanded.non_singlet_variation_qed(
+-                    gamma_ns, as_list[-1], a_half[-1][1], alphaem_running, order, nf, L
+-                )
+-                * ker
+-            )
+-    return ker
+-
+-
+ class Operator(sv.ModeMixin):
+     """Internal representation of a single EKO.
+
+@@ -780,50 +282,6 @@ class Operator(sv.ModeMixin):
+                 labels.extend(br.singlet_unified_labels)
+         return labels
+
+-    def quad_ker(self, label, logx, areas):
+-        """Return partially initialized integrand function.
+-
+-        Parameters
+-        ----------
+-        label: tuple
+-            operator element pids
+-        logx: float
+-            Mellin inversion point
+-        areas : tuple
+-            basis function configuration
+-
+-        Returns
+-        -------
+-        functools.partial
+-            partially initialized integration kernel
+-
+-        """
+-        return functools.partial(
+-            quad_ker,
+-            order=self.order,
+-            mode0=label[0],
+-            mode1=label[1],
+-            method=self.config["method"],
+-            is_log=self.int_disp.log,
+-            logx=logx,
+-            areas=areas,
+-            as_list=self.as_list,
+-            mu2_from=self.q2_from,
+-            mu2_to=self.q2_to,
+-            a_half=self.a_half_list,
+-            alphaem_running=self.alphaem_running,
+-            nf=self.nf,
+-            L=np.log(self.xif2),
+-            ev_op_iterations=self.config["ev_op_iterations"],
+-            ev_op_max_order=tuple(self.config["ev_op_max_order"]),
+-            sv_mode=self.sv_mode,
+-            is_threshold=self.is_threshold,
+-            n3lo_ad_variation=self.config["n3lo_ad_variation"],
+-            is_polarized=self.config["polarized"],
+-            is_time_like=self.config["time_like"],
+-            use_fhmruvv=self.config["use_fhmruvv"],
+-        )
+-
+     def initialize_op_members(self):
+         """Init all operators with the identity or zeros."""
+         eye = OpMember(
+@@ -846,10 +304,7 @@ class Operator(sv.ModeMixin):
+             else:
+                 self.op_members[n] = zero.copy()
+
+-    def run_op_integration(
+-        self,
+-        log_grid,
+-    ):
++    def run_op_integration(self, log_grid):
+         """Run the integration for each grid point.
+
+         Parameters
+@@ -864,18 +319,56 @@ class Operator(sv.ModeMixin):
+         """
+         column = []
+         k, logx = log_grid
++        # call(!) self.labels only once
++        labels = self.labels
+         start_time = time.perf_counter()
++        # start preparing C arguments
++        cfg = ekors.lib.empty_qcd_args()
++        cfg.order_qcd = self.order[0]
++        cfg.is_polarized = self.config["polarized"]
++        cfg.is_time_like = self.config["time_like"]
++        cfg.nf = self.nf
++        cfg.py = ekors.ffi.cast("void *", cb_quad_ker_qcd.address)
++        cfg.is_log = self.int_disp.log
++        cfg.logx = logx
++        cfg.L = np.log(self.xif2)
++        cfg.method_num = 1
++        cfg.as1 = self.as_list[1]
++        cfg.as0 = self.as_list[0]
++        cfg.ev_op_iterations = self.config["ev_op_iterations"]
++        cfg.ev_op_max_order_qcd = self.config["ev_op_max_order"][0]
++        cfg.sv_mode_num = 1
++        cfg.is_threshold = self.is_threshold
++
+         # iterate basis functions
+         for l, bf in enumerate(self.int_disp):
+             if k == l and l == self.grid_size - 1:
+                 continue
++            # add emtpy labels with 0s
++            if bf.is_below_x(np.exp(logx)):
++                column.append({label: (0.0, 0.0) for label in labels})
++                continue
+             temp_dict = {}
++            # prepare areas for C
++            curareas = bf.areas_representation
++            areas_len = curareas.shape[0] * curareas.shape[1]
++            # force the variable in scope
++            areas_ffi = ekors.ffi.new(
++                f"double[{areas_len}]", curareas.flatten().tolist()
++            )
++            cfg.areas = areas_ffi
++            cfg.areas_x = curareas.shape[0]
++            cfg.areas_y = curareas.shape[1]
+             # iterate sectors
+-            for label in self.labels:
++            for label in labels:
++                cfg.mode0 = label[0]
++                cfg.mode1 = label[1]
++                # construct the low level object
++                func = LowLevelCallable(
++                    ekors.lib.rust_quad_ker_qcd, ekors.ffi.addressof(cfg)
++                )
+                 res = integrate.quad(
+-                    self.quad_ker(
+-                        label=label, logx=logx, areas=bf.areas_representation
+-                    ),
++                    func,
+                     0.5,
+                     1.0 - self._mellin_cut,
+                     epsabs=1e-12,

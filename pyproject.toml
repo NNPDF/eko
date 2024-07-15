@@ -37,16 +37,16 @@ packages = [
 ]
 
 [tool.poetry.dependencies]
-python = "^3.8,<3.12"
+python = "^3.9,<3.13"
 numpy = "^1.24"
 scipy = "^1.10.1"
 PyYAML = "^6.0"
 lz4 = "^4.0.2"
-numba = "^0.57.0"
+numba = "^0.59.0"
 # ekomark
-banana-hep = { version = "^0.6.9", optional = true }
+banana-hep = { version = "^0.6.12", optional = true }
 sqlalchemy = { version = "^1.4.21", optional = true }
-pandas = { version = "^1.3.0", optional = true }
+pandas = { version = "^2.1.4", optional = true }
 matplotlib = { version = "^3.5.1", optional = true }
 rich = { version = "^12.6.0", optional = true }
 click = { version = ">=8.0.3,<9.0.0", optional = true }
@@ -55,7 +55,7 @@ click = { version = ">=8.0.3,<9.0.0", optional = true }
 optional = true
 
 [tool.poetry.group.docs.dependencies]
-Sphinx = "^4.3.2"
+Sphinx = "^7.0.0"
 sphinx-rtd-theme = "^1.0.0"
 sphinxcontrib-bibtex = "^2.4.1"
 nbsphinx = "^0.8.8"
@@ -68,7 +68,7 @@ optional = true
 pytest = "^7.1.3"
 pytest-cov = "4.0.0"
 pytest-env = "^0.6.2"
-pylint = "^2.12.2"
+pylint = "^3.1.0"
 
 [tool.poetry.group.dev.dependencies]
 pdbpp = "^0.10.3"
@@ -77,6 +77,10 @@ ipython = "^8.0"
 asv = "^0.4.2"
 virtualenv = "^20.13.2"
 devtools = "^0.10.0"
+
+
+[tool.poetry.group.version.dependencies]
+tomlkit = "^0.12.5"
 
 [tool.poetry.extras]
 mark = ["banana-hep", "sqlalchemy", "pandas", "matplotlib"]
@@ -124,6 +128,16 @@ asv-publish = "asv publish --config benchmarks/asv.conf.json"
 asv-show = "asv show --config benchmarks/asv.conf.json"
 asv-clean = { "shell" = "rm -rf benchmarks/env benchmarks/html benchmarks/results" }
 asv = ["asv-run", "asv-publish", "asv-preview"]
+bump-version = { "shell" = "python crates/bump-versions.py $(git describe --tags)" }
+compile = "pip install -e crates/eko/"
+rdocs.cmd = "cargo doc --workspace --no-deps"
+rdocs.env = { RUSTDOCFLAGS = "--html-in-header crates/katex-header.html" }
+rdocs-view = "xdg-open target/doc/ekors/index.html"
+rdocs-clean = "rm -rf target/doc/"
+rtest = "cargo test --workspace"
+fmtcheck = "cargo fmt --all -- --check"
+clippy = "cargo clippy --no-deps"
+rbib = { "shell" = "python crates/make_bib.py > crates/ekore/src/bib.rs" }
 
 [tool.pytest.ini_options]
 testpaths = ['tests/', 'benchmarks/']

@@ -1,4 +1,5 @@
 """Contains the :class:`PhysicalOperator` class."""
+
 from .. import basis_rotation as br
 from .. import member
 
@@ -22,7 +23,7 @@ class PhysicalOperator(member.OperatorBase):
     """
 
     @classmethod
-    def ad_to_evol_map(cls, op_members, nf, q2_final, intrinsic_range, qed=False):
+    def ad_to_evol_map(cls, op_members, nf, q2_final, intrinsic_range, qed):
         """
         Obtain map between the 3-dimensional anomalous dimension basis and the 4-dimensional evolution basis.
 

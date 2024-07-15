@@ -4,6 +4,7 @@ A few known types are directly registered here, in order to be transparently
 codified in more native structures.
 
 """
+
 import copy
 import dataclasses
 import enum

@@ -1,0 +1,21 @@
+name: Rust unit tests
+
+on: push
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+      - name: Install task runner
+        run: pip install poethepoet
+      - name: Run fmt
+        run: |
+          poe fmtcheck
+      - name: Run clippy
+        run: |
+          poe clippy
+      - name: Run Rust unit tests
+        run: |
+          poe rtest

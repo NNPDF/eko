@@ -1,4 +1,5 @@
 """The unpolarized, space-like |N3LO| quark-quark non-singlet |OME|."""
+
 import numba as nb
 import numpy as np
 
@@ -14,9 +15,9 @@ def A_qqNS(n, cache, nf, L, eta):
     :cite:`Ablinger:2014vwa`. It contains some weight 5 harmonics sums.
 
     When using the code, please cite the complete list of references
-    available in :mod:`ekore.matching_conditions.as3`.
+    available in :mod:`~ekore.operator_matrix_elements.unpolarized.space_like.as3`.
 
-    Note the part proportional to nf^0 includes weight = 5
+    Note the part proportional to :math:`n_f^0` includes weight = 5
     harmonics and has been parametrized in Mellin space.
     For this piece the accuracy wrt the known moments is below the 0.01% (N<1000)
     and the absolute diff is within 5e-3.

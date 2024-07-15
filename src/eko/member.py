@@ -1,4 +1,5 @@
 """Atomic operator member."""
+
 import copy
 import operator
 from numbers import Number
@@ -266,7 +267,7 @@ class OperatorBase:
                     new_oms[new_key] += operation(l_op, r_op)
         return new_oms
 
-    def to_flavor_basis_tensor(self, qed: bool = False):
+    def to_flavor_basis_tensor(self, qed: bool):
         """Convert the computations into an rank 4 tensor.
 
         A sparse tensor defined with dot-notation (e.g. ``S.g``) is converted

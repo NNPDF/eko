@@ -1,10 +1,13 @@
 r"""Holds the classes that define the |FNS|."""
+
 import logging
 from dataclasses import dataclass
 from typing import List, Union
 
+import numba as nb
 import numpy as np
 
+from .constants import MTAU
 from .io.types import EvolutionPoint as EPoint
 from .io.types import FlavorIndex, FlavorsNumber, SquaredScale
 from .quantities.heavy_quarks import MatchingScales
@@ -47,6 +50,7 @@ class Matching:
 
     scale: SquaredScale
     hq: FlavorIndex
+    inverse: bool
 
 
 MatchedPath = List[Union[Segment, Matching]]
@@ -157,11 +161,12 @@ class Atlas:
 
         """
         path = self.path(target)
+        inverse = is_downward_path(path)
 
         prev = path[0]
         matched: MatchedPath = [prev]
         for seg in path[1:]:
-            matching = Matching(prev.target, max(prev.nf, seg.nf))
+            matching = Matching(prev.target, max(prev.nf, seg.nf), inverse)
 
             matched.append(matching)
             matched.append(seg)
@@ -207,3 +212,23 @@ def is_downward_path(path: Path) -> bool:
 def flavor_shift(is_downward: bool) -> int:
     """Determine the shift to number of light flavors."""
     return 4 if is_downward else 3
+
+
+@nb.njit(cache=True)
+def lepton_number(q2):
+    """Compute the number of leptons.
+
+    Note: muons and electrons are always massless as for up, down and strange.
+
+    Parameters
+    ----------
+    q2 : float
+        scale
+
+    Returns
+    -------
+    int :
+       Number of leptons
+
+    """
+    return 3 if q2 > MTAU**2 else 2

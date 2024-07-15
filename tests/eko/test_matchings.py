@@ -1,4 +1,5 @@
 """Tests for the threshold class"""
+
 from dataclasses import astuple
 
 import numpy as np

@@ -1,4 +1,5 @@
 """Types and quantities related to theory couplings."""
+
 import dataclasses
 import enum
 from typing import Optional

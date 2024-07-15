@@ -50,6 +50,7 @@ def gamma_ns(order, mode, n, nf):
             raise NotImplementedError("Non-singlet sector is not implemented")
         gamma_ns[1] = gamma_ns_1
     if order[0] >= 3:
+        gamma_ns_2 = 0.0
         if mode == 10101:
             gamma_ns_2 = as3.gamma_nsp(n, nf, cache)
         elif mode == 10201:
