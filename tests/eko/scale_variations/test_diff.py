@@ -27,9 +27,7 @@ def compute_a_s(q2, order):
         couplings=CouplingsInfo(
             alphas=0.1181,
             alphaem=0.007496,
-            scale=91.00,
-            max_num_flavs=4,
-            num_flavs_ref=4,
+            ref=(91.00, 4),
         ),
         order=order,
         method=CouplingEvolutionMethod.EXPANDED,
