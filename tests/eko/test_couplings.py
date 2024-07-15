@@ -333,17 +333,16 @@ class TestCouplings:
 def test_expanded_low_bound():
     # test low Q2 expanded solution limit
     tcard = example.theory()
-
-    tcard.order = (2, 0)
     evmod = CouplingEvolutionMethod.EXPANDED
-    sc = Couplings(
-        tcard.couplings,
-        tcard.order,
-        evmod,
-        masses=[(x.value) ** 2 for x in tcard.heavy.masses],
-        hqm_scheme=tcard.heavy.masses_scheme,
-        thresholds_ratios=[1, 1, 1],
-    )
-    assert not np.isnan(sc.a_s(0.04))
-    with pytest.raises(ValueError):
-        sc.a_s(0.03)
+    for order in [(2, 0), (3, 0), (4, 0), (2, 1), (3, 1), (4, 1)]:
+        sc = Couplings(
+            tcard.couplings,
+            order,
+            evmod,
+            masses=[(x.value) ** 2 for x in tcard.heavy.masses],
+            hqm_scheme=tcard.heavy.masses_scheme,
+            thresholds_ratios=[1, 1, 1],
+        )
+        assert not np.isnan(sc.a_s(0.04))
+        with pytest.raises(ValueError):
+            sc.a_s(0.03)

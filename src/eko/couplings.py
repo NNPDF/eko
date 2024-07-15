@@ -62,7 +62,7 @@ def check_expanded_low_q2_limit(values):
     """Check if the expanded evolution is feasible."""
     for v in values:
         if v < 0.0:
-            raise ValueError("Too low Q2, can't evolve alphas with truncated method.")
+            raise ValueError("Too low Q2, can't evolve alphas with truncated solution.")
 
 
 @nb.njit(cache=True)
