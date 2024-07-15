@@ -1,46 +1,48 @@
 {
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-23.05";
-    systems.url = "github:nix-systems/default";
-    devenv.url = "github:cachix/devenv";
-    nixpkgs-python.url = "github:cachix/nixpkgs-python";
-  };
-
-  nixConfig = {
-    extra-trusted-public-keys = "devenv.cachix.org-1:w1cLUi8dv3hnoSPGAuibQv+f9TZLr6cv/Hm9XgU50cw=";
-    extra-substituters = "https://devenv.cachix.org";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    devenv = {
+      url = "github:cachix/devenv";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    flake-parts.url = "github:hercules-ci/flake-parts";
   };
 
   outputs = {
     self,
     nixpkgs,
     devenv,
-    systems,
+    flake-parts,
     ...
-  } @ inputs: let
-    forEachSystem = nixpkgs.lib.genAttrs (import systems);
-  in {
-    devShells =
-      forEachSystem
-      (system: let
-        pkgs = nixpkgs.legacyPackages.${system};
-      in {
-        default = devenv.lib.mkShell {
-          inherit inputs pkgs;
-          modules = [
-            {
-              languages.python = {
+  } @ inputs:
+    flake-parts.lib.mkFlake {inherit inputs;} {
+      imports = [inputs.devenv.flakeModule];
+      systems = ["x86_64-linux" "aarch64-darwin"];
+
+      perSystem = {pkgs, ...}: {
+        devenv.shells.default = {
+          packages = with pkgs; [maturin poethepoet pre-commit stdenv.cc.cc.lib];
+
+          languages = {
+            python = {
+              enable = true;
+              poetry = {
                 enable = true;
-                poetry = {
+                install = {
                   enable = true;
-                  install.enable = true;
-                  install.allExtras = true;
+                  allExtras = true;
+                  groups = ["dev" "test"];
                 };
-                version = "3.11";
               };
-            }
-          ];
+            };
+            rust.enable = true;
+          };
         };
-      });
+      };
+    };
+
+  nixConfig = {
+    extra-trusted-public-keys = "devenv.cachix.org-1:w1cLUi8dv3hnoSPGAuibQv+f9TZLr6cv/Hm9XgU50cw=";
+    extra-substituters = "https://devenv.cachix.org";
   };
 }

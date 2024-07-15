@@ -9,6 +9,7 @@
     :class:`OperatorMatrixElement` to simplify the computation and passing down
     parameters.
 """
+
 import numpy as np
 
 from .. import evolution_operator as evop

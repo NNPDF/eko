@@ -1,0 +1,22 @@
+[workspace]
+members = ["crates/*"]
+resolver = "2"
+
+[workspace.package]
+authors = [
+  "A. Barontini <andrea.barontini@mi.infn.it>",
+  "A. Candido <alessandro.candido@mi.infn.it>",
+  "F. Hekhorn <felix.hekhorn@mi.infn.it>",
+  "N. Laurenti <niccolo.laurenti@mi.infn.it>",
+  "G. Magni <gmagni@nikhef.nl>",
+  "T. Sharma <tanishq.sharma@alumni.cern>",
+]
+description = "Evolution Kernel Operators"
+readme = "README.md"
+categories = ["science"]
+edition = "2021"
+keywords = ["physics"]
+license = "GPL-3.0-or-later"
+repository = "https://github.com/NNPDF/eko"
+rust-version = "1.60.0"
+version = "0.0.1"

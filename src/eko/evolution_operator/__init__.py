@@ -26,7 +26,6 @@ from ..kernels import non_singlet as ns
 from ..kernels import non_singlet_qed as qed_ns
 from ..kernels import singlet as s
 from ..kernels import singlet_qed as qed_s
-from ..kernels import utils
 from ..kernels import valence_qed as qed_v
 from ..matchings import Segment, lepton_number
 from ..member import OpMember
@@ -730,7 +729,7 @@ class Operator(sv.ModeMixin):
             a_half = np.zeros((ev_op_iterations, 2))
         else:
             couplings = self.managers.couplings
-            mu2_steps = utils.geomspace(self.q2_from, self.q2_to, 1 + ev_op_iterations)
+            mu2_steps = np.geomspace(self.q2_from, self.q2_to, 1 + ev_op_iterations)
             mu2_l = mu2_steps[0]
             as_list = np.array(
                 [couplings.a_s(scale_to=mu2, nf_to=self.nf) for mu2 in mu2_steps]
@@ -996,27 +995,23 @@ class Operator(sv.ModeMixin):
         if self.order[1] == 0:
             if self.order[0] == 1:  # in LO +=-=v
                 for label in ["nsV", "ns-"]:
-                    self.op_members[
-                        (br.non_singlet_pids_map[label], 0)
-                    ].value = self.op_members[
-                        (br.non_singlet_pids_map["ns+"], 0)
-                    ].value.copy()
-                    self.op_members[
-                        (br.non_singlet_pids_map[label], 0)
-                    ].error = self.op_members[
-                        (br.non_singlet_pids_map["ns+"], 0)
-                    ].error.copy()
+                    self.op_members[(br.non_singlet_pids_map[label], 0)].value = (
+                        self.op_members[
+                            (br.non_singlet_pids_map["ns+"], 0)
+                        ].value.copy()
+                    )
+                    self.op_members[(br.non_singlet_pids_map[label], 0)].error = (
+                        self.op_members[
+                            (br.non_singlet_pids_map["ns+"], 0)
+                        ].error.copy()
+                    )
             elif self.order[0] == 2:  # in NLO -=v
-                self.op_members[
-                    (br.non_singlet_pids_map["nsV"], 0)
-                ].value = self.op_members[
-                    (br.non_singlet_pids_map["ns-"], 0)
-                ].value.copy()
-                self.op_members[
-                    (br.non_singlet_pids_map["nsV"], 0)
-                ].error = self.op_members[
-                    (br.non_singlet_pids_map["ns-"], 0)
-                ].error.copy()
+                self.op_members[(br.non_singlet_pids_map["nsV"], 0)].value = (
+                    self.op_members[(br.non_singlet_pids_map["ns-"], 0)].value.copy()
+                )
+                self.op_members[(br.non_singlet_pids_map["nsV"], 0)].error = (
+                    self.op_members[(br.non_singlet_pids_map["ns-"], 0)].error.copy()
+                )
         # at O(as0aem1) u-=u+, d-=d+
         # starting from O(as1aem1) P+ != P-
         # However the solution with pure QED is not implemented in EKO

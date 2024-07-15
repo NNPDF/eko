@@ -265,7 +265,7 @@ def gamma_nsv(N, nf, cache):
     S11 = S1 + N1I
     S12 = S11 + N2I
     B1 = -S1 * NI
-    if abs(N.imag) < 0.00001 and abs(N.real) < 0.00001:
+    if abs(N.imag) < 0.00001 and abs(N.real - 1) < 0.00001:
         B1M = -zeta2
     else:
         B1M = -S1M * NMI

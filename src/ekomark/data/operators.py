@@ -1,4 +1,5 @@
 """Operator card configurations."""
+
 from banana.data import cartesian_product, sql
 
 from eko import interpolation

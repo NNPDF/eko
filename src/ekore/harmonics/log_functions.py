@@ -6,6 +6,7 @@ We provide transforms of:
 - :math:`\ln^k(1-x), \quad k = 1,3,4,5`
 
 """
+
 import numba as nb
 
 

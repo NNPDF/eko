@@ -1,4 +1,5 @@
 r"""Contains the scale variation for ``ModSV=exponentiated``."""
+
 import numba as nb
 
 from .. import beta

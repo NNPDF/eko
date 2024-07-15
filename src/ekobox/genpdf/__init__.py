@@ -1,4 +1,5 @@
 """Create fake PDF sets for debugging."""
+
 import copy
 import logging
 import pathlib
@@ -81,9 +82,9 @@ def take_data(
         all_blocks.append(
             [
                 generate_block(
-                    lambda pid, x, Q2: 0.0
-                    if pid not in parent_pdf_set
-                    else parent_pdf_set[pid](x, Q2),
+                    lambda pid, x, Q2: (
+                        0.0 if pid not in parent_pdf_set else parent_pdf_set[pid](x, Q2)
+                    ),
                     xgrid,
                     sorted_q2grid,
                     list(br.flavor_basis_pids),

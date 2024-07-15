@@ -15,48 +15,51 @@ SCHEME = "VFNS"
 SV = "central"
 
 plot_dir = here / "plots_msht"
-n3lo_table_dir = table_dir  # / SCHEME
+n3lo_table_dir = table_dir
 msht_table_dir = table_dir
 
 
 # load tables
-eko_dfs = load_n3lo_tables(n3lo_table_dir, SCHEME, approx="EKO")
-fhmv_eko_dfs = load_n3lo_tables(n3lo_table_dir, SCHEME, approx="FHMV")
-msht_dfs = load_msht(msht_table_dir, SCHEME, approx="MSHT")
-fhmv_msht_dfs = load_msht(msht_table_dir, SCHEME, approx="FHMV")
+eko_dfs = load_n3lo_tables(n3lo_table_dir, SCHEME, SV, approx="EKO")
+
+fhmruvv_eko_dfs = load_n3lo_tables(n3lo_table_dir, SCHEME, SV, approx="FHMRUVV")
+fhmruvv_msht_dfs = load_msht(msht_table_dir, SCHEME, approx="FHMRUVV")
+
+msht_post_dfs = load_msht(msht_table_dir, SCHEME, approx="MSHTposterior")
+msht_prior_dfs = load_msht(msht_table_dir, SCHEME, approx="MSHTprior")
 nnlo_central = load_nnlo_table(table_dir, SCHEME, SV)
 
 # compute avg and std
 eko_res = compute_n3lo_avg_err(eko_dfs)
-fhmv_eko_res = compute_n3lo_avg_err(fhmv_eko_dfs)
-msht_res = compute_n3lo_avg_err(msht_dfs)
-fhmv_msht_res = compute_n3lo_avg_err(fhmv_msht_dfs)
-# eko_4mom_res = = compute_n3lo_avg_err(eko_dfs_4mom)
+fhmruvv_eko_res = compute_n3lo_avg_err(fhmruvv_eko_dfs)
+fhmruvv_msht_res = compute_n3lo_avg_err(fhmruvv_msht_dfs)
+msht_post_res = compute_n3lo_avg_err(msht_post_dfs)
+msht_prior_res = compute_n3lo_avg_err(msht_prior_dfs)
 
-n3lo_dfs = [
-    (eko_res, "EKO"),
-    (fhmv_eko_res, "FHMV EKO"),
-    (msht_res, "MSHT"),
-    (fhmv_msht_res, "FHMV MSHT")
-    # (eko_4mom_res, "aN3LO EKO 4 mom"),
-]
+# compute average of FHMRUVV
+fhmruvv_res = []
+for a, b in zip(fhmruvv_msht_res, fhmruvv_eko_res):
+    fhmruvv_res.append((a + b) / 2)
 
 # PDFs plots
+n3lo_dfs = [
+    (fhmruvv_res, "FHMRUVV"),
+    (msht_prior_res, "MSHT (prior)"),
+    (msht_post_res, "MSHT (posterior)"),
+    (eko_res, "NNPDF"),
+]
 plot_pdfs(xgrid, n3lo_dfs, nnlo_central, SCHEME, USE_LINX, plot_dir)
 
-# relative diff plots
+# relative, absolute diff plots
 eko_diff = compute_n3lo_nnlo_diff(eko_res, nnlo_central, REL_DIFF)
-fhmv_eko_diff = compute_n3lo_nnlo_diff(fhmv_eko_res, nnlo_central, REL_DIFF)
-msht_diff = compute_n3lo_nnlo_diff(msht_res, nnlo_central, REL_DIFF)
-fhmv_msht_diff = compute_n3lo_nnlo_diff(fhmv_msht_res, nnlo_central, REL_DIFF)
+fhmruvv_diff = compute_n3lo_nnlo_diff(fhmruvv_res, nnlo_central, REL_DIFF)
+msht_prior_diff = compute_n3lo_nnlo_diff(msht_prior_res, nnlo_central, REL_DIFF)
+msht_post_diff = compute_n3lo_nnlo_diff(msht_post_res, nnlo_central, REL_DIFF)
 
 n3lo_dfs = [
-    (eko_diff, "EKO"),
-    (fhmv_eko_diff, "FHMV EKO"),
-    (msht_diff, "MSHT"),
-    (fhmv_msht_diff, "FHMV MSHT")
-    # (eko_4mom_res, "aN3LO EKO 4 mom"),
+    (fhmruvv_diff, "FHMRUVV"),
+    (msht_prior_diff, "MSHT (prior)"),
+    (msht_post_diff, "MSHT (posterior)"),
+    (eko_diff, "NNPDF"),
 ]
-
-# relative, absolute diff plots
 plot_diff_to_nnlo(xgrid, n3lo_dfs, SCHEME, USE_LINX, plot_dir, REL_DIFF)

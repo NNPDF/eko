@@ -3,6 +3,7 @@
 All energy scales in the runcards should be saved linearly, not the
 squared value, for consistency. Squares are consistenly taken inside.
 """
+
 from dataclasses import dataclass
 from math import nan
 from typing import List, Optional, Union
@@ -198,9 +199,11 @@ class Legacy:
             max_num_flavs=old["MaxNfAs"],
         )
         new["heavy"] = {
-            "num_flavs_init": nf_default(old["Q0"] ** 2.0, default_atlas(ms, ks))
-            if old["nf0"] is None
-            else old["nf0"],
+            "num_flavs_init": (
+                nf_default(old["Q0"] ** 2.0, default_atlas(ms, ks))
+                if old["nf0"] is None
+                else old["nf0"]
+            ),
             "num_flavs_max_pdf": old["MaxNfPdf"],
             "matching_ratios": self.heavies("k%sThr", old),
             "masses_scheme": old["HQ"],

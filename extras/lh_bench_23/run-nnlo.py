@@ -3,7 +3,6 @@ import logging
 import pathlib
 import sys
 
-import numpy as np
 import pandas as pd
 import yaml
 from banana import toy
@@ -63,7 +62,7 @@ if __name__ == "__main__":
     if args.scheme == "FFNS":
         scheme = "FFNS"
         t = ffns_theory(xif)
-        o = ffns_operator
+        o = ffns_operator()
         tab = 14
         lab = ffns_labels
         rot = ffns_rotate_to_LHA

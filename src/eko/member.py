@@ -1,4 +1,5 @@
 """Atomic operator member."""
+
 import copy
 import operator
 from numbers import Number

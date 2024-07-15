@@ -57,8 +57,12 @@ The expressions are based on:
     - :cite:`Ablinger:2022wbb`. J. Ablinger, J. and A. Behring, J. Blümlein, A. De
       Freitas, C. Schneider, A. Goedicke, C. von Manteuffel and K. Schonwald.
       The Unpolarized and Polarized Single-Mass Three-Loop Heavy Flavor Operator
-      Matrix Elements $A_{gg,Q}$ and $\Delta A_{gg,Q}$}.
-      DESY 15-112, DO-TH 22/26, CERN-TH-2022-179, ZU-TH 53/22, RISC Report Series 22-25, MSUHEP-22-036
+      Matrix Elements $A_{gg,Q}$ and $\Delta A_{gg,Q}$}. JHEP 12 (2022) 134,
+      doi:10.1007/JHEP12(2022)134,
+    - :cite:`Ablinger:2024xtt`. J. Ablinger, A. Behring, J. Blümlein, A. De
+      Freitas, A. von Manteuffel, C. Schneider, K. Schönwald.
+      The non-first-order-factorizable contributions to the three-loop single-mass
+      operator matrix elements $A_{Qg}^{(3)}$ and $\Delta A_{Qg}^{(3)}$.
 
 """
 
@@ -82,11 +86,11 @@ def A_singlet(n, cache, nf, L):
         A^{S,(3)} = \left(\begin{array}{cc}
             A_{gg, H}^{S,(3)} & A_{gq, H}^{S,(3)} & 0 \\
             A_{qg, H}^{S,(3)} & A_{qq,H}^{NS,(3)} + A_{qq,H}^{PS,(3)} & 0\\
-            A_{hg}^{S,(3)} & A_{hq}^{PS,(3)} & 0\\
+            A_{Hg}^{S,(3)} & A_{Hq}^{PS,(3)} & 0\\
         \end{array}\right)
 
     When using the code, please cite the complete list of references
-    available at the top of this module :mod:`ekore.matching_conditions.as3`.
+    available at the top of this module :mod:`~ekore.operator_matrix_elements.unpolarized.space_like.as3`.
 
     Parameters
     ----------
@@ -102,7 +106,7 @@ def A_singlet(n, cache, nf, L):
     Returns
     -------
     A_S : numpy.ndarray
-        |NNLO| singlet |OME| :math:`A^{S,(3)}(N)`
+        |N3LO| singlet |OME| :math:`A^{S,(3)}(N)`
 
     """
     A_hq_3 = A_Hq(n, cache, nf, L)
@@ -137,7 +141,7 @@ def A_ns(n, cache, nf, L):
         \end{array}\right)
 
     When using the code, please cite the complete list of references available
-    at the top of this module :mod:`ekore.matching_conditions.as3`.
+    at the top of this module :mod:`~ekore.operator_matrix_elements.unpolarized.space_like.as3`.
 
     Parameters
     ----------

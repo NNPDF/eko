@@ -1,4 +1,5 @@
 """Common type definitions, only used for static analysis."""
+
 import enum
 from typing import Any, Dict, Generic, List, Tuple, TypeVar
 

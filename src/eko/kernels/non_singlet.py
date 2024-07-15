@@ -6,7 +6,6 @@ import numpy as np
 from .. import beta
 from . import as4_evolution_integrals as as4_ei
 from . import evolution_integrals as ei
-from . import utils
 
 
 @nb.njit(cache=True)
@@ -281,7 +280,7 @@ def eko_ordered_truncated(gamma_ns, a1, a0, beta, order, ev_op_iterations):
         non-singlet ordered truncated EKO
 
     """
-    a_steps = utils.geomspace(a0, a1, 1 + ev_op_iterations)
+    a_steps = np.geomspace(a0, a1, 1 + ev_op_iterations)
     U = U_vec(gamma_ns, beta, order)
     e = 1.0
     al = a_steps[0]
@@ -321,7 +320,7 @@ def eko_truncated(gamma_ns, a1, a0, beta, order, ev_op_iterations):
         non-singlet truncated EKO
 
     """
-    a_steps = utils.geomspace(a0, a1, 1 + ev_op_iterations)
+    a_steps = np.geomspace(a0, a1, 1 + ev_op_iterations)
     U = U_vec(gamma_ns, beta, order)
     e = 1.0
     al = a_steps[0]

@@ -2,6 +2,7 @@
     This module tests the implemented beta functions and the value
     of alpha_s for different orders.
 """
+
 import numpy as np
 import pytest
 

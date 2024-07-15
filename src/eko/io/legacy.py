@@ -1,4 +1,5 @@
 """Support legacy storage formats."""
+
 import dataclasses
 import io
 import os

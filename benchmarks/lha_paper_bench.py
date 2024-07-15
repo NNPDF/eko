@@ -1,6 +1,7 @@
 """
 Benchmark to :cite:`Giele:2002hx` (LO + NLO) and :cite:`Dittmar:2005ed` (NNLO).
 """
+
 import os
 
 import numpy as np

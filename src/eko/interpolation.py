@@ -4,6 +4,7 @@ This library also provides a class to generate the interpolator :class:`Interpol
 Upon construction the dispatcher generates a number of functions
 to evaluate the interpolator.
 """
+
 import logging
 import math
 from typing import Sequence, Union

@@ -1,4 +1,5 @@
 """Manipulate output generate by EKO."""
+
 import logging
 import warnings
 from typing import Callable, Optional, Union
@@ -188,6 +189,7 @@ def flavor_reshape(
         return
 
     # flip input around
+    inv_inputpids = np.zeros_like(inputpids)
     if inputpids is not None:
         inv_inputpids = np.linalg.inv(inputpids)
 

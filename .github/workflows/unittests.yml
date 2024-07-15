@@ -1,4 +1,4 @@
-name: tests
+name: Python unit tests
 
 on: push
 
@@ -6,10 +6,10 @@ jobs:
   test:
     strategy:
       matrix:
-        python-version: ["3.8", "3.9", "3.10", "3.11"]
+        python-version: ["3.9", "3.10", "3.11", "3.12"]
       fail-fast: false
 
-    uses: N3PDF/workflows/.github/workflows/python-poetry-tests.yml@v2
+    uses: NNPDF/workflows/.github/workflows/python-poetry-tests.yml@v2
     with:
       python-version: ${{ matrix.python-version }}
       poetry-extras: "-E mark -E box"

@@ -1,4 +1,5 @@
 """The unpolarized, space-like |N3LO| heavy-quark |OME|."""
+
 # pylint: disable=too-many-lines
 import numba as nb
 import numpy as np
@@ -14,7 +15,7 @@ def A_Hq(n, cache, nf, L):  # pylint: disable=too-many-locals
     and :cite:`Blumlein:2017wxd` :eqref:`3.1`.
 
     When using the code, please cite the complete list of references
-    available in :mod:`ekore.matching_conditions.as3`.
+    available in :mod:`~ekore.operator_matrix_elements.unpolarized.space_like.as3`.
 
     The part proportional to :math:`n_f^0` includes non trivial weight-5
     harmonics and has been parametrized in Mellin space.
