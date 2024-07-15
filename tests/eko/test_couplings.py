@@ -13,6 +13,7 @@ from eko.couplings import Couplings, compute_matching_coeffs_up, couplings_mod_e
 from eko.io.types import EvolutionMethod
 from eko.quantities.couplings import CouplingEvolutionMethod, CouplingsInfo
 from eko.quantities.heavy_quarks import MatchingScales, QuarkMassScheme
+from ekobox.cards import example
 
 masses = [m**2 for m in (2.0, 4.5, 175.0)]
 
@@ -327,3 +328,22 @@ class TestCouplings:
         np.testing.assert_allclose(
             mathematica_val, as_N3LO.a(Q2)[0] - as_NNLO.a(Q2)[0], rtol=5e-7
         )
+
+
+def test_expanded_low_bound():
+    # test low Q2 expanded solution limit
+    tcard = example.theory()
+
+    tcard.order = (2, 0)
+    evmod = CouplingEvolutionMethod.EXPANDED
+    sc = Couplings(
+        tcard.couplings,
+        tcard.order,
+        evmod,
+        masses=[(x.value) ** 2 for x in tcard.heavy.masses],
+        hqm_scheme=tcard.heavy.masses_scheme,
+        thresholds_ratios=[1, 1, 1],
+    )
+    assert not np.isnan(sc.a_s(0.04))
+    with pytest.raises(ValueError):
+        sc.a_s(0.03)

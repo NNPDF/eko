@@ -58,6 +58,14 @@ def couplings_mod_ev(mod_ev: EvolutionMethod) -> CouplingEvolutionMethod:
 
 
 @nb.njit(cache=True)
+def check_expanded_low_q2_limit(values):
+    """Check if the expanded evolution is feasible."""
+    for v in values:
+        if v < 0.0:
+            raise ValueError("Too low Q2, can't evolve alphas with truncated method.")
+
+
+@nb.njit(cache=True)
 def exact_lo(ref, beta0, lmu):
     r"""Compute expanded solution at |LO|.
 
@@ -103,6 +111,7 @@ def expanded_nlo(ref, beta0, b1, lmu):
         coupling at target scale :math:`a(\mu_R^2)`
     """
     den = 1.0 + beta0 * ref * lmu
+    check_expanded_low_q2_limit((den,))
     a_LO = exact_lo(ref, beta0, lmu)
     as_NLO = a_LO * (1 - b1 * a_LO * np.log(den))
     return as_NLO
@@ -318,16 +327,11 @@ def couplings_expanded_alphaem_running(
     # order[0] is always >=1
     if not decoupled_running:
         if order[1] >= 1:
-            res_as += (
-                -couplings_ref[0] ** 2
-                * b_qcd((2, 1), nf)
-                * np.log(1 + beta0_qcd * couplings_ref[1] * lmu)
-            )
-            res_aem += (
-                -couplings_ref[1] ** 2
-                * b_qed((1, 2), nf, nl)
-                * np.log(1 + beta0_qed * couplings_ref[0] * lmu)
-            )
+            den_s = 1 + beta0_qcd * couplings_ref[1] * lmu
+            den_em = 1 + beta0_qed * couplings_ref[0] * lmu
+            check_expanded_low_q2_limit((den_s, den_em))
+            res_as += -couplings_ref[0] ** 2 * b_qcd((2, 1), nf) * np.log(den_s)
+            res_aem += -couplings_ref[1] ** 2 * b_qed((1, 2), nf, nl) * np.log(den_em)
     return np.array([res_as, res_aem])
 
 
