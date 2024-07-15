@@ -1,4 +1,5 @@
 """EKO database configuration."""
+
 from typing import Union
 
 from eko.io.runcards import Legacy, OperatorCard, TheoryCard
