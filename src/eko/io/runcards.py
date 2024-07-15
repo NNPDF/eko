@@ -1,10 +1,9 @@
 """Structures to hold runcards information.
 
-All energy scales in the runcards should be saved linearly, not the squared
-value, for consistency.
-Squares are consistenly taken inside.
-
+All energy scales in the runcards should be saved linearly, not the
+squared value, for consistency. Squares are consistenly taken inside.
 """
+
 from dataclasses import dataclass
 from math import nan
 from typing import List, Optional, Union
@@ -48,7 +47,16 @@ class TheoryCard(DictLike):
     xif: float
     """Ratio between factorization scale and process scale."""
     n3lo_ad_variation: N3LOAdVariation
-    """|N3LO| anomalous dimension variation: ``(gg_var, gq_var, qg_var, qq_var)``."""
+    """|N3LO| anomalous dimension variation: ``(gg, gq, qg, qq, nsp, nsm, nsv)``."""
+    use_fhmruvv: Optional[bool] = False
+    """If True use the |FHMRUVV| |N3LO| anomalous dimensions"""
+    matching_order: Optional[Order] = None
+    """Matching conditions perturbative order tuple, ``(QCD, QED)``."""
+
+    def __post_init__(self):
+        """Enforce defaults."""
+        if self.matching_order is None:
+            self.matching_order = (self.order[0] - 1, 0)
 
 
 @dataclass
@@ -69,6 +77,7 @@ class Configs(DictLike):
     """Evolution mode."""
     ev_op_max_order: Order
     """Maximum order to use in U matrices expansion.
+
     Used only in ``perturbative`` solutions.
     """
     ev_op_iterations: int
@@ -81,6 +90,7 @@ class Configs(DictLike):
     """Degree of elements of the intepolation polynomial basis."""
     interpolation_is_log: bool
     r"""Whether to use polynomials in :math:`\log(x)`.
+
     If `false`, polynomials are in :math:`x`.
     """
     polarized: bool
@@ -103,7 +113,8 @@ class OperatorCard(DictLike):
 
     # collections
     configs: Configs
-    """Specific configuration to be used during the calculation of these operators."""
+    """Specific configuration to be used during the calculation of these
+    operators."""
     debug: Debug
     """Debug configurations."""
 
@@ -198,8 +209,11 @@ class Legacy:
             raise ValueError(f"Unknown mass scheme '{old['HQ']}'")
 
         new["xif"] = old["XIF"]
-        new["n3lo_ad_variation"] = old.get("n3lo_ad_variation", (0, 0, 0, 0))
 
+        new["n3lo_ad_variation"] = old.get("n3lo_ad_variation", (0, 0, 0, 0, 0, 0, 0))
+        # here PTO: 0 means truly LO, no QED matching is available so far.
+        new["matching_order"] = old.get("PTO_matching", [old["PTO"], 0])
+        new["use_fhmruvv"] = old.get("use_fhmruvv", False)
         return TheoryCard.from_dict(new)
 
     @property
@@ -213,9 +227,11 @@ class Legacy:
         ks = self.heavies("k%sThr", old_th)
         new["init"] = (
             old_th["Q0"],
-            nf_default(old_th["Q0"] ** 2.0, default_atlas(ms, ks))
-            if old_th["nf0"] is None
-            else old_th["nf0"],
+            (
+                nf_default(old_th["Q0"] ** 2.0, default_atlas(ms, ks))
+                if old_th["nf0"] is None
+                else old_th["nf0"]
+            ),
         )
         if "mugrid" in old:
             mugrid = old["mugrid"]
@@ -257,13 +273,12 @@ class Legacy:
 def default_atlas(masses: list, matching_ratios: list):
     r"""Create default landscape.
 
-    This method should not be used to write new runcards, but rather to have a
-    consistent default for comparison with other softwares and existing PDF
-    sets.
-    There is no one-to-one relation between number of running flavors and final
-    scales, unless matchings are all applied. But this is a custom choice,
-    since it is possible to have PDFs in different |FNS| at the same scales.
-
+    This method should not be used to write new runcards, but rather to
+    have a consistent default for comparison with other softwares and
+    existing PDF sets. There is no one-to-one relation between number of
+    running flavors and final scales, unless matchings are all applied.
+    But this is a custom choice, since it is possible to have PDFs in
+    different |FNS| at the same scales.
     """
     matchings = (np.array(masses) * np.array(matching_ratios)) ** 2
     return Atlas(matchings.tolist(), (0.0, 0))
@@ -272,16 +287,15 @@ def default_atlas(masses: list, matching_ratios: list):
 def flavored_mugrid(mugrid: list, masses: list, matching_ratios: list):
     r"""Upgrade :math:`\mu^2` grid to contain also target number flavors.
 
-    It determines the number of flavors for the PDF set at the target scale,
-    inferring it according to the specified scales.
+    It determines the number of flavors for the PDF set at the target
+    scale, inferring it according to the specified scales.
 
-    This method should not be used to write new runcards, but rather to have a
-    consistent default for comparison with other softwares and existing PDF
-    sets.
-    There is no one-to-one relation between number of running flavors and final
-    scales, unless matchings are all applied. But this is a custom choice,
-    since it is possible to have PDFs in different |FNS| at the same scales.
-
+    This method should not be used to write new runcards, but rather to
+    have a consistent default for comparison with other softwares and
+    existing PDF sets. There is no one-to-one relation between number of
+    running flavors and final scales, unless matchings are all applied.
+    But this is a custom choice, since it is possible to have PDFs in
+    different |FNS| at the same scales.
     """
     atlas = default_atlas(masses, matching_ratios)
     return [(mu, nf_default(mu**2, atlas)) for mu in mugrid]

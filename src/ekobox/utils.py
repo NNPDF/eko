@@ -1,4 +1,5 @@
 """Generic utilities to work with EKOs."""
+
 import os
 from typing import Optional
 

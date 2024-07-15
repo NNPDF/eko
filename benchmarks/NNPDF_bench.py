@@ -1,6 +1,7 @@
 """
 Benchmark NNPDF pdf family
 """
+
 from banana import register
 
 from eko import interpolation

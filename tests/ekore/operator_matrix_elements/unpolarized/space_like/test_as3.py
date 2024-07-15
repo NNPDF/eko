@@ -26,7 +26,6 @@ def test_A_3():
         N = 2.0
         sx_cache = c.reset()
         # The accuracy of this test depends on the approximation of aHg3.
-        # which is not fully available.
         atol = 2e-4 if L == 0 else 2e-3
         np.testing.assert_allclose(
             as3.A_gg(N, sx_cache, nf, L)
@@ -123,18 +122,18 @@ def test_Blumlein_3():
     }
     ref_val_a_Hg = {
         0: [
-            -99.16581867356965,
-            -676.0759818186247,
-            -768.6183629349141,
-            -789.7519719852811,
-            -414.2873373741821,
+            -99.16581867357172,
+            -676.0759818186266,
+            -768.6183629349151,
+            -789.751971985281,
+            -453.0949190997498,
         ],
         10: [
-            -99.16581867356965,
-            -676.0759818186247,
-            -768.6183629349141,
-            -789.7519719852811,
-            -414.2873373741821,
+            -99.16581867357172,
+            -676.0759818186266,
+            -768.6183629349151,
+            -789.751971985281,
+            -453.0949190997498,
         ],
     }
     ref_val_Hq = {
@@ -197,7 +196,7 @@ def test_Blumlein_3():
             aS3 = A_singlet(N, sx_cache, nf, L)
 
             np.testing.assert_allclose(
-                aS3[0, 0], ref_val_gg[L][idx] + ref_val_a_gg[L][idx], rtol=3e-6
+                aS3[0, 0], ref_val_gg[L][idx] + ref_val_a_gg[L][idx], rtol=9e-6
             )
 
             np.testing.assert_allclose(aS3[0, 1], ref_val_gq[L][idx], rtol=2e-6)
@@ -209,9 +208,9 @@ def test_Blumlein_3():
             np.testing.assert_allclose(
                 aS3[2, 1], ref_val_Hq[L][idx], rtol=2e-5, atol=2e-6
             )
-            # np.testing.assert_allclose(
-            #     aS3[1, 1], ref_val_qqNS[L][idx] + ref_val_qqPS[L][idx], rtol=2e-6
-            # )
+            np.testing.assert_allclose(
+                aS3[1, 1], ref_val_qqNS[L][idx] + ref_val_qqPS[L][idx], rtol=2e-6
+            )
 
     # Here we test the critical parts
     for idx, N in enumerate([2.0, 4.0, 6.0, 10.0, 100.0]):

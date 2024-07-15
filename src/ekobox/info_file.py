@@ -1,4 +1,5 @@
 """LHAPDF info file utilities."""
+
 import copy
 import math
 

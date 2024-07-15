@@ -4,6 +4,7 @@ The first is the driver class of eko as it is the one that collects all the
 previously instantiated information and does the actual computation of the Q2s.
 
 """
+
 import logging
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional
@@ -62,11 +63,13 @@ class OperatorGrid(sv.ModeMixin):
         thresholds_ratios: List[float],
         xif: float,
         n3lo_ad_variation: tuple,
+        matching_order: Order,
         configs: Configs,
         debug: Debug,
         atlas: Atlas,
         couplings: Couplings,
         interpol_dispatcher: InterpolatorDispatcher,
+        use_fhmruvv: bool,
     ):
         # check
         config: Dict[str, Any] = {}
@@ -75,6 +78,7 @@ class OperatorGrid(sv.ModeMixin):
         config["HQ"] = mass_scheme
         config["ModSV"] = configs.scvar_method
         config["n3lo_ad_variation"] = n3lo_ad_variation
+        config["use_fhmruvv"] = use_fhmruvv
 
         for i, q in enumerate("cbt"):
             config[f"m{q}"] = masses[i]
@@ -88,6 +92,7 @@ class OperatorGrid(sv.ModeMixin):
         config["debug_skip_non_singlet"] = debug.skip_non_singlet
         config["polarized"] = configs.polarized
         config["time_like"] = configs.time_like
+        config["matching_order"] = matching_order
 
         if order == (1, 0) and method != "iterate-exact":
             logger.warning("Evolution: In LO we use the exact solution always!")
@@ -125,7 +130,6 @@ class OperatorGrid(sv.ModeMixin):
         is_downward = is_downward_path(path)
         shift = flavor_shift(is_downward)
         for seg in path[:-1]:
-            new_op_key = seg
             kthr = self.config["thresholds_ratios"][seg.nf - shift]
             ome = OperatorMatrixElement(
                 self.config,
@@ -136,13 +140,13 @@ class OperatorGrid(sv.ModeMixin):
                 np.log(kthr),
                 self.config["HQ"] == "MSBAR",
             )
-            if new_op_key not in self._threshold_operators:
+            if seg not in self._threshold_operators:
                 # Compute the operator and store it
                 logger.info("Prepare threshold operator")
                 op_th = Operator(self.config, self.managers, seg, is_threshold=True)
                 op_th.compute()
-                self._threshold_operators[new_op_key] = op_th
-            thr_ops.append(self._threshold_operators[new_op_key])
+                self._threshold_operators[seg] = op_th
+            thr_ops.append(self._threshold_operators[seg])
 
             # Compute the matching conditions and store it
             if seg.target not in self._matching_operators:

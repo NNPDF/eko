@@ -8,8 +8,8 @@
     After #242, the goal is to update :class:`Operator` and
     :class:`OperatorMatrixElement` to simplify the computation and passing down
     parameters.
-
 """
+
 import numpy as np
 
 from .. import evolution_operator as evop
@@ -29,7 +29,6 @@ def managers(eko: EKO) -> Managers:
     .. todo::
 
         Legacy interface, avoid managers usage.
-
     """
     tcard = eko.theory_card
     ocard = eko.operator_card
@@ -46,7 +45,6 @@ def evolve_configs(eko: EKO) -> dict:
     .. todo::
 
         Legacy interface, make use of a dedicated object.
-
     """
     tcard = eko.theory_card
     ocard = eko.operator_card
@@ -63,6 +61,9 @@ def evolve_configs(eko: EKO) -> dict:
         n_integration_cores=ocard.configs.n_integration_cores,
         ModSV=ocard.configs.scvar_method,
         n3lo_ad_variation=tcard.n3lo_ad_variation,
+        use_fhmruvv=tcard.use_fhmruvv,
+        # Here order is shifted by one, no QED matching is available so far.
+        matching_order=tcard.matching_order,
     )
 
 
@@ -87,7 +88,6 @@ def matching_configs(eko: EKO) -> dict:
     .. todo::
 
         Legacy interface, make use of a dedicated object.
-
     """
     tcard = eko.theory_card
     ocard = eko.operator_card
@@ -108,7 +108,6 @@ def match(eko: EKO, recipe: Matching) -> Operator:
     All the operators are blown up to flavor basis, and they are saved and
     joined in that unique basis. So, the only rotation used is towards that
     basis, and encoded in the blowing up prescription.
-
     """
     kthr = eko.theory_card.heavy.squared_ratios[recipe.hq - 4]
     op = ome.OperatorMatrixElement(
@@ -122,9 +121,8 @@ def match(eko: EKO, recipe: Matching) -> Operator:
     )
     op.compute()
     qed = eko.theory_card.order[1] > 0
-    nf_match = op.nf - 1 if recipe.inverse else op.nf
     res, err = matching_condition.MatchingCondition.split_ad_to_evol_map(
-        op.op_members, nf_match, recipe.scale, qed
+        op.op_members, op.nf, recipe.scale, qed
     ).to_flavor_basis_tensor(qed)
 
     return Operator(res, err)

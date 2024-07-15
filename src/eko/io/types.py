@@ -1,7 +1,7 @@
 """Common type definitions, only used for static analysis."""
+
 import enum
-import typing
-from typing import Any, Dict, Generic, Tuple, TypeVar
+from typing import Any, Dict, Generic, List, Tuple, TypeVar
 
 # Energy scales
 # -------------
@@ -22,7 +22,9 @@ SquaredScale = Scale
 Order = Tuple[int, int]
 FlavorsNumber = int
 FlavorIndex = int
-N3LOAdVariation = typing.Tuple[int, int, int, int]
+IntrinsicFlavors = List[FlavorIndex]
+N3LOAdVariation = Tuple[int, int, int, int]
+OperatorLabel = Tuple[int, int]
 
 # Evolution coordinates
 # ---------------------

@@ -3,7 +3,6 @@
 import copy
 import functools
 import logging
-from typing import List, Tuple
 
 import numba as nb
 import numpy as np
@@ -186,8 +185,12 @@ class OperatorMatrixElement(Operator):
         configuration
     managers : dict
         managers
-    segment: Segment
-        path segment
+    nf: int
+        number of active flavor below threshold
+    q2: float
+        squared matching scale
+    is_backward: bool
+        True for backward matching
     L: float
         :math:`\ln(\mu_F^2 / m_h^2)`
     is_msbar: bool
@@ -196,7 +199,7 @@ class OperatorMatrixElement(Operator):
 
     log_label = "Matching"
     # complete list of possible matching operators labels
-    full_labels = [
+    full_labels = (
         *br.singlet_labels,
         (br.matching_hplus_pid, 21),
         (br.matching_hplus_pid, 100),
@@ -207,9 +210,9 @@ class OperatorMatrixElement(Operator):
         (200, br.matching_hminus_pid),
         (br.matching_hminus_pid, 200),
         (br.matching_hminus_pid, br.matching_hminus_pid),
-    ]
+    )
     # still valid in QED since Sdelta and Vdelta matchings are diagonal
-    full_labels_qed: List[Tuple[int, int]] = copy.deepcopy(full_labels)
+    full_labels_qed = copy.deepcopy(full_labels)
 
     def __init__(self, config, managers, nf, q2, is_backward, L, is_msbar):
         super().__init__(config, managers, Segment(q2, q2, nf))
@@ -217,7 +220,7 @@ class OperatorMatrixElement(Operator):
         self.L = L
         self.is_msbar = is_msbar
         # Note for the moment only QCD matching is implemented
-        self.order = (self.order[0] - 1, self.order[1])
+        self.order = tuple(config["matching_order"])
 
     @property
     def labels(self):
@@ -315,5 +318,12 @@ class OperatorMatrixElement(Operator):
         if self.order[0] == 0:
             logger.info("%s: no need to compute matching at LO", self.log_label)
             return
+        logger.info(
+            "%s: order: (%d, %d), backward method: %s",
+            self.log_label,
+            self.order[0],
+            self.order[1],
+            self.backward_method,
+        )
 
         self.integrate()

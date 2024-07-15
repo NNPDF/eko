@@ -21,7 +21,7 @@ def test_zero(monkeypatch):
     nf = 3
     ev_op_iterations = 2
     ev_op_max_order = (3, 0)
-    for qcd in range(1, 3 + 1):
+    for qcd in range(1, 4 + 1):
         for qed in range(1, 2 + 1):
             order = (qcd, qed)
             gamma_v = (
@@ -62,12 +62,12 @@ def test_zero_true_gamma(monkeypatch):
     nf = 3
     ev_op_iterations = 2
     ev_op_max_order = (3, 0)
-    for qcd in range(1, 3 + 1):
+    for qcd in range(1, 4 + 1):
         for qed in range(1, 2 + 1):
             order = (qcd, qed)
             n = np.random.rand()
             gamma_v = anomalous_dimensions.unpolarized.space_like.gamma_valence_qed(
-                order, n, nf
+                order, n, nf, (0, 0, 0, 0, 0, 0, 0)
             )
             for method in methods:
                 np.testing.assert_allclose(

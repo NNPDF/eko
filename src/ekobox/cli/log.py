@@ -1,4 +1,5 @@
 """Logging settings."""
+
 import logging
 
 from rich.console import Console

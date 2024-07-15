@@ -5,6 +5,7 @@ generic uknown data in an abstract file format, e.g. a tar archive or YAML data
 file, as opposed to structured YAML representing a specific runcard.
 
 """
+
 import os
 from pathlib import Path
 from tarfile import TarFile, TarInfo

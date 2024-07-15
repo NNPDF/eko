@@ -1,10 +1,10 @@
 """Collection of QED non-singlet EKOs."""
+
 import numba as nb
 import numpy as np
 
 from .. import beta
 from . import non_singlet as ns
-from . import utils
 
 
 @nb.njit(cache=True)
@@ -121,6 +121,29 @@ def as3_exact(gamma_ns, a1, a0, beta):
 
 
 @nb.njit(cache=True)
+def as4_exact(gamma_ns, a1, a0, beta):
+    """O(as3aem1) non-singlet exact EKO.
+
+    Parameters
+    ----------
+    gamma_ns : numpy.ndarray
+        non-singlet anomalous dimensions
+    a1 : float
+        target coupling value
+    a0 : float
+        initial coupling value
+    beta : list
+        list of the values of the beta functions
+
+    Returns
+    -------
+    e_ns^3 : complex
+        O(as4aem1) non-singlet exact EKO
+    """
+    return ns.n3lo_exact(gamma_ns, a1, a0, beta)
+
+
+@nb.njit(cache=True)
 def dispatcher(
     order,
     method,
@@ -216,6 +239,8 @@ def fixed_alphaem_exact(order, gamma_ns, a1, a0, aem, nf, mu2_from, mu2_to):
         qcd_only = as2_exact(gamma_ns_list[1:], a1, a0, betalist)
     elif order[0] == 3:
         qcd_only = as3_exact(gamma_ns_list[1:], a1, a0, betalist)
+    elif order[0] == 4:
+        qcd_only = as4_exact(gamma_ns_list[1:], a1, a0, betalist)
     else:
         raise NotImplementedError("Selected order is not implemented")
     return qcd_only * apply_qed(gamma_ns_list[0], mu2_from, mu2_to)
@@ -251,7 +276,7 @@ def exact(order, gamma_ns, as_list, aem_half, nf, ev_op_iterations, mu2_from, mu
     e_ns : complex
         non-singlet EKO
     """
-    mu2_steps = utils.geomspace(mu2_from, mu2_to, 1 + ev_op_iterations)
+    mu2_steps = np.geomspace(mu2_from, mu2_to, 1 + ev_op_iterations)
     res = 1.0
     for step in range(1, ev_op_iterations + 1):
         aem = aem_half[step - 1]

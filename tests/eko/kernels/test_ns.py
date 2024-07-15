@@ -165,10 +165,7 @@ def test_ode_n3lo():
     a0 = 0.3
     for a1 in [0.1, 0.2]:
         r = (
-            gamma_ns[0]
-            + a1 * gamma_ns[1]
-            + a1**2 * gamma_ns[2]
-            + a1**3 * gamma_ns[3]
+            gamma_ns[0] + a1 * gamma_ns[1] + a1**2 * gamma_ns[2] + a1**3 * gamma_ns[3]
         ) / (
             beta.beta_qcd((2, 0), nf) * a1
             + beta.beta_qcd((3, 0), nf) * a1**2
@@ -207,7 +204,7 @@ def test_error(monkeypatch):
     with pytest.raises(NotImplementedError, match="order is not implemented"):
         ns.dispatcher((5, 0), "iterate-exact", np.random.rand(3) + 0j, 0.2, 0.1, 3, 10)
     with pytest.raises(NotImplementedError):
-        ad.gamma_ns((2, 0), 10202, 1, 3)
+        ad.gamma_ns((2, 0), 10202, 1, (0, 0, 0, 0, 0, 0, 0), 3)
 
 
 def test_gamma_usage():

@@ -32,7 +32,7 @@ def beta_qcd_as2(nf):
 
 
 @nb.njit(cache=True)
-def beta_qed_aem2(nf):
+def beta_qed_aem2(nf, nl):
     r"""Compute the first coefficient of the QED beta function.
 
     Implements Eq. (7) of :cite:`Surguladze:1996hx`.
@@ -41,6 +41,8 @@ def beta_qed_aem2(nf):
     ----------
         nf : int
             number of active flavors
+        nl : int
+            number of leptons partecipating to alphaem running
 
     Returns
     -------
@@ -50,7 +52,6 @@ def beta_qed_aem2(nf):
     """
     nu = constants.uplike_flavors(nf)
     nd = nf - nu
-    nl = 3  # TODO : pass nl as an argument??
     beta_qed_aem2 = (
         -4.0 / 3 * (nl + constants.NC * (nu * constants.eu2 + nd * constants.ed2))
     )
@@ -83,7 +84,7 @@ def beta_qcd_as3(nf):
 
 
 @nb.njit(cache=True)
-def beta_qed_aem3(nf):
+def beta_qed_aem3(nf, nl):
     r"""Compute the second coefficient of the QED beta function.
 
     Implements Eq. (7) of :cite:`Surguladze:1996hx`.
@@ -92,6 +93,8 @@ def beta_qed_aem3(nf):
     ----------
         nf : int
             number of active flavors
+        nl : int
+            number of leptons partecipating to alphaem running
 
     Returns
     -------
@@ -101,7 +104,6 @@ def beta_qed_aem3(nf):
     """
     nu = constants.uplike_flavors(nf)
     nd = nf - nu
-    nl = 3  # TODO : pass nl as an argument??
     beta_qed_aem3 = -4.0 * (
         nl + constants.NC * (nu * constants.eu2**2 + nd * constants.ed2**2)
     )
@@ -246,7 +248,7 @@ def beta_qcd(k, nf):
 
 
 @nb.njit(cache=True)
-def beta_qed(k, nf):
+def beta_qed(k, nf, nl):
     r"""Compute value of a beta_qed coefficients.
 
     Parameters
@@ -255,6 +257,8 @@ def beta_qed(k, nf):
             perturbative order
         nf : int
             number of active flavors
+        nl : int
+            number of leptons partecipating to alphaem running
 
     Returns
     -------
@@ -264,9 +268,9 @@ def beta_qed(k, nf):
     """
     beta_ = 0
     if k == (0, 2):
-        beta_ = beta_qed_aem2(nf)
+        beta_ = beta_qed_aem2(nf, nl)
     elif k == (0, 3):
-        beta_ = beta_qed_aem3(nf)
+        beta_ = beta_qed_aem3(nf, nl)
     elif k == (1, 2):
         beta_ = beta_qed_aem2as1(nf)
     else:
@@ -295,7 +299,7 @@ def b_qcd(k, nf):
 
 
 @nb.njit(cache=True)
-def b_qed(k, nf):
+def b_qed(k, nf, nl):
     r"""Compute b_qed coefficient.
 
     Parameters
@@ -304,6 +308,8 @@ def b_qed(k, nf):
             perturbative order
         nf : int
             number of active flavors
+        nl : int
+            number of leptons partecipating to alphaem running
 
     Returns
     -------
@@ -311,4 +317,4 @@ def b_qed(k, nf):
             b_qed_k(nf)
 
     """
-    return beta_qed(k, nf) / beta_qed((0, 2), nf)
+    return beta_qed(k, nf, nl) / beta_qed((0, 2), nf, nl)

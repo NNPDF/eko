@@ -1,4 +1,5 @@
 """Combine parts into operators."""
+
 from functools import reduce
 from typing import List
 
@@ -17,7 +18,7 @@ def retrieve(
     for head in headers:
         inv = parts if isinstance(head, Evolution) else parts_matching
         op = inv[head]
-        assert isinstance(op, Operator)
+        assert op is not None
         elements.append(op)
 
     return elements

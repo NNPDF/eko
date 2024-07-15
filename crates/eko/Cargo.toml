@@ -1,0 +1,24 @@
+[package]
+name = "eko"
+
+authors.workspace = true
+description.workspace = true
+readme.workspace = true
+categories.workspace = true
+edition.workspace = true
+keywords.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+version.workspace = true
+
+[package.metadata.docs.rs]
+rustdoc-args = ["--html-in-header", "katex-header.html"]
+
+[lib]
+name = "ekors"
+crate-type = ["cdylib"]
+
+[dependencies]
+num = "0.4.1"
+ekore = { path = "../ekore", version = "0.0.1" }

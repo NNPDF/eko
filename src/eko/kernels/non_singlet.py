@@ -6,7 +6,6 @@ import numpy as np
 from .. import beta
 from . import as4_evolution_integrals as as4_ei
 from . import evolution_integrals as ei
-from . import utils
 
 
 @nb.njit(cache=True)
@@ -186,7 +185,7 @@ def nnlo_expanded(gamma_ns, a1, a0, beta):
 
 
 @nb.njit(cache=True)
-def n3lo_expanded(gamma_ns, a1, a0, nf):
+def n3lo_expanded(gamma_ns, a1, a0, beta):
     """|N3LO| non-singlet expanded EKO.
 
     Parameters
@@ -206,12 +205,8 @@ def n3lo_expanded(gamma_ns, a1, a0, nf):
         |N3LO| non-singlet expanded EKO
 
     """
-    beta0 = beta.beta_qcd((2, 0), nf)
-    b_list = [
-        beta.b_qcd((3, 0), nf),
-        beta.b_qcd((4, 0), nf),
-        beta.b_qcd((5, 0), nf),
-    ]
+    beta0 = beta[0]
+    b_list = [betas / beta0 for betas in beta[1:]]
     j12 = ei.j12(a1, a0, beta0)
     j13 = as4_ei.j13_expanded(a1, a0, beta0, b_list)
     j23 = as4_ei.j23_expanded(a1, a0, beta0, b_list)
@@ -225,7 +220,7 @@ def n3lo_expanded(gamma_ns, a1, a0, nf):
 
 
 @nb.njit(cache=True)
-def n3lo_exact(gamma_ns, a1, a0, nf):
+def n3lo_exact(gamma_ns, a1, a0, beta):
     """|N3LO| non-singlet exact EKO.
 
     Parameters
@@ -245,12 +240,8 @@ def n3lo_exact(gamma_ns, a1, a0, nf):
         |N3LO| non-singlet exact EKO
 
     """
-    beta0 = beta.beta_qcd((2, 0), nf)
-    b_list = [
-        beta.b_qcd((3, 0), nf),
-        beta.b_qcd((4, 0), nf),
-        beta.b_qcd((5, 0), nf),
-    ]
+    beta0 = beta[0]
+    b_list = [betas / beta0 for betas in beta[1:]]
     roots = as4_ei.roots(b_list)
     j12 = ei.j12(a1, a0, beta0)
     j13 = as4_ei.j13_exact(a1, a0, beta0, b_list, roots)
@@ -289,7 +280,7 @@ def eko_ordered_truncated(gamma_ns, a1, a0, beta, order, ev_op_iterations):
         non-singlet ordered truncated EKO
 
     """
-    a_steps = utils.geomspace(a0, a1, 1 + ev_op_iterations)
+    a_steps = np.geomspace(a0, a1, 1 + ev_op_iterations)
     U = U_vec(gamma_ns, beta, order)
     e = 1.0
     al = a_steps[0]
@@ -329,7 +320,7 @@ def eko_truncated(gamma_ns, a1, a0, beta, order, ev_op_iterations):
         non-singlet truncated EKO
 
     """
-    a_steps = utils.geomspace(a0, a1, 1 + ev_op_iterations)
+    a_steps = np.geomspace(a0, a1, 1 + ev_op_iterations)
     U = U_vec(gamma_ns, beta, order)
     e = 1.0
     al = a_steps[0]
@@ -420,6 +411,6 @@ def dispatcher(
             "decompose-expanded",
             "perturbative-expanded",
         ]:
-            return n3lo_expanded(gamma_ns, a1, a0, nf)
-        return n3lo_exact(gamma_ns, a1, a0, nf)
+            return n3lo_expanded(gamma_ns, a1, a0, betalist)
+        return n3lo_exact(gamma_ns, a1, a0, betalist)
     raise NotImplementedError("Selected order is not implemented")

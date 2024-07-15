@@ -20,7 +20,7 @@ def A_singlet(matching_order, n, nf, L, is_msbar):
     nf: int
         number of active flavor below threshold
     L : float
-        :math:``\ln(\mu_F^2 / m_h^2)``
+        :math:`\ln(\mu_F^2 / m_h^2)`
     is_msbar: bool
         add the |MSbar| contribution
 
@@ -54,7 +54,7 @@ def A_non_singlet(matching_order, n, nf, L):
     nf: int
         number of active flavor below threshold
     L : float
-        :math:``\ln(\mu_F^2 / m_h^2)``
+        :math:`\ln(\mu_F^2 / m_h^2)`
 
     Returns
     -------

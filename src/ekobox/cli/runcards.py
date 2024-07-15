@@ -1,4 +1,5 @@
 """Subcommand to manage runcards."""
+
 import logging
 import pathlib
 
