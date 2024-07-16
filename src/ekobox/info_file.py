@@ -84,18 +84,8 @@ def build_alphas(
     template_info = {}
     template_info["AlphaS_MZ"] = theory_card.couplings.alphas
     template_info["AlphaS_OrderQCD"] = theory_card.order[0] - 1
-
-    # check we have disjoint scale ranges
+    # prepare
     evolgrid = regroup_evolgrid(operators_card.mugrid)
-    nfs = list(evolgrid.keys())
-    for j in range(len(nfs) - 1):
-        # equal points are allowed by LHAPDF
-        if evolgrid[nfs[j]][-1] > evolgrid[nfs[j + 1]][0]:
-            raise ValueError(
-                f"Last scale point for nf={nfs[j]} is bigger than first in nf={nfs[j+1]}"
-            )
-
-    # add actual values
     evmod = couplings.couplings_mod_ev(operators_card.configs.evolution_method)
     quark_masses = [(x.value) ** 2 for x in theory_card.heavy.masses]
     sc = couplings.Couplings(
@@ -106,6 +96,7 @@ def build_alphas(
         hqm_scheme=theory_card.heavy.masses_scheme,
         thresholds_ratios=np.power(list(iter(theory_card.heavy.matching_ratios)), 2.0),
     )
+    # add actual values
     alphas_values = []
     alphas_qs = []
     for nf, mus in evolgrid.items():

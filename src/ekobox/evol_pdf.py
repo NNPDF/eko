@@ -2,6 +2,8 @@
 
 import pathlib
 
+import numpy as np
+
 from eko import basis_rotation as br
 from eko.io import EKO
 from eko.runner import managed
@@ -46,6 +48,18 @@ def evolve_pdfs(
     info_update : dict
         dict of info to add or update to default info file
     """
+    # separate by nf the evolgrid (and order per nf/q)
+    q2block_per_nf = regroup_evolgrid(operators_card.mugrid)
+
+    # check we have disjoint scale ranges
+    nfs = list(q2block_per_nf.keys())
+    for j in range(len(nfs) - 1):
+        # equal points are allowed by LHAPDF
+        if q2block_per_nf[nfs[j]][-1] > q2block_per_nf[nfs[j + 1]][0]:
+            raise ValueError(
+                f"Last scale point for nf={nfs[j]} is bigger than first in nf={nfs[j+1]}"
+            )
+
     # update op and th cards
     if path is not None:
         eko_path = pathlib.Path(path)
@@ -79,9 +93,8 @@ def evolve_pdfs(
         info_update=info_update,
     )
 
-    # separate by nf the evolgrid (and order per nf/q)
-    q2block_per_nf = regroup_evolgrid(eko_output.evolgrid)
-
+    # in the eko scales are squared
+    q2block_per_nf = {nf: np.power(q2s, 2) for nf, q2s in q2block_per_nf.items()}
     # write all replicas
     all_member_blocks = []
     for evolved_PDF in evolved_PDF_list:
