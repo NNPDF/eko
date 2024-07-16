@@ -1,6 +1,7 @@
 """Generic utilities to work with EKOs."""
 
 import os
+from collections import defaultdict
 from typing import Optional
 
 import numpy as np
@@ -78,3 +79,11 @@ def ekos_product(
 
     if path is not None:
         final_eko.close()
+
+
+def regroup_evolgrid(evolgrid: list):
+    """Split evolution points by nf and sort by scale."""
+    by_nf = defaultdict(list)
+    for q, nf in sorted(evolgrid, key=lambda ep: ep[1]):
+        by_nf[nf].append(q)
+    return {nf: sorted(qs) for nf, qs in by_nf.items()}

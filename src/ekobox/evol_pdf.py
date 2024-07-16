@@ -1,13 +1,13 @@
 """Tools to evolve actual PDFs."""
 
 import pathlib
-from collections import defaultdict
 
 from eko import basis_rotation as br
 from eko.io import EKO
 from eko.runner import managed
 
 from . import apply, genpdf, info_file
+from .utils import regroup_evolgrid
 
 DEFAULT_NAME = "eko.tar"
 
@@ -93,14 +93,6 @@ def evolve_pdfs(
 
     if install:
         genpdf.install_pdf(name)
-
-
-def regroup_evolgrid(evolgrid: list):
-    """Split evolution points by nf and sort by scale."""
-    by_nf = defaultdict(list)
-    for q, nf in sorted(evolgrid, key=lambda ep: ep[1]):
-        by_nf[nf].append(q)
-    return {nf: sorted(qs) for nf, qs in by_nf.items()}
 
 
 def collect_blocks(evolved_PDF: dict, q2block_per_nf: dict, xgrid: list):

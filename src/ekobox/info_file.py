@@ -9,6 +9,7 @@ from eko import couplings
 from eko.io.runcards import OperatorCard, TheoryCard
 
 from .genpdf import load
+from .utils import regroup_evolgrid
 
 
 def build(
@@ -16,19 +17,19 @@ def build(
     operators_card: OperatorCard,
     num_members: int,
     info_update: dict,
-):
-    """Generate a lhapdf info file from theory and operators card.
+) -> dict:
+    """Generate a lhapdf info file.
 
     Parameters
     ----------
-    theory_card : dict
+    theory_card :
         theory card
-    operators_card : dict
-        operators_card
-    num_members : int
+    operators_card :
+        operators card
+    num_members :
         number of pdf set members
-    info_update : dict
-        info to update
+    info_update :
+        additional info to update
 
     Returns
     -------
@@ -56,8 +57,45 @@ def build(
     template_info["MCharm"] = theory_card.heavy.masses.c.value
     template_info["MBottom"] = theory_card.heavy.masses.b.value
     template_info["MTop"] = theory_card.heavy.masses.t.value
+    # dump alphas
+    template_info.update(build_alphas(theory_card, operators_card))
+    return template_info
+
+
+def build_alphas(
+    theory_card: TheoryCard,
+    operators_card: OperatorCard,
+) -> dict:
+    """Generate a couplings section of lhapdf info file.
+
+    Parameters
+    ----------
+    theory_card : dict
+        theory card
+    operators_card : dict
+        operators card
+
+    Returns
+    -------
+    dict
+        info file section in lhapdf format
+    """
+    # start with meta stuff
+    template_info = {}
     template_info["AlphaS_MZ"] = theory_card.couplings.alphas
     template_info["AlphaS_OrderQCD"] = theory_card.order[0] - 1
+
+    # check we have disjoint scale ranges
+    evolgrid = regroup_evolgrid(operators_card.mugrid)
+    nfs = list(evolgrid.keys())
+    for j in range(len(nfs) - 1):
+        # equal points are allowed by LHAPDF
+        if evolgrid[nfs[j]][-1] > evolgrid[nfs[j + 1]][0]:
+            raise ValueError(
+                f"Last scale point for nf={nfs[j]} is bigger than first in nf={nfs[j+1]}"
+            )
+
+    # add actual values
     evmod = couplings.couplings_mod_ev(operators_card.configs.evolution_method)
     quark_masses = [(x.value) ** 2 for x in theory_card.heavy.masses]
     sc = couplings.Couplings(
@@ -68,12 +106,12 @@ def build(
         hqm_scheme=theory_card.heavy.masses_scheme,
         thresholds_ratios=np.power(list(iter(theory_card.heavy.matching_ratios)), 2.0),
     )
-
     alphas_values = []
     alphas_qs = []
-    for mu, nf in operators_card.mugrid:
-        alphas_values.append(float(4.0 * np.pi * sc.a_s(mu * mu, nf_to=nf)))
-        alphas_qs.append(mu)
+    for nf, mus in evolgrid.items():
+        for mu in mus:
+            alphas_values.append(float(4.0 * np.pi * sc.a_s(mu * mu, nf_to=nf)))
+            alphas_qs.append(mu)
 
     template_info["AlphaS_Vals"] = alphas_values
     template_info["AlphaS_Qs"] = alphas_qs
