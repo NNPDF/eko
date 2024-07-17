@@ -1,10 +1,34 @@
 //! Interface to the eko Python package.
 
 use ekore::harmonics::cache::Cache;
+use num::Complex;
 use std::ffi::c_void;
 
 pub mod bib;
 pub mod mellin;
+
+/// Wrapper to pass arguments back to Python
+struct RawCmplx {
+    re: Vec<f64>,
+    im: Vec<f64>,
+}
+
+/// Map tensors to c-ordered list
+fn unravel<const DIM: usize>(res: Vec<[[Complex<f64>; DIM]; DIM]>, order_qcd: usize) -> RawCmplx {
+    let mut target = RawCmplx {
+        re: Vec::<f64>::new(),
+        im: Vec::<f64>::new(),
+    };
+    for obj in res.iter().take(order_qcd) {
+        for col in obj.iter().take(DIM) {
+            for el in col.iter().take(DIM) {
+                target.re.push(el.re);
+                target.im.push(el.im);
+            }
+        }
+    }
+    target
+}
 
 /// QCD intergration kernel inside quad.
 ///
@@ -14,61 +38,49 @@ pub mod mellin;
 pub unsafe extern "C" fn rust_quad_ker_qcd(u: f64, rargs: *mut c_void) -> f64 {
     let args = *(rargs as *mut QuadQCDargs);
     let is_singlet = (100 == args.mode0) || (21 == args.mode0) || (90 == args.mode0);
-    // prepare gamma
+    // prepare Mellin stuff
     let path = mellin::TalbotPath::new(u, args.logx, is_singlet);
     let jac = path.jac() * path.prefactor();
     let mut c = Cache::new(path.n());
-    let mut re = Vec::<f64>::new();
-    let mut im = Vec::<f64>::new();
+    let mut raw = RawCmplx {
+        re: Vec::<f64>::new(),
+        im: Vec::<f64>::new(),
+    };
 
     if args.is_ome {
         if is_singlet {
-            let res = ekore::operator_matrix_elements::unpolarized::spacelike::A_singlet(
+            raw = unravel(
+                ekore::operator_matrix_elements::unpolarized::spacelike::A_singlet(
+                    args.order_qcd,
+                    &mut c,
+                    args.nf,
+                    args.L,
+                ),
                 args.order_qcd,
-                &mut c,
-                args.nf,
-                args.L,
             );
-            for aS in res.iter().take(args.order_qcd) {
-                for col in aS.iter().take(3) {
-                    for el in col.iter().take(3) {
-                        re.push(el.re);
-                        im.push(el.im);
-                    }
-                }
-            }
         } else {
-            let res = ekore::operator_matrix_elements::unpolarized::spacelike::A_non_singlet(
+            raw = unravel(
+                ekore::operator_matrix_elements::unpolarized::spacelike::A_non_singlet(
+                    args.order_qcd,
+                    &mut c,
+                    args.nf,
+                    args.L,
+                ),
                 args.order_qcd,
-                &mut c,
-                args.nf,
-                args.L,
             );
-            for anS in res.iter().take(args.order_qcd) {
-                for col in anS.iter().take(2) {
-                    for el in col.iter().take(2) {
-                        re.push(el.re);
-                        im.push(el.im);
-                    }
-                }
-            }
         }
     } else {
         if is_singlet {
-            let res = ekore::anomalous_dimensions::unpolarized::spacelike::gamma_singlet_qcd(
+            raw = unravel(
+                ekore::anomalous_dimensions::unpolarized::spacelike::gamma_singlet_qcd(
+                    args.order_qcd,
+                    &mut c,
+                    args.nf,
+                ),
                 args.order_qcd,
-                &mut c,
-                args.nf,
             );
-            for gamma_s in res.iter().take(args.order_qcd) {
-                for col in gamma_s.iter().take(2) {
-                    for el in col.iter().take(2) {
-                        re.push(el.re);
-                        im.push(el.im);
-                    }
-                }
-            }
         } else {
+            // we can not do 1D
             let res = ekore::anomalous_dimensions::unpolarized::spacelike::gamma_ns_qcd(
                 args.order_qcd,
                 args.mode0,
@@ -76,16 +88,16 @@ pub unsafe extern "C" fn rust_quad_ker_qcd(u: f64, rargs: *mut c_void) -> f64 {
                 args.nf,
             );
             for el in res.iter().take(args.order_qcd) {
-                re.push(el.re);
-                im.push(el.im);
+                raw.re.push(el.re);
+                raw.im.push(el.im);
             }
         }
     }
 
     // pass on
     (args.py)(
-        re.as_ptr(),
-        im.as_ptr(),
+        raw.re.as_ptr(),
+        raw.im.as_ptr(),
         c.n.re,
         c.n.im,
         jac.re,
@@ -207,7 +219,7 @@ pub unsafe extern "C" fn my_py(
 /// Return empty additional arguments.
 ///
 /// This is required to make the arguments part of the API, otherwise it won't be added to the compiled
-/// package (since it does not appear in the signature of `quad_ker_qcd`).
+/// package (since it does not appear in the signature of `rust_quad_ker_qcd`).
 ///
 /// # Safety
 /// This is the connection from and back to Python, so we don't know what is on the other side.
