@@ -44,23 +44,23 @@ CB_SIGNATURE = nb.types.double(
     nb.types.double,  # im_n
     nb.types.double,  # re_jac
     nb.types.double,  # im_jac
-    nb.types.uint,  # order_qcd
+    nb.types.uintc,  # order_qcd
     nb.types.bool_,  # is_singlet
-    nb.types.uint,  # mode0
-    nb.types.uint,  # mode1
-    nb.types.uint,  # nf
+    nb.types.uintc,  # mode0
+    nb.types.uintc,  # mode1
+    nb.types.uintc,  # nf
     nb.types.bool_,  # is_log
     nb.types.double,  # logx
     nb.types.CPointer(nb.types.double),  # areas_raw
-    nb.types.uint,  # areas_x
-    nb.types.uint,  # areas_y
+    nb.types.uintc,  # areas_x
+    nb.types.uintc,  # areas_y
     nb.types.double,  # L
-    nb.types.uint,  # method_num
+    nb.types.uintc,  # method_num
     nb.types.double,  # as1
     nb.types.double,  # as0
-    nb.types.uint,  # ev_op_iterations
-    nb.types.uint,  # ev_op_max_order_qcd
-    nb.types.uint,  # sv_mode_num
+    nb.types.uintc,  # ev_op_iterations
+    nb.types.uintc,  # ev_op_max_order_qcd
+    nb.types.uintc,  # sv_mode_num
     nb.types.bool_,  # is_threshold
     nb.types.double,  # Lsv
 )
