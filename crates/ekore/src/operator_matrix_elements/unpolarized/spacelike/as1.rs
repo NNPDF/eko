@@ -1,4 +1,9 @@
 //! NLO QCD
+//!
+//! Heavy quark contribution for intrinsic evolution are taken from [\[Ball:2015tna\]](crate::bib::Ball2015tna).
+//! and Mellin transformed with Mathematica.
+//! The other matching conditions for the VFNS at $\mu_F^2 \neq m_H^2$
+//! are provided in [\[Buza:1996wv\]](crate::bib::Buza1996wv).
 
 use num::complex::Complex;
 use num::Zero;
@@ -119,9 +124,10 @@ mod tests {
     }
 
     #[test]
-    /// Test against Blumlein OME implementation Ref.()
-    /// Only even moments are available in that code.
     fn test_Blumlein_1() {
+        // Test against Blümlein OME implementation Bierenbaum:2009mv.
+        // Only even moments are available in that code.
+        // Note there is a minus sign in the definition of L.
         const L: f64 = 10.;
         let ref_val_gg = [-6.66667, -6.66667, -6.66667, -6.66667, -6.66667];
         let ref_val_Hg = [6.66667, 3.66667, 2.61905, 2.05556, 1.69697];
