@@ -51,7 +51,7 @@
         }
         // do the actual replace
         function replaceAbbrev(el) {
-            let txt = el.textContent;
+            let txt = el.innerHTML;
             for (k in parsedAbbrevs)
                 txt = txt.replace(k, parsedAbbrevs[k]);
             el.innerHTML = txt;
