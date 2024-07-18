@@ -15,7 +15,7 @@ plt.style.use(utils.load_style())
 
 n3lo_vars_dict = {
     "gg": 19,
-    "gq": 21,
+    "gq": 15,
     "qg": 15,
     "qq": 6,
 }

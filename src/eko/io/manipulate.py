@@ -189,6 +189,7 @@ def flavor_reshape(
         return
 
     # flip input around
+    inv_inputpids = np.zeros_like(inputpids)
     if inputpids is not None:
         inv_inputpids = np.linalg.inv(inputpids)
 
