@@ -1,4 +1,4 @@
-//! NLO QCD
+//! |NLO| |QCD|.
 
 use ::num::complex::Complex;
 use std::f64::consts::LN_2;

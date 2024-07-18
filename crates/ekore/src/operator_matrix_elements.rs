@@ -1,3 +1,3 @@
-//! Operator matrix elements.
+//! The |OME|.
 
 pub mod unpolarized;

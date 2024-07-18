@@ -8,7 +8,7 @@ macro_rules! cmplx {
     };
 }
 
-/// Shorthand complex number contructor.
+/// Shorthand complex number comparators.
 #[macro_export]
 macro_rules! assert_approx_eq_cmplx {
     ($size:ty, $ref:expr, $target:expr) => {

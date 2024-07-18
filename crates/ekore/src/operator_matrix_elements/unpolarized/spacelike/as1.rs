@@ -1,19 +1,15 @@
-//! NLO QCD
-//!
-//! Heavy quark contribution for intrinsic evolution are taken from [\[Ball:2015tna\]](crate::bib::Ball2015tna).
-//! and Mellin transformed with Mathematica.
-//! The other matching conditions for the VFNS at $\mu_F^2 \neq m_H^2$
-//! are provided in [\[Buza:1996wv\]](crate::bib::Buza1996wv).
+//! |NLO| |QCD|
 
 use num::complex::Complex;
 use num::Zero;
 
+use crate::cmplx;
 use crate::constants::CF;
 use crate::harmonics::cache::{Cache, K};
 
-/// Compute heavy-heavy |OME| :math:`A_{HH}^{(1)}`
+/// Compute heavy-heavy |OME|.
 ///
-/// Defined in Eq. () of .
+/// Implements Eq. (20a) of [\[Ball:2015tna\]](crate::bib::Ball2015tna).
 pub fn A_hh(c: &mut Cache, _nf: u8, L: f64) -> Complex<f64> {
     let N = c.n;
     let S1m = c.get(K::S1) - 1. / N;
@@ -30,9 +26,9 @@ pub fn A_hh(c: &mut Cache, _nf: u8, L: f64) -> Complex<f64> {
     -CF * (ahh_l * L + ahh)
 }
 
-/// Compute gluon-heavy |OME| :math:`A_{gH}^{(1)}`
+/// Compute gluon-heavy |OME|.
 ///
-/// Defined in Eq. () of .
+/// Implements Eq. (20b) of [\[Ball:2015tna\]](crate::bib::Ball2015tna).
 pub fn A_gh(c: &mut Cache, _nf: u8, L: f64) -> Complex<f64> {
     let N = c.n;
     let agh_l1 = (2. + N + N.powu(2)) / (N * (N.powu(2) - 1.));
@@ -41,9 +37,9 @@ pub fn A_gh(c: &mut Cache, _nf: u8, L: f64) -> Complex<f64> {
     2. * CF * (agh_l0 + agh_l1 * L)
 }
 
-/// Compute heavy-gluon |OME| :math:`A_{Hg}^{(1)}`
+/// Compute heavy-gluon |OME|.
 ///
-/// Defined in Eq. () of .
+/// Implements Eq. (B.2) of [\[Buza:1996wv\]](crate::bib::Buza1996wv).
 pub fn A_hg(c: &mut Cache, _nf: u8, L: f64) -> Complex<f64> {
     let N = c.n;
     let den = 1. / (N * (N + 1.) * (2. + N));
@@ -51,14 +47,14 @@ pub fn A_hg(c: &mut Cache, _nf: u8, L: f64) -> Complex<f64> {
     num * den * L
 }
 
-/// Compute gluon-gluon |OME| :math:`A_{gg}^{(1)}`
+/// Compute gluon-gluon |OME|.
 ///
-/// Defined in Eq. () of .
+/// Implements Eq. (B.6) of [\[Buza:1996wv\]](crate::bib::Buza1996wv).
 pub fn A_gg(_c: &mut Cache, _nf: u8, L: f64) -> Complex<f64> {
-    (-2.0 / 3.0 * L).into()
+    cmplx![-2.0 / 3.0 * L, 0.]
 }
 
-/// Compute the |NLO| singlet |OME|
+/// Compute the |NLO| singlet |OME|.
 pub fn A_singlet(c: &mut Cache, _nf: u8, L: f64) -> [[Complex<f64>; 3]; 3] {
     [
         [A_gg(c, _nf, L), Complex::<f64>::zero(), A_gh(c, _nf, L)],
@@ -71,7 +67,7 @@ pub fn A_singlet(c: &mut Cache, _nf: u8, L: f64) -> [[Complex<f64>; 3]; 3] {
     ]
 }
 
-/// Compute the |NLO| non singlet |OME|
+/// Compute the |NLO| non-singlet |OME|.
 pub fn A_ns(c: &mut Cache, _nf: u8, L: f64) -> [[Complex<f64>; 2]; 2] {
     [
         [Complex::<f64>::zero(), Complex::<f64>::zero()],

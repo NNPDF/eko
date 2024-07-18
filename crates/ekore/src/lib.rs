@@ -1,4 +1,4 @@
-//! Library for anomalous dimension in DGLAP and transition matrix elements.
+//! Library for anomalous dimension in |DGLAP| and |OME|.
 
 // Let's stick to the original names which often come from FORTRAN, where such convention do not exists
 #![allow(non_snake_case)]

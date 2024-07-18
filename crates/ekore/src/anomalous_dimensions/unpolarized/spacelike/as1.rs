@@ -1,4 +1,4 @@
-//! LO QCD
+//! |LO| |QCD|.
 
 use num::complex::Complex;
 
