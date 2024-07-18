@@ -1,5 +1,5 @@
 diff --git a/src/eko/evolution_operator/operator_matrix_element.py b/src/eko/evolution_operator/operator_matrix_element.py
-index 202fd18d..3bdabab7 100644
+index 202fd18d..5b0716cf 100644
 --- a/src/eko/evolution_operator/operator_matrix_element.py
 +++ b/src/eko/evolution_operator/operator_matrix_element.py
 @@ -1,11 +1,13 @@
@@ -222,7 +222,7 @@ index 202fd18d..3bdabab7 100644
 +                cfg.mode1 = label[1]
 +                # construct the low level object
 +                func = LowLevelCallable(
-+                    ekors.lib.rust_quad_ker_ome, ekors.ffi.addressof(cfg)
++                    ekors.lib.rust_quad_ker_qcd, ekors.ffi.addressof(cfg)
 +                )
 +                res = integrate.quad(
 +                    func,

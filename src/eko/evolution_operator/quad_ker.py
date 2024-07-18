@@ -273,7 +273,7 @@ def cb_quad_ker_ome(
         A = sv.exponentiated.gamma_variation(A, order, nf, Lsv)
 
     # TODO recover InversionMethod
-    backward_method = "exact"
+    backward_method = ""
 
     # build the expansion in alpha_s depending on the strategy
     ker = build_ome(A, order, as1, backward_method)
