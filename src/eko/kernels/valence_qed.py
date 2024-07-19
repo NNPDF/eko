@@ -2,6 +2,7 @@
 
 import numba as nb
 
+from . import EvoMethods
 from .singlet_qed import eko_iterate
 
 
@@ -14,7 +15,7 @@ def dispatcher(
     a_half,
     nf,
     ev_op_iterations,
-    ev_op_max_order,
+    _ev_op_max_order,
 ):
     """
     Determine used kernel and call it.
@@ -45,7 +46,7 @@ def dispatcher(
         e_v : numpy.ndarray
             singlet EKO
     """
-    if method in ["iterate-exact", "iterate-expanded"]:
+    if method in [EvoMethods.ITERATE_EXACT, EvoMethods.ITERATE_EXPANDED]:
         return eko_iterate(
             gamma_valence, as_list, a_half, nf, order, ev_op_iterations, 2
         )

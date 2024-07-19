@@ -3,6 +3,7 @@ import pytest
 
 from eko import basis_rotation as br
 from eko.couplings import Couplings
+from eko.kernels import EvoMethods
 from eko.kernels import non_singlet_qed as ns
 from eko.quantities.couplings import CouplingEvolutionMethod, CouplingsInfo
 from eko.quantities.heavy_quarks import QuarkMassScheme
@@ -14,7 +15,7 @@ methods = [
     # "perturbative-expanded",
     # "truncated",
     # "ordered-truncated",
-    "iterate-exact",
+    EvoMethods.ITERATE_EXACT,
     # "decompose-exact",
     # "perturbative-exact",
 ]
