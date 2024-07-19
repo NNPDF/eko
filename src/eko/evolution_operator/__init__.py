@@ -20,6 +20,7 @@ import ekore.anomalous_dimensions.unpolarized.time_like as ad_ut
 from .. import basis_rotation as br
 from .. import interpolation, mellin
 from .. import scale_variations as sv
+from ..kernels import ev_method
 from ..kernels import non_singlet as ns
 from ..kernels import non_singlet_qed as qed_ns
 from ..kernels import singlet as s
@@ -779,6 +780,11 @@ class Operator(sv.ScaleVariationModeMixin):
             else:
                 labels.extend(br.singlet_unified_labels)
         return labels
+
+    @property
+    def ev_method(self):
+        """Return the evolution method."""
+        return ev_method(self.config["method"])
 
     def quad_ker(self, label, logx, areas):
         """Return partially initialized integrand function.
