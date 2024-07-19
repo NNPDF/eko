@@ -11,6 +11,7 @@ from eko import interpolation, mellin
 from eko.evolution_operator import Operator, quad_ker
 from eko.interpolation import InterpolatorDispatcher
 from eko.io.runcards import OperatorCard, ScaleVariationsMethod, TheoryCard
+from eko.kernels import EvoMethods
 from eko.kernels import non_singlet as ns
 from eko.kernels import non_singlet_qed as qed_ns
 from eko.kernels import singlet as s
@@ -25,7 +26,7 @@ def test_quad_ker_errors():
                 order=(1, 0),
                 mode0=mode0,
                 mode1=0,
-                method="",
+                method="iterate-exact",
                 is_log=True,
                 logx=np.log(0.1),
                 areas=[[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]],
@@ -60,15 +61,29 @@ def test_quad_ker(monkeypatch):
     monkeypatch.setattr(qed_ns, "dispatcher", lambda *args: 1.0)
     monkeypatch.setattr(s, "dispatcher", lambda *args: np.identity(2))
     params = [
-        ((1, 0), br.non_singlet_pids_map["ns+"], 0, "", 0.0, 0.0),
-        ((1, 0), br.non_singlet_pids_map["ns+"], 0, "", 0.123, 1.0),
-        ((3, 1), br.non_singlet_pids_map["ns+u"], 0, "", 0.0, 0.0),
-        ((1, 0), 100, 100, "", 0.123, 1.0),
-        ((1, 0), 100, 21, "", 0.0, 0.0),
-        ((1, 1), 100, 100, "iterate-exact", 0.123, 1.0),
-        ((1, 1), 100, 21, "iterate-exact", 0.123, 0.0),
-        ((1, 1), 10200, 10200, "iterate-exact", 0.123, 1.0),
-        ((1, 1), 10200, 10204, "iterate-exact", 0.123, 0.0),
+        ((1, 0), br.non_singlet_pids_map["ns+"], 0, EvoMethods.ITERATE_EXACT, 0.0, 0.0),
+        (
+            (1, 0),
+            br.non_singlet_pids_map["ns+"],
+            0,
+            EvoMethods.ITERATE_EXACT,
+            0.123,
+            1.0,
+        ),
+        (
+            (3, 1),
+            br.non_singlet_pids_map["ns+u"],
+            0,
+            EvoMethods.ITERATE_EXACT,
+            0.0,
+            0.0,
+        ),
+        ((1, 0), 100, 100, EvoMethods.ITERATE_EXACT, 0.123, 1.0),
+        ((1, 0), 100, 21, EvoMethods.ITERATE_EXACT, 0.0, 0.0),
+        ((1, 1), 100, 100, EvoMethods.ITERATE_EXACT, 0.123, 1.0),
+        ((1, 1), 100, 21, EvoMethods.ITERATE_EXACT, 0.123, 0.0),
+        ((1, 1), 10200, 10200, EvoMethods.ITERATE_EXACT, 0.123, 1.0),
+        ((1, 1), 10200, 10204, EvoMethods.ITERATE_EXACT, 0.123, 0.0),
     ]
     for order, mode0, mode1, method, logx, res in params:
         for is_log in [True, False]:
@@ -107,7 +122,7 @@ def test_quad_ker(monkeypatch):
                     order=(1, 0),
                     mode0=label[0],
                     mode1=label[1],
-                    method="",
+                    method=EvoMethods.ITERATE_EXACT,
                     is_log=True,
                     logx=0.123,
                     areas=np.zeros(3),
@@ -143,7 +158,7 @@ def test_quad_ker(monkeypatch):
                 order=(1, 1),
                 mode0=label[0],
                 mode1=label[1],
-                method="iterate-exact",
+                method=EvoMethods.ITERATE_EXACT,
                 is_log=True,
                 logx=0.123,
                 areas=np.zeros(3),
@@ -171,7 +186,7 @@ def test_quad_ker(monkeypatch):
         order=(1, 0),
         mode0=br.non_singlet_pids_map["ns+"],
         mode1=0,
-        method="",
+        method=EvoMethods.ITERATE_EXACT,
         is_log=True,
         logx=0.0,
         areas=np.zeros(3),
@@ -436,7 +451,7 @@ def test_pegasus_path():
     order = (2, 0)
     mode0 = br.non_singlet_pids_map["ns+"]
     mode1 = 0
-    method = ""
+    method = EvoMethods.ITERATE_EXACT
     logxs = np.log(int_disp.xgrid.raw)
     a1 = 1
     a0 = 2
