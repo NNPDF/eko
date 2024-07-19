@@ -2,6 +2,8 @@
 
 import enum
 
+from ..io.types import EvolutionMethod
+
 
 class EvoMethods(enum.IntEnum):
     """Enumerate evolution methods."""
@@ -16,8 +18,8 @@ class EvoMethods(enum.IntEnum):
     DECOMPOSE_EXPANDED = enum.auto()
 
 
-def ev_method(s: EvoMethods) -> EvoMethods:
-    """Return the evolution methods.
+def ev_method(s: EvolutionMethod) -> EvoMethods:
+    """Return the evolution method.
 
     Parameters
     ----------
