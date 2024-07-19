@@ -600,7 +600,7 @@ def quad_ker_qed(
     return ker
 
 
-class Operator(sv.ModeMixin):
+class Operator(sv.ScaleVariationModeMixin):
     """Internal representation of a single EKO.
 
     The actual matrices are computed upon calling :meth:`compute`.

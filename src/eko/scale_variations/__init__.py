@@ -36,7 +36,7 @@ def sv_mode(s):
     return Modes.unvaried
 
 
-class ModeMixin:
+class ScaleVariationModeMixin:
     """Mixin to cast scale variation mode."""
 
     @property
