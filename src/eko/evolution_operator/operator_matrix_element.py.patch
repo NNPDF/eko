@@ -1,5 +1,5 @@
 diff --git a/src/eko/evolution_operator/operator_matrix_element.py b/src/eko/evolution_operator/operator_matrix_element.py
-index 202fd18d..5b0716cf 100644
+index 202fd18d..3e24870d 100644
 --- a/src/eko/evolution_operator/operator_matrix_element.py
 +++ b/src/eko/evolution_operator/operator_matrix_element.py
 @@ -1,11 +1,13 @@
@@ -27,7 +27,16 @@ index 202fd18d..5b0716cf 100644
 
  logger = logging.getLogger(__name__)
 
-@@ -73,106 +76,6 @@ def build_ome(A, matching_order, a_s, backward_method):
+@@ -49,8 +52,6 @@ def build_ome(A, matching_order, a_s, backward_method):
+     # Print;
+     # .end
+     ome = np.eye(len(A[0]), dtype=np.complex_)
+-    A = A[:, :, :]
+-    A = np.ascontiguousarray(A)
+     if backward_method is InversionMethod.EXPANDED:
+         # expended inverse
+         if matching_order[0] >= 1:
+@@ -73,106 +74,6 @@ def build_ome(A, matching_order, a_s, backward_method):
      return ome
 
 
@@ -134,33 +143,27 @@ index 202fd18d..5b0716cf 100644
  class OperatorMatrixElement(Operator):
      r"""
      Internal representation of a single |OME|.
-@@ -267,41 +170,84 @@ class OperatorMatrixElement(Operator):
+@@ -267,41 +168,14 @@ class OperatorMatrixElement(Operator):
                  )
          return labels
 
 -    def quad_ker(self, label, logx, areas):
 -        """Return partially initialized integrand function.
-+    def run_op_integration(self, log_grid):
-+        """Run the integration for each grid point.
-
-         Parameters
-         ----------
+-
+-        Parameters
+-        ----------
 -        label: tuple
 -            operator element pids
 -        logx: float
 -            Mellin inversion point
 -        areas : tuple
 -            basis function configuration
-+        log_grid : tuple(k, logx)
-+            log grid point with relative index
-
-         Returns
-         -------
+-
+-        Returns
+-        -------
 -        functools.partial
 -            partially initialized integration kernel
-+        list
-+            computed operators at the give grid point
-         """
+-        """
 -        return functools.partial(
 -            quad_ker,
 -            order=self.order,
@@ -178,71 +181,15 @@ index 202fd18d..5b0716cf 100644
 -            is_msbar=self.is_msbar,
 -            is_polarized=self.config["polarized"],
 -            is_time_like=self.config["time_like"],
-+        column = []
-+        k, logx = log_grid
-+        # call(!) self.labels only once
-+        labels = self.labels
-+        start_time = time.perf_counter()
-+        # start preparing C arguments
-+        cfg = ekors.lib.empty_qcd_args()
-+        cfg.order_qcd = self.order[0]
-+        cfg.is_polarized = self.config["polarized"]
-+        cfg.is_time_like = self.config["time_like"]
-+        cfg.nf = self.nf
+-        )
++    def update_cfg(self, cfg):
++        """Adjust integration config."""
++        cfg.is_ome = True
 +        cfg.py = ekors.ffi.cast("void *", cb_quad_ker_ome.address)
-+        cfg.is_log = self.int_disp.log
-+        cfg.logx = logx
 +        cfg.L = self.L
 +        cfg.as1 = self.a_s
 +        cfg.as0 = 0.
 +        cfg.Lsv = np.log(self.xif2)
-+
-+        # iterate basis functions
-+        for l, bf in enumerate(self.int_disp):
-+            if k == l and l == self.grid_size - 1:
-+                continue
-+            # add emtpy labels with 0s
-+            if bf.is_below_x(np.exp(logx)):
-+                column.append({label: (0.0, 0.0) for label in labels})
-+                continue
-+            temp_dict = {}
-+            # prepare areas for C
-+            curareas = bf.areas_representation
-+            areas_len = curareas.shape[0] * curareas.shape[1]
-+            # force the variable in scope
-+            areas_ffi = ekors.ffi.new(
-+                f"double[{areas_len}]", curareas.flatten().tolist()
-+            )
-+            cfg.areas = areas_ffi
-+            cfg.areas_x = curareas.shape[0]
-+            cfg.areas_y = curareas.shape[1]
-+            # iterate sectors
-+            for label in labels:
-+                cfg.mode0 = label[0]
-+                cfg.mode1 = label[1]
-+                # construct the low level object
-+                func = LowLevelCallable(
-+                    ekors.lib.rust_quad_ker_qcd, ekors.ffi.addressof(cfg)
-+                )
-+                res = integrate.quad(
-+                    func,
-+                    0.5,
-+                    1.0 - self._mellin_cut,
-+                    epsabs=1e-12,
-+                    epsrel=1e-5,
-+                    limit=100,
-+                    full_output=1,
-+                )
-+                temp_dict[label] = res[:2]
-+            column.append(temp_dict)
-+        logger.info(
-+            "%s: computing operators - %u/%u took: %6f s",
-+            self.log_label,
-+            k + 1,
-+            self.grid_size,
-+            (time.perf_counter() - start_time),
-         )
-+        return column
 
      @property
      def a_s(self):
