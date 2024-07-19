@@ -1,5 +1,5 @@
 diff --git a/src/eko/evolution_operator/__init__.py b/src/eko/evolution_operator/__init__.py
-index 1c759c5c..3cf678f2 100644
+index 1c759c5c..5ff2d867 100644
 --- a/src/eko/evolution_operator/__init__.py
 +++ b/src/eko/evolution_operator/__init__.py
 @@ -3,15 +3,15 @@ r"""Contains the central operator classes.
@@ -621,11 +621,11 @@ index 1c759c5c..3cf678f2 100644
 +        cfg.nf = self.nf
 +        cfg.is_log = self.int_disp.log
 +        cfg.logx = logx
-+        cfg.L = np.log(self.xif2)
++        cfg.Lsv = np.log(self.xif2)
 +        cfg.method_num = 1
 +        cfg.ev_op_iterations = self.config["ev_op_iterations"]
 +        cfg.ev_op_max_order_qcd = self.config["ev_op_max_order"][0]
-+        cfg.sv_mode_num = 1
++        cfg.sv_mode_num = self.sv_mode
 +        cfg.is_threshold = self.is_threshold
 +        self.update_cfg(cfg)
 +

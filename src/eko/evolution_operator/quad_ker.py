@@ -88,15 +88,15 @@ def cb_quad_ker_qcd(
     areas_raw,
     areas_x,
     areas_y,
-    L,
+    _L,
     _method_num,
     as1,
     as0,
     ev_op_iterations,
     ev_op_max_order_qcd,
-    _sv_mode_num,
+    sv_mode,
     is_threshold,
-    _Lsv,
+    Lsv,
 ):
     """C Callback inside integration kernel."""
     # recover complex variables
@@ -107,7 +107,6 @@ def cb_quad_ker_qcd(
     pj = interpolation.evaluate_grid(n, is_log, logx, areas)
     # TODO recover parameters
     method = "iterate-exact"
-    sv_mode = sv.Modes.exponentiated
     order = (order_qcd, 0)
     ev_op_max_order = (ev_op_max_order_qcd, 0)
     if is_singlet:
@@ -117,7 +116,7 @@ def cb_quad_ker_qcd(
         gamma_singlet = re_gamma_singlet + im_gamma_singlet * 1j
         if sv_mode == sv.Modes.exponentiated:
             gamma_singlet = sv.exponentiated.gamma_variation(
-                gamma_singlet, order, nf, L
+                gamma_singlet, order, nf, Lsv
             )
         # construct eko
         ker = s.dispatcher(
@@ -133,7 +132,7 @@ def cb_quad_ker_qcd(
         # scale var expanded is applied on the kernel
         if sv_mode == sv.Modes.expanded and not is_threshold:
             ker = np.ascontiguousarray(
-                sv.expanded.singlet_variation(gamma_singlet, as1, order, nf, L, dim=2)
+                sv.expanded.singlet_variation(gamma_singlet, as1, order, nf, Lsv, dim=2)
             ) @ np.ascontiguousarray(ker)
         ker = select_singlet_element(ker, mode0, mode1)
     else:
@@ -142,7 +141,7 @@ def cb_quad_ker_qcd(
         im_gamma_ns = nb.carray(im_gamma_raw, order_qcd)
         gamma_ns = re_gamma_ns + im_gamma_ns * 1j
         if sv_mode == sv.Modes.exponentiated:
-            gamma_ns = sv.exponentiated.gamma_variation(gamma_ns, order, nf, L)
+            gamma_ns = sv.exponentiated.gamma_variation(gamma_ns, order, nf, Lsv)
         # construct eko
         ker = ns.dispatcher(
             order,
@@ -154,7 +153,7 @@ def cb_quad_ker_qcd(
             ev_op_iterations,
         )
         if sv_mode == sv.Modes.expanded and not is_threshold:
-            ker = sv.expanded.non_singlet_variation(gamma_ns, as1, order, nf, L) * ker
+            ker = sv.expanded.non_singlet_variation(gamma_ns, as1, order, nf, Lsv) * ker
     # recombine everything
     res = ker * pj * jac
     return np.real(res)
@@ -241,7 +240,7 @@ def cb_quad_ker_ome(
     _as0,
     _ev_op_iterations,
     _ev_op_max_order_qcd,
-    _sv_mode_num,
+    sv_mode,
     _is_threshold,
     Lsv,
 ):
@@ -253,7 +252,6 @@ def cb_quad_ker_ome(
     areas = nb.carray(areas_raw, (areas_x, areas_y))
     pj = interpolation.evaluate_grid(n, is_log, logx, areas)
     # TODO recover parameters
-    sv_mode = sv.Modes.exponentiated
     order = (order_qcd, 0)
     if is_singlet:
         indices = {21: 0, 100: 1, 90: 2}
@@ -273,7 +271,7 @@ def cb_quad_ker_ome(
         A = sv.exponentiated.gamma_variation(A, order, nf, Lsv)
 
     # TODO recover InversionMethod
-    backward_method = ""
+    backward_method = None
 
     # build the expansion in alpha_s depending on the strategy
     ker = build_ome(A, order, as1, backward_method)
