@@ -44,7 +44,7 @@ def matching_method(s: InversionMethod) -> MatchingMethods:
 
     """
     if s is not None:
-        return MatchingMethods[s.value.upper()]
+        return MatchingMethods["BACKWARD_" + s.value.upper()]
     return MatchingMethods.FORWARD
 
 
