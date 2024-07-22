@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 
 
 class MatchingMethods(enum.IntEnum):
-    """Enumerate backward methods."""
+    """Enumerate matching methods."""
 
     FORWARD = enum.auto()
     BACKWARD_EXACT = enum.auto()
