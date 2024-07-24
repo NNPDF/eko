@@ -24,7 +24,7 @@ def dispatcher(
     ----------
     order : tuple(int,int)
         perturbative order
-    method : str
+    method : int
         method
     gamma_singlet : numpy.ndarray
         singlet anomalous dimensions matrices
@@ -46,7 +46,7 @@ def dispatcher(
         e_v : numpy.ndarray
             singlet EKO
     """
-    if method in [EvoMethods.ITERATE_EXACT, EvoMethods.ITERATE_EXPANDED]:
+    if method is EvoMethods.ITERATE_EXACT:
         return eko_iterate(
             gamma_valence, as_list, a_half, nf, order, ev_op_iterations, 2
         )
