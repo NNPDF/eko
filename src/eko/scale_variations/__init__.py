@@ -6,29 +6,30 @@ extras folder.
 
 import enum
 
+from ..io.types import ScaleVariationsMethod
 from . import expanded, exponentiated
 
 
 class Modes(enum.IntEnum):
-    """Enumerate scale Variation modes."""
+    """Enumerate scale variation modes."""
 
     unvaried = enum.auto()
     exponentiated = enum.auto()
     expanded = enum.auto()
 
 
-def sv_mode(s):
+def sv_mode(s: ScaleVariationsMethod) -> Modes:
     """Return the scale variation mode.
 
     Parameters
     ----------
-    s : str
+    s :
         string representation
 
     Returns
     -------
-    enum.IntEnum
-        enum representation
+    i :
+        int representation
 
     """
     if s is not None:
@@ -36,10 +37,10 @@ def sv_mode(s):
     return Modes.unvaried
 
 
-class ModeMixin:
+class ScaleVariationModeMixin:
     """Mixin to cast scale variation mode."""
 
     @property
-    def sv_mode(self):
+    def sv_mode(self) -> Modes:
         """Return the scale variation mode."""
         return sv_mode(self.config["ModSV"])

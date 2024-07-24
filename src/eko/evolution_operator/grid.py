@@ -29,7 +29,7 @@ OpDict = Dict[str, Optional[npt.NDArray]]
 """In particular, only the ``operator`` and ``error`` fields are expected."""
 
 
-class OperatorGrid(sv.ModeMixin):
+class OperatorGrid(sv.ScaleVariationModeMixin):
     """Collection of evolution operators for several scales.
 
     The operator grid is the driver class of the evolution.
