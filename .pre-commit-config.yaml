@@ -32,7 +32,7 @@ repos:
       - id: isort
         args: ["--profile", "black"]
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.16.0
+    rev: v3.17.0
     hooks:
       - id: pyupgrade
   - repo: https://github.com/pycqa/pydocstyle
@@ -53,6 +53,6 @@ repos:
       files: ^crates/.*\.rs$
       args: []
   - repo: https://github.com/pre-commit/pre-commit
-    rev: v3.7.1
+    rev: v3.8.0
     hooks:
       - id: validate_manifest
