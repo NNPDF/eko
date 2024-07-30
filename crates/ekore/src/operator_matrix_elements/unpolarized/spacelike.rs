@@ -3,6 +3,7 @@ use crate::harmonics::cache::Cache;
 use num::complex::Complex;
 use num::Zero;
 pub mod as1;
+pub mod as2;
 
 /// Compute the tower of the singlet |OME|.
 pub fn A_singlet(
