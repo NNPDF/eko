@@ -6,8 +6,8 @@ previously instantiated information and does the actual computation of the Q2s.
 """
 
 import logging
-from dataclasses import astuple
-from typing import Dict, List, Optional
+from dataclasses import dataclass
+from typing import Any, Dict, List, Optional
 
 import numpy as np
 import numpy.typing as npt
@@ -18,15 +18,24 @@ from ..couplings import Couplings
 from ..interpolation import InterpolatorDispatcher
 from ..io.runcards import Configs, Debug
 from ..io.types import EvolutionPoint as EPoint
-from ..io.types import Order
+from ..io.types import Order, SquaredScale
 from ..matchings import Atlas, Segment, flavor_shift, is_downward_path
-from . import Operator, flavors, matching_condition, physical
+from . import Operator, OpMembers, flavors, matching_condition, physical
 from .operator_matrix_element import OperatorMatrixElement
 
 logger = logging.getLogger(__name__)
 
 OpDict = Dict[str, Optional[npt.NDArray]]
 """In particular, only the ``operator`` and ``error`` fields are expected."""
+
+
+@dataclass(frozen=True)
+class Managers:
+    """Set of steering objects."""
+
+    atlas: Atlas
+    couplings: Couplings
+    interpolator: InterpolatorDispatcher
 
 
 class OperatorGrid(sv.ScaleVariationModeMixin):
@@ -64,7 +73,7 @@ class OperatorGrid(sv.ScaleVariationModeMixin):
         use_fhmruvv: bool,
     ):
         # check
-        config = {}
+        config: Dict[str, Any] = {}
         config["order"] = order
         config["intrinsic_range"] = intrinsic_flavors
         config["xif2"] = xif**2
@@ -95,13 +104,13 @@ class OperatorGrid(sv.ScaleVariationModeMixin):
 
         self.config = config
         self.q2_grid = mu2grid
-        self.managers = dict(
-            thresholds_config=atlas,
+        self.managers = Managers(
+            atlas=atlas,
             couplings=couplings,
-            interpol_dispatcher=interpol_dispatcher,
+            interpolator=interpol_dispatcher,
         )
-        self._threshold_operators = {}
-        self._matching_operators = {}
+        self._threshold_operators: Dict[Segment, Operator] = {}
+        self._matching_operators: Dict[SquaredScale, OpMembers] = {}
 
     def get_threshold_operators(self, path: List[Segment]) -> List[Operator]:
         """Generate the threshold operators.
@@ -123,7 +132,6 @@ class OperatorGrid(sv.ScaleVariationModeMixin):
         is_downward = is_downward_path(path)
         shift = flavor_shift(is_downward)
         for seg in path[:-1]:
-            new_op_key = astuple(seg)
             kthr = self.config["thresholds_ratios"][seg.nf - shift]
             ome = OperatorMatrixElement(
                 self.config,
@@ -134,13 +142,13 @@ class OperatorGrid(sv.ScaleVariationModeMixin):
                 np.log(kthr),
                 self.config["HQ"] == "MSBAR",
             )
-            if new_op_key not in self._threshold_operators:
+            if seg not in self._threshold_operators:
                 # Compute the operator and store it
                 logger.info("Prepare threshold operator")
                 op_th = Operator(self.config, self.managers, seg, is_threshold=True)
                 op_th.compute()
-                self._threshold_operators[new_op_key] = op_th
-            thr_ops.append(self._threshold_operators[new_op_key])
+                self._threshold_operators[seg] = op_th
+            thr_ops.append(self._threshold_operators[seg])
 
             # Compute the matching conditions and store it
             if seg.target not in self._matching_operators:
@@ -159,7 +167,7 @@ class OperatorGrid(sv.ScaleVariationModeMixin):
 
         """
         # The lists of areas as produced by the thresholds
-        path = self.managers["thresholds_config"].path(q2)
+        path = self.managers.atlas.path(q2)
         # Prepare the path for the composition of the operator
         thr_ops = self.get_threshold_operators(path)
         # we start composing with the highest operator ...

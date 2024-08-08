@@ -2,6 +2,7 @@
 
 import copy
 import math
+from typing import Any, Dict
 
 import numpy as np
 
@@ -81,7 +82,7 @@ def build_alphas(
         info file section in lhapdf format
     """
     # start with meta stuff
-    template_info = {}
+    template_info: Dict[str, Any] = {}
     template_info["AlphaS_MZ"] = theory_card.couplings.alphas
     template_info["AlphaS_OrderQCD"] = theory_card.order[0] - 1
     # prepare

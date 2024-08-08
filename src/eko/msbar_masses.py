@@ -396,7 +396,7 @@ def compute(
     heavy_quarks = quark_names[3:]
     hq_idxs = np.arange(0, 3)
     if nf_ref > 4:
-        heavy_quarks = reversed(heavy_quarks)
+        heavy_quarks = "".join(reversed(heavy_quarks))
         hq_idxs = reversed(hq_idxs)
 
     # loop on heavy quarks and compute the msbar masses

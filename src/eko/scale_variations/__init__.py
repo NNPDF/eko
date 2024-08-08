@@ -5,6 +5,7 @@ extras folder.
 """
 
 import enum
+from typing import Any, Dict
 
 from ..io.types import ScaleVariationsMethod
 from . import expanded, exponentiated
@@ -39,6 +40,8 @@ def sv_mode(s: ScaleVariationsMethod) -> Modes:
 
 class ScaleVariationModeMixin:
     """Mixin to cast scale variation mode."""
+
+    config: Dict[str, Any]
 
     @property
     def sv_mode(self) -> Modes:

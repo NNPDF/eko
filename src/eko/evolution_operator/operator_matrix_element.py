@@ -227,7 +227,7 @@ class OperatorMatrixElement(Operator):
 
     log_label = "Matching"
     # complete list of possible matching operators labels
-    full_labels = [
+    full_labels = (
         *br.singlet_labels,
         (br.matching_hplus_pid, 21),
         (br.matching_hplus_pid, 100),
@@ -238,7 +238,7 @@ class OperatorMatrixElement(Operator):
         (200, br.matching_hminus_pid),
         (br.matching_hminus_pid, 200),
         (br.matching_hminus_pid, br.matching_hminus_pid),
-    ]
+    )
     # still valid in QED since Sdelta and Vdelta matchings are diagonal
     full_labels_qed = copy.deepcopy(full_labels)
 
@@ -339,7 +339,7 @@ class OperatorMatrixElement(Operator):
 
         Note that here you need to use :math:`a_s^{n_f+1}`
         """
-        sc = self.managers["couplings"]
+        sc = self.managers.couplings
         return sc.a_s(
             self.q2_from
             * (self.xif2 if self.sv_mode == sv.Modes.exponentiated else 1.0),

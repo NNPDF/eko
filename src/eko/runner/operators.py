@@ -17,7 +17,9 @@ def retrieve(
     elements = []
     for head in headers:
         inv = parts if isinstance(head, Evolution) else parts_matching
-        elements.append(inv[head])
+        op = inv[head]
+        assert op is not None
+        elements.append(op)
 
     return elements
 
