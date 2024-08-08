@@ -2,7 +2,7 @@
 
 import io
 import pprint
-from typing import Dict, List, Tuple
+from typing import Dict, List
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -11,6 +11,7 @@ from matplotlib.cm import get_cmap
 from matplotlib.colors import LogNorm
 
 from eko import basis_rotation as br
+from eko.io import manipulate
 from eko.io.struct import EKO
 
 
@@ -211,7 +212,15 @@ def plot_operator(var_name, op, op_err, log_operator=True, abs_operator=True):
     return fig
 
 
-def save_operators_to_pdf(path, theory, ops, me: EKO, skip_pdfs, change_lab=False):
+def save_operators_to_pdf(
+    path,
+    theory,
+    ops,
+    me: EKO,
+    skip_pdfs,
+    rotate_to_evolution_basis: bool,
+    qed: bool = False,
+):
     """Output all operator heatmaps to PDF.
 
     Parameters
@@ -226,15 +235,12 @@ def save_operators_to_pdf(path, theory, ops, me: EKO, skip_pdfs, change_lab=Fals
         DGLAP result
     skip_pdfs : list
         PDF to skip
-    change_lab : bool
-        set whether to rename the labels
-
+    rotate_to_evolution_basis : bool
+        plot operators in evolution basis
+    qed : bool
+        plot operators in unified evolution basis, if the former is active
     """
-    ops_names = list(me.bases.targetpids)
-    if np.allclose(ops_names, br.rotate_flavor_to_evolution):
-        ops_names = list(br.evol_basis_pids)
-    else:
-        raise ValueError("Can not reconstruct PDF names")
+    ops_names = br.evol_basis_pids if rotate_to_evolution_basis else br.evol_basis_pids
     ops_id = f"o{ops['hash'][:6]}_t{theory['hash'][:6]}"
     path = f"{path}/{ops_id}.pdf"
     print(f"Plotting operators plots to {path}")
@@ -247,6 +253,11 @@ def save_operators_to_pdf(path, theory, ops, me: EKO, skip_pdfs, change_lab=Fals
         # plot the operators
         # it's necessary to reshuffle the eko output
         for ep, op in me.items():
+            if rotate_to_evolution_basis:
+                if not qed:
+                    op = manipulate.to_evol(op, source=True, target=True)
+                else:
+                    op = manipulate.to_uni_evol(op, source=True, target=True)
             results = op.operator
             errors = op.error
 
@@ -254,8 +265,8 @@ def save_operators_to_pdf(path, theory, ops, me: EKO, skip_pdfs, change_lab=Fals
             for label_out, res, res_err in zip(ops_names, results, errors):
                 if label_out in skip_pdfs:
                     continue
-                new_op: Dict[Tuple[int, ...], List[float]] = {}
-                new_op_err: Dict[Tuple[int, ...], List[float]] = {}
+                new_op: Dict[int, List[float]] = {}
+                new_op_err: Dict[int, List[float]] = {}
                 # loop on xgrid point
                 for j in range(len(me.xgrid)):
                     # loop on pid in
@@ -271,17 +282,10 @@ def save_operators_to_pdf(path, theory, ops, me: EKO, skip_pdfs, change_lab=Fals
                 for label_in in ops_names:
                     if label_in in skip_pdfs:
                         continue
-                    lab_in = label_in
-                    lab_out = label_out
-                    if change_lab:
-                        index_in = br.evol_basis_pids.index(label_in)
-                        index_out = br.evol_basis_pids.index(label_out)
-                        lab_in = br.evol_basis[index_in]
-                        lab_out = br.evol_basis[index_out]
                     fig = None
                     try:
                         fig = plot_operator(
-                            f"Operator ({lab_in};{lab_out}) µ_F^2 = {ep[0]} GeV^2, nf = {ep[1]}",
+                            f"Operator ({label_in};{label_out}) µ_F^2 = {ep[0]} GeV^2, nf = {ep[1]}",
                             new_op[label_in],
                             new_op_err[label_in],
                         )

@@ -91,12 +91,12 @@ def apply_pdf_flavor(
             output PDFs and their associated errors for the computed mu2grid
     """
     # create pdfs
-    pdfs = np.zeros((len(eko.bases.inputpids), len(eko.bases.inputgrid)))
-    for j, pid in enumerate(eko.bases.inputpids):
+    pdfs = np.zeros((len(br.flavor_basis_pids), len(eko.xgrid)))
+    for j, pid in enumerate(br.flavor_basis_pids):
         if not lhapdf_like.hasFlavor(pid):
             continue
         pdfs[j] = np.array(
-            [lhapdf_like.xfxQ2(pid, x, eko.mu20) / x for x in eko.bases.inputgrid.raw]
+            [lhapdf_like.xfxQ2(pid, x, eko.mu20) / x for x in eko.xgrid.raw]
         )
 
     # build output
@@ -107,9 +107,9 @@ def apply_pdf_flavor(
             error_final = np.einsum(CONTRACTION, elem.error, pdfs, optimize="optimal")
         else:
             error_final = None
-        out_grid[ep] = PdfResult(dict(zip(eko.bases.targetpids, pdf_final)))
+        out_grid[ep] = PdfResult(dict(zip(br.flavor_basis_pids, pdf_final)))
         if error_final is not None:
-            out_grid[ep].errors = dict(zip(eko.bases.targetpids, error_final))
+            out_grid[ep].errors = dict(zip(br.flavor_basis_pids, error_final))
 
     qed = eko.theory_card.order[1] > 0
     # rotate to evolution basis
@@ -132,7 +132,7 @@ def apply_pdf_flavor(
     # rotate/interpolate to target grid
     if targetgrid is not None:
         b = interpolation.InterpolatorDispatcher(
-            xgrid=eko.bases.targetgrid,
+            xgrid=eko.xgrid,
             polynomial_degree=eko.operator_card.configs.interpolation_polynomial_degree,
             mode_N=False,
         )

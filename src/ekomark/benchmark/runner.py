@@ -14,7 +14,6 @@ from banana.data import dfdict
 import eko
 from eko import EKO
 from eko import basis_rotation as br
-from eko.io import manipulate
 from ekobox import apply
 
 from .. import pdfname
@@ -117,22 +116,14 @@ class Runner(BenchmarkRunner):
                     os.makedirs(output_path)
                 # rotating to evolution basis if requested
                 with EKO.edit(path) as out_copy:
-                    change_lab = False
-                    if self.rotate_to_evolution_basis:
-                        qed = theory["QED"] > 0
-                        if not qed:
-                            manipulate.to_evol(out_copy, source=True, target=True)
-                        else:
-                            manipulate.to_uni_evol(out_copy, source=True, target=True)
-                        change_lab = True
-
                     save_operators_to_pdf(
                         output_path,
                         theory,
                         ocard,
                         out_copy,
                         self.skip_pdfs(theory),
-                        change_lab,
+                        self.rotate_to_evolution_basis,
+                        theory["QED"] > 0,
                     )
         else:
             # else we always rerun

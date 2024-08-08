@@ -17,7 +17,6 @@ import yaml
 from .. import interpolation
 from . import exceptions, raw
 from .access import AccessConfigs
-from .bases import Bases
 from .inventory import Inventory
 from .items import Evolution, Matching, Operator, Recipe, Target
 from .metadata import Metadata
@@ -107,19 +106,14 @@ class EKO:
         return InternalPaths(self.metadata.path)
 
     @property
-    def bases(self) -> Bases:
-        """Bases information."""
-        return self.metadata.bases
-
-    @property
     def xgrid(self) -> interpolation.XGrid:
         """Momentum fraction internal grid."""
-        return self.bases.xgrid
+        return self.metadata.xgrid
 
     @xgrid.setter
     def xgrid(self, value: interpolation.XGrid):
         """Set `xgrid` value."""
-        self.bases.xgrid = value
+        self.metadata.xgrid = value
         self.update()
 
     @property
@@ -554,7 +548,7 @@ class Builder:
         metadata = Metadata(
             _path=self.path,
             origin=(self.operator.mu20, self.theory.heavy.num_flavs_init),
-            bases=Bases(xgrid=self.operator.xgrid),
+            xgrid=self.operator.xgrid,
         )
         InternalPaths(self.path).bootstrap(
             theory=self.theory.raw,
