@@ -55,7 +55,7 @@ class TestCouplings:
                 alphas=alpharef[0],
                 alphaem=alpharef[1],
                 scale=muref,
-                num_flavs_ref=None,
+                num_flavs_ref=5,
                 max_num_flavs=6,
             )
         )
@@ -153,18 +153,19 @@ class TestCouplings:
             (0, np.inf, np.inf),
             (2, 4, 175),
         ]
+        nfrefs = (3, 4, 5)
         alpharef = (0.118, 0.00781)
         muref = 91.0
-        couplings = CouplingsInfo.from_dict(
-            dict(
-                alphas=alpharef[0],
-                alphaem=alpharef[1],
-                scale=muref,
-                num_flavs_ref=None,
-                max_num_flavs=6,
+        for thresh_setup, nfref in zip(thresh_setups, nfrefs):
+            couplings = CouplingsInfo.from_dict(
+                dict(
+                    alphas=alpharef[0],
+                    alphaem=alpharef[1],
+                    scale=muref,
+                    num_flavs_ref=nfref,
+                    max_num_flavs=6,
+                )
             )
-        )
-        for thresh_setup in thresh_setups:
             for order_s in [1, 2, 3, 4]:
                 for order_em in [0, 1, 2]:
                     for evmod in CouplingEvolutionMethod:
@@ -221,9 +222,10 @@ class TestCouplings:
             (0, np.inf, np.inf),
             (2, 4, 175),
         ]
+        nfrefs = (3, 4, 5)
         alpharef = np.array([0.118, 0.00781])
         muref = 91.0
-        for thresh_setup in thresh_setups:
+        for thresh_setup, nfref in zip(thresh_setups, nfrefs):
             for qcd in range(1, 4 + 1):
                 for qed in range(2 + 1):
                     for em_running in [
@@ -236,7 +238,7 @@ class TestCouplings:
                                 alphas=alpharef[0],
                                 alphaem=alpharef[1],
                                 scale=muref,
-                                num_flavs_ref=None,
+                                num_flavs_ref=nfref,
                                 max_num_flavs=6,
                                 em_running=em_running,
                             )
@@ -299,7 +301,7 @@ class TestCouplings:
             alphas=alpharef[0],
             alphaem=alpharef[1],
             scale=muref,
-            num_flavs_ref=None,
+            num_flavs_ref=5,
             max_num_flavs=6,
         )
         m2c = 2

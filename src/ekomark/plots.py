@@ -2,6 +2,7 @@
 
 import io
 import pprint
+from typing import Dict, List
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -251,7 +252,7 @@ def save_operators_to_pdf(
 
         # plot the operators
         # it's necessary to reshuffle the eko output
-        for mu2, op in me.items():
+        for ep, op in me.items():
             if rotate_to_evolution_basis:
                 if not qed:
                     op = manipulate.to_evol(op, source=True, target=True)
@@ -264,8 +265,8 @@ def save_operators_to_pdf(
             for label_out, res, res_err in zip(ops_names, results, errors):
                 if label_out in skip_pdfs:
                     continue
-                new_op = {}
-                new_op_err = {}
+                new_op: Dict[int, List[float]] = {}
+                new_op_err: Dict[int, List[float]] = {}
                 # loop on xgrid point
                 for j in range(len(me.xgrid)):
                     # loop on pid in
@@ -281,17 +282,10 @@ def save_operators_to_pdf(
                 for label_in in ops_names:
                     if label_in in skip_pdfs:
                         continue
-                    lab_in = label_in
-                    lab_out = label_out
-                    if rotate_to_evolution_basis:
-                        index_in = br.evol_basis_pids.index(label_in)
-                        index_out = br.evol_basis_pids.index(label_out)
-                        lab_in = br.evol_basis[index_in]
-                        lab_out = br.evol_basis[index_out]
                     fig = None
                     try:
                         fig = plot_operator(
-                            f"Operator ({lab_in};{lab_out}) µ_F^2 = {mu2} GeV^2",
+                            f"Operator ({label_in};{label_out}) µ_F^2 = {ep[0]} GeV^2, nf = {ep[1]}",
                             new_op[label_in],
                             new_op_err[label_in],
                         )

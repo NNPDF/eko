@@ -1,13 +1,15 @@
 """Tools to evolve actual PDFs."""
 
 import pathlib
-from collections import defaultdict
+
+import numpy as np
 
 from eko import basis_rotation as br
 from eko.io import EKO
 from eko.runner import managed
 
 from . import apply, genpdf, info_file
+from .utils import regroup_evolgrid
 
 DEFAULT_NAME = "eko.tar"
 
@@ -46,6 +48,18 @@ def evolve_pdfs(
     info_update : dict
         dict of info to add or update to default info file
     """
+    # separate by nf the evolgrid (and order per nf/q)
+    q2block_per_nf = regroup_evolgrid(operators_card.mugrid)
+
+    # check we have disjoint scale ranges
+    nfs = list(q2block_per_nf.keys())
+    for j in range(len(nfs) - 1):
+        # equal points are allowed by LHAPDF
+        if q2block_per_nf[nfs[j]][-1] > q2block_per_nf[nfs[j + 1]][0]:
+            raise ValueError(
+                f"Last scale point for nf={nfs[j]} is bigger than first in nf={nfs[j+1]}"
+            )
+
     # update op and th cards
     if path is not None:
         eko_path = pathlib.Path(path)
@@ -59,11 +73,15 @@ def evolve_pdfs(
 
     # apply PDF to eko
     evolved_PDF_list = []
+    q2block_per_nf = {}
     with EKO.read(eko_path) as eko_output:
         for initial_PDF in initial_PDF_list:
             evolved_PDF_list.append(
                 apply.apply_pdf(eko_output, initial_PDF, targetgrid)
             )
+
+        # separate by nf the evolgrid (and order per nf/q)
+        q2block_per_nf = regroup_evolgrid(eko_output.evolgrid)  # pylint: disable=E1101
 
     # update info file
     if targetgrid is None:
@@ -79,9 +97,6 @@ def evolve_pdfs(
         info_update=info_update,
     )
 
-    # separate by nf the evolgrid (and order per nf/q)
-    q2block_per_nf = regroup_evolgrid(eko_output.evolgrid)
-
     # write all replicas
     all_member_blocks = []
     for evolved_PDF in evolved_PDF_list:
@@ -93,14 +108,6 @@ def evolve_pdfs(
 
     if install:
         genpdf.install_pdf(name)
-
-
-def regroup_evolgrid(evolgrid: list):
-    """Split evolution points by nf and sort by scale."""
-    by_nf = defaultdict(list)
-    for q, nf in sorted(evolgrid, key=lambda ep: ep[1]):
-        by_nf[nf].append(q)
-    return {nf: sorted(qs) for nf, qs in by_nf.items()}
 
 
 def collect_blocks(evolved_PDF: dict, q2block_per_nf: dict, xgrid: list):
@@ -129,7 +136,7 @@ def collect_blocks(evolved_PDF: dict, q2block_per_nf: dict, xgrid: list):
             pdf_xq2,
             xgrid=xgrid,
             sorted_q2grid=q2grid,
-            pids=br.flavor_basis_pids,
+            pids=np.array(br.flavor_basis_pids),
         )
         all_blocks.append(block)
     return all_blocks

@@ -8,6 +8,7 @@ from eko import basis_rotation as br
 from eko import interpolation, mellin
 from eko import scale_variations as sv
 from eko.evolution_operator.operator_matrix_element import (
+    MatchingMethods,
     OperatorMatrixElement,
     build_ome,
     quad_ker,
@@ -33,7 +34,7 @@ def test_build_ome_as():
         aS = A_singlet((o, 0), N, nf, L, is_msbar)
 
         for a in [aNS, aS]:
-            for method in [None, InversionMethod.EXPANDED, InversionMethod.EXACT]:
+            for method in MatchingMethods:
                 dim = len(a[0])
                 if o != 1:
                     assert len(a) == o
@@ -53,7 +54,7 @@ def test_build_ome_nlo():
     aNSi = A_non_singlet((1, 0), N, nf, L)
     aSi = A_singlet((1, 0), N, nf, L, is_msbar)
     for a in [aNSi, aSi]:
-        for method in [None, InversionMethod.EXPANDED, InversionMethod.EXACT]:
+        for method in MatchingMethods:
             dim = len(a[0])
             # hh
             assert a[0, -1, -1] != 0.0
@@ -86,7 +87,7 @@ def test_quad_ker_errors():
                     is_log=True,
                     logx=0.123,
                     areas=[[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]],
-                    backward_method=None,
+                    backward_method=MatchingMethods.FORWARD,
                     a_s=0.0,
                     nf=3,
                     L=0.0,
@@ -119,7 +120,7 @@ def test_quad_ker(monkeypatch):
                     is_log=is_log,
                     logx=0.123,
                     areas=np.zeros(3),
-                    backward_method=None,
+                    backward_method=MatchingMethods.FORWARD,
                     a_s=0.0,
                     nf=3,
                     L=0.0,
@@ -138,7 +139,7 @@ def test_quad_ker(monkeypatch):
                     is_log=is_log,
                     logx=0.123,
                     areas=np.zeros(3),
-                    backward_method=None,
+                    backward_method=MatchingMethods.FORWARD,
                     a_s=0.0,
                     nf=3,
                     L=0.0,
@@ -157,7 +158,7 @@ def test_quad_ker(monkeypatch):
                     is_log=is_log,
                     logx=0.0,
                     areas=np.zeros(3),
-                    backward_method=None,
+                    backward_method=MatchingMethods.FORWARD,
                     a_s=0.0,
                     nf=3,
                     L=0.0,
@@ -191,7 +192,7 @@ def test_quad_ker(monkeypatch):
                 is_log=True,
                 logx=0.123,
                 areas=np.zeros(3),
-                backward_method=InversionMethod.EXPANDED,
+                backward_method=MatchingMethods.BACKWARD_EXPANDED,
                 a_s=0.0,
                 nf=3,
                 L=0.0,
@@ -228,7 +229,7 @@ def test_quad_ker(monkeypatch):
             is_log=True,
             logx=0.123,
             areas=np.zeros(3),
-            backward_method=InversionMethod.EXACT,
+            backward_method=MatchingMethods.BACKWARD_EXACT,
             a_s=0.0,
             nf=3,
             L=0.0,
@@ -252,7 +253,7 @@ def test_quad_ker(monkeypatch):
         is_log=True,
         logx=0.0,
         areas=np.array([0.01, 0.1, 1.0]),
-        backward_method=None,
+        backward_method=MatchingMethods.FORWARD,
         a_s=0.0,
         nf=3,
         L=0.0,
