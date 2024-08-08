@@ -35,9 +35,7 @@ class BenchmarkCouplings:
             dict(
                 alphas=0.118,
                 alphaem=7.7553e-03,
-                scale=91.2,
-                num_flavs_ref=5,
-                max_num_flavs=5,
+                ref=(91.2, 5),
                 em_running=True,
             )
         )
@@ -75,9 +73,7 @@ class BenchmarkCouplings:
             dict(
                 alphas=0.118,
                 alphaem=7.7553e-03,
-                scale=91.2,
-                num_flavs_ref=5,
-                max_num_flavs=5,
+                ref=(91.2, 5),
                 em_running=True,
             )
         )
@@ -124,9 +120,7 @@ class BenchmarkCouplings:
             dict(
                 alphas=0.118,
                 alphaem=7.7553e-03,
-                scale=91.2,
-                num_flavs_ref=5,
-                max_num_flavs=5,
+                ref=(91.2, 5),
                 em_running=True,
             )
         )

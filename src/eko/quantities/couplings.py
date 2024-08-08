@@ -5,7 +5,7 @@ import enum
 
 from ..io.dictlike import DictLike
 from ..io.types import EvolutionPoint as EPoint
-from ..io.types import FlavorsNumber, LinearScale, ReferenceRunning, Scalar
+from ..io.types import LinearScale, ReferenceRunning, Scalar
 
 Coupling = Scalar
 CouplingRef = ReferenceRunning[Coupling]

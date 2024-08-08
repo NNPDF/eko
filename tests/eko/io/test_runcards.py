@@ -5,7 +5,6 @@ import pytest
 import yaml
 
 from eko.io import runcards as rc
-from eko.io.bases import Bases
 
 
 def test_flavored_mu2grid():

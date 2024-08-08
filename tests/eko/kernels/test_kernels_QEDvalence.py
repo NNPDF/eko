@@ -1,6 +1,7 @@
 import numpy as np
 import pytest
 
+from eko.kernels import EvoMethods
 from eko.kernels import valence_qed as val
 from ekore import anomalous_dimensions
 
@@ -10,13 +11,13 @@ methods = [
     # "perturbative-expanded",
     # "truncated",
     # "ordered-truncated",
-    "iterate-exact",
+    EvoMethods.ITERATE_EXACT,
     # "decompose-exact",
     # "perturbative-exact",
 ]
 
 
-def test_zero(monkeypatch):
+def test_zero():
     """No evolution results in exp(0)"""
     nf = 3
     ev_op_iterations = 2
@@ -57,7 +58,7 @@ def test_zero(monkeypatch):
                 )
 
 
-def test_zero_true_gamma(monkeypatch):
+def test_zero_true_gamma():
     """No evolution results in exp(0)"""
     nf = 3
     ev_op_iterations = 2
@@ -101,5 +102,12 @@ def test_zero_true_gamma(monkeypatch):
 def test_error():
     with pytest.raises(NotImplementedError):
         val.dispatcher(
-            (3, 2), "AAA", np.random.rand(4, 3, 2, 2), [0.2, 0.1], [0.01], 3, 10, 10
+            (3, 2),
+            "iterate-exact",
+            np.random.rand(4, 3, 2, 2),
+            [0.2, 0.1],
+            [0.01],
+            3,
+            10,
+            10,
         )
