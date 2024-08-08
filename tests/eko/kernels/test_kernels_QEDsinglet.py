@@ -1,6 +1,7 @@
 import numpy as np
 import pytest
 
+from eko.kernels import EvoMethods
 from eko.kernels import singlet_qed as s
 from ekore.anomalous_dimensions.unpolarized import space_like as ad
 
@@ -10,7 +11,7 @@ methods = [
     # "perturbative-expanded",
     # "truncated",
     # "ordered-truncated",
-    "iterate-exact",
+    EvoMethods.ITERATE_EXACT,
     # "decompose-exact",
     # "perturbative-exact",
 ]
@@ -125,5 +126,12 @@ def test_zero_true_gamma(monkeypatch):
 def test_error():
     with pytest.raises(NotImplementedError):
         s.dispatcher(
-            (3, 2), "AAA", np.random.rand(4, 3, 2, 2), [0.2, 0.1], [0.01], 3, 10, 10
+            (3, 2),
+            "iterate-exact",
+            np.random.rand(4, 3, 2, 2),
+            [0.2, 0.1],
+            [0.01],
+            3,
+            10,
+            10,
         )

@@ -1,6 +1,7 @@
 """The |OME| for the non-trivial matching conditions in the |VFNS| evolution."""
 
 import copy
+import enum
 import functools
 import logging
 
@@ -20,6 +21,33 @@ from . import Operator, QuadKerBase
 logger = logging.getLogger(__name__)
 
 
+class MatchingMethods(enum.IntEnum):
+    """Enumerate matching methods."""
+
+    FORWARD = enum.auto()
+    BACKWARD_EXACT = enum.auto()
+    BACKWARD_EXPANDED = enum.auto()
+
+
+def matching_method(s: InversionMethod) -> MatchingMethods:
+    """Return the matching method.
+
+    Parameters
+    ----------
+    s :
+        string representation
+
+    Returns
+    -------
+    i :
+        int representation
+
+    """
+    if s is not None:
+        return MatchingMethods["BACKWARD_" + s.value.upper()]
+    return MatchingMethods.FORWARD
+
+
 @nb.njit(cache=True)
 def build_ome(A, matching_order, a_s, backward_method):
     r"""Construct the matching expansion in :math:`a_s` with the appropriate method.
@@ -32,7 +60,7 @@ def build_ome(A, matching_order, a_s, backward_method):
         perturbation matching order
     a_s : float
         strong coupling, needed only for the exact inverse
-    backward_method : InversionMethod or None
+    backward_method : MatchingMethods
         empty or method for inverting the matching condition (exact or expanded)
 
     Returns
@@ -51,7 +79,7 @@ def build_ome(A, matching_order, a_s, backward_method):
     ome = np.eye(len(A[0]), dtype=np.complex_)
     A = A[:, :, :]
     A = np.ascontiguousarray(A)
-    if backward_method is InversionMethod.EXPANDED:
+    if backward_method is MatchingMethods.BACKWARD_EXPANDED:
         # expended inverse
         if matching_order[0] >= 1:
             ome -= a_s * A[0]
@@ -68,7 +96,7 @@ def build_ome(A, matching_order, a_s, backward_method):
         if matching_order[0] >= 3:
             ome += a_s**3 * A[2]
         # need inverse exact ?  so add the missing pieces
-        if backward_method is InversionMethod.EXACT:
+        if backward_method is MatchingMethods.BACKWARD_EXACT:
             ome = np.linalg.inv(ome)
     return ome
 
@@ -216,7 +244,9 @@ class OperatorMatrixElement(Operator):
 
     def __init__(self, config, managers, nf, q2, is_backward, L, is_msbar):
         super().__init__(config, managers, Segment(q2, q2, nf))
-        self.backward_method = config["backward_inversion"] if is_backward else None
+        self.backward_method = matching_method(
+            config["backward_inversion"] if is_backward else None
+        )
         if is_backward:
             self.is_intrinsic = True
         else:
@@ -241,7 +271,7 @@ class OperatorMatrixElement(Operator):
             logger.warning("%s: skipping non-singlet sector", self.log_label)
         else:
             labels.append((200, 200))
-            if self.is_intrinsic or self.backward_method is not None:
+            if self.is_intrinsic or self.backward_method is not MatchingMethods.FORWARD:
                 # intrinsic labels, which are not zero at NLO
                 labels.append((br.matching_hminus_pid, br.matching_hminus_pid))
                 # These contributions are always 0 for the moment
@@ -257,7 +287,7 @@ class OperatorMatrixElement(Operator):
                     (br.matching_hplus_pid, 100),
                 ]
             )
-            if self.is_intrinsic or self.backward_method is not None:
+            if self.is_intrinsic or self.backward_method is not MatchingMethods.FORWARD:
                 labels.extend(
                     [
                         (21, br.matching_hplus_pid),
@@ -329,7 +359,7 @@ class OperatorMatrixElement(Operator):
             self.log_label,
             self.order[0],
             self.order[1],
-            self.backward_method,
+            MatchingMethods(self.backward_method).name,
         )
 
         self.integrate()

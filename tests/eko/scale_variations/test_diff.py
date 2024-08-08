@@ -11,7 +11,7 @@ import numpy as np
 from eko import basis_rotation as br
 from eko.beta import beta_qcd_as2, beta_qcd_as3
 from eko.couplings import CouplingEvolutionMethod, Couplings, CouplingsInfo
-from eko.kernels import non_singlet, singlet
+from eko.kernels import EvoMethods, non_singlet, singlet
 from eko.quantities.heavy_quarks import QuarkMassScheme
 from eko.scale_variations import expanded, exponentiated
 from ekore.anomalous_dimensions.unpolarized.space_like import gamma_ns, gamma_singlet
@@ -19,7 +19,7 @@ from ekore.anomalous_dimensions.unpolarized.space_like import gamma_ns, gamma_si
 NF = 4
 Q02 = 1.65**2
 Q12 = 100**2
-EV_METHOD = "truncated"
+EV_METHOD = EvoMethods.TRUNCATED
 
 
 def compute_a_s(q2, order):

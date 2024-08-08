@@ -38,7 +38,7 @@ class Managers:
     interpolator: InterpolatorDispatcher
 
 
-class OperatorGrid(sv.ModeMixin):
+class OperatorGrid(sv.ScaleVariationModeMixin):
     """Collection of evolution operators for several scales.
 
     The operator grid is the driver class of the evolution.

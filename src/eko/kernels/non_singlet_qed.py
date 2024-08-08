@@ -146,7 +146,7 @@ def as4_exact(gamma_ns, a1, a0, beta):
 @nb.njit(cache=True)
 def dispatcher(
     order,
-    method,
+    _method,
     gamma_ns,
     as_list,
     aem_half,
@@ -164,7 +164,7 @@ def dispatcher(
     ----------
     order : tuple(int,int)
         perturbation order
-    method : str
+    method : int
         method
     gamma_ns : numpy.ndarray
         non-singlet anomalous dimensions
