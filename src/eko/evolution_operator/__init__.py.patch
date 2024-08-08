@@ -1,5 +1,5 @@
 diff --git a/src/eko/evolution_operator/__init__.py b/src/eko/evolution_operator/__init__.py
-index 1c759c5c..5eb394d0 100644
+index ec56b6db..374d0d0b 100644
 --- a/src/eko/evolution_operator/__init__.py
 +++ b/src/eko/evolution_operator/__init__.py
 @@ -3,15 +3,15 @@ r"""Contains the central operator classes.
@@ -20,7 +20,7 @@ index 1c759c5c..5eb394d0 100644
 
  import ekore.anomalous_dimensions.polarized.space_like as ad_ps
  import ekore.anomalous_dimensions.unpolarized.space_like as ad_us
-@@ -27,92 +27,10 @@ from ..kernels import singlet_qed as qed_s
+@@ -29,92 +29,10 @@ from ..kernels import singlet_qed as qed_s
  from ..kernels import valence_qed as qed_v
  from ..matchings import Segment, lepton_number
  from ..member import OpMember
@@ -114,7 +114,7 @@ index 1c759c5c..5eb394d0 100644
  spec = [
      ("is_singlet", nb.boolean),
      ("is_QEDsinglet", nb.boolean),
-@@ -184,422 +102,6 @@ class QuadKerBase:
+@@ -186,422 +104,6 @@ class QuadKerBase:
          return self.path.prefactor * pj * self.path.jac
 
 
@@ -537,9 +537,9 @@ index 1c759c5c..5eb394d0 100644
  class Operator(sv.ScaleVariationModeMixin):
      """Internal representation of a single EKO.
 
-@@ -780,50 +282,6 @@ class Operator(sv.ScaleVariationModeMixin):
-                 labels.extend(br.singlet_unified_labels)
-         return labels
+@@ -787,50 +289,6 @@ class Operator(sv.ScaleVariationModeMixin):
+         """Return the evolution method."""
+         return ev_method(EvolutionMethod(self.config["method"]))
 
 -    def quad_ker(self, label, logx, areas):
 -        """Return partially initialized integrand function.
@@ -564,7 +564,7 @@ index 1c759c5c..5eb394d0 100644
 -            order=self.order,
 -            mode0=label[0],
 -            mode1=label[1],
--            method=self.config["method"],
+-            method=self.ev_method,
 -            is_log=self.int_disp.log,
 -            logx=logx,
 -            areas=areas,
@@ -588,7 +588,7 @@ index 1c759c5c..5eb394d0 100644
      def initialize_op_members(self):
          """Init all operators with the identity or zeros."""
          eye = OpMember(
-@@ -846,10 +304,7 @@ class Operator(sv.ScaleVariationModeMixin):
+@@ -853,10 +311,7 @@ class Operator(sv.ScaleVariationModeMixin):
              else:
                  self.op_members[n] = zero.copy()
 
@@ -600,7 +600,7 @@ index 1c759c5c..5eb394d0 100644
          """Run the integration for each grid point.
 
          Parameters
-@@ -864,18 +319,56 @@ class Operator(sv.ScaleVariationModeMixin):
+@@ -871,18 +326,56 @@ class Operator(sv.ScaleVariationModeMixin):
          """
          column = []
          k, logx = log_grid
