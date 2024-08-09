@@ -340,7 +340,7 @@ class EKO:
 
         Note
         ----
-        No archive path is assigned to the :cls:`EKO` object, setting its
+        No archive path is assigned to the :class:`EKO` object, setting its
         :attr:`EKO.access.path` to `None`.
         If you want to properly load from an archive, use the :meth:`read`
         constructor.
