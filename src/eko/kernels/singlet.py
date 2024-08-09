@@ -6,9 +6,9 @@ import numpy as np
 from ekore import anomalous_dimensions as ad
 
 from .. import beta
+from . import EvoMethods
 from . import as4_evolution_integrals as as4_ei
 from . import evolution_integrals as ei
-from . import utils
 
 
 @nb.njit(cache=True)
@@ -323,7 +323,7 @@ def eko_iterate(gamma_singlet, a1, a0, beta_vec, order, ev_op_iterations):
     numpy.ndarray
         singlet iterated (exact) EKO
     """
-    a_steps = utils.geomspace(a0, a1, 1 + ev_op_iterations)
+    a_steps = np.geomspace(a0, a1, 1 + ev_op_iterations)
     e = np.identity(2, np.complex_)
     al = a_steps[0]
     for ah in a_steps[1:]:
@@ -500,7 +500,7 @@ def eko_perturbative(
     uk = u_vec(r, ev_op_max_order)
     e = np.identity(2, np.complex_)
     # iterate elements
-    a_steps = utils.geomspace(a0, a1, 1 + ev_op_iterations)
+    a_steps = np.geomspace(a0, a1, 1 + ev_op_iterations)
     al = a_steps[0]
     for ah in a_steps[1:]:
         e0 = lo_exact(gamma_singlet, ah, al, beta)
@@ -542,7 +542,7 @@ def eko_truncated(gamma_singlet, a1, a0, beta, order, ev_op_iterations):
     u1 = np.ascontiguousarray(u[1])
     e = np.identity(2, np.complex_)
     # iterate elements
-    a_steps = utils.geomspace(a0, a1, 1 + ev_op_iterations)
+    a_steps = np.geomspace(a0, a1, 1 + ev_op_iterations)
     al = a_steps[0]
     for ah in a_steps[1:]:
         e0 = np.ascontiguousarray(lo_exact(gamma_singlet, ah, al, beta))
@@ -580,7 +580,7 @@ def dispatcher(  # pylint: disable=too-many-return-statements
     ----------
     order :  tuple(int,int)
         perturbative order
-    method : str
+    method : int
         method
     gamma_singlet : numpy.ndarray
         singlet anomalous dimensions matrices
@@ -610,9 +610,9 @@ def dispatcher(  # pylint: disable=too-many-return-statements
         return lo_exact(gamma_singlet, a1, a0, betalist)
 
     # Common method for NLO and NNLO
-    if method in ["iterate-exact", "iterate-expanded"]:
+    if method in [EvoMethods.ITERATE_EXACT, EvoMethods.ITERATE_EXPANDED]:
         return eko_iterate(gamma_singlet, a1, a0, betalist, order, ev_op_iterations)
-    if method == "perturbative-exact":
+    if method is EvoMethods.PERTURBATIVE_EXACT:
         return eko_perturbative(
             gamma_singlet,
             a1,
@@ -623,7 +623,7 @@ def dispatcher(  # pylint: disable=too-many-return-statements
             ev_op_max_order,
             True,
         )
-    if method == "perturbative-expanded":
+    if method is EvoMethods.PERTURBATIVE_EXPANDED:
         return eko_perturbative(
             gamma_singlet,
             a1,
@@ -634,19 +634,19 @@ def dispatcher(  # pylint: disable=too-many-return-statements
             ev_op_max_order,
             False,
         )
-    if method in ["truncated", "ordered-truncated"]:
+    if method in [EvoMethods.TRUNCATED, EvoMethods.ORDERED_TRUNCATED]:
         return eko_truncated(gamma_singlet, a1, a0, betalist, order, ev_op_iterations)
     # These methods are scattered for nlo and nnlo
-    if method == "decompose-exact":
+    if method is EvoMethods.DECOMPOSE_EXACT:
         if order[0] == 2:
             return nlo_decompose_exact(gamma_singlet, a1, a0, betalist)
-        elif order[0] == 3:
+        if order[0] == 3:
             return nnlo_decompose_exact(gamma_singlet, a1, a0, betalist)
         return n3lo_decompose_exact(gamma_singlet, a1, a0, nf)
-    if method == "decompose-expanded":
+    if method is EvoMethods.DECOMPOSE_EXPANDED:
         if order[0] == 2:
             return nlo_decompose_expanded(gamma_singlet, a1, a0, betalist)
-        elif order[0] == 3:
+        if order[0] == 3:
             return nnlo_decompose_expanded(gamma_singlet, a1, a0, betalist)
         return n3lo_decompose_expanded(gamma_singlet, a1, a0, nf)
     raise NotImplementedError("Selected method is not implemented")

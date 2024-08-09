@@ -11,7 +11,6 @@ from .. import interpolation
 from .. import scale_variations as sv
 from ..kernels import non_singlet as ns
 from ..kernels import singlet as s
-from ..kernels import utils
 from ..matchings import Segment
 from ..member import OpMember
 
@@ -69,6 +68,7 @@ def select_singlet_element(ker, mode0, mode1):
         nb.types.bool_,  # is_threshold
     ),
     cache=True,
+    nopython=True,
 )
 def cb_quad_ker_qcd(
     re_gamma_raw,
@@ -104,7 +104,7 @@ def cb_quad_ker_qcd(
     areas = nb.carray(areas_raw, (areas_x, areas_y))
     pj = interpolation.evaluate_grid(n, is_log, logx, areas)
     # TODO recover parameters
-    method = "iterate-expanded"
+    method = "iterate-exact"
     sv_mode = sv.Modes.exponentiated
     order = (order_qcd, 0)
     ev_op_max_order = (ev_op_max_order_qcd, 0)

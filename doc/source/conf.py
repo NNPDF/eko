@@ -27,7 +27,7 @@ here = pathlib.Path(__file__).absolute().parent
 # -- Project information -----------------------------------------------------
 
 project = "EKO"
-copyright = "2019-2023, the NNPDF team"  # pylint: disable=redefined-builtin
+copyright = "2019-2024, the NNPDF team"  # pylint: disable=redefined-builtin
 author = "NNPDF team"
 
 # The short X.Y version
@@ -112,10 +112,10 @@ rst_prolog = "\n".join(
 )
 
 extlinks = {
-    "yadism": ("https://n3pdf.github.io/yadism/%s", "yadism"),
-    "banana": ("https://n3pdf.github.io/banana/%s", "banana"),
-    "pineappl": ("https://n3pdf.github.io/pineappl/%s", "pineappl"),
-    "pineko": ("https://github.com/N3PDF/pineko/%s", "pineko"),
+    "yadism": ("https://n3pdf.github.io/yadism/%s", "yadism%s"),
+    "banana": ("https://n3pdf.github.io/banana/%s", "banana%s"),
+    "pineappl": ("https://n3pdf.github.io/pineappl/%s", "pineappl%s"),
+    "pineko": ("https://github.com/N3PDF/pineko/%s", "pineko%s"),
 }
 
 # -- Options for HTML output -------------------------------------------------

@@ -1,8 +1,9 @@
 """Manage assets used during computation."""
+
 import base64
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
-from typing import Dict, Generic, Optional, Type, TypeVar
+from typing import Dict, Generic, Literal, Optional, Type, TypeVar
 
 import yaml
 
@@ -10,7 +11,7 @@ from .access import AccessConfigs
 from .items import Header, Operator
 
 NBYTES = 8
-ENDIANNESS = "little"
+ENDIANNESS: Literal["little", "big"] = "little"
 
 HEADER_EXT = ".yaml"
 ARRAY_EXT = [".npy", ".npz"]

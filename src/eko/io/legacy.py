@@ -1,7 +1,7 @@
 """Support legacy storage formats."""
+
 import dataclasses
 import io
-import os
 import pathlib
 import tarfile
 import tempfile
@@ -12,18 +12,26 @@ import lz4.frame
 import numpy as np
 import yaml
 
-from eko.interpolation import XGrid
-from eko.io.runcards import flavored_mugrid
-from eko.quantities.heavy_quarks import HeavyInfo, HeavyQuarkMasses, MatchingRatios
-
+from ..interpolation import XGrid
+from ..io.runcards import flavored_mugrid
+from ..quantities.heavy_quarks import (
+    HeavyInfo,
+    HeavyQuarkMasses,
+    MatchingRatios,
+    QuarkMassScheme,
+)
 from . import raw
 from .dictlike import DictLike
 from .struct import EKO, Operator
 from .types import EvolutionPoint as EPoint
-from .types import RawCard
+from .types import RawCard, ReferenceRunning
+
+_MC = 1.51
+_MB = 4.92
+_MT = 172.5
 
 
-def load_tar(source: os.PathLike, dest: os.PathLike, errors: bool = False):
+def load_tar(source: pathlib.Path, dest: pathlib.Path, errors: bool = False):
     """Load tar representation from file.
 
     Compliant with :meth:`dump_tar` output.
@@ -38,8 +46,8 @@ def load_tar(source: os.PathLike, dest: os.PathLike, errors: bool = False):
         whether to load also errors (default ``False``)
 
     """
-    with tempfile.TemporaryDirectory() as tmpdir:
-        tmpdir = pathlib.Path(tmpdir)
+    with tempfile.TemporaryDirectory() as tmpdirr:
+        tmpdir = pathlib.Path(tmpdirr)
 
         with tarfile.open(source, "r") as tar:
             raw.safe_extractall(tar, tmpdir)
@@ -59,7 +67,7 @@ def load_tar(source: os.PathLike, dest: os.PathLike, errors: bool = False):
     if op5 is None:
         op5 = metaold["mu2grid"]
     grid = op5to4(
-        flavored_mugrid(op5, theory.heavy.masses, theory.heavy.matching_ratios), arrays
+        flavored_mugrid(op5, [_MC, _MB, _MT], theory.heavy.matching_ratios), arrays
     )
 
     with EKO.create(dest) as builder:
@@ -91,11 +99,14 @@ class PseudoTheory(DictLike):
     def from_old(cls, old: RawCard):
         """Load from old metadata."""
         heavy = HeavyInfo(
-            num_flavs_init=4,
-            num_flavs_max_pdf=None,
-            intrinsic_flavors=None,
-            masses=HeavyQuarkMasses([1.51, 4.92, 172.5]),
-            masses_scheme=None,
+            masses=HeavyQuarkMasses(
+                [
+                    ReferenceRunning([_MC, np.inf]),
+                    ReferenceRunning([_MB, np.inf]),
+                    ReferenceRunning([_MT, np.inf]),
+                ]
+            ),
+            masses_scheme=QuarkMassScheme.POLE,
             matching_ratios=MatchingRatios([1.0, 1.0, 1.0]),
         )
         return cls(heavy=heavy)
@@ -110,7 +121,7 @@ class PseudoOperator(DictLike):
 
     """
 
-    mu20: float
+    init: EPoint
     evolgrid: List[EPoint]
     xgrid: XGrid
     configs: dict
@@ -118,13 +129,13 @@ class PseudoOperator(DictLike):
     @classmethod
     def from_old(cls, old: RawCard):
         """Load from old metadata."""
-        mu20 = float(old["q2_ref"])
+        mu0 = float(np.sqrt(float(old["q2_ref"])))
         mu2list = old.get("Q2grid")
         if mu2list is None:
             mu2list = old["mu2grid"]
         mu2grid = np.array(mu2list)
         evolgrid = flavored_mugrid(
-            np.sqrt(mu2grid).tolist(), [1.51, 4.92, 172.5], [1, 1, 1]
+            np.sqrt(mu2grid).tolist(), [_MC, _MB, _MT], [1, 1, 1]
         )
 
         xgrid = XGrid(old["interpolation_xgrid"])
@@ -134,7 +145,7 @@ class PseudoOperator(DictLike):
             interpolation_is_log=old.get("interpolation_is_log"),
         )
 
-        return cls(mu20=mu20, evolgrid=evolgrid, xgrid=xgrid, configs=configs)
+        return cls(init=(mu0, 4), evolgrid=evolgrid, xgrid=xgrid, configs=configs)
 
 
 ARRAY_SUFFIX = ".npy.lz4"

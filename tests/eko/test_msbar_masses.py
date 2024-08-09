@@ -1,4 +1,5 @@
 """Tests for the threshold class."""
+
 import numpy as np
 import pytest
 
@@ -15,9 +16,8 @@ def theory_card(theory_card: TheoryCard):
     th = theory_card
     th.order = (3, 0)
     th.couplings.alphas = 0.1180
-    th.couplings.scale = 91.0
     th.couplings.alphaem = 0.00781
-    th.couplings.num_flavs_ref = 5
+    th.couplings.ref = (91.0, 5)
     th.heavy.masses = HeavyQuarkMasses(
         [QuarkMassRef(val) for val in [(2.0, 2.1), (4.0, 4.1), (175.0, 174.9)]]
     )

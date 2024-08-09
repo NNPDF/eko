@@ -246,6 +246,7 @@ def qed_rotation_parameters(nf):
     nd_h = nf - nu_h
     a = (nd_h / nu_h * nu_l - nd_l) / (nf - 1)
     b = nf / nu_h * nu_l / (nf - 1)
+    c, d, e, f = (np.nan,) * 4
     if nf in [4, 6]:  # heavy flavor is up-like
         c = nd_h / nu_h
         d = nu_l / (nf - 1)

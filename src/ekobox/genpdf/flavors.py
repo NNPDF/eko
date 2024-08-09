@@ -1,4 +1,5 @@
 """Collection of flavor tools."""
+
 import copy
 
 import numpy as np

@@ -1,4 +1,5 @@
 """The unpolarized, space-like |N3LO| gluon-quark |OME|."""
+
 import numba as nb
 import numpy as np
 
@@ -12,7 +13,7 @@ def A_gq(n, cache, nf, L):  # pylint: disable=too-many-locals
     The expression is presented in :cite:`Ablinger_2014` :eqref:`6.3`.
 
     When using the code, please cite the complete list of references
-    available in :mod:`ekore.matching_conditions.as3`.
+    available in :mod:`~ekore.operator_matrix_elements.unpolarized.space_like.as3`.
 
     Parameters
     ----------

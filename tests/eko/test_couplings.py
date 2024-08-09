@@ -2,6 +2,7 @@
     This module tests the implemented beta functions and the value
     of alpha_s for different orders.
 """
+
 import copy
 import enum
 
@@ -53,9 +54,7 @@ class TestCouplings:
             dict(
                 alphas=alpharef[0],
                 alphaem=alpharef[1],
-                scale=muref,
-                num_flavs_ref=None,
-                max_num_flavs=6,
+                ref=(muref, 5),
             )
         )
         order = (1, 0)
@@ -108,7 +107,7 @@ class TestCouplings:
             )
         with pytest.raises(ValueError):
             coup3 = copy.deepcopy(couplings)
-            coup3.scale = 0
+            coup3.ref = (0.0, 5)
             Couplings(
                 coup3,
                 order,
@@ -152,18 +151,17 @@ class TestCouplings:
             (0, np.inf, np.inf),
             (2, 4, 175),
         ]
+        nfrefs = (3, 4, 5)
         alpharef = (0.118, 0.00781)
         muref = 91.0
-        couplings = CouplingsInfo.from_dict(
-            dict(
-                alphas=alpharef[0],
-                alphaem=alpharef[1],
-                scale=muref,
-                num_flavs_ref=None,
-                max_num_flavs=6,
+        for thresh_setup, nfref in zip(thresh_setups, nfrefs):
+            couplings = CouplingsInfo.from_dict(
+                dict(
+                    alphas=alpharef[0],
+                    alphaem=alpharef[1],
+                    ref=(muref, nfref),
+                )
             )
-        )
-        for thresh_setup in thresh_setups:
             for order_s in [1, 2, 3, 4]:
                 for order_em in [0, 1, 2]:
                     for evmod in CouplingEvolutionMethod:
@@ -194,9 +192,7 @@ class TestCouplings:
             dict(
                 alphas=alpharef[0],
                 alphaem=alpharef[1],
-                scale=muref,
-                num_flavs_ref=3,  # reference nf is needed to force the matching
-                max_num_flavs=6,
+                ref=(muref, 3),  # reference nf is needed to force the matching
             )
         )
         sc = Couplings(
@@ -220,9 +216,10 @@ class TestCouplings:
             (0, np.inf, np.inf),
             (2, 4, 175),
         ]
+        nfrefs = (3, 4, 5)
         alpharef = np.array([0.118, 0.00781])
         muref = 91.0
-        for thresh_setup in thresh_setups:
+        for thresh_setup, nfref in zip(thresh_setups, nfrefs):
             for qcd in range(1, 4 + 1):
                 for qed in range(2 + 1):
                     for em_running in [
@@ -234,9 +231,7 @@ class TestCouplings:
                             dict(
                                 alphas=alpharef[0],
                                 alphaem=alpharef[1],
-                                scale=muref,
-                                num_flavs_ref=None,
-                                max_num_flavs=6,
+                                ref=(muref, nfref),
                                 em_running=em_running,
                             )
                         )
@@ -297,9 +292,7 @@ class TestCouplings:
         couplings = CouplingsInfo(
             alphas=alpharef[0],
             alphaem=alpharef[1],
-            scale=muref,
-            num_flavs_ref=None,
-            max_num_flavs=6,
+            ref=(muref, 5),
         )
         m2c = 2
         m2b = 25

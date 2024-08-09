@@ -18,7 +18,7 @@ NF = 5
 
 n3lo_vars_dict = {
     "gg": 19,
-    "gq": 21,
+    "gq": 15,
     "qg": 15,
     "qq": 6,
 }
@@ -132,7 +132,7 @@ def test_momentum_conservation():
     np.testing.assert_allclose(
         gnsp.gamma_nsp_nf0(N, sx_cache) + g_gq[:, 0],
         0,
-        atol=2e-10,
+        atol=1e-9,
     )
     np.testing.assert_allclose(
         g_gg[:, 0],

@@ -1,4 +1,5 @@
 """|APFEL| interface."""
+
 import time
 
 import numpy as np

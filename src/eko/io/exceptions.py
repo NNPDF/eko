@@ -1,4 +1,5 @@
 """IO generic exceptions."""
+
 import os
 
 

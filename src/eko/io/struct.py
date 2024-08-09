@@ -1,4 +1,5 @@
 """Define output representation structures."""
+
 import contextlib
 import copy
 import logging
@@ -15,7 +16,6 @@ import yaml
 from .. import interpolation
 from . import exceptions, raw
 from .access import AccessConfigs
-from .bases import Bases
 from .inventory import Inventory
 from .items import Evolution, Matching, Operator, Recipe, Target
 from .metadata import Metadata
@@ -105,19 +105,14 @@ class EKO:
         return InternalPaths(self.metadata.path)
 
     @property
-    def bases(self) -> Bases:
-        """Bases information."""
-        return self.metadata.bases
-
-    @property
     def xgrid(self) -> interpolation.XGrid:
         """Momentum fraction internal grid."""
-        return self.bases.xgrid
+        return self.metadata.xgrid
 
     @xgrid.setter
     def xgrid(self, value: interpolation.XGrid):
         """Set `xgrid` value."""
-        self.bases.xgrid = value
+        self.metadata.xgrid = value
         self.update()
 
     @property
@@ -271,7 +266,7 @@ class EKO:
         Raises
         ------
         ValueError
-            if multiple values are find in the neighbourhood
+            if multiple values are found in the neighbourhood
 
         """
         eps = np.array([ep_ for ep_ in self if ep_[1] == ep[1]])
@@ -279,7 +274,9 @@ class EKO:
         close = eps[np.isclose(ep[0], mu2s, rtol=rtol, atol=atol)]
 
         if len(close) == 1:
-            return tuple(close[0])
+            found = close[0]
+            assert isinstance(found[0], float)
+            return (found[0], int(found[1]))
         if len(close) == 0:
             return None
         raise ValueError(f"Multiple values of Q2 have been found close to {ep}")
@@ -536,8 +533,8 @@ class Builder:
         self.access.open = True
         metadata = Metadata(
             _path=self.path,
-            origin=(self.operator.mu20, self.theory.heavy.num_flavs_init),
-            bases=Bases(xgrid=self.operator.xgrid),
+            origin=(self.operator.init[0] ** 2, self.operator.init[1]),
+            xgrid=self.operator.xgrid,
         )
         InternalPaths(self.path).bootstrap(
             theory=self.theory.raw,

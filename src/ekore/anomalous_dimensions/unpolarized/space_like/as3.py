@@ -5,6 +5,7 @@ The expression have been obtained from :cite:`Moch:2004pa,Vogt:2004ns`.
 
 Note that the QCD colour factors have been hard-wired in the parametrizations.
 """
+
 import numba as nb
 import numpy as np
 

@@ -6,8 +6,8 @@ from eko.runner.operators import _retrieve, join
 
 
 def test_retrieve(ekoparts: EKO):
-    evhead, evop = next(iter(ekoparts.parts.cache.items()))
-    matchhead, matchop = next(iter(ekoparts.parts_matching.cache.items()))
+    evhead, _evop = next(iter(ekoparts.parts.cache.items()))
+    matchhead, _matchop = next(iter(ekoparts.parts_matching.cache.items()))
 
     els = _retrieve([evhead] * 5, ekoparts.parts, ekoparts.parts_matching)
     assert len(els) == 5
@@ -27,7 +27,7 @@ def test_join(identity: Operator):
     matrix product, but there not so many sensible rank-4 operators.
 
     """
-    linear_size = np.product(identity.operator.shape[:2])
+    linear_size = np.prod(identity.operator.shape[:2])
     for n in range(1, 8, 3):
         res = join([identity for _ in range(n)])
         assert res.error is None

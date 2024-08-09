@@ -1,5 +1,5 @@
 diff --git a/pyproject.toml b/pyproject.toml
-index 31be6cb0..b4ec7c95 100644
+index 088cab32..0d486637 100644
 --- a/pyproject.toml
 +++ b/pyproject.toml
 @@ -1,6 +1,20 @@
@@ -11,7 +11,7 @@ index 31be6cb0..b4ec7c95 100644
 +
 +[project]
 +name = "eko"
-+requires-python = ">=3.8"
++requires-python = ">=3.9"
 +classifiers = [
 +  "Programming Language :: Rust",
 +  "Programming Language :: Python :: Implementation :: CPython",
@@ -25,15 +25,3 @@ index 31be6cb0..b4ec7c95 100644
 
  [tool.poetry]
  name = "eko"
-@@ -124,6 +138,11 @@ asv-publish = "asv publish --config benchmarks/asv.conf.json"
- asv-show = "asv show --config benchmarks/asv.conf.json"
- asv-clean = { "shell" = "rm -rf benchmarks/env benchmarks/html benchmarks/results" }
- asv = ["asv-run", "asv-publish", "asv-preview"]
-+compile = "pip install -e crates/eko/"
-+rdocs = "cargo doc --workspace --manifest-path crates/Cargo.toml --no-deps"
-+rdocs-view = "xdg-open crates/target/doc/ekors/index.html"
-+rdocs-clean = "rm -rf crates/target/doc/"
-+rtest = "cargo test --workspace --manifest-path crates/Cargo.toml"
-
- [tool.pytest.ini_options]
- testpaths = ['tests/', 'benchmarks/']

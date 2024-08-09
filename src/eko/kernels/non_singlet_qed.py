@@ -1,10 +1,10 @@
 """Collection of QED non-singlet EKOs."""
+
 import numba as nb
 import numpy as np
 
 from .. import beta
 from . import non_singlet as ns
-from . import utils
 
 
 @nb.njit(cache=True)
@@ -146,7 +146,7 @@ def as4_exact(gamma_ns, a1, a0, beta):
 @nb.njit(cache=True)
 def dispatcher(
     order,
-    method,
+    _method,
     gamma_ns,
     as_list,
     aem_half,
@@ -164,7 +164,7 @@ def dispatcher(
     ----------
     order : tuple(int,int)
         perturbation order
-    method : str
+    method : int
         method
     gamma_ns : numpy.ndarray
         non-singlet anomalous dimensions
@@ -276,7 +276,7 @@ def exact(order, gamma_ns, as_list, aem_half, nf, ev_op_iterations, mu2_from, mu
     e_ns : complex
         non-singlet EKO
     """
-    mu2_steps = utils.geomspace(mu2_from, mu2_to, 1 + ev_op_iterations)
+    mu2_steps = np.geomspace(mu2_from, mu2_to, 1 + ev_op_iterations)
     res = 1.0
     for step in range(1, ev_op_iterations + 1):
         aem = aem_half[step - 1]

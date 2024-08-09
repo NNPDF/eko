@@ -1,5 +1,7 @@
 """Generic utilities to work with EKOs."""
-import os
+
+from collections import defaultdict
+from pathlib import Path
 from typing import Optional
 
 import numpy as np
@@ -14,7 +16,7 @@ def ekos_product(
     eko_fin: EKO,
     rtol: float = 1e-6,
     atol: float = 1e-10,
-    path: Optional[os.PathLike] = None,
+    path: Optional[Path] = None,
 ):
     """Compute the product of two ekos.
 
@@ -37,7 +39,7 @@ def ekos_product(
     # another kind of output which includes the theory and operator runcards)
 
     ep_match = eko_ini.approx(
-        (eko_fin.operator_card.mu0**2, eko_fin.theory_card.heavy.num_flavs_init),
+        (eko_fin.operator_card.init[0] ** 2, eko_fin.operator_card.init[1]),
         rtol=rtol,
         atol=atol,
     )
@@ -77,3 +79,11 @@ def ekos_product(
 
     if path is not None:
         final_eko.close()
+
+
+def regroup_evolgrid(evolgrid: list):
+    """Split evolution points by nf and sort by scale."""
+    by_nf = defaultdict(list)
+    for q, nf in sorted(evolgrid, key=lambda ep: ep[1]):
+        by_nf[nf].append(q)
+    return {nf: sorted(qs) for nf, qs in by_nf.items()}

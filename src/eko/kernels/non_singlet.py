@@ -4,9 +4,9 @@ import numba as nb
 import numpy as np
 
 from .. import beta
+from . import EvoMethods
 from . import as4_evolution_integrals as as4_ei
 from . import evolution_integrals as ei
-from . import utils
 
 
 @nb.njit(cache=True)
@@ -281,7 +281,7 @@ def eko_ordered_truncated(gamma_ns, a1, a0, beta, order, ev_op_iterations):
         non-singlet ordered truncated EKO
 
     """
-    a_steps = utils.geomspace(a0, a1, 1 + ev_op_iterations)
+    a_steps = np.geomspace(a0, a1, 1 + ev_op_iterations)
     U = U_vec(gamma_ns, beta, order)
     e = 1.0
     al = a_steps[0]
@@ -321,7 +321,7 @@ def eko_truncated(gamma_ns, a1, a0, beta, order, ev_op_iterations):
         non-singlet truncated EKO
 
     """
-    a_steps = utils.geomspace(a0, a1, 1 + ev_op_iterations)
+    a_steps = np.geomspace(a0, a1, 1 + ev_op_iterations)
     U = U_vec(gamma_ns, beta, order)
     e = 1.0
     al = a_steps[0]
@@ -356,7 +356,7 @@ def dispatcher(
     ----------
     order : tuple(int,int)
         perturbation order
-    method : str
+    method : int
         method
     gamma_ns : numpy.ndarray
         non-singlet anomalous dimensions
@@ -379,38 +379,38 @@ def dispatcher(
     # use always exact in LO
     if order[0] == 1:
         return lo_exact(gamma_ns, a1, a0, betalist)
-    if method == "ordered-truncated":
+    if method is EvoMethods.ORDERED_TRUNCATED:
         return eko_ordered_truncated(
             gamma_ns, a1, a0, betalist, order, ev_op_iterations
         )
-    if method == "truncated":
+    if method is EvoMethods.TRUNCATED:
         return eko_truncated(gamma_ns, a1, a0, betalist, order, ev_op_iterations)
 
     # NLO
     if order[0] == 2:
         if method in [
-            "iterate-expanded",
-            "decompose-expanded",
-            "perturbative-expanded",
+            EvoMethods.ITERATE_EXPANDED,
+            EvoMethods.DECOMPOSE_EXPANDED,
+            EvoMethods.PERTURBATIVE_EXPANDED,
         ]:
             return nlo_expanded(gamma_ns, a1, a0, betalist)
-        # if method in ["iterate-exact", "decompose-exact", "perturbative-exact"]:
+        # exact is left
         return nlo_exact(gamma_ns, a1, a0, betalist)
     # NNLO
     if order[0] == 3:
         if method in [
-            "iterate-expanded",
-            "decompose-expanded",
-            "perturbative-expanded",
+            EvoMethods.ITERATE_EXPANDED,
+            EvoMethods.DECOMPOSE_EXPANDED,
+            EvoMethods.PERTURBATIVE_EXPANDED,
         ]:
             return nnlo_expanded(gamma_ns, a1, a0, betalist)
         return nnlo_exact(gamma_ns, a1, a0, betalist)
     # N3LO
     if order[0] == 4:
         if method in [
-            "iterate-expanded",
-            "decompose-expanded",
-            "perturbative-expanded",
+            EvoMethods.ITERATE_EXPANDED,
+            EvoMethods.DECOMPOSE_EXPANDED,
+            EvoMethods.PERTURBATIVE_EXPANDED,
         ]:
             return n3lo_expanded(gamma_ns, a1, a0, betalist)
         return n3lo_exact(gamma_ns, a1, a0, betalist)

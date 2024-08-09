@@ -1,4 +1,5 @@
 r"""|RGE| for the |MSbar| masses."""
+
 from typing import List
 
 import numba as nb
@@ -377,8 +378,8 @@ def compute(
 
     """
     # TODO: sketch in the docs how the MSbar computation works with a figure.
-    mu2_ref = couplings.scale**2
-    nf_ref: FlavorsNumber = couplings.num_flavs_ref
+    mu2_ref = couplings.ref[0] ** 2
+    nf_ref: FlavorsNumber = couplings.ref[1]
     masses = np.concatenate((np.zeros(nf_ref - 3), np.full(6 - nf_ref, np.inf)))
 
     def sc(thr_masses):
@@ -395,7 +396,7 @@ def compute(
     heavy_quarks = quark_names[3:]
     hq_idxs = np.arange(0, 3)
     if nf_ref > 4:
-        heavy_quarks = reversed(heavy_quarks)
+        heavy_quarks = "".join(reversed(heavy_quarks))
         hq_idxs = reversed(hq_idxs)
 
     # loop on heavy quarks and compute the msbar masses

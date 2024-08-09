@@ -9,19 +9,21 @@
     :class:`OperatorMatrixElement` to simplify the computation and passing down
     parameters.
 """
+
 import numpy as np
 
 from .. import evolution_operator as evop
 from ..evolution_operator import matching_condition
 from ..evolution_operator import operator_matrix_element as ome
 from ..evolution_operator import physical
+from ..evolution_operator.grid import Managers
 from ..io import EKO
 from ..io.items import Evolution, Matching, Operator
 from ..quantities.heavy_quarks import QuarkMassScheme
 from . import commons
 
 
-def _managers(eko: EKO) -> dict:
+def _managers(eko: EKO) -> Managers:
     """Collect managers for operator computation.
 
     .. todo::
@@ -30,39 +32,14 @@ def _managers(eko: EKO) -> dict:
     """
     tcard = eko.theory_card
     ocard = eko.operator_card
-    return dict(
-        thresholds_config=commons.atlas(tcard, ocard),
+    return Managers(
+        atlas=commons.atlas(tcard, ocard),
         couplings=commons.couplings(tcard, ocard),
-        interpol_dispatcher=commons.interpolator(ocard),
+        interpolator=commons.interpolator(ocard),
     )
 
 
-def _blowup_info(eko: EKO) -> dict:
-    """Prepare common information to blow up to flavor basis.
-
-    Note
-    ----
-    ``intrinsic_range`` is a fully deprecated feature, here and anywhere else,
-    since a full range is already always used for backward evolution, and it is
-    not harmful to use it also for forward.
-
-    Indeed, the only feature of non-intrinsic evolution is to absorb a
-    non-trivial boundary condition when an intrinsic PDF is defined.
-    But to achieve this, is sufficient to not specify any intrinsic boundary
-    condition at all, while if something is there, it is intuitive enough that
-    it will be consistently evolved.
-
-    Moreover, since two different behavior are applied for the forward and
-    backward evolution, the intrinsic range is a "non-local" function, since it
-    does not depend only on the evolution segment, but also on the previous
-    evolution history (to determine if evolution is backward in flavor,
-    irrespectively of happening for an increasing or decreasing interval in
-    scale at fixed flavor).
-    """
-    return dict(intrinsic_range=[4, 5, 6], qed=eko.theory_card.order[1] > 0)
-
-
-def _evolution_configs(eko: EKO) -> dict:
+def _evolve_configs(eko: EKO) -> dict:
     """Create configs for :class:`Operator`.
 
     .. todo::
@@ -93,17 +70,17 @@ def _evolution_configs(eko: EKO) -> dict:
 def evolve(eko: EKO, recipe: Evolution) -> Operator:
     """Compute evolution in isolation."""
     op = evop.Operator(
-        _evolution_configs(eko),
+        _evolve_configs(eko),
         _managers(eko),
         recipe.as_atlas,
         is_threshold=recipe.cliff,
     )
     op.compute()
 
-    binfo = _blowup_info(eko)
+    qed = eko.theory_card.order[1] > 0
     res, err = physical.PhysicalOperator.ad_to_evol_map(
-        op.op_members, op.nf, op.q2_to, **binfo
-    ).to_flavor_basis_tensor(qed=binfo["qed"])
+        op.op_members, op.nf, op.q2_to, qed
+    ).to_flavor_basis_tensor(qed)
 
     return Operator(res, err)
 
@@ -118,9 +95,8 @@ def _matching_configs(eko: EKO) -> dict:
     tcard = eko.theory_card
     ocard = eko.operator_card
     return dict(
-        **_evolution_configs(eko),
+        **_evolve_configs(eko),
         backward_inversion=ocard.configs.inversion_method,
-        intrinsic_range=tcard.heavy.intrinsic_flavors,
     )
 
 
@@ -147,10 +123,9 @@ def match(eko: EKO, recipe: Matching) -> Operator:
         eko.theory_card.heavy.masses_scheme is QuarkMassScheme.MSBAR,
     )
     op.compute()
-
-    binfo = _blowup_info(eko)
+    qed = eko.theory_card.order[1] > 0
     res, err = matching_condition.MatchingCondition.split_ad_to_evol_map(
-        op.op_members, op.nf, recipe.scale, **binfo
-    ).to_flavor_basis_tensor(qed=binfo["qed"])
+        op.op_members, op.nf, recipe.scale, qed
+    ).to_flavor_basis_tensor(qed)
 
     return Operator(res, err)

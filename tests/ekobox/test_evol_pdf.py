@@ -1,4 +1,5 @@
 import numpy as np
+import pytest
 from banana import toy
 
 import eko
@@ -11,7 +12,7 @@ from ekobox import evol_pdf as ev_p
 
 def init_cards():
     op = cards.example.operator()
-    op.mu0 = 1.65
+    op.init = (1.65, 4)
     op.xgrid = XGrid([0.1, 0.5, 1.0])
     op.configs.interpolation_polynomial_degree = 1
     theory = cards.example.theory()
@@ -48,6 +49,21 @@ def test_evolve_pdfs_dump_path(fake_lhapdf, cd):
         ev_p.evolve_pdfs([toy.mkPDF("", 0)], theory, op, name=n, path=fake_lhapdf)
     p = fake_lhapdf / n
     assert p.exists()
+
+
+def test_evolve_pdfs_bad_scales(fake_lhapdf, cd):
+    """Bad scale configurations."""
+    theory, op = init_cards()
+    n = "test_evolve_pdfs_bad_scales"
+    op = cards.example.operator()
+    op.mugrid = [(5.0, 3), (15.0, 4), (10.0, 5), (100.0, 5)]
+    with pytest.raises(ValueError, match="is bigger"):
+        with cd(fake_lhapdf):
+            ev_p.evolve_pdfs([toy.mkPDF("", 0)], theory, op, name=n, path=fake_lhapdf)
+    op.mugrid = [(5.0, 3), (10.0, 3), (10.0, 4), (15.0, 4), (10.0, 5)]
+    with pytest.raises(ValueError, match="is bigger"):
+        with cd(fake_lhapdf):
+            ev_p.evolve_pdfs([toy.mkPDF("", 0)], theory, op, name=n, path=fake_lhapdf)
 
 
 def test_evolve_pdfs_dump_file(fake_lhapdf, cd):

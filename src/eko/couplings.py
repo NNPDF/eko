@@ -7,11 +7,13 @@ strategies to solve the associated |RGE|.
 See :doc:`pQCD ingredients </theory/pQCD>`.
 
 """
+
 import logging
-from typing import Iterable, List
+from typing import Dict, Iterable, List, Tuple
 
 import numba as nb
 import numpy as np
+import numpy.typing as npt
 import scipy
 
 from . import constants, matchings
@@ -382,6 +384,10 @@ def couplings_expanded_fixed_alphaem(order, couplings_ref, nf, scale_from, scale
     return np.array([res_as, aem])
 
 
+_CouplingsCacheKey = Tuple[float, float, int, float, float]
+"""Cache key containing (a0, a1, nf, scale_from, scale_to)."""
+
+
 class Couplings:
     r"""Compute the strong and electromagnetic coupling constants :math:`a_s, a_{em}`.
 
@@ -435,7 +441,7 @@ class Couplings:
 
         assert_positive("alpha_s_ref", couplings.alphas)
         assert_positive("alpha_em_ref", couplings.alphaem)
-        assert_positive("scale_ref", couplings.scale)
+        assert_positive("scale_ref", couplings.ref[0])
         if order[0] not in [1, 2, 3, 4]:
             raise NotImplementedError(
                 "QCD order has to be an integer between 1 (LO) and 4 (N3LO)"
@@ -449,7 +455,7 @@ class Couplings:
             raise ValueError(f"Unknown method {method.value}")
         self.method = method.value
 
-        nf_ref = couplings.num_flavs_ref
+        nf_ref = couplings.ref[1]
         scheme_name = hqm_scheme.name
         self.alphaem_running = couplings.em_running
         self.decoupled_running = False
@@ -458,7 +464,7 @@ class Couplings:
         self.a_ref = np.array(couplings.values) / 4.0 / np.pi  # convert to a_s and a_em
         matching_scales = (np.array(masses) * np.array(thresholds_ratios)).tolist()
         self.thresholds_ratios = list(thresholds_ratios)
-        self.atlas = matchings.Atlas(matching_scales, (couplings.scale**2, nf_ref))
+        self.atlas = matchings.Atlas(matching_scales, (couplings.ref[0] ** 2, nf_ref))
         self.hqm_scheme = scheme_name
         logger.info(
             "Strong Coupling: a_s(µ_R^2=%f)%s=%f=%f/(4π)",
@@ -479,7 +485,7 @@ class Couplings:
                 self.decoupled_running,
             )
         # cache
-        self.cache = {}
+        self.cache: Dict[_CouplingsCacheKey, npt.NDArray] = {}
 
     @property
     def mu2_ref(self):

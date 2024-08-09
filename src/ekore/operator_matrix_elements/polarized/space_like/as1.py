@@ -6,6 +6,7 @@ In the paper, the fraction :math:`\mu_F^2 / m_H^2` inside the log is inverted, y
 Additionally, a different convention for the anomalous dimensions is used, yielding a factor 2 in the |OME|'s wherever they are present.
 The anomalous dimensions and beta function with the addition 'hat' have the form :math:`\hat\gamma = \gamma^{(nf+1)} - \gamma^{(nf)}`.
 """
+
 import numba as nb
 import numpy as np
 
