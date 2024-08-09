@@ -89,7 +89,7 @@ def cb_quad_ker_qcd(
     areas_x,
     areas_y,
     _L,
-    _method_num,
+    method_num,
     as1,
     as0,
     ev_op_iterations,
@@ -105,8 +105,7 @@ def cb_quad_ker_qcd(
     # combute basis functions
     areas = nb.carray(areas_raw, (areas_x, areas_y))
     pj = interpolation.evaluate_grid(n, is_log, logx, areas)
-    # TODO recover parameters
-    method = "iterate-exact"
+    method = method_num
     order = (order_qcd, 0)
     ev_op_max_order = (ev_op_max_order_qcd, 0)
     if is_singlet:
@@ -235,7 +234,7 @@ def cb_quad_ker_ome(
     areas_x,
     areas_y,
     L,
-    _method_num,
+    method_num,
     as1,
     _as0,
     _ev_op_iterations,
@@ -251,7 +250,7 @@ def cb_quad_ker_ome(
     # compute basis functions
     areas = nb.carray(areas_raw, (areas_x, areas_y))
     pj = interpolation.evaluate_grid(n, is_log, logx, areas)
-    # TODO recover parameters
+    backward_method = method_num
     order = (order_qcd, 0)
     if is_singlet:
         indices = {21: 0, 100: 1, 90: 2}
@@ -269,9 +268,6 @@ def cb_quad_ker_ome(
     # correct for scale variations
     if sv_mode == sv.Modes.exponentiated:
         A = sv.exponentiated.gamma_variation(A, order, nf, Lsv)
-
-    # TODO recover InversionMethod
-    backward_method = None
 
     # build the expansion in alpha_s depending on the strategy
     ker = build_ome(A, order, as1, backward_method)

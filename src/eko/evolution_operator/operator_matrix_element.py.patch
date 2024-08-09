@@ -1,5 +1,5 @@
 diff --git a/src/eko/evolution_operator/operator_matrix_element.py b/src/eko/evolution_operator/operator_matrix_element.py
-index 022f8073..017ec73d 100644
+index 022f8073..f6b3235d 100644
 --- a/src/eko/evolution_operator/operator_matrix_element.py
 +++ b/src/eko/evolution_operator/operator_matrix_element.py
 @@ -2,11 +2,12 @@
@@ -142,7 +142,7 @@ index 022f8073..017ec73d 100644
  class OperatorMatrixElement(Operator):
      r"""
      Internal representation of a single |OME|.
-@@ -291,41 +191,14 @@ class OperatorMatrixElement(Operator):
+@@ -291,41 +191,15 @@ class OperatorMatrixElement(Operator):
              )
          return labels
 
@@ -189,6 +189,7 @@ index 022f8073..017ec73d 100644
 +        cfg.as1 = self.a_s
 +        cfg.as0 = 0.0
 +        cfg.Lsv = np.log(self.xif2)
++        cfg.method_num = self.backward_method
 
      @property
      def a_s(self):
