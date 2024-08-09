@@ -32,7 +32,7 @@ repos:
       - id: isort
         args: ["--profile", "black"]
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.16.0
+    rev: v3.17.0
     hooks:
       - id: pyupgrade
   - repo: https://github.com/pycqa/pydocstyle
@@ -43,6 +43,13 @@ repos:
         args: ["--add-ignore=D107,D105"]
         additional_dependencies:
           - toml
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.4.1
+    hooks:
+      - id: mypy
+        additional_dependencies: [types-PyYAML]
+        pass_filenames: false
+        args: ["--ignore-missing-imports", "src/"]
   - repo: local
     hooks:
     - id: fmt
@@ -53,6 +60,6 @@ repos:
       files: ^crates/.*\.rs$
       args: []
   - repo: https://github.com/pre-commit/pre-commit
-    rev: v3.7.1
+    rev: v3.8.0
     hooks:
       - id: validate_manifest

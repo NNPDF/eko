@@ -4,6 +4,7 @@ import numpy as np
 import pytest
 
 from eko import EKO
+from eko import basis_rotation as br
 from eko.io.items import Operator
 from eko.io.runcards import OperatorCard, TheoryCard
 from eko.runner import commons, recipes
@@ -21,14 +22,14 @@ def neweko(theory_card: TheoryCard, operator_card: OperatorCard, tmp_path: Path)
 @pytest.fixture
 def identity(neweko: EKO):
     xs = len(neweko.xgrid.raw)
-    flavs = len(neweko.bases.pids)
+    flavs = len(br.flavor_basis_pids)
     return Operator(operator=np.eye(xs * flavs).reshape((xs, flavs, xs, flavs)))
 
 
 @pytest.fixture
 def ekoparts(neweko: EKO, identity: Operator):
     atlas = commons.atlas(neweko.theory_card, neweko.operator_card)
-    neweko.load_recipes(recipes.create(neweko.operator_card.evolgrid, atlas))
+    neweko.load_recipes(recipes._create(neweko.operator_card.evolgrid, atlas))
 
     for rec in neweko.recipes:
         neweko.parts[rec] = identity

@@ -33,7 +33,7 @@ def atlas(theory: TheoryCard, operator: OperatorCard) -> Atlas:
     # TODO: cache result
     masses = runcards.masses(theory, operator.configs.evolution_method)
     matching_scales = np.power(theory.heavy.matching_ratios, 2.0) * np.array(masses)
-    return Atlas(matching_scales.tolist(), (operator.mu20, theory.heavy.num_flavs_init))
+    return Atlas(matching_scales.tolist(), (operator.mu20, operator.init[1]))
 
 
 def couplings(theory: TheoryCard, operator: OperatorCard) -> Couplings:

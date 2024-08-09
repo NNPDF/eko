@@ -73,11 +73,15 @@ def evolve_pdfs(
 
     # apply PDF to eko
     evolved_PDF_list = []
+    q2block_per_nf = {}
     with EKO.read(eko_path) as eko_output:
         for initial_PDF in initial_PDF_list:
             evolved_PDF_list.append(
                 apply.apply_pdf(eko_output, initial_PDF, targetgrid)
             )
+
+        # separate by nf the evolgrid (and order per nf/q)
+        q2block_per_nf = regroup_evolgrid(eko_output.evolgrid)  # pylint: disable=E1101
 
     # update info file
     if targetgrid is None:
@@ -93,8 +97,6 @@ def evolve_pdfs(
         info_update=info_update,
     )
 
-    # in the eko scales are squared
-    q2block_per_nf = {nf: np.power(q2s, 2) for nf, q2s in q2block_per_nf.items()}
     # write all replicas
     all_member_blocks = []
     for evolved_PDF in evolved_PDF_list:
@@ -134,7 +136,7 @@ def collect_blocks(evolved_PDF: dict, q2block_per_nf: dict, xgrid: list):
             pdf_xq2,
             xgrid=xgrid,
             sorted_q2grid=q2grid,
-            pids=br.flavor_basis_pids,
+            pids=np.array(br.flavor_basis_pids),
         )
         all_blocks.append(block)
     return all_blocks

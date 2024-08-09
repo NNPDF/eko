@@ -6,6 +6,7 @@ import numpy as np
 from ekore import anomalous_dimensions as ad
 
 from .. import beta
+from . import EvoMethods
 
 
 @nb.njit(cache=True)
@@ -66,7 +67,7 @@ def dispatcher(
     a_half,
     nf,
     ev_op_iterations,
-    ev_op_max_order,
+    _ev_op_max_order,
 ):
     """Determine used kernel and call it.
 
@@ -74,7 +75,7 @@ def dispatcher(
     ----------
     order : tuple(int,int)
         perturbative order
-    method : str
+    method : int
         method
     gamma_singlet : numpy.ndarray
         singlet anomalous dimensions matrices
@@ -96,7 +97,7 @@ def dispatcher(
     e_s : numpy.ndarray
         singlet EKO
     """
-    if method in ["iterate-exact", "iterate-expanded"]:
+    if method is EvoMethods.ITERATE_EXACT:
         return eko_iterate(
             gamma_singlet, as_list, a_half, nf, order, ev_op_iterations, 4
         )

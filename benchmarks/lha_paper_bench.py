@@ -13,19 +13,15 @@ from ekomark.benchmark.runner import Runner
 
 register(__file__)
 
+_sqrt2 = float(np.sqrt(2.0))
+
 base_theory = {
     "ModEv": "EXA",
-    "Q0": np.sqrt(
-        2.0
-    ),  # Eq. (30) :cite:`Giele:2002hx`, Eq. (4.53) :cite:`Dittmar:2005ed`
-    "mc": np.sqrt(
-        2.0
-    ),  # Eq. (34) :cite:`Giele:2002hx`, Eq. (4.56) :cite:`Dittmar:2005ed`
+    "Q0": _sqrt2,  # Eq. (30) :cite:`Giele:2002hx`, Eq. (4.53) :cite:`Dittmar:2005ed`
+    "mc": _sqrt2,  # Eq. (34) :cite:`Giele:2002hx`, Eq. (4.56) :cite:`Dittmar:2005ed`
     "mb": 4.5,
     "mt": 175,
-    "Qref": np.sqrt(
-        2.0
-    ),  # Eq. (32) :cite:`Giele:2002hx`,Eq. (4.53) :cite:`Dittmar:2005ed`
+    "Qref": _sqrt2,  # Eq. (32) :cite:`Giele:2002hx`,Eq. (4.53) :cite:`Dittmar:2005ed`
     "alphas": 0.35,  # Eq. (4.55) :cite:`Dittmar:2005ed`
     "alphaqed": 0.007496,
     "QED": 0,
@@ -79,11 +75,11 @@ class LHA(Runner):
         """
         low = self.theory.copy()
         low["PTO"] = pto
-        low["XIF"] = np.sqrt(1.0 / 2.0)
+        low["XIF"] = 1.0 / _sqrt2
         low["ModSV"] = "exponentiated"
         high = self.theory.copy()
         high["PTO"] = pto
-        high["XIF"] = np.sqrt(2.0)
+        high["XIF"] = _sqrt2
         high["ModSV"] = "exponentiated"
         return [high, low]
 
@@ -302,7 +298,7 @@ class CommonRunner(VFNS):
                 sv_theory["kcThr"] = 1.0 + 1e-15
                 sv_theory["nfref"] = 4
                 sv_theory["EScaleVar"] = 0
-        low["XIR"] = np.sqrt(2.0)
-        high["XIR"] = np.sqrt(0.5)
+        low["XIR"] = _sqrt2
+        high["XIR"] = 1.0 / _sqrt2
 
         self.run_lha([low, high])

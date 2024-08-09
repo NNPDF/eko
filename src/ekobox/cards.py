@@ -14,14 +14,9 @@ _theory = dict(
     couplings=dict(
         alphas=0.118,
         alphaem=0.007496252,
-        scale=91.2,
-        num_flavs_ref=5,
-        max_num_flavs=6,
+        ref=(91.2, 5),
     ),
     heavy=dict(
-        num_flavs_init=4,
-        num_flavs_max_pdf=6,
-        intrinsic_flavors=[4],
         masses=[ReferenceRunning([mq, nan]) for mq in (2.0, 4.5, 173.07)],
         masses_scheme="POLE",
         matching_ratios=[1.0, 1.0, 1.0],
@@ -33,7 +28,7 @@ _theory = dict(
 )
 
 _operator = dict(
-    mu0=1.65,
+    init=(1.65, 4),
     mugrid=[(100.0, 5)],
     xgrid=np.geomspace(1e-7, 1.0, 50).tolist(),
     configs=dict(
