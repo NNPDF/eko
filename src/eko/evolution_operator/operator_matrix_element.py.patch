@@ -142,7 +142,7 @@ index 022f8073..017ec73d 100644
  class OperatorMatrixElement(Operator):
      r"""
      Internal representation of a single |OME|.
-@@ -291,41 +191,13 @@ class OperatorMatrixElement(Operator):
+@@ -291,41 +191,14 @@ class OperatorMatrixElement(Operator):
              )
          return labels
 
