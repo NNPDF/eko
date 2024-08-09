@@ -2,7 +2,6 @@
 
 import dataclasses
 import io
-import os
 import pathlib
 import tarfile
 import tempfile
@@ -32,7 +31,7 @@ _MB = 4.92
 _MT = 172.5
 
 
-def load_tar(source: os.PathLike, dest: os.PathLike, errors: bool = False):
+def load_tar(source: pathlib.Path, dest: pathlib.Path, errors: bool = False):
     """Load tar representation from file.
 
     Compliant with :meth:`dump_tar` output.

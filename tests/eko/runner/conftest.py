@@ -29,7 +29,7 @@ def identity(neweko: EKO):
 @pytest.fixture
 def ekoparts(neweko: EKO, identity: Operator):
     atlas = commons.atlas(neweko.theory_card, neweko.operator_card)
-    neweko.load_recipes(recipes.create(neweko.operator_card.evolgrid, atlas))
+    neweko.load_recipes(recipes._create(neweko.operator_card.evolgrid, atlas))
 
     for rec in neweko.recipes:
         neweko.parts[rec] = identity

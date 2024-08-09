@@ -39,7 +39,7 @@ class Metadata(DictLike):
     """Interpolation grid"""
     # tagging information
     _path: Optional[pathlib.Path] = None
-    """Path to temporary dir."""
+    """Path to the open dir."""
     version: str = vmod.__version__
     """Library version used to create the corresponding file."""
     data_version: int = vmod.__data_version__

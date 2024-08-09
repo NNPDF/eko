@@ -43,7 +43,7 @@ class ClosedOperator(RuntimeError, exceptions.OutputError):
 class AccessConfigs:
     """Configurations specified during opening of an EKO."""
 
-    path: Path
+    path: Optional[Path]
     """The path to the permanent object."""
     readonly: bool
     "Read-only flag"

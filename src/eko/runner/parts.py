@@ -23,7 +23,7 @@ from ..quantities.heavy_quarks import QuarkMassScheme
 from . import commons
 
 
-def managers(eko: EKO) -> Managers:
+def _managers(eko: EKO) -> Managers:
     """Collect managers for operator computation.
 
     .. todo::
@@ -39,7 +39,7 @@ def managers(eko: EKO) -> Managers:
     )
 
 
-def evolve_configs(eko: EKO) -> dict:
+def _evolve_configs(eko: EKO) -> dict:
     """Create configs for :class:`Operator`.
 
     .. todo::
@@ -70,7 +70,10 @@ def evolve_configs(eko: EKO) -> dict:
 def evolve(eko: EKO, recipe: Evolution) -> Operator:
     """Compute evolution in isolation."""
     op = evop.Operator(
-        evolve_configs(eko), managers(eko), recipe.as_atlas, is_threshold=recipe.cliff
+        _evolve_configs(eko),
+        _managers(eko),
+        recipe.as_atlas,
+        is_threshold=recipe.cliff,
     )
     op.compute()
 
@@ -82,7 +85,7 @@ def evolve(eko: EKO, recipe: Evolution) -> Operator:
     return Operator(res, err)
 
 
-def matching_configs(eko: EKO) -> dict:
+def _matching_configs(eko: EKO) -> dict:
     """Create configs for :class:`OperatorMatrixElement`.
 
     .. todo::
@@ -92,7 +95,7 @@ def matching_configs(eko: EKO) -> dict:
     tcard = eko.theory_card
     ocard = eko.operator_card
     return dict(
-        **evolve_configs(eko),
+        **_evolve_configs(eko),
         backward_inversion=ocard.configs.inversion_method,
     )
 
@@ -111,8 +114,8 @@ def match(eko: EKO, recipe: Matching) -> Operator:
     """
     kthr = eko.theory_card.heavy.squared_ratios[recipe.hq - 4]
     op = ome.OperatorMatrixElement(
-        matching_configs(eko),
-        managers(eko),
+        _matching_configs(eko),
+        _managers(eko),
         recipe.hq - 1,
         recipe.scale,
         recipe.inverse,

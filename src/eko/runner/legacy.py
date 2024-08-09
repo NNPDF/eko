@@ -1,7 +1,7 @@
 """Main application class of eko."""
 
 import logging
-import os
+from pathlib import Path
 from typing import Union
 
 from ekomark.data import update_runcards
@@ -32,7 +32,7 @@ class Runner:
         self,
         theory_card: Union[RawCard, runcards.TheoryCard],
         operators_card: Union[RawCard, runcards.OperatorCard],
-        path: os.PathLike,
+        path: Path,
     ):
         """Initialize runner.
 
