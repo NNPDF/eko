@@ -89,7 +89,7 @@ def cb_quad_ker_qcd(
     areas_x,
     areas_y,
     _L,
-    method_num,
+    ev_method,
     as1,
     as0,
     ev_op_iterations,
@@ -105,7 +105,6 @@ def cb_quad_ker_qcd(
     # combute basis functions
     areas = nb.carray(areas_raw, (areas_x, areas_y))
     pj = interpolation.evaluate_grid(n, is_log, logx, areas)
-    method = method_num
     order = (order_qcd, 0)
     ev_op_max_order = (ev_op_max_order_qcd, 0)
     if is_singlet:
@@ -120,7 +119,7 @@ def cb_quad_ker_qcd(
         # construct eko
         ker = s.dispatcher(
             order,
-            method,
+            ev_method,
             gamma_singlet,
             as1,
             as0,
@@ -144,7 +143,7 @@ def cb_quad_ker_qcd(
         # construct eko
         ker = ns.dispatcher(
             order,
-            method,
+            ev_method,
             gamma_ns,
             as1,
             as0,
@@ -234,7 +233,7 @@ def cb_quad_ker_ome(
     areas_x,
     areas_y,
     L,
-    method_num,
+    backward_method,
     as1,
     _as0,
     _ev_op_iterations,
@@ -250,7 +249,6 @@ def cb_quad_ker_ome(
     # compute basis functions
     areas = nb.carray(areas_raw, (areas_x, areas_y))
     pj = interpolation.evaluate_grid(n, is_log, logx, areas)
-    backward_method = method_num
     order = (order_qcd, 0)
     if is_singlet:
         indices = {21: 0, 100: 1, 90: 2}
