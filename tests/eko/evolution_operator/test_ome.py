@@ -339,6 +339,7 @@ class TestOperatorMatrixElement:
         path = tmp_path / "eko.tar"
         for skip_singlet in [True, False]:
             for skip_ns in [True, False]:
+                operator_card.configs.inversion_method = InversionMethod.EXACT
                 operator_card.debug.skip_singlet = skip_singlet
                 operator_card.debug.skip_non_singlet = skip_ns
                 path.unlink(missing_ok=True)

@@ -120,9 +120,7 @@ couplings = CouplingsInfo.from_dict(
     dict(
         alphas=alpharef[0],
         alphaem=alpharef[1],
-        scale=muref,
-        num_flavs_ref=5,
-        max_num_flavs=6,
+        ref=(muref, 5),
     )
 )
 evmod = CouplingEvolutionMethod.EXACT

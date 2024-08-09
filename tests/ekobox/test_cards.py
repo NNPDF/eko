@@ -10,14 +10,14 @@ def test_generate_ocard():
     mu0 = 1.65
     mugrid = [(10.0, 6), (100.0, 5)]
     op = cards.example.operator()
-    op.mu0 = mu0
+    op.init = (mu0, 4)
     op.mugrid = mugrid
     assert pytest.approx(op.mugrid) == mugrid
     assert pytest.approx(op.mu2grid) == np.array([mu**2 for mu, _ in mugrid])
     assert op.configs.interpolation_polynomial_degree == 4
     mugrid1 = [100.0, 5]
     op = cards.example.operator()
-    op.mu0 = mu0
+    op.init = (mu0, 4)
     op.mugrid = mugrid1
     op.configs.interpolation_polynomial_degree = 2
     op.configs.interpolation_is_log = False
@@ -35,7 +35,7 @@ def test_dump_load_op_card(tmp_path, cd):
         path1 = tmp_path / "debug_op.yaml"
         path2 = tmp_path / "debug_op_two.yaml"
         op = cards.example.operator()
-        op.mu0 = mu0
+        op.init = (mu0, 4)
         cards.dump(op.raw, path1)
         cards.dump(op.raw, path2)
         op_loaded = cards.load(path1)
@@ -52,7 +52,7 @@ def test_generate_theory_card():
     assert theory.order[0] == 2
     rawt = cards.example.raw_theory()
     assert isinstance(rawt, dict)
-    assert theory.heavy.num_flavs_init == rawt["heavy"]["num_flavs_init"]
+    assert theory.heavy.masses.c[0] == rawt["heavy"]["masses"][0][0]
 
 
 def containsnan(obj) -> bool:

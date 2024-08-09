@@ -72,7 +72,7 @@ def test_mod_expanded(theory_card, theory_ffns, operator_card, tmp_path: pathlib
         else:
             theory = theory_card
         theory.order = (1, 0)
-        theory.heavy.num_flavs_init = nf0
+        operator_card.init = (operator_card.init[0], nf0)
         path.unlink(missing_ok=True)
         opgrid = legacy.Runner(theory, operator_card, path=path).op_grid
         opg = opgrid.compute()

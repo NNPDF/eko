@@ -39,31 +39,6 @@ def managers(eko: EKO) -> Managers:
     )
 
 
-def blowup_info(eko: EKO) -> dict:
-    """Prepare common information to blow up to flavor basis.
-
-    Note
-    ----
-    ``intrinsic_range`` is a fully deprecated feature, here and anywhere else,
-    since a full range is already always used for backward evolution, and it is
-    not harmful to use it also for forward.
-
-    Indeed, the only feature of non-intrinsic evolution is to absorb a
-    non-trivial boundary condition when an intrinsic PDF is defined.
-    But to achieve this, is sufficient to not specify any intrinsic boundary
-    condition at all, while if something is there, it is intuitive enough that
-    it will be consistently evolved.
-
-    Moreover, since two different behavior are applied for the forward and
-    backward evolution, the intrinsic range is a "non-local" function, since it
-    does not depend only on the evolution segment, but also on the previous
-    evolution history (to determine if evolution is backward in flavor,
-    irrespectively of happening for an increasing or decreasing interval in
-    scale at fixed flavor).
-    """
-    return dict(intrinsic_range=[4, 5, 6], qed=eko.theory_card.order[1] > 0)
-
-
 def evolve_configs(eko: EKO) -> dict:
     """Create configs for :class:`Operator`.
 
@@ -99,10 +74,10 @@ def evolve(eko: EKO, recipe: Evolution) -> Operator:
     )
     op.compute()
 
-    binfo = blowup_info(eko)
+    qed = eko.theory_card.order[1] > 0
     res, err = physical.PhysicalOperator.ad_to_evol_map(
-        op.op_members, op.nf, op.q2_to, **binfo
-    ).to_flavor_basis_tensor(qed=binfo["qed"])
+        op.op_members, op.nf, op.q2_to, qed
+    ).to_flavor_basis_tensor(qed)
 
     return Operator(res, err)
 
@@ -119,7 +94,6 @@ def matching_configs(eko: EKO) -> dict:
     return dict(
         **evolve_configs(eko),
         backward_inversion=ocard.configs.inversion_method,
-        intrinsic_range=tcard.heavy.intrinsic_flavors,
     )
 
 
@@ -146,10 +120,9 @@ def match(eko: EKO, recipe: Matching) -> Operator:
         eko.theory_card.heavy.masses_scheme is QuarkMassScheme.MSBAR,
     )
     op.compute()
-
-    binfo = blowup_info(eko)
+    qed = eko.theory_card.order[1] > 0
     res, err = matching_condition.MatchingCondition.split_ad_to_evol_map(
-        op.op_members, op.nf, recipe.scale, **binfo
-    ).to_flavor_basis_tensor(qed=binfo["qed"])
+        op.op_members, op.nf, recipe.scale, qed
+    ).to_flavor_basis_tensor(qed)
 
     return Operator(res, err)

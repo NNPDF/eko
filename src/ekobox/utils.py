@@ -39,7 +39,7 @@ def ekos_product(
     # another kind of output which includes the theory and operator runcards)
 
     ep_match = eko_ini.approx(
-        (eko_fin.operator_card.mu0**2, eko_fin.theory_card.heavy.num_flavs_init),
+        (eko_fin.operator_card.init[0] ** 2, eko_fin.operator_card.init[1]),
         rtol=rtol,
         atol=atol,
     )

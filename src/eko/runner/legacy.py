@@ -4,6 +4,8 @@ import logging
 import os
 from typing import Union
 
+from ekomark.data import update_runcards
+
 from ..evolution_operator.grid import OperatorGrid
 from ..io import EKO, Operator, runcards
 from ..io.types import RawCard
@@ -44,8 +46,7 @@ class Runner:
             path where to store the computed operator
 
         """
-        new_theory, new_operator = runcards.update(theory_card, operators_card)
-        new_theory.heavy.intrinsic_flavors = [4, 5, 6]
+        new_theory, new_operator = update_runcards(theory_card, operators_card)
 
         # Store inputs
         self.path = path
@@ -70,7 +71,6 @@ class Runner:
             masses=masses,
             mass_scheme=new_theory.heavy.masses_scheme.value,
             thresholds_ratios=new_theory.heavy.squared_ratios,
-            intrinsic_flavors=new_theory.heavy.intrinsic_flavors,
             xif=new_theory.xif,
             configs=new_operator.configs,
             debug=new_operator.debug,

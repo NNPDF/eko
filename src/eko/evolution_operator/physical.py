@@ -23,7 +23,7 @@ class PhysicalOperator(member.OperatorBase):
     """
 
     @classmethod
-    def ad_to_evol_map(cls, op_members, nf, q2_final, intrinsic_range, qed):
+    def ad_to_evol_map(cls, op_members, nf, q2_final, qed=False):
         """
         Obtain map between the 3-dimensional anomalous dimension basis and the 4-dimensional evolution basis.
 
@@ -35,8 +35,6 @@ class PhysicalOperator(member.OperatorBase):
                 operator members in anomalous dimension basis
             nf : int
                 number of active light flavors
-            intrinsic_range : sequence
-                intrinsic heavy flavors
             qed : bool
                 activate qed
 
@@ -94,15 +92,14 @@ class PhysicalOperator(member.OperatorBase):
                 m["Tu8.Tu8"] = op_members[(br.non_singlet_pids_map["ns+u"], 0)]
                 m["Vu8.Vu8"] = op_members[(br.non_singlet_pids_map["ns-u"], 0)]
         # deal with intrinsic heavy quark PDFs
-        if intrinsic_range is not None:
-            hqfl = "cbt"
-            op_id = member.OpMember.id_like(op_members[(21, 21)])
-            for intr_fl in intrinsic_range:
-                if intr_fl <= nf:  # light quarks are not intrinsic
-                    continue
-                hq = hqfl[intr_fl - 4]  # find name
-                # intrinsic means no evolution, i.e. they are evolving with the identity
-                m[f"{hq}+.{hq}+"] = op_id.copy()
-                m[f"{hq}-.{hq}-"] = op_id.copy()
+        hqfl = "cbt"
+        op_id = member.OpMember.id_like(op_members[(21, 21)])
+        for intr_fl in [4, 5, 6]:
+            if intr_fl <= nf:  # light quarks are not intrinsic
+                continue
+            hq = hqfl[intr_fl - 4]  # find name
+            # intrinsic means no evolution, i.e. they are evolving with the identity
+            m[f"{hq}+.{hq}+"] = op_id.copy()
+            m[f"{hq}-.{hq}-"] = op_id.copy()
         # map key to MemberName
         return cls.promote_names(m, q2_final)

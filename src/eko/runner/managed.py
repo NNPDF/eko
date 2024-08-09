@@ -21,8 +21,6 @@ from . import commons, operators, parts, recipes
 
 def solve(theory: TheoryCard, operator: OperatorCard, path: Path):
     """Solve DGLAP equations in terms of evolution kernel operators (EKO)."""
-    theory.heavy.intrinsic_flavors = [4, 5, 6]
-
     with EKO.create(path) as builder:
         eko = builder.load_cards(theory, operator).build()  # pylint: disable=E1101
 

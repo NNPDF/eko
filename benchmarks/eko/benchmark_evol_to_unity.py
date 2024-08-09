@@ -19,16 +19,12 @@ def update_cards(theory: TheoryCard, operator: OperatorCard):
     theory.couplings = CouplingsInfo(
         alphas=0.35,
         alphaem=0.007496,
-        scale=float(np.sqrt(2)),
-        max_num_flavs=6,
-        num_flavs_ref=None,
+        ref=(float(np.sqrt(2)), 4),
     )
-    theory.heavy.num_flavs_init = 4
-    theory.heavy.intrinsic_flavors = [4, 5]
     theory.heavy.masses.c.value = 1.0
     theory.heavy.masses.b.value = 4.75
     theory.heavy.masses.t.value = 173.0
-    operator.mu0 = float(np.sqrt(2))
+    operator.init = (float(np.sqrt(2)), 4)
     operator.mugrid = [(10, 5)]
     operator.xgrid = XGrid(np.linspace(1e-1, 1, 30))
     operator.configs.interpolation_polynomial_degree = 1
