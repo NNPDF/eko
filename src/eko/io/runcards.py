@@ -105,7 +105,7 @@ class Configs(DictLike):
 class OperatorCard(DictLike):
     """Operator Card info."""
 
-    mu0: float
+    init: EPoint
     """Initial scale."""
     mugrid: List[EPoint]
     xgrid: interpolation.XGrid
@@ -126,7 +126,7 @@ class OperatorCard(DictLike):
     @property
     def mu20(self):
         """Squared value of initial scale."""
-        return self.mu0**2
+        return self.init[0] ** 2
 
     @property
     def mu2grid(self) -> npt.NDArray:
@@ -194,25 +194,12 @@ class Legacy:
             alphas=old["alphas"],
             alphaem=alphaem,
             em_running=em_running,
-            scale=old["Qref"],
-            num_flavs_ref=old["nfref"],
-            max_num_flavs=old["MaxNfAs"],
+            ref=(old["Qref"], old["nfref"]),
         )
         new["heavy"] = {
-            "num_flavs_init": (
-                nf_default(old["Q0"] ** 2.0, default_atlas(ms, ks))
-                if old["nf0"] is None
-                else old["nf0"]
-            ),
-            "num_flavs_max_pdf": old["MaxNfPdf"],
             "matching_ratios": self.heavies("k%sThr", old),
             "masses_scheme": old["HQ"],
         }
-        intrinsic = []
-        for idx, q in enumerate(hq.FLAVORS):
-            if old.get(f"i{q}".upper()) == 1:
-                intrinsic.append(idx + 4)
-        new["heavy"]["intrinsic_flavors"] = intrinsic
         if old["HQ"] == "POLE":
             new["heavy"]["masses"] = [[m, nan] for m in ms]
         elif old["HQ"] == "MSBAR":
@@ -236,17 +223,22 @@ class Legacy:
         old_th = self.theory
         new = {}
 
-        new["mu0"] = old_th["Q0"]
+        ms = self.heavies("m%s", old_th)
+        ks = self.heavies("k%sThr", old_th)
+        new["init"] = (
+            old_th["Q0"],
+            (
+                nf_default(old_th["Q0"] ** 2.0, default_atlas(ms, ks))
+                if old_th["nf0"] is None
+                else old_th["nf0"]
+            ),
+        )
         if "mugrid" in old:
             mugrid = old["mugrid"]
         else:
             mu2grid = old["Q2grid"] if "Q2grid" in old else old["mu2grid"]
             mugrid = np.sqrt(mu2grid).tolist()
-        new["mugrid"] = flavored_mugrid(
-            mugrid,
-            list(self.heavies("m%s", old_th)),
-            list(self.heavies("k%sThr", old_th)),
-        )
+        new["mugrid"] = flavored_mugrid(mugrid, list(ms), list(ks))
 
         new["configs"] = {}
         evmod = old_th["ModEv"]
@@ -276,27 +268,6 @@ class Legacy:
         new["xgrid"] = old["interpolation_xgrid"]
 
         return OperatorCard.from_dict(new)
-
-
-def update(theory: Union[RawCard, TheoryCard], operator: Union[RawCard, OperatorCard]):
-    """Update legacy runcards.
-
-    This function is mainly defined for compatibility with the old interface.
-    Prefer direct usage of :class:`Legacy` in new code.
-
-    Consecutive applications of this function yield identical results::
-
-        cards = update(theory, operator)
-        assert update(*cards) == cards
-    """
-    if isinstance(theory, TheoryCard) or isinstance(operator, OperatorCard):
-        # if one is not a dict, both have to be new cards
-        assert isinstance(theory, TheoryCard)
-        assert isinstance(operator, OperatorCard)
-        return theory, operator
-
-    cards = Legacy(theory, operator)
-    return cards.new_theory, cards.new_operator
 
 
 def default_atlas(masses: list, matching_ratios: list):

@@ -7,13 +7,7 @@ from typing import Generic, List, Sequence, TypeVar
 import numpy as np
 
 from ..io.dictlike import DictLike
-from ..io.types import (
-    FlavorsNumber,
-    IntrinsicFlavors,
-    LinearScale,
-    ReferenceRunning,
-    SquaredScale,
-)
+from ..io.types import FlavorsNumber, LinearScale, ReferenceRunning, SquaredScale
 
 FLAVORS = "cbt"
 
@@ -91,16 +85,6 @@ class HeavyInfo(DictLike):
 
     """
 
-    num_flavs_init: FlavorsNumber
-    r"""Number of active flavors at fitting scale.
-
-    I.e. :math:`n_{f,\text{ref}}(\mu^2_0)`, formerly called ``nf0``.
-
-    """
-    num_flavs_max_pdf: FlavorsNumber
-    """Maximum number of quark PDFs."""
-    intrinsic_flavors: IntrinsicFlavors
-    """List of intrinsic quark PDFs."""
     masses: HeavyQuarkMasses
     """List of heavy quark masses."""
     masses_scheme: QuarkMassScheme

@@ -3,19 +3,9 @@ import warnings
 import numpy as np
 import pytest
 
+from eko.kernels import EvoMethods
 from eko.kernels import singlet as s
 from ekore import anomalous_dimensions as ad
-
-methods = [
-    "iterate-expanded",
-    "decompose-expanded",
-    "perturbative-expanded",
-    "truncated",
-    "ordered-truncated",
-    "iterate-exact",
-    "decompose-exact",
-    "perturbative-exact",
-]
 
 
 def test_zero_lo(monkeypatch):
@@ -35,7 +25,7 @@ def test_zero_lo(monkeypatch):
             np.array([[0, 0], [0, 1]]),
         ),
     )
-    for method in methods:
+    for method in EvoMethods:
         np.testing.assert_allclose(
             s.dispatcher(
                 (1, 0), method, gamma_s, 1, 1, nf, ev_op_iterations, ev_op_max_order
@@ -75,8 +65,8 @@ def test_zero_nlo_decompose(monkeypatch):
         ),
     )
     for method in [
-        "decompose-expanded",
-        "decompose-exact",
+        EvoMethods.DECOMPOSE_EXPANDED,
+        EvoMethods.DECOMPOSE_EXACT,
     ]:
         np.testing.assert_allclose(
             s.dispatcher(
@@ -117,8 +107,8 @@ def test_zero_nnlo_decompose(monkeypatch):
         ),
     )
     for method in [
-        "decompose-expanded",
-        "decompose-exact",
+        EvoMethods.DECOMPOSE_EXPANDED,
+        EvoMethods.DECOMPOSE_EXACT,
     ]:
         np.testing.assert_allclose(
             s.dispatcher(
@@ -159,8 +149,8 @@ def test_zero_n3lo_decompose(monkeypatch):
         ),
     )
     for method in [
-        "decompose-expanded",
-        "decompose-exact",
+        EvoMethods.DECOMPOSE_EXPANDED,
+        EvoMethods.DECOMPOSE_EXACT,
     ]:
         np.testing.assert_allclose(
             s.dispatcher(
@@ -200,7 +190,7 @@ def test_similarity():
     ]:
         ref = s.dispatcher(
             order,
-            "decompose-exact",
+            EvoMethods.DECOMPOSE_EXACT,
             gamma_s,
             a1,
             a0,
@@ -208,7 +198,7 @@ def test_similarity():
             ev_op_iterations,
             ev_op_max_order,
         )
-        for method in methods:
+        for method in EvoMethods:
             np.testing.assert_allclose(
                 s.dispatcher(
                     order,
@@ -227,7 +217,9 @@ def test_similarity():
 
 def test_error():
     with pytest.raises(NotImplementedError):
-        s.dispatcher((4, 0), "AAA", np.random.rand(3, 2, 2), 0.2, 0.1, 3, 10, 10)
+        s.dispatcher(
+            (4, 0), "iterate-exact", np.random.rand(3, 2, 2), 0.2, 0.1, 3, 10, 10
+        )
 
 
 def mk_almost_diag_matrix(n, max_ang=np.pi / 8.0):
@@ -247,7 +239,7 @@ def test_gamma_usage():
     gamma_s = np.full((4, 2, 2), np.nan)
     for order in range(1, 5):
         gamma_s[order - 1] = mk_almost_diag_matrix(1)
-        for method in methods:
+        for method in EvoMethods:
             r = s.dispatcher(
                 (order, 0),
                 method,
@@ -263,8 +255,8 @@ def test_gamma_usage():
     for order in range(1, 5):
         gamma_s = mk_almost_diag_matrix(4)
         gamma_s[order - 1] = np.full((2, 2), np.nan)
-        for method in methods:
-            if "iterate" in method:
+        for method in EvoMethods:
+            if method in [EvoMethods.ITERATE_EXACT, EvoMethods.ITERATE_EXPANDED]:
                 # we are actually dividing by the determinant of
                 # matrix full of np.nan
                 warnings.simplefilter("ignore", RuntimeWarning)
@@ -287,8 +279,8 @@ def test_singlet_back():
     nf = 4
     a1 = 3.0
     a0 = 4.0
-    s10 = s.dispatcher(order, "iterate-exact", gamma_s, a1, a0, nf, 15, 1)
+    s10 = s.dispatcher(order, EvoMethods.ITERATE_EXACT, gamma_s, a1, a0, nf, 15, 1)
     np.testing.assert_allclose(
         np.linalg.inv(s10),
-        s.dispatcher(order, "iterate-exact", gamma_s, a0, a1, nf, 15, 1),
+        s.dispatcher(order, EvoMethods.ITERATE_EXACT, gamma_s, a0, a1, nf, 15, 1),
     )

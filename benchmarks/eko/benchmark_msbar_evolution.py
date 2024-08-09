@@ -21,9 +21,8 @@ except ImportError:
 
 def update_theory(theory: TheoryCard):
     theory.order = (3, 0)
-    theory.couplings.scale = 91
+    theory.couplings.ref = (91, 5)
     theory.couplings.alphaem = 0.007496
-    theory.couplings.num_flavs_ref = 5
     theory.heavy.masses_scheme = QuarkMassScheme.MSBAR
     theory.heavy.masses.c = QuarkMassRef([1.5, 18])
     theory.heavy.masses.b = QuarkMassRef([4.1, 20])
@@ -150,7 +149,7 @@ class BenchmarkMSbar:
                     apfel.SetTheory("QCD")
                     apfel.SetPerturbativeOrder(order - 1)
                     apfel.SetAlphaEvolution(method)
-                    apfel.SetAlphaQCDRef(coupl.alphas, coupl.scale)
+                    apfel.SetAlphaQCDRef(coupl.alphas, coupl.ref[0])
                     apfel.SetVFNS()
                     apfel.SetMSbarMasses(
                         qmasses.c.value, qmasses.b.value, qmasses.t.value
@@ -218,7 +217,7 @@ class BenchmarkMSbar:
                 apfel.SetTheory("QCD")
                 apfel.SetPerturbativeOrder(order - 1)
                 apfel.SetAlphaEvolution("exact")
-                apfel.SetAlphaQCDRef(coupl.alphas, coupl.scale)
+                apfel.SetAlphaQCDRef(coupl.alphas, coupl.ref[0])
                 apfel.SetVFNS()
                 apfel.SetMSbarMasses(qmasses.c.value, qmasses.b.value, qmasses.t.value)
                 apfel.SetMassScaleReference(

@@ -2,6 +2,7 @@
 
 import copy
 import math
+from typing import Any, Dict
 
 import numpy as np
 
@@ -37,7 +38,9 @@ def build(
         info file in lhapdf format
     """
     template_info = copy.deepcopy(load.template_info)
-    template_info["SetDesc"] = "Evolved PDF from " + str(operators_card.mu0) + " GeV"
+    template_info["SetDesc"] = (
+        "Evolved PDF from " + str(operators_card.init[0]) + " GeV"
+    )
     template_info["Authors"] = ""
     template_info["FlavorScheme"] = "variable"
     template_info.update(info_update)
@@ -50,7 +53,7 @@ def build(
     template_info["OrderQCD"] = theory_card.order[0] - 1
     template_info["QMin"] = round(math.sqrt(operators_card.mu2grid[0]), 4)
     template_info["QMax"] = round(math.sqrt(operators_card.mu2grid[-1]), 4)
-    template_info["MZ"] = theory_card.couplings.scale
+    template_info["MZ"] = theory_card.couplings.ref[0]
     template_info["MUp"] = 0.0
     template_info["MDown"] = 0.0
     template_info["MStrange"] = 0.0
@@ -81,7 +84,7 @@ def build_alphas(
         info file section in lhapdf format
     """
     # start with meta stuff
-    template_info = {}
+    template_info: Dict[str, Any] = {}
     template_info["AlphaS_MZ"] = theory_card.couplings.alphas
     template_info["AlphaS_OrderQCD"] = theory_card.order[0] - 1
     # prepare

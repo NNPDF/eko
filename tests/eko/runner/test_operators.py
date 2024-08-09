@@ -2,18 +2,18 @@ import numpy as np
 
 from eko.io.items import Operator
 from eko.io.struct import EKO
-from eko.runner.operators import join, retrieve
+from eko.runner.operators import _retrieve, join
 
 
 def test_retrieve(ekoparts: EKO):
     evhead, _evop = next(iter(ekoparts.parts.cache.items()))
     matchhead, _matchop = next(iter(ekoparts.parts_matching.cache.items()))
 
-    els = retrieve([evhead] * 5, ekoparts.parts, ekoparts.parts_matching)
+    els = _retrieve([evhead] * 5, ekoparts.parts, ekoparts.parts_matching)
     assert len(els) == 5
     assert all(isinstance(el, Operator) for el in els)
 
-    els = retrieve(
+    els = _retrieve(
         [evhead, matchhead, matchhead], ekoparts.parts, ekoparts.parts_matching
     )
     assert len(els) == 3
