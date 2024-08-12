@@ -1,0 +1,23 @@
+[package]
+name = "dekoder"
+
+authors.workspace = true
+description.workspace = true
+readme.workspace = true
+categories.workspace = true
+edition.workspace = true
+keywords.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+version.workspace = true
+
+[package.metadata.docs.rs]
+rustdoc-args = ["--html-in-header", "doc-header.html"]
+
+[lib]
+name = "ekors"
+crate-type = ["cdylib"]
+
+[dependencies]
+tar = "0.4.41"
