@@ -1,37 +1,79 @@
 //! eko output reader.
+use float_cmp::approx_eq;
 use glob::glob;
 use hashbrown::HashMap;
-use std::fs::remove_dir_all;
+use std::ffi::OsString;
 use std::fs::File;
+use std::fs::{read_to_string, remove_dir_all};
 use std::io::BufWriter;
 use std::path::PathBuf;
+use yaml_rust2::{Yaml, YamlLoader};
 
+/// Headers are in yaml files.
 const HEADER_EXT: &'static str = "*.yaml";
-struct Inventory {
+
+/// Header type in an inventory.
+trait HeaderT {
+    /// Load from yaml.
+    fn load(yml: &Yaml) -> Self;
+    /// Comparator.
+    fn eq(&self, other: &Self, ulps: i64) -> bool;
+}
+
+/// A reference point in the evolution atlas.
+pub struct EvolutionPoint {
+    /// Evolution scale.
+    scale: f64,
+    /// Number of flavors
+    nf: i64,
+}
+
+impl HeaderT for EvolutionPoint {
+    /// Load from yaml.
+    fn load(yml: &Yaml) -> Self {
+        // work around float representation
+        let scale = yml["scale"].as_f64();
+        let scale = if scale.is_some() {
+            scale.unwrap()
+        } else {
+            yml["scale"].as_i64().unwrap() as f64
+        };
+        Self {
+            scale: scale,
+            nf: yml["nf"].as_i64().unwrap(),
+        }
+    }
+    /// Comparator.
+    fn eq(&self, other: &Self, ulps: i64) -> bool {
+        self.nf == other.nf && approx_eq!(f64, self.scale, other.scale, ulps = ulps)
+    }
+}
+
+/// Assets manager.
+struct Inventory<K: HeaderT> {
     /// Working directory
     path: PathBuf,
     /// Available items
-    keys: HashMap<String, String>,
+    keys: HashMap<OsString, K>,
 }
-impl Inventory {
-    /// Load all available entries
+
+impl<K: HeaderT> Inventory<K> {
+    /// Load all available entries.
     pub fn load_keys(&mut self) {
-        for entry in glob(self.path.join(HEADER_EXT.to_owned()).to_str().unwrap())
+        for entry in glob(self.path.join(&HEADER_EXT).to_str().unwrap())
             .expect("Failed to read glob pattern")
             .filter(|x| x.is_ok())
+            .map(|x| x.unwrap())
         {
-            self.keys.insert(
-                (*entry.unwrap().file_name().unwrap())
-                    .to_os_string()
-                    .into_string()
-                    .unwrap(),
-                "Blub".to_string(),
-            );
+            let cnt = YamlLoader::load_from_str(&read_to_string(&entry).unwrap()).unwrap();
+            self.keys
+                .insert(entry.file_name().unwrap().to_os_string(), K::load(&cnt[0]));
         }
     }
 
-    pub fn has_key(&self, ep: String, ulps: f64) -> bool {
-        self.keys.values().find(|v| (*v).eq(&ep)).is_some()
+    /// Check if `k` is available (with given precision).
+    pub fn has_key(&self, k: K, ulps: i64) -> bool {
+        self.keys.values().find(|v| (*v).eq(&k, ulps)).is_some()
     }
 }
 
@@ -44,10 +86,11 @@ pub struct EKO {
     /// allow content modifications?
     read_only: bool,
     /// final operators
-    operators: Inventory,
+    operators: Inventory<EvolutionPoint>,
 }
 
-const DIR_OPERATORS: &'static str = "operators";
+/// Operators directory.
+const DIR_OPERATORS: &'static str = "operators/";
 
 impl EKO {
     /// Check our working directory is safe.
@@ -152,7 +195,7 @@ impl EKO {
     }
 
     /// Check if the operator at the evolution point `ep` is available.
-    pub fn has_operator(&self, ep: String, ulps: f64) -> bool {
+    pub fn has_operator(&self, ep: EvolutionPoint, ulps: i64) -> bool {
         self.operators.has_key(ep, ulps)
     }
 }
@@ -197,7 +240,7 @@ mod test {
 
     #[test]
     fn read_keys() {
-        use super::EKO;
+        use super::{EvolutionPoint, EKO};
         use std::fs::remove_dir_all;
         use std::path::PathBuf;
         let base: PathBuf = [env!("CARGO_MANIFEST_DIR"), "tests"].iter().collect();
@@ -211,6 +254,12 @@ mod test {
         }
         // open
         let eko = EKO::read(src.to_owned(), dst.to_owned());
-        assert!(eko.has_operator("Blub".to_string(), 1e-7));
+        assert!(eko.has_operator(
+            EvolutionPoint {
+                scale: 10000.,
+                nf: 4
+            },
+            64
+        ));
     }
 }
