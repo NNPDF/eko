@@ -6,7 +6,7 @@ use std::fs::read_to_string;
 use std::path::PathBuf;
 use yaml_rust2::{Yaml, YamlLoader};
 
-use crate::Result;
+use crate::{EKOError, Result};
 
 /// Headers are in yaml files.
 const HEADER_EXT: &'static str = "*.yaml";
@@ -14,7 +14,7 @@ const HEADER_EXT: &'static str = "*.yaml";
 /// Header type in an inventory.
 pub(crate) trait HeaderT {
     /// Load from yaml.
-    fn load_from_yaml(yml: &Yaml) -> Self;
+    fn load_from_yaml(yml: &Yaml) -> Result<Box<Self>>;
     /// Comparator.
     fn eq(&self, other: &Self, ulps: i64) -> bool;
 }
@@ -32,27 +32,37 @@ pub(crate) struct Inventory<K: HeaderT> {
     /// Working directory
     pub(crate) path: PathBuf,
     /// Available keys
-    pub(crate) keys: HashMap<OsString, K>,
+    pub(crate) keys: HashMap<OsString, Box<K>>,
 }
 
 impl<K: HeaderT> Inventory<K> {
     /// Load all available entries.
-    pub fn load_keys(&mut self) {
-        for entry in glob(self.path.join(&HEADER_EXT).to_str().unwrap())
-            .expect("Failed to read glob pattern")
-            .filter(|x| x.is_ok())
-            .map(|x| x.unwrap())
+    pub fn load_keys(&mut self) -> Result<()> {
+        let path = self.path.join(&HEADER_EXT);
+        let path = path
+            .to_str()
+            .ok_or(EKOError::KeyError("due to invalid path".to_owned()))?;
+        for entry in glob(path)
+            .map_err(|_| EKOError::KeyError("because failed to read glob pattern".to_owned()))?
+            .filter_map(core::result::Result::ok)
         {
-            let cnt = YamlLoader::load_from_str(&read_to_string(&entry).unwrap()).unwrap();
+            let cnt = YamlLoader::load_from_str(&read_to_string(&entry)?)
+                .map_err(|_| EKOError::KeyError("because failed to read yaml file.".to_owned()))?;
             self.keys.insert(
-                entry.file_name().unwrap().to_os_string(),
-                K::load_from_yaml(&cnt[0]),
+                entry
+                    .file_name()
+                    .ok_or(EKOError::KeyError(
+                        "because failed to read file name".to_owned(),
+                    ))?
+                    .to_os_string(),
+                K::load_from_yaml(&cnt[0])?,
             );
         }
+        Ok(())
     }
 
     /// List available keys.
-    pub fn keys(&self) -> Vec<&K> {
+    pub fn keys(&self) -> Vec<&Box<K>> {
         let mut ks = Vec::new();
         for k in self.keys.values() {
             ks.push(k);
@@ -68,7 +78,7 @@ impl<K: HeaderT> Inventory<K> {
     /// Load `k` from disk.
     pub fn load<V: ValueT>(&mut self, k: &K, ulps: i64, v: &mut V) -> Result<()> {
         let k = self.keys.iter().find(|it| (it.1).eq(&k, ulps));
-        let k = k.unwrap();
+        let k = k.ok_or(EKOError::KeyError("because it was not found".to_owned()))?;
         let path = self.path.join(k.0).with_extension(V::FILE_SUFFIX);
         v.load_from_path(path)
     }

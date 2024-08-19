@@ -26,6 +26,8 @@ pub enum EKOError {
     TargetAlreadyExists(PathBuf),
     #[error("Loading operator from `{0}` failed")]
     OperatorLoadError(PathBuf),
+    #[error("Failed to read key(s) `{0}`")]
+    KeyError(String),
 }
 
 /// My result type has always my errros.
@@ -41,18 +43,22 @@ pub struct EvolutionPoint {
 
 impl inventory::HeaderT for EvolutionPoint {
     /// Load from yaml.
-    fn load_from_yaml(yml: &Yaml) -> Self {
+    fn load_from_yaml(yml: &Yaml) -> Result<Box<Self>> {
         // work around float representation
         let scale = yml["scale"].as_f64();
         let scale = if scale.is_some() {
-            scale.unwrap()
+            scale.ok_or(EKOError::KeyError(
+                "because failed to read scale as float".to_owned(),
+            ))?
         } else {
-            yml["scale"].as_i64().unwrap() as f64
+            yml["scale"].as_i64().ok_or(EKOError::KeyError(
+                "because failed to read scale as float from int".to_owned(),
+            ))? as f64
         };
-        Self {
-            scale: scale,
-            nf: yml["nf"].as_i64().unwrap(),
-        }
+        let nf = yml["nf"]
+            .as_i64()
+            .ok_or(EKOError::KeyError("because failed to read nf".to_owned()))?;
+        Ok(Box::new(Self { scale, nf }))
     }
 
     /// Comparator.
@@ -75,7 +81,9 @@ impl inventory::ValueT for Operator {
         std::io::copy(&mut reader, &mut buffer)?;
         let mut npz = NpzReader::new(Cursor::new(buffer))
             .map_err(|_| EKOError::OperatorLoadError(p.to_owned()))?;
-        let operator: Array4<f64> = npz.by_name("operator.npy").unwrap();
+        let operator: Array4<f64> = npz
+            .by_name("operator.npy")
+            .map_err(|_| EKOError::OperatorLoadError(p.to_owned()))?;
         self.op = operator;
         Ok(())
     }
@@ -174,28 +182,28 @@ impl EKO {
     pub fn extract(src: PathBuf, dst: PathBuf, read_only: bool) -> Result<Self> {
         let mut ar = tar::Archive::new(File::open(src.to_owned())?);
         ar.unpack(dst.to_owned())?;
-        let mut obj = Self::load_opened(dst, read_only);
+        let mut obj = Self::load_opened(dst, read_only)?;
         obj.set_tar_path(src);
         Ok(obj)
     }
 
     /// Load an EKO from a directory `path` (instead of tar).
-    pub fn load_opened(path: PathBuf, read_only: bool) -> Self {
+    pub fn load_opened(path: PathBuf, read_only: bool) -> Result<Self> {
         let mut operators = inventory::Inventory {
             path: path.join(DIR_OPERATORS),
             keys: HashMap::new(),
         };
-        operators.load_keys();
-        Self {
+        operators.load_keys()?;
+        Ok(Self {
             path,
             tar_path: None,
             read_only,
             operators,
-        }
+        })
     }
 
     /// List available evolution points.
-    pub fn available_operators(&self) -> Vec<&EvolutionPoint> {
+    pub fn available_operators(&self) -> Vec<&Box<EvolutionPoint>> {
         self.operators.keys()
     }
 
