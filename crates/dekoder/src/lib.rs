@@ -13,6 +13,8 @@ use yaml_rust2::Yaml;
 
 mod inventory;
 
+use crate::inventory::HeaderT;
+
 /// The EKO errors.
 #[derive(Error, Debug)]
 pub enum EKOError {
@@ -43,7 +45,7 @@ pub struct EvolutionPoint {
 
 impl inventory::HeaderT for EvolutionPoint {
     /// Load from yaml.
-    fn load_from_yaml(yml: &Yaml) -> Result<Box<Self>> {
+    fn load_from_yaml(yml: &Yaml) -> Result<Self> {
         // work around float representation
         let scale = yml["scale"].as_f64();
         let scale = if scale.is_some() {
@@ -58,12 +60,19 @@ impl inventory::HeaderT for EvolutionPoint {
         let nf = yml["nf"]
             .as_i64()
             .ok_or(EKOError::KeyError("because failed to read nf".to_owned()))?;
-        Ok(Box::new(Self { scale, nf }))
+        Ok(Self { scale, nf })
     }
 
-    /// Comparator.
+    /// (Protected) comparator.
     fn eq(&self, other: &Self, ulps: i64) -> bool {
         self.nf == other.nf && approx_eq!(f64, self.scale, other.scale, ulps = ulps)
+    }
+}
+
+impl EvolutionPoint {
+    /// Comparator.
+    pub fn equals(&self, other: &Self, ulps: i64) -> bool {
+        self.eq(other, ulps)
     }
 }
 
@@ -203,7 +212,7 @@ impl EKO {
     }
 
     /// List available evolution points.
-    pub fn available_operators(&self) -> Vec<&Box<EvolutionPoint>> {
+    pub fn available_operators(&self) -> Vec<&EvolutionPoint> {
         self.operators.keys()
     }
 

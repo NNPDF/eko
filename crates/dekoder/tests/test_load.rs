@@ -59,6 +59,8 @@ fn has_operator() {
         scale: 10000.,
         nf: 4,
     };
+    // it is the one
+    assert!(ep.equals(eko.available_operators()[0], 64));
     assert!(eko.has_operator(&ep, 64));
     eko.close(false).unwrap();
 }

@@ -14,7 +14,9 @@ const HEADER_EXT: &'static str = "*.yaml";
 /// Header type in an inventory.
 pub(crate) trait HeaderT {
     /// Load from yaml.
-    fn load_from_yaml(yml: &Yaml) -> Result<Box<Self>>;
+    fn load_from_yaml(yml: &Yaml) -> Result<Self>
+    where
+        Self: Sized;
     /// Comparator.
     fn eq(&self, other: &Self, ulps: i64) -> bool;
 }
@@ -32,7 +34,7 @@ pub(crate) struct Inventory<K: HeaderT> {
     /// Working directory
     pub(crate) path: PathBuf,
     /// Available keys
-    pub(crate) keys: HashMap<OsString, Box<K>>,
+    pub(crate) keys: HashMap<OsString, K>,
 }
 
 impl<K: HeaderT> Inventory<K> {
@@ -62,7 +64,7 @@ impl<K: HeaderT> Inventory<K> {
     }
 
     /// List available keys.
-    pub fn keys(&self) -> Vec<&Box<K>> {
+    pub fn keys(&self) -> Vec<&K> {
         let mut ks = Vec::new();
         for k in self.keys.values() {
             ks.push(k);
