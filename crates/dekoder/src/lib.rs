@@ -24,6 +24,8 @@ pub enum EKOError {
     NoTargetPath,
     #[error("Target path `{0}` already exists")]
     TargetAlreadyExists(PathBuf),
+    #[error("Loading operator from `{0}` failed")]
+    OperatorLoadError(PathBuf),
 }
 
 /// My result type has always my errros.
@@ -66,13 +68,16 @@ pub struct Operator {
 
 impl inventory::ValueT for Operator {
     const FILE_SUFFIX: &'static str = "npz.lz4";
-    fn load_from_path(&mut self, p: PathBuf) {
-        let mut reader = BufReader::new(FrameDecoder::new(BufReader::new(File::open(p).unwrap())));
+    fn load_from_path(&mut self, p: PathBuf) -> Result<()> {
+        let mut reader =
+            BufReader::new(FrameDecoder::new(BufReader::new(File::open(p.to_owned())?)));
         let mut buffer = Vec::new();
-        std::io::copy(&mut reader, &mut buffer).unwrap();
-        let mut npz = NpzReader::new(Cursor::new(buffer)).unwrap();
+        std::io::copy(&mut reader, &mut buffer)?;
+        let mut npz = NpzReader::new(Cursor::new(buffer))
+            .map_err(|_| EKOError::OperatorLoadError(p.to_owned()))?;
         let operator: Array4<f64> = npz.by_name("operator.npy").unwrap();
-        self.op = operator
+        self.op = operator;
+        Ok(())
     }
 }
 
@@ -200,7 +205,13 @@ impl EKO {
     }
 
     /// Load the operator at the evolution point `ep` from disk.
-    pub fn load_operator(&mut self, ep: &EvolutionPoint, ulps: i64, op: &mut Operator) {
-        self.operators.load(ep, ulps, op);
+    pub fn load_operator(
+        &mut self,
+        ep: &EvolutionPoint,
+        ulps: i64,
+        op: &mut Operator,
+    ) -> Result<()> {
+        self.operators.load(ep, ulps, op)?;
+        Ok(())
     }
 }

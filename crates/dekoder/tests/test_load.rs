@@ -81,7 +81,7 @@ fn load_operator() {
         nf: 4,
     };
     let mut op = Operator::zeros();
-    eko.load_operator(&ep, 64, &mut op);
+    eko.load_operator(&ep, 64, &mut op).unwrap();
     assert!(op.op.dim().0 > 0);
     eko.close(false).unwrap();
 }

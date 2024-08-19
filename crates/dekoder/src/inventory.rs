@@ -6,6 +6,8 @@ use std::fs::read_to_string;
 use std::path::PathBuf;
 use yaml_rust2::{Yaml, YamlLoader};
 
+use crate::Result;
+
 /// Headers are in yaml files.
 const HEADER_EXT: &'static str = "*.yaml";
 
@@ -22,7 +24,7 @@ pub(crate) trait ValueT {
     // File suffix (instead of header suffix)
     const FILE_SUFFIX: &'static str;
     /// Load from file.
-    fn load_from_path(&mut self, p: PathBuf);
+    fn load_from_path(&mut self, p: PathBuf) -> Result<()>;
 }
 
 /// Assets manager.
@@ -64,16 +66,10 @@ impl<K: HeaderT> Inventory<K> {
     }
 
     /// Load `k` from disk.
-    pub fn load<V: ValueT>(&mut self, k: &K, ulps: i64, v: &mut V) {
+    pub fn load<V: ValueT>(&mut self, k: &K, ulps: i64, v: &mut V) -> Result<()> {
         let k = self.keys.iter().find(|it| (it.1).eq(&k, ulps));
         let k = k.unwrap();
         let path = self.path.join(k.0).with_extension(V::FILE_SUFFIX);
-        v.load_from_path(path);
+        v.load_from_path(path)
     }
 }
-
-// mod test {
-//     #[test]
-//     fn save_as_other() {
-//     }
-// }
