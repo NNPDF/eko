@@ -15,10 +15,6 @@ version.workspace = true
 [package.metadata.docs.rs]
 rustdoc-args = ["--html-in-header", "doc-header.html"]
 
-[lib]
-name = "ekors"
-crate-type = ["cdylib"]
-
 [dependencies]
 tar = "0.4.41"
 hashbrown = "0.14"

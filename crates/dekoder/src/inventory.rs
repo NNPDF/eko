@@ -22,20 +22,18 @@ pub(crate) trait ValueT {
     // File suffix (instead of header suffix)
     const FILE_SUFFIX: &'static str;
     /// Load from file.
-    fn load_from_path(p: PathBuf) -> Self;
+    fn load_from_path(&mut self, p: PathBuf);
 }
 
 /// Assets manager.
-pub(crate) struct Inventory<K: HeaderT, V: ValueT> {
+pub(crate) struct Inventory<K: HeaderT> {
     /// Working directory
     pub(crate) path: PathBuf,
     /// Available keys
     pub(crate) keys: HashMap<OsString, K>,
-    /// Available values (in memory)
-    pub(crate) values: HashMap<OsString, V>,
 }
 
-impl<K: HeaderT, V: ValueT> Inventory<K, V> {
+impl<K: HeaderT> Inventory<K> {
     /// Load all available entries.
     pub fn load_keys(&mut self) {
         for entry in glob(self.path.join(&HEADER_EXT).to_str().unwrap())
@@ -50,14 +48,27 @@ impl<K: HeaderT, V: ValueT> Inventory<K, V> {
             );
         }
     }
+
+    /// List available keys.
+    pub fn keys(&self) -> Vec<&K> {
+        let mut ks = Vec::new();
+        for k in self.keys.values() {
+            ks.push(k);
+        }
+        ks
+    }
+
     /// Check if `k` is available (with given precision).
-    pub fn get(&mut self, k: &K, ulps: i64) -> Option<V> {
+    pub fn has(&self, k: &K, ulps: i64) -> bool {
+        self.keys.iter().find(|it| (it.1).eq(&k, ulps)).is_some()
+    }
+
+    /// Load `k` from disk.
+    pub fn load<V: ValueT>(&mut self, k: &K, ulps: i64, v: &mut V) {
         let k = self.keys.iter().find(|it| (it.1).eq(&k, ulps));
-        let k = k?;
+        let k = k.unwrap();
         let path = self.path.join(k.0).with_extension(V::FILE_SUFFIX);
-        let v = V::load_from_path(path);
-        // self.values.insert(k.0.clone(), &v);
-        Some(v)
+        v.load_from_path(path);
     }
 }
 
