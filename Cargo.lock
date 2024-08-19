@@ -103,6 +103,7 @@ dependencies = [
  "ndarray",
  "ndarray-npy",
  "tar",
+ "thiserror",
  "yaml-rust2",
 ]
 

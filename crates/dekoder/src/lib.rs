@@ -8,9 +8,24 @@ use std::fs::remove_dir_all;
 use std::fs::File;
 use std::io::{BufReader, BufWriter, Cursor};
 use std::path::PathBuf;
+use thiserror::Error;
 use yaml_rust2::Yaml;
 
 mod inventory;
+
+#[derive(Error, Debug)]
+pub enum EKOError {
+    #[error("No working directory")]
+    NoWorkingDir,
+    #[error("I/O error")]
+    IOError(#[from] std::io::Error),
+    #[error("No target path given")]
+    NoTargetPath,
+    #[error("Target path `{0}` already exists")]
+    TargetAlreadyExists(PathBuf),
+}
+
+type Result<T> = std::result::Result<T, EKOError>;
 
 /// A reference point in the evolution atlas.
 pub struct EvolutionPoint {
@@ -44,7 +59,7 @@ impl inventory::HeaderT for EvolutionPoint {
 
 /// 4D evolution operator.
 pub struct Operator {
-    pub ar: Array4<f64>,
+    pub op: Array4<f64>,
 }
 
 impl inventory::ValueT for Operator {
@@ -55,7 +70,7 @@ impl inventory::ValueT for Operator {
         std::io::copy(&mut reader, &mut buffer).unwrap();
         let mut npz = NpzReader::new(Cursor::new(buffer)).unwrap();
         let operator: Array4<f64> = npz.by_name("operator.npy").unwrap();
-        self.ar = operator
+        self.op = operator
     }
 }
 
@@ -63,7 +78,7 @@ impl Operator {
     /// Empty initializer.
     pub fn zeros() -> Self {
         Self {
-            ar: Array4::zeros((0, 0, 0, 0)),
+            op: Array4::zeros((0, 0, 0, 0)),
         }
     }
 }
@@ -85,30 +100,27 @@ const DIR_OPERATORS: &'static str = "operators/";
 
 impl EKO {
     /// Check our working directory is safe.
-    fn check(&self) -> Result<(), std::io::Error> {
+    fn check(&self) -> Result<()> {
         let path_exists = self.path.try_exists().is_ok_and(|x| x);
         if !path_exists {
-            return Err(std::io::Error::new(
-                std::io::ErrorKind::NotFound,
-                "Working directory not found!",
-            ));
+            return Err(EKOError::NoWorkingDir);
         }
         Ok(())
     }
 
     /// Remove the working directory.
-    fn destroy(&self) -> Result<(), std::io::Error> {
+    fn destroy(&self) -> Result<()> {
         self.check()?;
-        remove_dir_all(self.path.to_owned())
+        Ok(remove_dir_all(self.path.to_owned())?)
     }
 
     /// Write content back to an archive and destroy working directory.
-    pub fn close(&self, allow_overwrite: bool) -> Result<(), std::io::Error> {
+    pub fn close(&self, allow_overwrite: bool) -> Result<()> {
         self.write(allow_overwrite, true)
     }
 
     /// Write content back to an archive.
-    pub fn write(&self, allow_overwrite: bool, destroy: bool) -> Result<(), std::io::Error> {
+    pub fn write(&self, allow_overwrite: bool, destroy: bool) -> Result<()> {
         self.check()?;
         // in read-only there is nothing to do then to destroy, since we couldn't
         if self.read_only && destroy {
@@ -116,18 +128,12 @@ impl EKO {
         }
         // check we can write
         if self.tar_path.is_none() {
-            return Err(std::io::Error::new(
-                std::io::ErrorKind::NotFound,
-                "No target path!",
-            ));
+            return Err(EKOError::NoTargetPath);
         }
         let dst = self.tar_path.to_owned().unwrap();
         let dst_exists = dst.try_exists().is_ok_and(|x| x);
         if !allow_overwrite && dst_exists {
-            return Err(std::io::Error::new(
-                std::io::ErrorKind::AlreadyExists,
-                format!("Target already exists '{}'!", dst.display()),
-            ));
+            return Err(EKOError::TargetAlreadyExists(dst));
         }
         // create writer
         let dst_file = match File::create(dst.to_owned()) {
@@ -152,22 +158,22 @@ impl EKO {
     }
 
     /// Open tar from `src` to `dst` for reading.
-    pub fn read(src: PathBuf, dst: PathBuf) -> Self {
+    pub fn read(src: PathBuf, dst: PathBuf) -> Result<Self> {
         Self::extract(src, dst, true)
     }
 
     /// Open tar from `src` to `dst` for editing.
-    pub fn edit(src: PathBuf, dst: PathBuf) -> Self {
+    pub fn edit(src: PathBuf, dst: PathBuf) -> Result<Self> {
         Self::extract(src, dst, false)
     }
 
     /// Extract tar file from `src` to `dst`.
-    pub fn extract(src: PathBuf, dst: PathBuf, read_only: bool) -> Self {
-        let mut ar = tar::Archive::new(File::open(src.to_owned()).unwrap());
-        ar.unpack(dst.to_owned()).unwrap();
+    pub fn extract(src: PathBuf, dst: PathBuf, read_only: bool) -> Result<Self> {
+        let mut ar = tar::Archive::new(File::open(src.to_owned())?);
+        ar.unpack(dst.to_owned())?;
         let mut obj = Self::load_opened(dst, read_only);
         obj.set_tar_path(src);
-        obj
+        Ok(obj)
     }
 
     /// Load an EKO from a directory `path` (instead of tar).

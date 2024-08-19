@@ -14,7 +14,7 @@ fn save_as_other() {
         remove_dir_all(dst.to_owned()).unwrap();
     }
     // open
-    let mut eko = EKO::edit(src.to_owned(), dst.to_owned());
+    let mut eko = EKO::edit(src.to_owned(), dst.to_owned()).unwrap();
     let dst_exists = dst.try_exists().is_ok_and(|x| x);
     assert!(dst_exists);
     // set a different output
@@ -51,7 +51,7 @@ fn has_operator() {
         remove_dir_all(dst.to_owned()).unwrap();
     }
     // open
-    let eko = EKO::read(src.to_owned(), dst.to_owned());
+    let eko = EKO::read(src.to_owned(), dst.to_owned()).unwrap();
     // check there is only one:
     assert!(eko.available_operators().len() == 1);
     // ask for one
@@ -75,13 +75,13 @@ fn load_operator() {
         remove_dir_all(dst.to_owned()).unwrap();
     }
     // open
-    let mut eko = EKO::read(src.to_owned(), dst.to_owned());
+    let mut eko = EKO::read(src.to_owned(), dst.to_owned()).unwrap();
     let ep = EvolutionPoint {
         scale: 10000.,
         nf: 4,
     };
     let mut op = Operator::zeros();
     eko.load_operator(&ep, 64, &mut op);
-    assert!(op.ar.dim().0 > 0);
+    assert!(op.op.dim().0 > 0);
     eko.close(false).unwrap();
 }
