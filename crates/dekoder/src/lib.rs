@@ -1,4 +1,4 @@
-//! eko output reader.
+//! eko output interface.
 use float_cmp::approx_eq;
 use hashbrown::HashMap;
 use lz4_flex::frame::FrameDecoder;
@@ -13,6 +13,7 @@ use yaml_rust2::Yaml;
 
 mod inventory;
 
+/// The EKO errors.
 #[derive(Error, Debug)]
 pub enum EKOError {
     #[error("No working directory")]
@@ -25,6 +26,7 @@ pub enum EKOError {
     TargetAlreadyExists(PathBuf),
 }
 
+/// My result type has always my errros.
 type Result<T> = std::result::Result<T, EKOError>;
 
 /// A reference point in the evolution atlas.
@@ -130,21 +132,17 @@ impl EKO {
         if self.tar_path.is_none() {
             return Err(EKOError::NoTargetPath);
         }
-        let dst = self.tar_path.to_owned().unwrap();
+        let dst = self.tar_path.to_owned().ok_or(EKOError::NoTargetPath)?;
         let dst_exists = dst.try_exists().is_ok_and(|x| x);
         if !allow_overwrite && dst_exists {
             return Err(EKOError::TargetAlreadyExists(dst));
         }
         // create writer
-        let dst_file = match File::create(dst.to_owned()) {
-            Err(why) => panic!("couldn't open {}: {}", dst.display(), why.to_string()),
-            Ok(file) => file,
-        };
-        print!("dst: {}", dst.display());
+        let dst_file = File::create(dst.to_owned())?;
         let dst_file = BufWriter::with_capacity(128 * 1024, dst_file);
         let mut ar = tar::Builder::new(dst_file);
         // do it!
-        ar.append_dir_all(".", self.path.to_owned()).unwrap();
+        ar.append_dir_all(".", self.path.to_owned())?;
         // cleanup
         if destroy {
             self.destroy()?;
