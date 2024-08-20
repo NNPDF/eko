@@ -11,16 +11,6 @@ use crate::{EKOError, Result};
 /// Headers are in yaml files.
 const HEADER_EXT: &str = "*.yaml";
 
-/// Header type in an inventory.
-pub(crate) trait HeaderT {
-    /// Load from yaml.
-    fn load_from_yaml(yml: &Yaml) -> Result<Self>
-    where
-        Self: Sized;
-    /// Comparator.
-    fn eq(&self, other: &Self, ulps: i64) -> bool;
-}
-
 /// Value type in an inventory.
 pub(crate) trait ValueT {
     // File suffix (instead of header suffix)
@@ -30,14 +20,14 @@ pub(crate) trait ValueT {
 }
 
 /// Assets manager.
-pub(crate) struct Inventory<K: HeaderT> {
+pub(crate) struct Inventory<K: Eq + for<'a> TryFrom<&'a Yaml>> {
     /// Working directory
     pub(crate) path: PathBuf,
     /// Available keys
     pub(crate) keys: HashMap<OsString, K>,
 }
 
-impl<K: HeaderT> Inventory<K> {
+impl<K: Eq + for<'a> TryFrom<&'a Yaml>> Inventory<K> {
     /// Load all available entries.
     pub fn load_keys(&mut self) -> Result<()> {
         let path = self.path.join(HEADER_EXT);
@@ -57,7 +47,7 @@ impl<K: HeaderT> Inventory<K> {
                         "because failed to read file name".to_owned(),
                     ))?
                     .to_os_string(),
-                K::load_from_yaml(&cnt[0])?,
+                K::try_from(&cnt[0])?,
             );
         }
         Ok(())
@@ -73,13 +63,13 @@ impl<K: HeaderT> Inventory<K> {
     }
 
     /// Check if `k` is available (with given precision).
-    pub fn has(&self, k: &K, ulps: i64) -> bool {
-        self.keys.iter().any(|it| (it.1).eq(k, ulps))
+    pub fn has(&self, k: &K) -> bool {
+        self.keys.iter().any(|it| (it.1).eq(k))
     }
 
     /// Load `k` from disk.
-    pub fn load<V: ValueT>(&self, k: &K, ulps: i64, v: &mut V) -> Result<()> {
-        let k = self.keys.iter().find(|it| (it.1).eq(k, ulps));
+    pub fn load<V: ValueT>(&self, k: &K, v: &mut V) -> Result<()> {
+        let k = self.keys.iter().find(|it| (it.1).eq(k));
         let k = k.ok_or(EKOError::KeyError("because it was not found".to_owned()))?;
         let path = self.path.join(k.0).with_extension(V::FILE_SUFFIX);
         v.load_from_path(path)

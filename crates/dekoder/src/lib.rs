@@ -13,8 +13,6 @@ use yaml_rust2::Yaml;
 
 mod inventory;
 
-use crate::inventory::HeaderT;
-
 /// The EKO errors.
 #[derive(Error, Debug)]
 pub enum EKOError {
@@ -43,9 +41,11 @@ pub struct EvolutionPoint {
     pub nf: i64,
 }
 
-impl inventory::HeaderT for EvolutionPoint {
+impl TryFrom<&Yaml> for EvolutionPoint {
+    type Error = EKOError;
+
     /// Load from yaml.
-    fn load_from_yaml(yml: &Yaml) -> Result<Self> {
+    fn try_from(yml: &Yaml) -> Result<Self> {
         // work around float representation
         let scale = yml["scale"].as_f64();
         let scale = if scale.is_some() {
@@ -62,19 +62,16 @@ impl inventory::HeaderT for EvolutionPoint {
             .ok_or(EKOError::KeyError("because failed to read nf".to_owned()))?;
         Ok(Self { scale, nf })
     }
+}
 
+impl PartialEq for EvolutionPoint {
     /// (Protected) comparator.
-    fn eq(&self, other: &Self, ulps: i64) -> bool {
-        self.nf == other.nf && approx_eq!(f64, self.scale, other.scale, ulps = ulps)
+    fn eq(&self, other: &Self) -> bool {
+        self.nf == other.nf && approx_eq!(f64, self.scale, other.scale, ulps = 64)
     }
 }
 
-impl EvolutionPoint {
-    /// Comparator.
-    pub fn equals(&self, other: &Self, ulps: i64) -> bool {
-        self.eq(other, ulps)
-    }
-}
+impl Eq for EvolutionPoint {}
 
 /// 4D evolution operator.
 pub struct Operator {
@@ -227,14 +224,14 @@ impl EKO {
     }
 
     /// Check if the operator at the evolution point `ep` is available.
-    pub fn has_operator(&self, ep: &EvolutionPoint, ulps: i64) -> bool {
-        self.operators.has(ep, ulps)
+    pub fn has_operator(&self, ep: &EvolutionPoint) -> bool {
+        self.operators.has(ep)
     }
 
     /// Load the operator at the evolution point `ep` from disk.
-    pub fn load_operator(&self, ep: &EvolutionPoint, ulps: i64, op: &mut Operator) -> Result<()> {
+    pub fn load_operator(&self, ep: &EvolutionPoint, op: &mut Operator) -> Result<()> {
         self.check()?;
-        self.operators.load(ep, ulps, op)?;
+        self.operators.load(ep, op)?;
         Ok(())
     }
 }
