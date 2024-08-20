@@ -18,10 +18,6 @@ pub enum EKOError {
     NoWorkingDir,
     #[error("I/O error")]
     IOError(#[from] std::io::Error),
-    #[error("No target path given")]
-    NoTargetPath,
-    #[error("Target path `{0}` already exists")]
-    TargetAlreadyExists(PathBuf),
     #[error("Loading operator from `{0}` failed")]
     OperatorLoadError(PathBuf),
     #[error("Failed to read key(s) `{0}`")]
@@ -96,10 +92,6 @@ impl Eq for EvolutionPoint {}
 pub struct EKO {
     /// Working directory
     path: PathBuf,
-    /// Associated archive path
-    tar_path: Option<PathBuf>,
-    /// allow content modifications?
-    read_only: bool,
     /// final operators
     operators: inventory::Inventory<EvolutionPoint>,
 }
@@ -118,87 +110,45 @@ impl EKO {
     }
 
     /// Remove the working directory.
-    fn destroy(&self) -> Result<()> {
+    pub fn destroy(&self) -> Result<()> {
         self.check()?;
         Ok(remove_dir_all(&self.path)?)
     }
 
     /// Write content back to an archive and destroy working directory.
-    pub fn close(&self) -> Result<()> {
-        self.write(false, true)
-    }
-
-    /// Write content back to an archive and destroy working directory.
-    pub fn overwrite_and_close(&self) -> Result<()> {
-        self.write(true, true)
+    pub fn write_and_destroy(&self, dst: PathBuf) -> Result<()> {
+        self.write(dst)?;
+        self.destroy()?;
+        Ok(())
     }
 
     /// Write content back to an archive.
-    pub fn write(&self, allow_overwrite: bool, destroy: bool) -> Result<()> {
+    pub fn write(&self, dst: PathBuf) -> Result<()> {
         self.check()?;
-        // in read-only there is nothing to do then to destroy, since we couldn't
-        if self.read_only && destroy {
-            return self.destroy();
-        }
-        // check we can write
-        if self.tar_path.is_none() {
-            return Err(EKOError::NoTargetPath);
-        }
-        let dst = self.tar_path.to_owned().ok_or(EKOError::NoTargetPath)?;
-        let dst_exists = dst.try_exists().is_ok_and(|x| x);
-        if !allow_overwrite && dst_exists {
-            return Err(EKOError::TargetAlreadyExists(dst));
-        }
         // create writer
         let dst_file = File::create(&dst)?;
         let dst_file = BufWriter::with_capacity(128 * 1024, dst_file);
         let mut ar = tar::Builder::new(dst_file);
         // do it!
         ar.append_dir_all(".", &self.path)?;
-        // cleanup
-        if destroy {
-            self.destroy()?;
-        }
         Ok(())
     }
 
-    /// Set the archive path.
-    pub fn set_tar_path(&mut self, tar_path: PathBuf) {
-        self.tar_path = Some(tar_path.to_owned());
-    }
-
-    /// Open tar from `src` to `dst` for reading.
-    pub fn read(src: PathBuf, dst: PathBuf) -> Result<Self> {
-        Self::extract(src, dst, true)
-    }
-
-    /// Open tar from `src` to `dst` for editing.
-    pub fn edit(src: PathBuf, dst: PathBuf) -> Result<Self> {
-        Self::extract(src, dst, false)
-    }
-
     /// Extract tar file from `src` to `dst`.
-    pub fn extract(src: PathBuf, dst: PathBuf, read_only: bool) -> Result<Self> {
+    pub fn extract(src: PathBuf, dst: PathBuf) -> Result<Self> {
         let mut ar = tar::Archive::new(File::open(&src)?);
         ar.unpack(&dst)?;
-        let mut obj = Self::load_opened(dst, read_only)?;
-        obj.set_tar_path(src);
-        Ok(obj)
+        Self::load_opened(dst)
     }
 
     /// Load an EKO from a directory `path` (instead of tar).
-    pub fn load_opened(path: PathBuf, read_only: bool) -> Result<Self> {
+    pub fn load_opened(path: PathBuf) -> Result<Self> {
         let mut operators = inventory::Inventory {
             path: path.join(DIR_OPERATORS),
             keys: HashMap::new(),
         };
         operators.load_keys()?;
-        let obj = Self {
-            path,
-            tar_path: None,
-            read_only,
-            operators,
-        };
+        let obj = Self { path, operators };
         obj.check()?;
         Ok(obj)
     }
