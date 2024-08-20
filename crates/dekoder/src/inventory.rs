@@ -1,23 +1,19 @@
 //! Assets manager.
 use glob::glob;
+use lz4_flex::frame::FrameDecoder;
+use ndarray::Array4;
+use ndarray_npy::NpzReader;
 use std::collections::HashMap;
 use std::ffi::OsString;
-use std::fs::read_to_string;
+use std::fs::{read_to_string, File};
+use std::io::{BufReader, Cursor};
 use std::path::PathBuf;
 use yaml_rust2::{Yaml, YamlLoader};
 
-use crate::{EKOError, Result};
+use crate::{EKOError, Operator, Result};
 
 /// Headers are in yaml files.
 const HEADER_EXT: &str = "*.yaml";
-
-/// Value type in an inventory.
-pub(crate) trait ValueT {
-    // File suffix (instead of header suffix)
-    const FILE_SUFFIX: &'static str;
-    /// Load from file.
-    fn load_from_path(&mut self, p: PathBuf) -> Result<()>;
-}
 
 /// Assets manager.
 pub(crate) struct Inventory<K: Eq + for<'a> TryFrom<&'a Yaml, Error = EKOError>> {
@@ -68,10 +64,21 @@ impl<K: Eq + for<'a> TryFrom<&'a Yaml, Error = EKOError>> Inventory<K> {
     }
 
     /// Load `k` from disk.
-    pub fn load<V: ValueT>(&self, k: &K, v: &mut V) -> Result<()> {
+    pub fn load(&self, k: &K, v: &mut Operator) -> Result<()> {
+        // Find key
         let k = self.keys.iter().find(|it| (it.1).eq(k));
         let k = k.ok_or(EKOError::KeyError("because it was not found".to_owned()))?;
-        let path = self.path.join(k.0).with_extension(V::FILE_SUFFIX);
-        v.load_from_path(path)
+        let p = self.path.join(k.0).with_extension("npz.lz4");
+        // Read npz.lz4
+        let mut reader = BufReader::new(FrameDecoder::new(BufReader::new(File::open(&p)?)));
+        let mut buffer = Vec::new();
+        std::io::copy(&mut reader, &mut buffer)?;
+        let mut npz = NpzReader::new(Cursor::new(buffer))
+            .map_err(|_| EKOError::OperatorLoadError(p.to_owned()))?;
+        let operator: Array4<f64> = npz
+            .by_name("operator.npy")
+            .map_err(|_| EKOError::OperatorLoadError(p.to_owned()))?;
+        v.op = Some(operator);
+        Ok(())
     }
 }

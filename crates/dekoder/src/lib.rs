@@ -1,12 +1,10 @@
 //! eko output interface.
 use float_cmp::approx_eq;
-use lz4_flex::frame::FrameDecoder;
 use ndarray::Array4;
-use ndarray_npy::NpzReader;
 use std::collections::HashMap;
 use std::fs::remove_dir_all;
 use std::fs::File;
-use std::io::{BufReader, BufWriter, Cursor};
+use std::io::BufWriter;
 use std::path::PathBuf;
 use thiserror::Error;
 use yaml_rust2::Yaml;
@@ -44,6 +42,24 @@ pub struct EvolutionPoint {
     pub nf: i64,
 }
 
+/// 4D evolution operator.
+pub struct Operator {
+    pub op: Option<Array4<f64>>,
+}
+
+impl Operator {
+    /// Empty initializer.
+    pub fn new() -> Self {
+        Self { op: None }
+    }
+}
+
+impl Default for Operator {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl TryFrom<&Yaml> for EvolutionPoint {
     type Error = EKOError;
 
@@ -75,40 +91,6 @@ impl PartialEq for EvolutionPoint {
 }
 
 impl Eq for EvolutionPoint {}
-
-/// 4D evolution operator.
-pub struct Operator {
-    pub op: Option<Array4<f64>>,
-}
-
-impl inventory::ValueT for Operator {
-    const FILE_SUFFIX: &'static str = "npz.lz4";
-    fn load_from_path(&mut self, p: PathBuf) -> Result<()> {
-        let mut reader = BufReader::new(FrameDecoder::new(BufReader::new(File::open(&p)?)));
-        let mut buffer = Vec::new();
-        std::io::copy(&mut reader, &mut buffer)?;
-        let mut npz = NpzReader::new(Cursor::new(buffer))
-            .map_err(|_| EKOError::OperatorLoadError(p.to_owned()))?;
-        let operator: Array4<f64> = npz
-            .by_name("operator.npy")
-            .map_err(|_| EKOError::OperatorLoadError(p.to_owned()))?;
-        self.op = Some(operator);
-        Ok(())
-    }
-}
-
-impl Operator {
-    /// Empty initializer.
-    pub fn new() -> Self {
-        Self { op: None }
-    }
-}
-
-impl Default for Operator {
-    fn default() -> Self {
-        Self::new()
-    }
-}
 
 /// EKO output
 pub struct EKO {
