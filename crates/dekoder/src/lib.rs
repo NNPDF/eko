@@ -33,6 +33,9 @@ pub enum EKOError {
 /// My result type has always my errros.
 type Result<T> = std::result::Result<T, EKOError>;
 
+/// Default value for the float comparison inside `EvolutionPoint`.
+const EP_CMP_ULPS: i64 = 64;
+
 /// A reference point in the evolution atlas.
 pub struct EvolutionPoint {
     /// Evolution scale.
@@ -67,7 +70,7 @@ impl TryFrom<&Yaml> for EvolutionPoint {
 impl PartialEq for EvolutionPoint {
     /// (Protected) comparator.
     fn eq(&self, other: &Self) -> bool {
-        self.nf == other.nf && approx_eq!(f64, self.scale, other.scale, ulps = 64)
+        self.nf == other.nf && approx_eq!(f64, self.scale, other.scale, ulps = EP_CMP_ULPS)
     }
 }
 

@@ -62,8 +62,8 @@ fn has_operator() {
         nf: 4,
     };
     // it is the one
-    assert!(ep.equals(eko.available_operators()[0], 64));
-    assert!(eko.has_operator(&ep, 64));
+    assert!(ep.eq(eko.available_operators()[0]));
+    assert!(eko.has_operator(&ep));
     eko.close().unwrap();
 }
 
@@ -79,7 +79,7 @@ fn load_operator() {
         nf: 4,
     };
     let mut op = Operator::new();
-    eko.load_operator(&ep, 64, &mut op).unwrap();
+    eko.load_operator(&ep, &mut op).unwrap();
     assert!(op.op.is_some());
     assert!(op.op.unwrap().dim().0 > 0);
     eko.close().unwrap();

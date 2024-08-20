@@ -20,14 +20,14 @@ pub(crate) trait ValueT {
 }
 
 /// Assets manager.
-pub(crate) struct Inventory<K: Eq + for<'a> TryFrom<&'a Yaml>> {
+pub(crate) struct Inventory<K: Eq + for<'a> TryFrom<&'a Yaml, Error = EKOError>> {
     /// Working directory
     pub(crate) path: PathBuf,
     /// Available keys
     pub(crate) keys: HashMap<OsString, K>,
 }
 
-impl<K: Eq + for<'a> TryFrom<&'a Yaml>> Inventory<K> {
+impl<K: Eq + for<'a> TryFrom<&'a Yaml, Error = EKOError>> Inventory<K> {
     /// Load all available entries.
     pub fn load_keys(&mut self) -> Result<()> {
         let path = self.path.join(HEADER_EXT);
