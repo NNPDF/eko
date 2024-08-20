@@ -4,7 +4,7 @@ use std::path::PathBuf;
 
 use dekoder::{EvolutionPoint, Operator, EKO};
 
-/// Get v0.15 test object
+/// Get v0.15 test object.
 fn v015tar() -> PathBuf {
     let base: PathBuf = [env!("CARGO_MANIFEST_DIR"), "tests"].iter().collect();
     let src = base.join("data").join("v0.15.tar");
@@ -59,14 +59,15 @@ fn load_operator() {
     let src = v015tar();
     let dst = assert_fs::TempDir::new().unwrap();
     // open
-    let mut eko = EKO::read(src.to_owned(), dst.to_owned()).unwrap();
+    let eko = EKO::read(src.to_owned(), dst.to_owned()).unwrap();
     // load
     let ep = EvolutionPoint {
         scale: 10000.,
         nf: 4,
     };
-    let mut op = Operator::zeros();
+    let mut op = Operator::new();
     eko.load_operator(&ep, 64, &mut op).unwrap();
-    assert!(op.op.dim().0 > 0);
+    assert!(op.op.is_some());
+    assert!(op.op.unwrap().dim().0 > 0);
     eko.close().unwrap();
 }

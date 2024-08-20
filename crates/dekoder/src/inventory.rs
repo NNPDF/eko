@@ -78,7 +78,7 @@ impl<K: HeaderT> Inventory<K> {
     }
 
     /// Load `k` from disk.
-    pub fn load<V: ValueT>(&mut self, k: &K, ulps: i64, v: &mut V) -> Result<()> {
+    pub fn load<V: ValueT>(&self, k: &K, ulps: i64, v: &mut V) -> Result<()> {
         let k = self.keys.iter().find(|it| (it.1).eq(&k, ulps));
         let k = k.ok_or(EKOError::KeyError("because it was not found".to_owned()))?;
         let path = self.path.join(k.0).with_extension(V::FILE_SUFFIX);

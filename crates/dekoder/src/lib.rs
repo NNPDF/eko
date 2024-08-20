@@ -78,7 +78,7 @@ impl EvolutionPoint {
 
 /// 4D evolution operator.
 pub struct Operator {
-    pub op: Array4<f64>,
+    pub op: Option<Array4<f64>>,
 }
 
 impl inventory::ValueT for Operator {
@@ -93,17 +93,15 @@ impl inventory::ValueT for Operator {
         let operator: Array4<f64> = npz
             .by_name("operator.npy")
             .map_err(|_| EKOError::OperatorLoadError(p.to_owned()))?;
-        self.op = operator;
+        self.op = Some(operator);
         Ok(())
     }
 }
 
 impl Operator {
     /// Empty initializer.
-    pub fn zeros() -> Self {
-        Self {
-            op: Array4::zeros((0, 0, 0, 0)),
-        }
+    pub fn new() -> Self {
+        Self { op: None }
     }
 }
 
@@ -227,12 +225,7 @@ impl EKO {
     }
 
     /// Load the operator at the evolution point `ep` from disk.
-    pub fn load_operator(
-        &mut self,
-        ep: &EvolutionPoint,
-        ulps: i64,
-        op: &mut Operator,
-    ) -> Result<()> {
+    pub fn load_operator(&self, ep: &EvolutionPoint, ulps: i64, op: &mut Operator) -> Result<()> {
         self.operators.load(ep, ulps, op)?;
         Ok(())
     }
