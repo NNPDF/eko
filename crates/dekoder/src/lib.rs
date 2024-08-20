@@ -84,8 +84,7 @@ pub struct Operator {
 impl inventory::ValueT for Operator {
     const FILE_SUFFIX: &'static str = "npz.lz4";
     fn load_from_path(&mut self, p: PathBuf) -> Result<()> {
-        let mut reader =
-            BufReader::new(FrameDecoder::new(BufReader::new(File::open(p.to_owned())?)));
+        let mut reader = BufReader::new(FrameDecoder::new(BufReader::new(File::open(&p)?)));
         let mut buffer = Vec::new();
         std::io::copy(&mut reader, &mut buffer)?;
         let mut npz = NpzReader::new(Cursor::new(buffer))
@@ -105,6 +104,12 @@ impl Operator {
     }
 }
 
+impl Default for Operator {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 /// EKO output
 pub struct EKO {
     /// Working directory
@@ -118,7 +123,7 @@ pub struct EKO {
 }
 
 /// Operators directory.
-const DIR_OPERATORS: &'static str = "operators/";
+const DIR_OPERATORS: &str = "operators/";
 
 impl EKO {
     /// Check our working directory is safe.
@@ -133,7 +138,7 @@ impl EKO {
     /// Remove the working directory.
     fn destroy(&self) -> Result<()> {
         self.check()?;
-        Ok(remove_dir_all(self.path.to_owned())?)
+        Ok(remove_dir_all(&self.path)?)
     }
 
     /// Write content back to an archive and destroy working directory.
@@ -163,11 +168,11 @@ impl EKO {
             return Err(EKOError::TargetAlreadyExists(dst));
         }
         // create writer
-        let dst_file = File::create(dst.to_owned())?;
+        let dst_file = File::create(&dst)?;
         let dst_file = BufWriter::with_capacity(128 * 1024, dst_file);
         let mut ar = tar::Builder::new(dst_file);
         // do it!
-        ar.append_dir_all(".", self.path.to_owned())?;
+        ar.append_dir_all(".", &self.path)?;
         // cleanup
         if destroy {
             self.destroy()?;
@@ -192,8 +197,8 @@ impl EKO {
 
     /// Extract tar file from `src` to `dst`.
     pub fn extract(src: PathBuf, dst: PathBuf, read_only: bool) -> Result<Self> {
-        let mut ar = tar::Archive::new(File::open(src.to_owned())?);
-        ar.unpack(dst.to_owned())?;
+        let mut ar = tar::Archive::new(File::open(&src)?);
+        ar.unpack(&dst)?;
         let mut obj = Self::load_opened(dst, read_only)?;
         obj.set_tar_path(src);
         Ok(obj)
