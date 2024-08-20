@@ -206,12 +206,14 @@ impl EKO {
             keys: HashMap::new(),
         };
         operators.load_keys()?;
-        Ok(Self {
+        let obj = Self {
             path,
             tar_path: None,
             read_only,
             operators,
-        })
+        };
+        obj.check()?;
+        Ok(obj)
     }
 
     /// List available evolution points.
@@ -226,6 +228,7 @@ impl EKO {
 
     /// Load the operator at the evolution point `ep` from disk.
     pub fn load_operator(&self, ep: &EvolutionPoint, ulps: i64, op: &mut Operator) -> Result<()> {
+        self.check()?;
         self.operators.load(ep, ulps, op)?;
         Ok(())
     }
