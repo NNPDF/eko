@@ -13,6 +13,16 @@ fn v015tar() -> PathBuf {
 }
 
 #[test]
+fn open() {
+    let src = v015tar();
+    let dst = assert_fs::TempDir::new().unwrap();
+    // open
+    let _ = EKO::edit(src.to_owned(), dst.to_owned()).unwrap();
+    let metadata = dst.child("metadata.yaml");
+    metadata.assert(predicate::path::exists());
+}
+
+#[test]
 fn save_as_other() {
     let src = v015tar();
     let dst = assert_fs::TempDir::new().unwrap();
@@ -21,7 +31,7 @@ fn save_as_other() {
     // write to somewhere else
     let tarb = assert_fs::NamedTempFile::new("v0.15b.tar").unwrap();
     eko.set_tar_path(tarb.to_owned());
-    eko.close(true).unwrap();
+    eko.overwrite_and_close().unwrap();
     tarb.assert(predicate::path::exists());
 }
 
@@ -41,7 +51,7 @@ fn has_operator() {
     // it is the one
     assert!(ep.equals(eko.available_operators()[0], 64));
     assert!(eko.has_operator(&ep, 64));
-    eko.close(false).unwrap();
+    eko.close().unwrap();
 }
 
 #[test]
@@ -58,5 +68,5 @@ fn load_operator() {
     let mut op = Operator::zeros();
     eko.load_operator(&ep, 64, &mut op).unwrap();
     assert!(op.op.dim().0 > 0);
-    eko.close(false).unwrap();
+    eko.close().unwrap();
 }

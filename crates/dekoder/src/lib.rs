@@ -139,8 +139,13 @@ impl EKO {
     }
 
     /// Write content back to an archive and destroy working directory.
-    pub fn close(&self, allow_overwrite: bool) -> Result<()> {
-        self.write(allow_overwrite, true)
+    pub fn close(&self) -> Result<()> {
+        self.write(false, true)
+    }
+
+    /// Write content back to an archive and destroy working directory.
+    pub fn overwrite_and_close(&self) -> Result<()> {
+        self.write(true, true)
     }
 
     /// Write content back to an archive.
