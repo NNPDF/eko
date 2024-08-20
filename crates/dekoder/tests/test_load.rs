@@ -17,9 +17,22 @@ fn open() {
     let src = v015tar();
     let dst = assert_fs::TempDir::new().unwrap();
     // open
-    let _ = EKO::edit(src.to_owned(), dst.to_owned()).unwrap();
+    let eko = EKO::read(src.to_owned(), dst.to_owned()).unwrap();
     let metadata = dst.child("metadata.yaml");
     metadata.assert(predicate::path::exists());
+    eko.close().unwrap();
+}
+
+#[test]
+fn close() {
+    let src = v015tar();
+    let dst = assert_fs::TempDir::new().unwrap();
+    {
+        // open + close
+        let eko = EKO::read(src.to_owned(), dst.to_owned()).unwrap();
+        eko.close().unwrap();
+    }
+    dst.assert(predicate::path::missing());
 }
 
 #[test]
