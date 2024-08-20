@@ -1,6 +1,6 @@
 //! Assets manager.
 use glob::glob;
-use hashbrown::HashMap;
+use std::collections::HashMap;
 use std::ffi::OsString;
 use std::fs::read_to_string;
 use std::path::PathBuf;

@@ -164,7 +164,6 @@ dependencies = [
  "assert_fs",
  "float-cmp",
  "glob",
- "hashbrown",
  "lz4_flex",
  "ndarray",
  "ndarray-npy",

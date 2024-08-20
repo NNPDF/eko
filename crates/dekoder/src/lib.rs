@@ -1,9 +1,9 @@
 //! eko output interface.
 use float_cmp::approx_eq;
-use hashbrown::HashMap;
 use lz4_flex::frame::FrameDecoder;
 use ndarray::Array4;
 use ndarray_npy::NpzReader;
+use std::collections::HashMap;
 use std::fs::remove_dir_all;
 use std::fs::File;
 use std::io::{BufReader, BufWriter, Cursor};
