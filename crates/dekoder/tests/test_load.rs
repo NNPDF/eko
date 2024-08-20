@@ -1,55 +1,34 @@
-use dekoder::{EvolutionPoint, Operator, EKO};
-use std::fs::{remove_dir_all, remove_file};
+use assert_fs::prelude::*;
+use predicates::prelude::*;
 use std::path::PathBuf;
+
+use dekoder::{EvolutionPoint, Operator, EKO};
+
+/// Get v0.15 test object
+fn v015tar() -> PathBuf {
+    let base: PathBuf = [env!("CARGO_MANIFEST_DIR"), "tests"].iter().collect();
+    let src = base.join("data").join("v0.15.tar");
+    assert!(predicate::path::exists().eval(&src));
+    src
+}
 
 #[test]
 fn save_as_other() {
-    let base: PathBuf = [env!("CARGO_MANIFEST_DIR"), "tests"].iter().collect();
-    let src = base.join("data").join("v0.15.tar");
-    assert!(src.try_exists().is_ok_and(|x| x));
-    let dst = base.join("target").join("v0.15a");
-    // get rid of previous runs if needed
-    let dst_exists = dst.try_exists().is_ok_and(|x| x);
-    if dst_exists {
-        remove_dir_all(dst.to_owned()).unwrap();
-    }
+    let src = v015tar();
+    let dst = assert_fs::TempDir::new().unwrap();
     // open
     let mut eko = EKO::edit(src.to_owned(), dst.to_owned()).unwrap();
-    let dst_exists = dst.try_exists().is_ok_and(|x| x);
-    assert!(dst_exists);
-    // set a different output
-    let tarb = base.join("target").join("v0.15b.tar");
-    let tarb_exists = tarb.try_exists().is_ok_and(|x| x);
-    if tarb_exists {
-        remove_file(tarb.to_owned()).unwrap();
-    }
+    // write to somewhere else
+    let tarb = assert_fs::NamedTempFile::new("v0.15b.tar").unwrap();
     eko.set_tar_path(tarb.to_owned());
-    // close
     eko.close(true).unwrap();
-    let tarb_exists = tarb.try_exists().is_ok_and(|x| x);
-    assert!(tarb_exists);
-    let dst_exists = dst.try_exists().is_ok_and(|x| x);
-    assert!(!dst_exists);
-    // clean up
-    if tarb_exists {
-        remove_file(tarb.to_owned()).unwrap();
-    }
-    if dst_exists {
-        remove_dir_all(dst.to_str().unwrap()).unwrap();
-    }
+    tarb.assert(predicate::path::exists());
 }
 
 #[test]
 fn has_operator() {
-    let base: PathBuf = [env!("CARGO_MANIFEST_DIR"), "tests"].iter().collect();
-    let src = base.join("data").join("v0.15.tar");
-    assert!(src.try_exists().is_ok_and(|x| x));
-    let dst = base.join("target").join("v0.15b");
-    // get rid of previous runs if needed
-    let dst_exists = dst.try_exists().is_ok_and(|x| x);
-    if dst_exists {
-        remove_dir_all(dst.to_owned()).unwrap();
-    }
+    let src = v015tar();
+    let dst = assert_fs::TempDir::new().unwrap();
     // open
     let eko = EKO::read(src.to_owned(), dst.to_owned()).unwrap();
     // check there is only one:
@@ -67,17 +46,11 @@ fn has_operator() {
 
 #[test]
 fn load_operator() {
-    let base: PathBuf = [env!("CARGO_MANIFEST_DIR"), "tests"].iter().collect();
-    let src = base.join("data").join("v0.15.tar");
-    assert!(src.try_exists().is_ok_and(|x| x));
-    let dst = base.join("target").join("v0.15c");
-    // get rid of previous runs if needed
-    let dst_exists = dst.try_exists().is_ok_and(|x| x);
-    if dst_exists {
-        remove_dir_all(dst.to_owned()).unwrap();
-    }
+    let src = v015tar();
+    let dst = assert_fs::TempDir::new().unwrap();
     // open
     let mut eko = EKO::read(src.to_owned(), dst.to_owned()).unwrap();
+    // load
     let ep = EvolutionPoint {
         scale: 10000.,
         nf: 4,
