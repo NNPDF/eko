@@ -131,7 +131,7 @@ asv = ["asv-run", "asv-publish", "asv-preview"]
 bump-version = { "shell" = "python crates/bump-versions.py $(git describe --tags)" }
 compile = "pip install -e crates/eko/"
 rdocs.cmd = "cargo doc --workspace --no-deps"
-rdocs.env = { RUSTDOCFLAGS = "--html-in-header crates/katex-header.html" }
+rdocs.env = { RUSTDOCFLAGS = "--html-in-header crates/doc-header.html" }
 rdocs-view = "xdg-open target/doc/ekors/index.html"
 rdocs-clean = "rm -rf target/doc/"
 rtest = "cargo test --workspace"
