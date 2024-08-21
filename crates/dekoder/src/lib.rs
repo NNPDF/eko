@@ -111,8 +111,7 @@ impl EKO {
     /// Write content back to an archive and destroy working directory.
     pub fn write_and_destroy(&self, dst: PathBuf) -> Result<()> {
         self.write(dst)?;
-        self.destroy()?;
-        Ok(())
+        self.destroy()
     }
 
     /// Write content back to an archive.
@@ -123,8 +122,7 @@ impl EKO {
         let dst_file = BufWriter::with_capacity(128 * 1024, dst_file);
         let mut ar = tar::Builder::new(dst_file);
         // do it!
-        ar.append_dir_all(".", &self.path)?;
-        Ok(())
+        Ok(ar.append_dir_all(".", &self.path)?)
     }
 
     /// Extract tar file from `src` to `dst`.
@@ -159,7 +157,6 @@ impl EKO {
     /// Load the operator at the evolution point `ep` from disk.
     pub fn load_operator(&self, ep: &EvolutionPoint, op: &mut Operator) -> Result<()> {
         self.assert_working_dir()?;
-        self.operators.load(ep, op)?;
-        Ok(())
+        self.operators.load(ep, op)
     }
 }
