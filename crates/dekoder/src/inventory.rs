@@ -5,7 +5,7 @@ use ndarray_npy::NpzReader;
 use std::collections::HashMap;
 use std::ffi::OsString;
 use std::fs::{read_to_string, File};
-use std::io::{BufReader, Cursor};
+use std::io::Cursor;
 use std::path::PathBuf;
 use yaml_rust2::{Yaml, YamlLoader};
 
@@ -68,7 +68,7 @@ impl<K: Eq + for<'a> TryFrom<&'a Yaml, Error = EKOError>> Inventory<K> {
             .ok_or(EKOError::KeyError("because it was not found".to_owned()))?;
         let p = self.path.join(k.0).with_extension("npz.lz4");
         // Read npz.lz4
-        let mut reader = BufReader::new(FrameDecoder::new(BufReader::new(File::open(&p)?)));
+        let mut reader = FrameDecoder::new(File::open(&p)?);
         let mut buffer = Vec::new();
         std::io::copy(&mut reader, &mut buffer)?;
         v.op = Some(
