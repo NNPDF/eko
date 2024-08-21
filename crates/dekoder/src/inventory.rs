@@ -51,11 +51,7 @@ impl<K: Eq + for<'a> TryFrom<&'a Yaml, Error = EKOError>> Inventory<K> {
 
     /// List available keys.
     pub fn keys(&self) -> Vec<&K> {
-        let mut ks = Vec::new();
-        for k in self.keys.values() {
-            ks.push(k);
-        }
-        ks
+        self.keys.values().collect()
     }
 
     /// Check if `k` is available (with given precision).
