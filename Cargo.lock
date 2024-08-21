@@ -163,7 +163,6 @@ version = "0.0.1"
 dependencies = [
  "assert_fs",
  "float-cmp",
- "glob",
  "lz4_flex",
  "ndarray",
  "ndarray-npy",
@@ -277,12 +276,6 @@ dependencies = [
  "typenum",
  "version_check",
 ]
-
-[[package]]
-name = "glob"
-version = "0.3.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d2fabcfbdc87f4758337ca535fb41a6d701b65693ce38287d856d1674551ec9b"
 
 [[package]]
 name = "globset"

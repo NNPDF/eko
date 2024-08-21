@@ -1,10 +1,9 @@
 //! Assets manager.
-use glob::glob;
 use lz4_flex::frame::FrameDecoder;
 use ndarray_npy::NpzReader;
 use std::collections::HashMap;
-use std::ffi::OsString;
-use std::fs::{read_to_string, File};
+use std::ffi::{OsStr, OsString};
+use std::fs::{read_dir, read_to_string, File};
 use std::io::Cursor;
 use std::path::PathBuf;
 use yaml_rust2::{Yaml, YamlLoader};
@@ -12,7 +11,7 @@ use yaml_rust2::{Yaml, YamlLoader};
 use crate::{EKOError, Operator, Result};
 
 /// Headers are in yaml files.
-const HEADER_EXT: &str = "*.yaml";
+const HEADER_EXT: &str = "yaml";
 
 /// Assets manager.
 pub(crate) struct Inventory<K: Eq + for<'a> TryFrom<&'a Yaml, Error = EKOError>> {
@@ -25,16 +24,19 @@ pub(crate) struct Inventory<K: Eq + for<'a> TryFrom<&'a Yaml, Error = EKOError>>
 impl<K: Eq + for<'a> TryFrom<&'a Yaml, Error = EKOError>> Inventory<K> {
     /// Load all available entries.
     pub fn load_keys(&mut self) -> Result<()> {
-        let path = self.path.join(HEADER_EXT);
-        let path = path
-            .to_str()
-            .ok_or(EKOError::KeyError("due to invalid path".to_owned()))?;
-        for entry in glob(path)
-            .map_err(|_| EKOError::KeyError("because failed to read glob pattern".to_owned()))?
-            .filter_map(core::result::Result::ok)
-        {
+        for entry in read_dir(&self.path)? {
+            // is header file?
+            let entry = entry?.path();
+            if !entry
+                .extension()
+                .is_some_and(|ext| ext.eq(OsStr::new(HEADER_EXT)))
+            {
+                continue;
+            }
+            // read
             let cnt = YamlLoader::load_from_str(&read_to_string(&entry)?)
                 .map_err(|_| EKOError::KeyError("because failed to read yaml file.".to_owned()))?;
+            // add to register
             self.keys.insert(
                 entry
                     .file_name()
