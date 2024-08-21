@@ -95,7 +95,7 @@ const DIR_OPERATORS: &str = "operators/";
 
 impl EKO {
     /// Check our working directory is safe.
-    fn check(&self) -> Result<()> {
+    fn assert_working_dir(&self) -> Result<()> {
         if !self.path.try_exists().is_ok_and(|x| x) {
             return Err(EKOError::NoWorkingDir);
         }
@@ -104,7 +104,7 @@ impl EKO {
 
     /// Remove the working directory.
     pub fn destroy(&self) -> Result<()> {
-        self.check()?;
+        self.assert_working_dir()?;
         Ok(remove_dir_all(&self.path)?)
     }
 
@@ -117,7 +117,7 @@ impl EKO {
 
     /// Write content back to an archive.
     pub fn write(&self, dst: PathBuf) -> Result<()> {
-        self.check()?;
+        self.assert_working_dir()?;
         // create writer
         let dst_file = File::create(&dst)?;
         let dst_file = BufWriter::with_capacity(128 * 1024, dst_file);
@@ -142,7 +142,7 @@ impl EKO {
         };
         operators.load_keys()?;
         let obj = Self { path, operators };
-        obj.check()?;
+        obj.assert_working_dir()?;
         Ok(obj)
     }
 
@@ -158,7 +158,7 @@ impl EKO {
 
     /// Load the operator at the evolution point `ep` from disk.
     pub fn load_operator(&self, ep: &EvolutionPoint, op: &mut Operator) -> Result<()> {
-        self.check()?;
+        self.assert_working_dir()?;
         self.operators.load(ep, op)?;
         Ok(())
     }
