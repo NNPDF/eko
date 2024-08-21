@@ -62,8 +62,11 @@ impl<K: Eq + for<'a> TryFrom<&'a Yaml, Error = EKOError>> Inventory<K> {
     /// Load `k` from disk.
     pub fn load(&self, k: &K, v: &mut Operator) -> Result<()> {
         // Find key
-        let k = self.keys.iter().find(|it| (it.1).eq(k));
-        let k = k.ok_or(EKOError::KeyError("because it was not found".to_owned()))?;
+        let k = self
+            .keys
+            .iter()
+            .find(|it| (it.1).eq(k))
+            .ok_or(EKOError::KeyError("because it was not found".to_owned()))?;
         let p = self.path.join(k.0).with_extension("npz.lz4");
         // Read npz.lz4
         let mut reader = BufReader::new(FrameDecoder::new(BufReader::new(File::open(&p)?)));
