@@ -98,10 +98,10 @@ const TAR_WRITER_CAPACITY: usize = 128 * 1024;
 impl EKO {
     /// Check our working directory is safe.
     fn assert_working_dir(&self) -> Result<()> {
-        if !self.path.try_exists().is_ok_and(|x| x) {
-            return Err(EKOError::NoWorkingDir);
-        }
-        Ok(())
+        self.path
+            .exists()
+            .then_some(())
+            .ok_or(EKOError::NoWorkingDir)
     }
 
     /// Remove the working directory.
