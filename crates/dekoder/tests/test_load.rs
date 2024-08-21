@@ -2,7 +2,7 @@ use assert_fs::prelude::*;
 use predicates::prelude::*;
 use std::path::PathBuf;
 
-use dekoder::{EvolutionPoint, EKO};
+use dekoder::eko::{EvolutionPoint, EKO};
 
 // assert_fs will clean up the directories for us,
 // so for the most part we don't need worry about that.
