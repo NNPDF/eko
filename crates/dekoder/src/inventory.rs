@@ -61,7 +61,7 @@ impl<K: Eq + for<'a> TryFrom<&'a Yaml, Error = EKOError>> Inventory<K> {
     }
 
     /// Load `k` from disk.
-    pub fn load(&self, k: &K, v: &mut Operator) -> Result<()> {
+    pub fn load(&self, k: &K) -> Result<Operator> {
         // Find key
         let k = self
             .keys
@@ -73,12 +73,12 @@ impl<K: Eq + for<'a> TryFrom<&'a Yaml, Error = EKOError>> Inventory<K> {
         let mut reader = FrameDecoder::new(File::open(&p)?);
         let mut buffer = Vec::new();
         std::io::copy(&mut reader, &mut buffer)?;
-        v.op = Some(
+        let op = Some(
             NpzReader::new(Cursor::new(buffer))
                 .map_err(|_| EKOError::OperatorLoadError(p.to_owned()))?
                 .by_name("operator.npy")
                 .map_err(|_| EKOError::OperatorLoadError(p.to_owned()))?,
         );
-        Ok(())
+        Ok(Operator { op })
     }
 }

@@ -157,8 +157,8 @@ impl EKO {
     }
 
     /// Load the operator at the evolution point `ep` from disk.
-    pub fn load_operator(&self, ep: &EvolutionPoint, op: &mut Operator) -> Result<()> {
+    pub fn load_operator(&self, ep: &EvolutionPoint) -> Result<Operator> {
         self.assert_working_dir()?;
-        self.operators.load(ep, op)
+        self.operators.load(ep)
     }
 }

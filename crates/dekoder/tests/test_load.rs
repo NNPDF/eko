@@ -2,7 +2,7 @@ use assert_fs::prelude::*;
 use predicates::prelude::*;
 use std::path::PathBuf;
 
-use dekoder::{EvolutionPoint, Operator, EKO};
+use dekoder::{EvolutionPoint, EKO};
 
 // assert_fs will clean up the directories for us,
 // so for the most part we don't need worry about that.
@@ -78,8 +78,7 @@ fn load_operator() {
         scale: 10000.,
         nf: 4,
     };
-    let mut op = Operator::default();
-    eko.load_operator(&ep, &mut op).unwrap();
+    let op = eko.load_operator(&ep).unwrap();
     assert!(op.op.is_some());
     assert!(op.op.unwrap().dim().0 > 0);
 }
