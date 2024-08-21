@@ -92,6 +92,8 @@ pub struct EKO {
 
 /// Operators directory.
 const DIR_OPERATORS: &str = "operators/";
+/// Buffer capacity for tar writer
+const TAR_WRITER_CAPACITY: usize = 128 * 1024;
 
 impl EKO {
     /// Check our working directory is safe.
@@ -119,7 +121,7 @@ impl EKO {
         self.assert_working_dir()?;
         // create writer
         let dst_file = File::create(&dst)?;
-        let dst_file = BufWriter::with_capacity(128 * 1024, dst_file);
+        let dst_file = BufWriter::with_capacity(TAR_WRITER_CAPACITY, dst_file);
         let mut ar = tar::Builder::new(dst_file);
         // do it!
         Ok(ar.append_dir_all(".", &self.path)?)
