@@ -96,8 +96,7 @@ const DIR_OPERATORS: &str = "operators/";
 impl EKO {
     /// Check our working directory is safe.
     fn check(&self) -> Result<()> {
-        let path_exists = self.path.try_exists().is_ok_and(|x| x);
-        if !path_exists {
+        if !self.path.try_exists().is_ok_and(|x| x) {
             return Err(EKOError::NoWorkingDir);
         }
         Ok(())
