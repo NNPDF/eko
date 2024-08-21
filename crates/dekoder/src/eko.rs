@@ -1,4 +1,4 @@
-//! The eko output object.
+//! Utilities for reading and writing an eko output.
 use std::collections::HashMap;
 use std::fs::remove_dir_all;
 use std::fs::File;

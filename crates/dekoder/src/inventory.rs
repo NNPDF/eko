@@ -1,4 +1,4 @@
-//! Assets manager.
+//! Utilities for dealing with the eko assets.
 use lz4_flex::frame::FrameDecoder;
 use ndarray_npy::NpzReader;
 use std::collections::HashMap;
