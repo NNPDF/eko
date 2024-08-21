@@ -1,7 +1,6 @@
 //! Assets manager.
 use glob::glob;
 use lz4_flex::frame::FrameDecoder;
-use ndarray::Array4;
 use ndarray_npy::NpzReader;
 use std::collections::HashMap;
 use std::ffi::OsString;
@@ -72,12 +71,12 @@ impl<K: Eq + for<'a> TryFrom<&'a Yaml, Error = EKOError>> Inventory<K> {
         let mut reader = BufReader::new(FrameDecoder::new(BufReader::new(File::open(&p)?)));
         let mut buffer = Vec::new();
         std::io::copy(&mut reader, &mut buffer)?;
-        let mut npz = NpzReader::new(Cursor::new(buffer))
-            .map_err(|_| EKOError::OperatorLoadError(p.to_owned()))?;
-        let operator: Array4<f64> = npz
-            .by_name("operator.npy")
-            .map_err(|_| EKOError::OperatorLoadError(p.to_owned()))?;
-        v.op = Some(operator);
+        v.op = Some(
+            NpzReader::new(Cursor::new(buffer))
+                .map_err(|_| EKOError::OperatorLoadError(p.to_owned()))?
+                .by_name("operator.npy")
+                .map_err(|_| EKOError::OperatorLoadError(p.to_owned()))?,
+        );
         Ok(())
     }
 }
