@@ -43,16 +43,10 @@ pub struct Operator {
     pub op: Option<Array4<f64>>,
 }
 
-impl Operator {
-    /// Empty initializer.
-    pub fn new() -> Self {
-        Self { op: None }
-    }
-}
-
 impl Default for Operator {
+    /// Empty initializer.
     fn default() -> Self {
-        Self::new()
+        Self { op: None }
     }
 }
 

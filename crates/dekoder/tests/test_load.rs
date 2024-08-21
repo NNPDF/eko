@@ -78,7 +78,7 @@ fn load_operator() {
         scale: 10000.,
         nf: 4,
     };
-    let mut op = Operator::new();
+    let mut op = Operator::default();
     eko.load_operator(&ep, &mut op).unwrap();
     assert!(op.op.is_some());
     assert!(op.op.unwrap().dim().0 > 0);
