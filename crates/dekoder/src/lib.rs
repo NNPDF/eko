@@ -32,11 +32,16 @@ pub type Result<T> = std::result::Result<T, EKOError>;
 pub struct Operator {
     /// The actual rank 4 tensor.
     pub op: Option<Array4<f64>>,
+    /// The associated element-by-element error.
+    pub err: Option<Array4<f64>>,
 }
 
 impl Default for Operator {
     /// Empty initializer.
     fn default() -> Self {
-        Self { op: None }
+        Self {
+            op: None,
+            err: None,
+        }
     }
 }

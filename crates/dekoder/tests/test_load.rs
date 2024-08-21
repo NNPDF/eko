@@ -78,7 +78,10 @@ fn load_operator() {
         scale: 10000.,
         nf: 4,
     };
-    let op = eko.load_operator(&ep).unwrap();
-    assert!(op.op.is_some());
-    assert!(op.op.unwrap().dim().0 > 0);
+    let operator = eko.load_operator(&ep).unwrap();
+    assert!(operator.op.is_some());
+    assert!(operator.err.is_some());
+    let op = operator.op.unwrap();
+    assert!(op.dim().0 > 0);
+    assert!(op.dim().0 == operator.err.unwrap().dim().0);
 }

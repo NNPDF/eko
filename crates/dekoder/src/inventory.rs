@@ -2,7 +2,7 @@
 use lz4_flex::frame::FrameDecoder;
 use ndarray_npy::NpzReader;
 use std::collections::HashMap;
-use std::ffi::{OsStr, OsString};
+use std::ffi::OsString;
 use std::fs::{read_dir, read_to_string, File};
 use std::io::Cursor;
 use std::path::PathBuf;
@@ -27,10 +27,7 @@ impl<K: Eq + for<'a> TryFrom<&'a Yaml, Error = EKOError>> Inventory<K> {
         for entry in read_dir(&self.path)? {
             // is header file?
             let entry = entry?.path();
-            if !entry
-                .extension()
-                .is_some_and(|ext| ext.eq(OsStr::new(HEADER_EXT)))
-            {
+            if !entry.extension().is_some_and(|ext| ext.eq(HEADER_EXT)) {
                 continue;
             }
             // read
@@ -68,17 +65,22 @@ impl<K: Eq + for<'a> TryFrom<&'a Yaml, Error = EKOError>> Inventory<K> {
             .iter()
             .find(|it| (it.1).eq(k))
             .ok_or(EKOError::KeyError("because it was not found".to_owned()))?;
+        // TODO determine if errors are available
         let p = self.path.join(k.0).with_extension("npz.lz4");
         // Read npz.lz4
         let mut reader = FrameDecoder::new(File::open(&p)?);
         let mut buffer = Vec::new();
         std::io::copy(&mut reader, &mut buffer)?;
+        let mut npz = NpzReader::new(Cursor::new(buffer))
+            .map_err(|_| EKOError::OperatorLoadError(p.to_owned()))?;
         let op = Some(
-            NpzReader::new(Cursor::new(buffer))
-                .map_err(|_| EKOError::OperatorLoadError(p.to_owned()))?
-                .by_name("operator.npy")
+            npz.by_name("operator.npy")
                 .map_err(|_| EKOError::OperatorLoadError(p.to_owned()))?,
         );
-        Ok(Operator { op })
+        let err = Some(
+            npz.by_name("error.npy")
+                .map_err(|_| EKOError::OperatorLoadError(p.to_owned()))?,
+        );
+        Ok(Operator { op, err })
     }
 }
