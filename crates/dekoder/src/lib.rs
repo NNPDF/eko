@@ -1,5 +1,4 @@
 //! eko output interface.
-use float_cmp::approx_eq;
 use ndarray::Array4;
 use std::collections::HashMap;
 use std::fs::remove_dir_all;
@@ -27,8 +26,10 @@ pub enum EKOError {
 /// My result type has always my errros.
 type Result<T> = std::result::Result<T, EKOError>;
 
-/// Default value for the float comparison inside `EvolutionPoint`.
-const EP_CMP_ULPS: i64 = 64;
+/// Default rel. error for the float comparison inside `EvolutionPoint`.
+const EP_CMP_RTOL: f64 = 1e-5;
+/// Default abs. error for the float comparison inside `EvolutionPoint`.
+const EP_CMP_ATOL: f64 = 1e-3;
 
 /// A reference point in the evolution atlas.
 pub struct EvolutionPoint {
@@ -73,10 +74,15 @@ impl TryFrom<&Yaml> for EvolutionPoint {
     }
 }
 
+/// Reimplementation of [`np.isclose`](https://numpy.org/doc/stable/reference/generated/numpy.isclose.html#numpy-isclose).
+fn is_close(a: f64, b: f64, rtol: f64, atol: f64) -> bool {
+    (a - b).abs() <= atol + rtol * b.abs()
+}
+
 impl PartialEq for EvolutionPoint {
     /// (Protected) comparator.
     fn eq(&self, other: &Self) -> bool {
-        self.nf == other.nf && approx_eq!(f64, self.scale, other.scale, ulps = EP_CMP_ULPS)
+        self.nf == other.nf && is_close(self.scale, other.scale, EP_CMP_RTOL, EP_CMP_ATOL)
     }
 }
 

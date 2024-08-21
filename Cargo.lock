@@ -162,7 +162,6 @@ name = "dekoder"
 version = "0.0.1"
 dependencies = [
  "assert_fs",
- "float-cmp",
  "lz4_flex",
  "ndarray",
  "ndarray-npy",
