@@ -16,12 +16,20 @@ const HEADER_EXT: &str = "yaml";
 /// Assets manager.
 pub(crate) struct Inventory<K: Eq + for<'a> TryFrom<&'a Yaml, Error = EKOError>> {
     /// Working directory
-    pub(crate) path: PathBuf,
+    path: PathBuf,
     /// Available keys
-    pub(crate) keys: HashMap<OsString, K>,
+    keys: HashMap<OsString, K>,
 }
 
 impl<K: Eq + for<'a> TryFrom<&'a Yaml, Error = EKOError>> Inventory<K> {
+    /// Construct new manager pointing to `path`.
+    pub(crate) fn new(path: PathBuf) -> Self {
+        Self {
+            path,
+            keys: HashMap::new(),
+        }
+    }
+
     /// Load all available entries.
     pub fn load_keys(&mut self) -> Result<()> {
         for entry in read_dir(&self.path)? {

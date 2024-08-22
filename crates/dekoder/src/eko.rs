@@ -1,5 +1,4 @@
 //! Utilities for reading and writing an eko output.
-use std::collections::HashMap;
 use std::fs::remove_dir_all;
 use std::fs::File;
 use std::io::BufWriter;
@@ -112,10 +111,7 @@ impl EKO {
 
     /// Load an EKO from a directory `path` (instead of tar).
     pub fn load_opened(path: PathBuf) -> Result<Self> {
-        let mut operators = crate::inventory::Inventory {
-            path: path.join(DIR_OPERATORS),
-            keys: HashMap::new(),
-        };
+        let mut operators = crate::inventory::Inventory::new(path.join(DIR_OPERATORS));
         operators.load_keys()?;
         let obj = Self { path, operators };
         obj.assert_working_dir()?;
