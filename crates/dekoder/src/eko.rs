@@ -27,14 +27,11 @@ impl TryFrom<&Yaml> for EvolutionPoint {
     fn try_from(yml: &Yaml) -> Result<Self> {
         // work around float representation
         let scale = yml["scale"].as_f64();
-        let scale = if scale.is_some() {
-            scale.ok_or(EKOError::KeyError(
-                "because failed to read scale as float".to_owned(),
-            ))?
-        } else {
-            yml["scale"].as_i64().ok_or(EKOError::KeyError(
+        let scale = match scale {
+            Some(scale) => scale,
+            None => yml["scale"].as_i64().ok_or(EKOError::KeyError(
                 "because failed to read scale as float from int".to_owned(),
-            ))? as f64
+            ))? as f64,
         };
         let nf = yml["nf"]
             .as_i64()

@@ -9,6 +9,7 @@ macro_rules! cmplx {
 }
 
 /// Shorthand complex number comparators.
+#[cfg(test)]
 #[macro_export]
 macro_rules! assert_approx_eq_cmplx {
     ($size:ty, $ref:expr, $target:expr) => {
