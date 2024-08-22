@@ -2,7 +2,7 @@
 # See https://pre-commit.com/hooks.html for more hooks
 ci:
   autofix_prs: false
-  skip: [fmt] # will be run by a separate CI
+  skip: [fmt, clippy] # will be run by a separate CI
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.6.0
@@ -19,7 +19,7 @@ repos:
       - id: pycln
         args: [--config=pyproject.toml]
   - repo: https://github.com/psf/black-pre-commit-mirror
-    rev: 24.4.2
+    rev: 24.8.0
     hooks:
       - id: black
   - repo: https://github.com/asottile/blacken-docs
@@ -44,7 +44,7 @@ repos:
         additional_dependencies:
           - toml
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.4.1
+    rev: v1.11.1
     hooks:
       - id: mypy
         additional_dependencies: [types-PyYAML]
@@ -59,6 +59,13 @@ repos:
       language: system
       files: ^crates/.*\.rs$
       args: []
+    - id: clippy
+      name: clippy
+      description: Check Rust files with cargo clippy.
+      entry: cargo clippy --all-targets --all-features -- -Dclippy::all
+      pass_filenames: false
+      types: [file, rust]
+      language: system
   - repo: https://github.com/pre-commit/pre-commit
     rev: v3.8.0
     hooks:
