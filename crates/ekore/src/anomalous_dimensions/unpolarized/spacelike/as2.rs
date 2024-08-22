@@ -10,7 +10,7 @@ use crate::harmonics::cache::{Cache, K};
 ///
 /// Implements Eq. (3.6) of [\[Moch:2004pa\]][crate::bib::Moch2004pa].
 pub fn gamma_nsm(c: &mut Cache, nf: u8) -> Complex<f64> {
-    let N = c.n;
+    let N = c.n();
     let S1 = c.get(K::S1);
     let S2 = c.get(K::S2);
     let Sp1m = c.get(K::S1mh);
@@ -50,7 +50,7 @@ pub fn gamma_nsm(c: &mut Cache, nf: u8) -> Complex<f64> {
 ///
 /// Implements Eq. (3.5) of [\[Moch:2004pa\]][crate::bib::Moch2004pa].
 pub fn gamma_nsp(c: &mut Cache, nf: u8) -> Complex<f64> {
-    let N = c.n;
+    let N = c.n();
     let S1 = c.get(K::S1);
     let S2 = c.get(K::S2);
     let Sp1p = c.get(K::S1h);
@@ -90,7 +90,7 @@ pub fn gamma_nsp(c: &mut Cache, nf: u8) -> Complex<f64> {
 ///
 /// Implements Eq. (3.6) of [\[Vogt:2004mw\]][crate::bib::Vogt2004mw].
 pub fn gamma_ps(c: &mut Cache, nf: u8) -> Complex<f64> {
-    let N = c.n;
+    let N = c.n();
     let gqqps1_nfcf = (-4. * (2. + N * (5. + N)) * (4. + N * (4. + N * (7. + 5. * N))))
         / ((-1. + N) * N.powu(3) * (1. + N).powu(3) * (2. + N).powu(2));
     2.0 * TR * (nf as f64) * CF * gqqps1_nfcf
@@ -100,7 +100,7 @@ pub fn gamma_ps(c: &mut Cache, nf: u8) -> Complex<f64> {
 ///
 /// Implements Eq. (3.7) of [\[Vogt:2004mw\]][crate::bib::Vogt2004mw].
 pub fn gamma_qg(c: &mut Cache, nf: u8) -> Complex<f64> {
-    let N = c.n;
+    let N = c.n();
     let S1 = c.get(K::S1);
     let S2 = c.get(K::S2);
     let Sp2p = c.get(K::S2h);
@@ -128,7 +128,7 @@ pub fn gamma_qg(c: &mut Cache, nf: u8) -> Complex<f64> {
 ///
 /// Implements Eq. (3.8) of [\[Vogt:2004mw\]][crate::bib::Vogt2004mw].
 pub fn gamma_gq(c: &mut Cache, nf: u8) -> Complex<f64> {
-    let N = c.n;
+    let N = c.n();
     let S1 = c.get(K::S1);
     let S2 = c.get(K::S2);
     let Sp2p = c.get(K::S2h);
@@ -164,7 +164,7 @@ pub fn gamma_gq(c: &mut Cache, nf: u8) -> Complex<f64> {
 ///
 /// Implements Eq. (3.9) of [\[Vogt:2004mw\]][crate::bib::Vogt2004mw].
 pub fn gamma_gg(c: &mut Cache, nf: u8) -> Complex<f64> {
-    let N = c.n;
+    let N = c.n();
     let S1 = c.get(K::S1);
     let Sp1p = c.get(K::S1h);
     let Sp2p = c.get(K::S2h);

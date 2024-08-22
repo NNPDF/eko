@@ -11,7 +11,7 @@ use crate::harmonics::cache::{Cache, K};
 ///
 /// Implements Eq. (3.8) of [\[Moch:2004pa\]][crate::bib::Moch2004pa].
 pub fn gamma_nsm(c: &mut Cache, nf: u8) -> Complex<f64> {
-    let N = c.n;
+    let N = c.n();
     let S1 = c.get(K::S1);
     let S2 = c.get(K::S2);
     let S3 = c.get(K::S3);
@@ -68,7 +68,7 @@ pub fn gamma_nsm(c: &mut Cache, nf: u8) -> Complex<f64> {
 ///
 /// Implements Eq. (3.7) of [\[Moch:2004pa\]][crate::bib::Moch2004pa].
 pub fn gamma_nsp(c: &mut Cache, nf: u8) -> Complex<f64> {
-    let N = c.n;
+    let N = c.n();
     let S1 = c.get(K::S1);
     let S2 = c.get(K::S2);
     let S3 = c.get(K::S3);
@@ -125,7 +125,7 @@ pub fn gamma_nsp(c: &mut Cache, nf: u8) -> Complex<f64> {
 ///
 /// Implements Eq. (3.9) of [\[Moch:2004pa\]][crate::bib::Moch2004pa].
 pub fn gamma_nsv(c: &mut Cache, nf: u8) -> Complex<f64> {
-    let N = c.n;
+    let N = c.n();
     let S1 = c.get(K::S1);
     let S2 = c.get(K::S2);
     let S3 = c.get(K::S3);
@@ -162,7 +162,7 @@ pub fn gamma_nsv(c: &mut Cache, nf: u8) -> Complex<f64> {
 ///
 /// Implements Eq. (3.10) of [\[Vogt:2004mw\]][crate::bib::Vogt2004mw].
 pub fn gamma_ps(c: &mut Cache, nf: u8) -> Complex<f64> {
-    let N = c.n;
+    let N = c.n();
     let S1 = c.get(K::S1);
     let S2 = c.get(K::S2);
     let S3 = c.get(K::S3);
@@ -218,7 +218,7 @@ pub fn gamma_ps(c: &mut Cache, nf: u8) -> Complex<f64> {
 ///
 /// Implements Eq. (3.11) of [\[Vogt:2004mw\]][crate::bib::Vogt2004mw].
 pub fn gamma_qg(c: &mut Cache, nf: u8) -> Complex<f64> {
-    let N = c.n;
+    let N = c.n();
     let S1 = c.get(K::S1);
     let S2 = c.get(K::S2);
     let S3 = c.get(K::S3);
@@ -275,7 +275,7 @@ pub fn gamma_qg(c: &mut Cache, nf: u8) -> Complex<f64> {
 ///
 /// Implements Eq. (3.12) of [\[Vogt:2004mw\]][crate::bib::Vogt2004mw].
 pub fn gamma_gq(c: &mut Cache, nf: u8) -> Complex<f64> {
-    let N = c.n;
+    let N = c.n();
     let S1 = c.get(K::S1);
     let S2 = c.get(K::S2);
     let S3 = c.get(K::S3);
@@ -348,7 +348,7 @@ pub fn gamma_gq(c: &mut Cache, nf: u8) -> Complex<f64> {
 ///
 /// Implements Eq. (3.13) of [\[Vogt:2004mw\]][crate::bib::Vogt2004mw].
 pub fn gamma_gg(c: &mut Cache, nf: u8) -> Complex<f64> {
-    let N = c.n;
+    let N = c.n();
     let S1 = c.get(K::S1);
     let S2 = c.get(K::S2);
     let S3 = c.get(K::S3);

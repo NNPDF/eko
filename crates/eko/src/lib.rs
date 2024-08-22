@@ -96,8 +96,8 @@ pub unsafe extern "C" fn rust_quad_ker_qcd(u: f64, rargs: *mut c_void) -> f64 {
     (args.py)(
         raw.re.as_ptr(),
         raw.im.as_ptr(),
-        c.n.re,
-        c.n.im,
+        c.n().re,
+        c.n().im,
         jac.re,
         jac.im,
         args.order_qcd,

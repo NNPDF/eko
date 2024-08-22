@@ -35,7 +35,7 @@ pub enum K {
 /// Hold all cached values.
 pub struct Cache {
     /// Mellin N
-    pub n: Complex<f64>,
+    n: Complex<f64>,
     /// Mapping
     m: HashMap<K, Complex<f64>>,
 }
@@ -47,6 +47,11 @@ impl Cache {
             n,
             m: HashMap::new(),
         }
+    }
+
+    /// Get Mellin N.
+    pub fn n(&self) -> Complex<f64> {
+        Complex::new(self.n.re, self.n.im)
     }
 
     /// Retrieve an element.
@@ -94,10 +99,20 @@ pub fn recursive_harmonic_sum(
 
 #[cfg(test)]
 mod tests {
-    use crate::harmonics::cache::recursive_harmonic_sum;
+    use super::*;
     use crate::harmonics::{w1, w2, w3, w4};
     use crate::{assert_approx_eq_cmplx, cmplx};
     use num::complex::Complex;
+
+    #[test]
+    fn n() {
+        let n = cmplx!(1., 0.);
+        let c = Cache::new(n);
+        let mut m = c.n();
+        m += cmplx!(1., 0.);
+        assert_approx_eq_cmplx!(f64, c.n(), n);
+        assert_approx_eq_cmplx!(f64, m, cmplx!(2., 0.));
+    }
 
     #[test]
     fn test_recursive_harmonic_sum() {
