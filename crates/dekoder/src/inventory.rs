@@ -27,7 +27,7 @@ impl<K: Eq + for<'a> TryFrom<&'a Yaml, Error = EKOError>> Inventory<K> {
         for entry in read_dir(&self.path)? {
             // is header file?
             let entry = entry?.path();
-            if !entry.extension().is_some_and(|ext| ext.eq(HEADER_EXT)) {
+            if !entry.extension().is_some_and(|ext| ext == HEADER_EXT) {
                 continue;
             }
             // read
@@ -54,7 +54,7 @@ impl<K: Eq + for<'a> TryFrom<&'a Yaml, Error = EKOError>> Inventory<K> {
 
     /// Check if `k` is available (with given precision).
     pub fn has(&self, k: &K) -> bool {
-        self.keys.iter().any(|it| (it.1).eq(k))
+        self.keys.iter().any(|it| it.1 == k)
     }
 
     /// Load `k` from disk.
@@ -63,7 +63,7 @@ impl<K: Eq + for<'a> TryFrom<&'a Yaml, Error = EKOError>> Inventory<K> {
         let k = self
             .keys
             .iter()
-            .find(|it| (it.1).eq(k))
+            .find(|it| it.1 == k)
             .ok_or(EKOError::KeyError("because it was not found".to_owned()))?;
         // TODO determine if errors are available
         let p = self.path.join(k.0).with_extension("npz.lz4");
