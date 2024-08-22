@@ -4,7 +4,7 @@ use ndarray_npy::NpzReader;
 use std::collections::HashMap;
 use std::ffi::OsString;
 use std::fs::{read_dir, read_to_string, File};
-use std::io::Cursor;
+use std::io::{Cursor, Read};
 use std::path::PathBuf;
 use yaml_rust2::{Yaml, YamlLoader};
 
@@ -78,7 +78,7 @@ impl<K: Eq + for<'a> TryFrom<&'a Yaml, Error = EKOError>> Inventory<K> {
         // Read npz.lz4
         let mut reader = FrameDecoder::new(File::open(&p)?);
         let mut buffer = Vec::new();
-        std::io::copy(&mut reader, &mut buffer)?;
+        reader.read_to_end(&mut buffer)?;
         let mut npz = NpzReader::new(Cursor::new(buffer))
             .map_err(|_| EKOError::OperatorLoadError(p.to_owned()))?;
         let op = Some(
