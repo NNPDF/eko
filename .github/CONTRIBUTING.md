@@ -8,9 +8,10 @@ language, however, please read a "Please" in front of everything.
 - :brain: Be reasonable and use common sense when contributing: we
   added some points we would like to highlight below
 - :family: Follow our [Code of
-  Conduct](https://github.com/N3PDF/eko/blob/master/.github/CODE_OF_CONDUCT.md)
+  Conduct](https://github.com/NNPDF/eko/blob/master/.github/CODE_OF_CONDUCT.md)
   and use the provided [Issue
-  Templates](https://github.com/N3PDF/eko/issues/new/choose)
+  Templates](https://github.com/NNPDF/eko/issues/new/choose)
+- :1234: Use the _almost_ standard [SemVer](https://semver.org/) for version numbers
 
 ## Tools
 
@@ -25,7 +26,7 @@ language, however, please read a "Please" in front of everything.
   generated (and intended to be used)
 - :parking: [`pre-commit`](https://pre-commit.com/) is used to enforce
   automation and standardize the tools for all developers; if you want
-  to contribute to this project, install it and setup
+  to contribute to this project, install it and activate it
 
 ## Docs
 
