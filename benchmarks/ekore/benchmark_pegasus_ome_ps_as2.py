@@ -115,7 +115,7 @@ def check_pegasus_ome_ps_as2_s(N, NF):
         * N2
         / N**2
         / N1**2
-        * (NM * (2 * S2 + ZETA2) - (4 * N**3 - 4 * N**2 - 3 * N - 1) / N**2 / N1**2)
+        * (NM * (2 * S2 + ZETA2) + (4 * N**3 - 4 * N**2 - 3 * N - 1) / N**2 / N1**2)
         + ZETA2 / 8 * G0QG_HAT * G0GQ
     )
     #
