@@ -116,7 +116,7 @@ def A_hq_ps(n, cache, L, nf):
         * ((n + 2) / (n**2 * (n + 1) ** 2))
         * (
             (n - 1) * (2 * S2 + zeta2)
-            - ((4 * n**3 - 4 * n**2 - 3 * n - 1) / (n**2 * (n + 1) ** 2))
+            + ((4 * n**3 - 4 * n**2 - 3 * n - 1) / (n**2 * (n + 1) ** 2))
         )
     )
     # term that differentiates between M scheme and Larin scheme,
