@@ -92,7 +92,7 @@ impl EKO {
     pub fn write(&self, dst: PathBuf) -> Result<()> {
         self.assert_working_dir()?;
         // create writer
-        let dst_file = File::create(&dst)?;
+        let dst_file = File::create(dst)?;
         let dst_file = BufWriter::with_capacity(TAR_WRITER_CAPACITY, dst_file);
         let mut ar = tar::Builder::new(dst_file);
         // do it!
@@ -101,7 +101,7 @@ impl EKO {
 
     /// Extract tar file from `src` to `dst`.
     pub fn extract(src: PathBuf, dst: PathBuf) -> Result<Self> {
-        let mut ar = tar::Archive::new(File::open(&src)?);
+        let mut ar = tar::Archive::new(File::open(src)?);
         ar.unpack(&dst)?;
         Self::load_opened(dst)
     }
