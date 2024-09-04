@@ -30,6 +30,10 @@ pub enum K {
     S3mh,
     /// $g_3(N)$
     G3,
+    /// $S_{-2}(N)$ even moments
+    Sm2e,
+    /// $S_{-2}(N)$ odd moments
+    Sm2o,
 }
 
 /// Hold all cached values.
@@ -69,6 +73,8 @@ impl Cache {
             K::S2mh => w2::S2((self.n - 1.) / 2.),
             K::S3mh => w3::S3((self.n - 1.) / 2.),
             K::G3 => g_functions::g3(self.n, self.get(K::S1)),
+            K::Sm2e => w2::Sm2e(self.get(K::S2), self.get(K::S2h)),
+            K::Sm2o => w2::Sm2o(self.get(K::S2), self.get(K::S2mh)),
         };
         // insert
         self.m.insert(k, val);
