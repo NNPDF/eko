@@ -8,6 +8,7 @@ import logging
 import os
 import time
 from multiprocessing import Pool
+from typing import Dict, Tuple
 
 import numba as nb
 import numpy as np
@@ -20,6 +21,8 @@ import ekore.anomalous_dimensions.unpolarized.time_like as ad_ut
 from .. import basis_rotation as br
 from .. import interpolation, mellin
 from .. import scale_variations as sv
+from ..io.types import EvolutionMethod, OperatorLabel
+from ..kernels import ev_method
 from ..kernels import non_singlet as ns
 from ..kernels import non_singlet_qed as qed_ns
 from ..kernels import singlet as s
@@ -600,7 +603,11 @@ def quad_ker_qed(
     return ker
 
 
-class Operator(sv.ModeMixin):
+OpMembers = Dict[OperatorLabel, OpMember]
+"""Map of all operators."""
+
+
+class Operator(sv.ScaleVariationModeMixin):
     """Internal representation of a single EKO.
 
     The actual matrices are computed upon calling :meth:`compute`.
@@ -625,8 +632,8 @@ class Operator(sv.ModeMixin):
 
     log_label = "Evolution"
     # complete list of possible evolution operators labels
-    full_labels = br.full_labels
-    full_labels_qed = br.full_unified_labels
+    full_labels: Tuple[OperatorLabel, ...] = br.full_labels
+    full_labels_qed: Tuple[OperatorLabel, ...] = br.full_unified_labels
 
     def __init__(
         self, config, managers, segment: Segment, mellin_cut=5e-2, is_threshold=False
@@ -639,9 +646,9 @@ class Operator(sv.ModeMixin):
         # TODO make 'cut' external parameter?
         self._mellin_cut = mellin_cut
         self.is_threshold = is_threshold
-        self.op_members = {}
+        self.op_members: OpMembers = {}
         self.order = tuple(config["order"])
-        self.alphaem_running = self.managers["couplings"].alphaem_running
+        self.alphaem_running = self.managers.couplings.alphaem_running
         if self.log_label == "Evolution":
             self.a = self.compute_a()
             self.as_list, self.a_half_list = self.compute_aem_list()
@@ -663,7 +670,7 @@ class Operator(sv.ModeMixin):
     @property
     def int_disp(self):
         """Return the interpolation dispatcher."""
-        return self.managers["interpol_dispatcher"]
+        return self.managers.interpolator
 
     @property
     def grid_size(self):
@@ -686,7 +693,7 @@ class Operator(sv.ModeMixin):
 
     def compute_a(self):
         """Return the computed values for :math:`a_s` and :math:`a_{em}`."""
-        coupling = self.managers["couplings"]
+        coupling = self.managers.couplings
         a0 = coupling.a(
             self.mu2[0],
             nf_to=self.nf,
@@ -722,7 +729,7 @@ class Operator(sv.ModeMixin):
             as_list = np.array([self.a_s[0], self.a_s[1]])
             a_half = np.zeros((ev_op_iterations, 2))
         else:
-            couplings = self.managers["couplings"]
+            couplings = self.managers.couplings
             mu2_steps = np.geomspace(self.q2_from, self.q2_to, 1 + ev_op_iterations)
             mu2_l = mu2_steps[0]
             as_list = np.array(
@@ -780,6 +787,11 @@ class Operator(sv.ModeMixin):
                 labels.extend(br.singlet_unified_labels)
         return labels
 
+    @property
+    def ev_method(self):
+        """Return the evolution method."""
+        return ev_method(EvolutionMethod(self.config["method"]))
+
     def quad_ker(self, label, logx, areas):
         """Return partially initialized integrand function.
 
@@ -803,7 +815,7 @@ class Operator(sv.ModeMixin):
             order=self.order,
             mode0=label[0],
             mode1=label[1],
-            method=self.config["method"],
+            method=self.ev_method,
             is_log=self.int_disp.log,
             logx=logx,
             areas=areas,

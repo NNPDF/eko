@@ -13,7 +13,7 @@ use crate::operator_matrix_elements::unpolarized::spacelike::as1;
 /// |NNLO| light-light non-singlet |OME|.
 /// It is given in Eq.() of
 pub fn A_qq_ns(c: &mut Cache, _nf: u8, L: f64) -> Complex<f64> {
-    let N = c.n;
+    let N = c.n();
     let S1 = c.get(K::S1);
     let S2 = c.get(K::S2);
     let S3 = c.get(K::S3);
@@ -44,7 +44,7 @@ pub fn A_qq_ns(c: &mut Cache, _nf: u8, L: f64) -> Complex<f64> {
 /// |NNLO| heavy-light pure-singlet |OME|
 /// It is given in Eq.() of
 pub fn A_hq_ps(c: &mut Cache, _nf: u8, L: f64) -> Complex<f64> {
-    let N = c.n;
+    let N = c.n();
     let S2 = c.get(K::S1);
     let F1M = 1.0 / (N - 1.0) * (ZETA2 - (S2 - 1.0 / N.powu(2)));
     let F11 = 1.0 / (N + 1.0) * (ZETA2 - (S2 + 1.0 / (N + 1.0).powu(2)));

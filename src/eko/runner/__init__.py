@@ -1,6 +1,6 @@
 """Manage steps to DGLAP solution, and operator creation."""
 
-import os
+from pathlib import Path
 from typing import Union
 
 from ..io.runcards import OperatorCard, TheoryCard
@@ -15,7 +15,7 @@ from . import legacy
 def solve(
     theory_card: Union[RawCard, TheoryCard],
     operators_card: Union[RawCard, OperatorCard],
-    path: os.PathLike,
+    path: Path,
 ):
     r"""Solve DGLAP equations in terms of evolution kernel operators (EKO).
 

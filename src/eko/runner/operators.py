@@ -8,21 +8,37 @@ import numpy.typing as npt
 
 from ..io.inventory import Inventory
 from ..io.items import Evolution, Operator, Recipe
+from ..io.struct import EKO
+from ..io.types import EvolutionPoint
+from . import commons, recipes
 
 
-def retrieve(
+def _retrieve(
     headers: List[Recipe], parts: Inventory, parts_matching: Inventory
 ) -> List[Operator]:
     """Retrieve parts to be joined."""
     elements = []
     for head in headers:
         inv = parts if isinstance(head, Evolution) else parts_matching
-        elements.append(inv[head])
+        op = inv[head]
+        assert op is not None
+        elements.append(op)
 
     return elements
 
 
-def dot4(op1: npt.NDArray, op2: npt.NDArray) -> npt.NDArray:
+def _parts(ep: EvolutionPoint, eko: EKO) -> List[Recipe]:
+    """Determine parts required for the given evolution point operator."""
+    atlas = commons.atlas(eko.theory_card, eko.operator_card)
+    return recipes._elements(ep, atlas)
+
+
+def retrieve(ep: EvolutionPoint, eko: EKO) -> List[Operator]:
+    """Retrieve parts required for the given evolution point operator."""
+    return _retrieve(_parts(ep, eko), eko.parts, eko.parts_matching)
+
+
+def _dot4(op1: npt.NDArray, op2: npt.NDArray) -> npt.NDArray:
     """Dot product between rank 4 objects.
 
     The product is performed considering them as matrices indexed by pairs, so
@@ -32,10 +48,10 @@ def dot4(op1: npt.NDArray, op2: npt.NDArray) -> npt.NDArray:
     return np.einsum("aibj,bjck->aick", op1, op2)
 
 
-def dotop(op1: Operator, op2: Operator) -> Operator:
+def _dotop(op1: Operator, op2: Operator) -> Operator:
     r"""Dot product between two operators.
 
-    Essentially a wrapper of :func:`dot4`, applying linear error propagation,
+    Essentially a wrapper of :func:`_dot4`, applying linear error propagation,
     if applicable.
 
     Note
@@ -65,10 +81,10 @@ def dotop(op1: Operator, op2: Operator) -> Operator:
         |da_i| \cdot |b_i| + |a_i| \cdot |db_i| + \mathcal{O}(d^2)
 
     """
-    val = dot4(op1.operator, op2.operator)
+    val = _dot4(op1.operator, op2.operator)
 
     if op1.error is not None and op2.error is not None:
-        err = dot4(np.abs(op1.operator), np.abs(op2.error)) + dot4(
+        err = _dot4(np.abs(op1.operator), np.abs(op2.error)) + _dot4(
             np.abs(op1.error), np.abs(op2.operator)
         )
     else:
@@ -91,4 +107,4 @@ def join(elements: List[Operator]) -> Operator:
         consider if reversing the path...
 
     """
-    return reduce(dotop, reversed(elements))
+    return reduce(_dotop, reversed(elements))

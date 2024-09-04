@@ -3,12 +3,11 @@
 import contextlib
 import copy
 import logging
-import os
-import pathlib
 import shutil
 import tarfile
 import tempfile
 from dataclasses import dataclass
+from pathlib import Path
 from typing import List, Optional
 
 import numpy as np
@@ -17,7 +16,6 @@ import yaml
 from .. import interpolation
 from . import exceptions, raw
 from .access import AccessConfigs
-from .bases import Bases
 from .inventory import Inventory
 from .items import Evolution, Matching, Operator, Recipe, Target
 from .metadata import Metadata
@@ -31,7 +29,7 @@ logger = logging.getLogger(__name__)
 TEMP_PREFIX = "eko-"
 
 
-def inventories(path: pathlib.Path, access: AccessConfigs) -> dict:
+def inventories(path: Path, access: AccessConfigs) -> dict:
     """Set up empty inventories for object initialization."""
     paths = InternalPaths(path)
     return dict(
@@ -107,19 +105,14 @@ class EKO:
         return InternalPaths(self.metadata.path)
 
     @property
-    def bases(self) -> Bases:
-        """Bases information."""
-        return self.metadata.bases
-
-    @property
     def xgrid(self) -> interpolation.XGrid:
         """Momentum fraction internal grid."""
-        return self.bases.xgrid
+        return self.metadata.xgrid
 
     @xgrid.setter
     def xgrid(self, value: interpolation.XGrid):
         """Set `xgrid` value."""
-        self.bases.xgrid = value
+        self.metadata.xgrid = value
         self.update()
 
     @property
@@ -273,7 +266,7 @@ class EKO:
         Raises
         ------
         ValueError
-            if multiple values are find in the neighbourhood
+            if multiple values are found in the neighbourhood
 
         """
         eps = np.array([ep_ for ep_ in self if ep_[1] == ep[1]])
@@ -281,7 +274,9 @@ class EKO:
         close = eps[np.isclose(ep[0], mu2s, rtol=rtol, atol=atol)]
 
         if len(close) == 1:
-            return tuple(close[0])
+            found = close[0]
+            assert isinstance(found[0], float)
+            return (found[0], int(found[1]))
         if len(close) == 0:
             return None
         raise ValueError(f"Multiple values of Q2 have been found close to {ep}")
@@ -294,7 +289,7 @@ class EKO:
     # operator management
     # -------------------
 
-    def deepcopy(self, path: os.PathLike):
+    def deepcopy(self, path: Path):
         """Create a deep copy of current instance.
 
         The managed on-disk object is copied as well, to the new ``path``
@@ -328,115 +323,101 @@ class EKO:
         self.unload()
 
         new = copy.deepcopy(self)
-        new.access.path = pathlib.Path(path)
+        new.access.path = path
         new.access.readonly = False
         new.access.open = True
 
-        tmpdir = pathlib.Path(tempfile.mkdtemp(prefix=TEMP_PREFIX))
+        tmpdir = Path(tempfile.mkdtemp(prefix=TEMP_PREFIX))
         new.metadata.path = tmpdir
         # copy old dir to new dir
         tmpdir.rmdir()
         shutil.copytree(self.paths.root, new.paths.root)
         new.close()
 
-    @staticmethod
-    def load(tarpath: os.PathLike, dest: os.PathLike):
-        """Load the content of archive in a target directory.
+    @classmethod
+    def load(cls, path: Path):
+        """Load the EKO from disk information.
 
-        Parameters
-        ----------
-        tarpath: os.PathLike
-            the archive to extract
-        tmppath: os.PathLike
-            the destination directory
+        Note
+        ----
+        No archive path is assigned to the :class:`EKO` object, setting its
+        :attr:`EKO.access.path` to `None`.
+        If you want to properly load from an archive, use the :meth:`read`
+        constructor.
 
         """
-        try:
-            with tarfile.open(tarpath) as tar:
-                raw.safe_extractall(tar, dest)
-        except tarfile.ReadError:
-            raise exceptions.OutputNotTar(f"Not a valid tar archive: '{tarpath}'")
+        access = AccessConfigs(None, readonly=True, open=True)
+
+        metadata = Metadata.load(path)
+        loaded = cls(
+            **inventories(path, access),
+            metadata=metadata,
+            access=access,
+        )
+        loaded.operators.sync()
+
+        return loaded
 
     @classmethod
-    def open(cls, path: os.PathLike, mode="r"):
-        """Open EKO object in the specified mode."""
-        path = pathlib.Path(path)
+    def read(
+        cls,
+        path: Path,
+        extract: bool = True,
+        dest: Optional[Path] = None,
+        readonly: bool = True,
+    ):
+        """Load an existing EKO.
+
+        If the `extract` attribute is `True` the EKO is loaded from its archived
+        format. Otherwise, the `path` is interpreted as the location of an
+        already extracted folder.
+
+
+
+        """
+        if extract:
+            dir_ = Path(tempfile.mkdtemp(prefix=TEMP_PREFIX)) if dest is None else dest
+            with tarfile.open(path) as tar:
+                raw.safe_extractall(tar, dir_)
+        else:
+            dir_ = path
+
+        loaded = cls.load(dir_)
+
+        loaded.access.readonly = readonly
+        if extract:
+            loaded.access.path = path
+
+        return loaded
+
+    @classmethod
+    def create(cls, path: Path):
+        """Create a new EKO."""
         access = AccessConfigs(path, readonly=False, open=True)
-        load = False
-        if mode == "r":
-            load = True
-            access.readonly = True
-        elif mode in "w":
-            pass
-        elif mode in "a":
-            load = True
-        else:
-            raise ValueError(f"Unknown file mode: {mode}")
-
-        tmpdir = pathlib.Path(tempfile.mkdtemp(prefix=TEMP_PREFIX))
-        if load:
-            cls.load(path, tmpdir)
-            metadata = Metadata.load(tmpdir)
-            opened = cls(
-                **inventories(tmpdir, access),
-                metadata=metadata,
-                access=access,
-            )
-            opened.operators.sync()
-        else:
-            opened = Builder(path=tmpdir, access=access)
-
-        return opened
-
-    @classmethod
-    def read(cls, path: os.PathLike):
-        """Read the content of an EKO.
-
-        Type-safe alias for::
-
-            EKO.open(... , "r")
-
-        """
-        eko = cls.open(path, "r")
-        assert isinstance(eko, EKO)
-        return eko
-
-    @classmethod
-    def create(cls, path: os.PathLike):
-        """Create a new EKO.
-
-        Type-safe alias for::
-
-            EKO.open(... , "w")
-
-        """
-        builder = cls.open(path, "w")
-        assert isinstance(builder, Builder)
+        builder = Builder(
+            path=Path(tempfile.mkdtemp(prefix=TEMP_PREFIX)), access=access
+        )
         return builder
 
     @classmethod
-    def edit(cls, path: os.PathLike):
+    def edit(cls, *args, **kwargs):
         """Read from and write on existing EKO.
 
-        Type-safe alias for::
-
-            EKO.open(... , "a")
+        Alias of `EKO.read(..., readonly=False)`, see :meth:`read`.
 
         """
-        eko = cls.open(path, "a")
-        assert isinstance(eko, EKO)
-        return eko
+        return cls.read(*args, readonly=False, **kwargs)
 
     def __enter__(self):
         """Allow EKO to be used in :obj:`with` statements."""
         return self
 
-    def dump(self, archive: Optional[os.PathLike] = None):
+    def dump(self, archive: Optional[Path] = None):
         """Dump the current content to archive.
 
         Parameters
         ----------
-        archive: os.PathLike or None
+        archive: Path or None
             path to archive, in general you should keep the default, that will
             make use of the registered path (default: ``None``)
 
@@ -475,7 +456,8 @@ class EKO:
         if exc_type is not None:
             return
 
-        self.close()
+        if self.access.path is not None:
+            self.close()
 
     @property
     def raw(self) -> dict:
@@ -495,8 +477,8 @@ class EKO:
 class Builder:
     """Build EKO instances."""
 
-    path: pathlib.Path
-    """Path on disk to ."""
+    path: Path
+    """Path on disk to the EKO."""
     access: AccessConfigs
     """Access related configurations."""
 
@@ -551,8 +533,8 @@ class Builder:
         self.access.open = True
         metadata = Metadata(
             _path=self.path,
-            origin=(self.operator.mu20, self.theory.heavy.num_flavs_init),
-            bases=Bases(xgrid=self.operator.xgrid),
+            origin=(self.operator.init[0] ** 2, self.operator.init[1]),
+            xgrid=self.operator.xgrid,
         )
         InternalPaths(self.path).bootstrap(
             theory=self.theory.raw,

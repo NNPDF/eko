@@ -69,28 +69,26 @@ pub unsafe extern "C" fn rust_quad_ker_qcd(u: f64, rargs: *mut c_void) -> f64 {
                 args.order_qcd,
             );
         }
-    } else {
-        if is_singlet {
-            raw = unravel(
-                ekore::anomalous_dimensions::unpolarized::spacelike::gamma_singlet_qcd(
-                    args.order_qcd,
-                    &mut c,
-                    args.nf,
-                ),
+    } else if is_singlet {
+        raw = unravel(
+            ekore::anomalous_dimensions::unpolarized::spacelike::gamma_singlet_qcd(
                 args.order_qcd,
-            );
-        } else {
-            // we can not do 1D
-            let res = ekore::anomalous_dimensions::unpolarized::spacelike::gamma_ns_qcd(
-                args.order_qcd,
-                args.mode0,
                 &mut c,
                 args.nf,
-            );
-            for el in res.iter().take(args.order_qcd) {
-                raw.re.push(el.re);
-                raw.im.push(el.im);
-            }
+            ),
+            args.order_qcd,
+        );
+    } else {
+        // we can not do 1D
+        let res = ekore::anomalous_dimensions::unpolarized::spacelike::gamma_ns_qcd(
+            args.order_qcd,
+            args.mode0,
+            &mut c,
+            args.nf,
+        );
+        for el in res.iter().take(args.order_qcd) {
+            raw.re.push(el.re);
+            raw.im.push(el.im);
         }
     }
 
@@ -98,8 +96,8 @@ pub unsafe extern "C" fn rust_quad_ker_qcd(u: f64, rargs: *mut c_void) -> f64 {
     (args.py)(
         raw.re.as_ptr(),
         raw.im.as_ptr(),
-        c.n.re,
-        c.n.im,
+        c.n().re,
+        c.n().im,
         jac.re,
         jac.im,
         args.order_qcd,

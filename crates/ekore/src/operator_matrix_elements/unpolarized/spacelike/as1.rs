@@ -11,7 +11,7 @@ use crate::harmonics::cache::{Cache, K};
 ///
 /// Implements Eq. (20a) of [\[Ball:2015tna\]](crate::bib::Ball2015tna).
 pub fn A_hh(c: &mut Cache, _nf: u8, L: f64) -> Complex<f64> {
-    let N = c.n;
+    let N = c.n();
     let S1m = c.get(K::S1) - 1. / N;
     let S2m = c.get(K::S2) - 1. / N.powu(2);
     let ahh_l = (2. + N - 3. * N.powu(2)) / (N * (1. + N)) + 4. * S1m;
@@ -30,7 +30,7 @@ pub fn A_hh(c: &mut Cache, _nf: u8, L: f64) -> Complex<f64> {
 ///
 /// Implements Eq. (20b) of [\[Ball:2015tna\]](crate::bib::Ball2015tna).
 pub fn A_gh(c: &mut Cache, _nf: u8, L: f64) -> Complex<f64> {
-    let N = c.n;
+    let N = c.n();
     let agh_l1 = (2. + N + N.powu(2)) / (N * (N.powu(2) - 1.));
     let agh_l0 = (-4. + 2. * N + N.powu(2) * (15. + N * (3. + N - N.powu(2))))
         / (N * (N.powu(2) - 1.)).powu(2);
@@ -41,7 +41,7 @@ pub fn A_gh(c: &mut Cache, _nf: u8, L: f64) -> Complex<f64> {
 ///
 /// Implements Eq. (B.2) of [\[Buza:1996wv\]](crate::bib::Buza1996wv).
 pub fn A_hg(c: &mut Cache, _nf: u8, L: f64) -> Complex<f64> {
-    let N = c.n;
+    let N = c.n();
     let den = 1. / (N * (N + 1.) * (2. + N));
     let num = 2. * (2. + N + N.powu(2));
     num * den * L
