@@ -178,3 +178,29 @@ pub fn A_hg(c: &mut Cache, _nf: u8, L: f64) -> Complex<f64> {
 
     a_hg_l2 * L.pow(2) + a_hg_l1 * L + a_hg_l0
 }
+
+/// |NNLO| gluon-quark |OME|
+/// It is given in Eq.() of
+pub fn A_gq(c: &mut Cache, _nf: u8, L: f64) -> Complex<f64> {
+    let N = c.n();
+    let S1 = c.get(K::S1);
+    let S2 = c.get(K::S2);
+    let S1m = S1 - 1. / N;
+
+    let B2M = ((S1 - 1.0 / N).powu(2) + S2 - 1.0 / N.powu(2)) / (N - 1.0);
+    let B21 = ((S1 + 1.0 / (N + 1.0)).powu(2) + S2 + 1.0 / (N + 1.0).powu(2)) / (N + 1.0);
+
+    let a_gq_l0 = 4.0 / 3.0 * (2.0 * B2M - 2.0 * (S1.powu(2) + S2) / N + B21)
+        + 8.0 / 9.0
+            * (-10.0 * (S1 - 1.0 / N) / (N - 1.0) + 10.0 * S1 / N
+                - 8.0 * (S1 + 1.0 / (N + 1.0)) / (N + 1.0))
+        + 1.0 / 27.0 * (448.0 * (1.0 / (N - 1.0) - 1.0 / N) + 344.0 / (N + 1.0));
+
+    let a_gq_l1 = -(-96.0 + 16.0 * N * (7.0 + N * (21.0 + 10.0 * N + 8.0 * N.powu(2)))
+        - 48.0 * N * (1.0 + N) * (2.0 + N + N.powu(2)) * S1m)
+        / (9.0 * (N - 1.0) * (N * (1.0 + N)).powu(2));
+
+    let a_gq_l2 = 8. * (2. + N + N.powu(2)) / (3. * N * (N.powu(2) - 1.));
+
+    CF * TR * (a_gq_l2 * L.pow(2) + a_gq_l1 * L + a_gq_l0)
+}
