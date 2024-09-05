@@ -1,5 +1,6 @@
 //! Harmonic sums of weight 3.
 use num::complex::Complex;
+use num::traits::Pow;
 use std::f64::consts::LN_2;
 
 use crate::constants::{ZETA2, ZETA3};
@@ -12,6 +13,16 @@ use crate::harmonics::polygamma::cern_polygamma;
 /// with $\psi_2(N)$ the 2nd polygamma function and $\zeta$ the Riemann zeta function.
 pub fn S3(N: Complex<f64>) -> Complex<f64> {
     0.5 * cern_polygamma(N + 1.0, 2) + ZETA3
+}
+
+/// Analytic continuation of harmonic sum $S_{-3}(N)$ for even moments.
+pub fn Sm3e(hS3: Complex<f64>, hS3h: Complex<f64>) -> Complex<f64> {
+    1. / (2_f64).pow(2) * hS3h - hS3
+}
+
+/// Analytic continuation of harmonic sum $S_{-3}(N)$ for odd moments.
+pub fn Sm3o(hS3: Complex<f64>, hS3mh: Complex<f64>) -> Complex<f64> {
+    1. / (2_f64).pow(2) * hS3mh - hS3
 }
 
 /// Analytic continuation of harmonic sum $S_{-2,1}(N)$ for even moments.

@@ -38,6 +38,10 @@ pub enum K {
     Sm2e,
     /// $S_{-2}(N)$ odd moments
     Sm2o,
+    /// $S_{-3}(N)$ even moments
+    Sm3e,
+    /// $S_{-3}(N)$ odd moments
+    Sm3o,
     /// $S_{-2,1}(N)$ even moments
     Sm21e,
     /// $S_{-2,1}(N)$ odd moments
@@ -90,6 +94,8 @@ impl Cache {
             K::Sm1o => w1::Sm1o(self.get(K::S1), self.get(K::S1mh)),
             K::Sm2e => w2::Sm2e(self.get(K::S2), self.get(K::S2h)),
             K::Sm2o => w2::Sm2o(self.get(K::S2), self.get(K::S2mh)),
+            K::Sm3e => w3::Sm3e(self.get(K::S3), self.get(K::S3h)),
+            K::Sm3o => w3::Sm3o(self.get(K::S3), self.get(K::S3mh)),
             K::Sm21e => w3::Sm21e(self.n, self.get(K::S1), self.get(K::Sm1e)),
             K::Sm21o => w3::Sm21o(self.n, self.get(K::S1), self.get(K::Sm1o)),
         };
