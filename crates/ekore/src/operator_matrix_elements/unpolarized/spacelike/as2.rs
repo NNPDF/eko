@@ -5,7 +5,7 @@ use num::traits::Pow;
 use num::Zero;
 
 use crate::cmplx;
-use crate::constants::{CF, TR, ZETA2, ZETA3};
+use crate::constants::{CA, CF, TR, ZETA2, ZETA3};
 use crate::harmonics::cache::{Cache, K};
 
 use crate::operator_matrix_elements::unpolarized::spacelike::as1;
@@ -203,4 +203,81 @@ pub fn A_gq(c: &mut Cache, _nf: u8, L: f64) -> Complex<f64> {
     let a_gq_l2 = 8. * (2. + N + N.powu(2)) / (3. * N * (N.powu(2) - 1.));
 
     CF * TR * (a_gq_l2 * L.pow(2) + a_gq_l1 * L + a_gq_l0)
+}
+
+/// |NNLO| gluon-gluon |OME|
+/// It is given in Eq.() of
+pub fn A_gg(c: &mut Cache, _nf: u8, L: f64) -> Complex<f64> {
+    let N = c.n();
+    let S1 = c.get(K::S1);
+    let S1m = S1 - 1. / N;
+
+    let D1 = -1.0 / N.powu(2);
+    let D11 = -1.0 / (N + 1.0).powu(2);
+    let D2 = 2.0 / N.powu(3);
+    let D21 = 2.0 / (N + 1.0).powu(3);
+
+    let a_gg_f = -15.0 - 8.0 / (N - 1.0) + 80.0 / N - 48.0 / (N + 1.0) - 24.0 / (N + 2.0)
+        + 4.0 / 3.0 * (-6.0 / N.powu(4) - 6.0 / (N + 1.0).powu(4))
+        + 6.0 * D2
+        + 10.0 * D21
+        + 32.0 * D1
+        + 48.0 * D11;
+
+    let a_gg_a = -224.0 / 27.0 * (S1 - 1.0 / N)
+        + 10.0 / 9.0
+        + 4.0 / 3.0 * (S1 + 1.0 / (N + 1.0)) / (N + 1.0)
+        + 1.0 / 27.0 * (556.0 / (N - 1.0) - 628.0 / N + 548.0 / (N + 1.0) - 700.0 / (N + 2.0))
+        + 4.0 / 3.0 * (D2 + D21)
+        + 1.0 / 9.0 * (52.0 * D1 + 88.0 * D11);
+
+    let a_gg_l0 = TR * (CF * a_gg_f + CA * a_gg_a);
+
+    let a_gg_l1 = 8. / 3.
+        * ((8. + 2. * N
+            - 34. * N.powu(2)
+            - 72. * N.powu(3)
+            - 77. * N.powu(4)
+            - 37. * N.powu(5)
+            - 19. * N.powu(6)
+            - 11. * N.powu(7)
+            - 4. * N.powu(8))
+            / ((N * (N + 1.)).powu(3) * (-2. + N + N.powu(2)))
+            + 5. * S1m);
+
+    let a_gg_l2 = 4. / 9.
+        * (1.
+            + 6. * (2. + N + N.powu(2)).powu(2) / ((N * (N + 1.)).powu(2) * (-2. + N + N.powu(2)))
+            - 9. * (-4. - 3. * N + N.powu(3)) / (N * (N + 1.) * (-2. + N + N.powu(2))))
+        - 4. * S1m;
+
+    a_gg_l2 * L.pow(2) + a_gg_l1 * L + a_gg_l0
+}
+
+/// |NNLO| singlet |OME|
+pub fn A_singlet(c: &mut Cache, _nf: u8, L: f64, is_msbar: bool) -> [[Complex<f64>; 3]; 3] {
+    let A_hq_2 = A_hq_ps(c, _nf, L);
+    let A_qq_2 = A_qq_ns(c, _nf, L);
+    let mut A_hg_2 = A_hg(c, _nf, L);
+    let A_gq_2 = A_gq(c, _nf, L);
+    let mut A_gg_2 = A_gg(c, _nf, L);
+
+    if is_msbar {
+        A_hg_2 -= 2.0 * 4.0 * CF * as1::A_hg(c, _nf, 1.0);
+        A_gg_2 -= 2.0 * 4.0 * CF * as1::A_gg(c, _nf, 1.0);
+    }
+
+    [
+        [A_gg_2, A_gq_2, Complex::<f64>::zero()],
+        [Complex::<f64>::zero(), A_qq_2, Complex::<f64>::zero()],
+        [A_hg_2, A_hq_2, Complex::<f64>::zero()],
+    ]
+}
+
+/// |NNLO| non-singlet |OME|
+pub fn A_ns(c: &mut Cache, _nf: u8, L: f64) -> [[Complex<f64>; 2]; 2] {
+    [
+        [A_qq_ns(c, _nf, L), Complex::<f64>::zero()],
+        [Complex::<f64>::zero(), Complex::<f64>::zero()],
+    ]
 }
