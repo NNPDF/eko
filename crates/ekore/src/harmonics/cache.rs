@@ -1,7 +1,7 @@
 //! Cache harmonic sums for given Mellin N.
 
-use hashbrown::HashMap;
 use num::{complex::Complex, Zero};
+use std::collections::HashMap;
 
 use crate::harmonics::{g_functions, w1, w2, w3, w4};
 
@@ -30,12 +30,28 @@ pub enum K {
     S3mh,
     /// $g_3(N)$
     G3,
+    /// $S_{-1}(N)$ even moments
+    Sm1e,
+    /// $S_{-1}(N)$ odd moments
+    Sm1o,
+    /// $S_{-2}(N)$ even moments
+    Sm2e,
+    /// $S_{-2}(N)$ odd moments
+    Sm2o,
+    /// $S_{-3}(N)$ even moments
+    Sm3e,
+    /// $S_{-3}(N)$ odd moments
+    Sm3o,
+    /// $S_{-2,1}(N)$ even moments
+    Sm21e,
+    /// $S_{-2,1}(N)$ odd moments
+    Sm21o,
 }
 
 /// Hold all cached values.
 pub struct Cache {
     /// Mellin N
-    pub n: Complex<f64>,
+    n: Complex<f64>,
     /// Mapping
     m: HashMap<K, Complex<f64>>,
 }
@@ -47,6 +63,11 @@ impl Cache {
             n,
             m: HashMap::new(),
         }
+    }
+
+    /// Get Mellin N.
+    pub fn n(&self) -> Complex<f64> {
+        Complex::new(self.n.re, self.n.im)
     }
 
     /// Retrieve an element.
@@ -69,6 +90,14 @@ impl Cache {
             K::S2mh => w2::S2((self.n - 1.) / 2.),
             K::S3mh => w3::S3((self.n - 1.) / 2.),
             K::G3 => g_functions::g3(self.n, self.get(K::S1)),
+            K::Sm1e => w1::Sm1e(self.get(K::S1), self.get(K::S1h)),
+            K::Sm1o => w1::Sm1o(self.get(K::S1), self.get(K::S1mh)),
+            K::Sm2e => w2::Sm2e(self.get(K::S2), self.get(K::S2h)),
+            K::Sm2o => w2::Sm2o(self.get(K::S2), self.get(K::S2mh)),
+            K::Sm3e => w3::Sm3e(self.get(K::S3), self.get(K::S3h)),
+            K::Sm3o => w3::Sm3o(self.get(K::S3), self.get(K::S3mh)),
+            K::Sm21e => w3::Sm21e(self.n, self.get(K::S1), self.get(K::Sm1e)),
+            K::Sm21o => w3::Sm21o(self.n, self.get(K::S1), self.get(K::Sm1o)),
         };
         // insert
         self.m.insert(k, val);
@@ -94,10 +123,20 @@ pub fn recursive_harmonic_sum(
 
 #[cfg(test)]
 mod tests {
-    use crate::harmonics::cache::recursive_harmonic_sum;
+    use super::*;
     use crate::harmonics::{w1, w2, w3, w4};
     use crate::{assert_approx_eq_cmplx, cmplx};
     use num::complex::Complex;
+
+    #[test]
+    fn n() {
+        let n = cmplx!(1., 0.);
+        let c = Cache::new(n);
+        let mut m = c.n();
+        m += cmplx!(1., 0.);
+        assert_approx_eq_cmplx!(f64, c.n(), n);
+        assert_approx_eq_cmplx!(f64, m, cmplx!(2., 0.));
+    }
 
     #[test]
     fn test_recursive_harmonic_sum() {

@@ -11,7 +11,7 @@ use crate::harmonics::cache::{Cache, K};
 ///
 /// Implements Eq. (3.8) of [\[Moch:2004pa\]][crate::bib::Moch2004pa].
 pub fn gamma_nsm(c: &mut Cache, nf: u8) -> Complex<f64> {
-    let N = c.n;
+    let N = c.n();
     let S1 = c.get(K::S1);
     let S2 = c.get(K::S2);
     let S3 = c.get(K::S3);
@@ -68,7 +68,7 @@ pub fn gamma_nsm(c: &mut Cache, nf: u8) -> Complex<f64> {
 ///
 /// Implements Eq. (3.7) of [\[Moch:2004pa\]][crate::bib::Moch2004pa].
 pub fn gamma_nsp(c: &mut Cache, nf: u8) -> Complex<f64> {
-    let N = c.n;
+    let N = c.n();
     let S1 = c.get(K::S1);
     let S2 = c.get(K::S2);
     let S3 = c.get(K::S3);
@@ -125,7 +125,7 @@ pub fn gamma_nsp(c: &mut Cache, nf: u8) -> Complex<f64> {
 ///
 /// Implements Eq. (3.9) of [\[Moch:2004pa\]][crate::bib::Moch2004pa].
 pub fn gamma_nsv(c: &mut Cache, nf: u8) -> Complex<f64> {
-    let N = c.n;
+    let N = c.n();
     let S1 = c.get(K::S1);
     let S2 = c.get(K::S2);
     let S3 = c.get(K::S3);
@@ -162,7 +162,7 @@ pub fn gamma_nsv(c: &mut Cache, nf: u8) -> Complex<f64> {
 ///
 /// Implements Eq. (3.10) of [\[Vogt:2004mw\]][crate::bib::Vogt2004mw].
 pub fn gamma_ps(c: &mut Cache, nf: u8) -> Complex<f64> {
-    let N = c.n;
+    let N = c.n();
     let S1 = c.get(K::S1);
     let S2 = c.get(K::S2);
     let S3 = c.get(K::S3);
@@ -218,7 +218,7 @@ pub fn gamma_ps(c: &mut Cache, nf: u8) -> Complex<f64> {
 ///
 /// Implements Eq. (3.11) of [\[Vogt:2004mw\]][crate::bib::Vogt2004mw].
 pub fn gamma_qg(c: &mut Cache, nf: u8) -> Complex<f64> {
-    let N = c.n;
+    let N = c.n();
     let S1 = c.get(K::S1);
     let S2 = c.get(K::S2);
     let S3 = c.get(K::S3);
@@ -275,7 +275,7 @@ pub fn gamma_qg(c: &mut Cache, nf: u8) -> Complex<f64> {
 ///
 /// Implements Eq. (3.12) of [\[Vogt:2004mw\]][crate::bib::Vogt2004mw].
 pub fn gamma_gq(c: &mut Cache, nf: u8) -> Complex<f64> {
-    let N = c.n;
+    let N = c.n();
     let S1 = c.get(K::S1);
     let S2 = c.get(K::S2);
     let S3 = c.get(K::S3);
@@ -348,7 +348,7 @@ pub fn gamma_gq(c: &mut Cache, nf: u8) -> Complex<f64> {
 ///
 /// Implements Eq. (3.13) of [\[Vogt:2004mw\]][crate::bib::Vogt2004mw].
 pub fn gamma_gg(c: &mut Cache, nf: u8) -> Complex<f64> {
-    let N = c.n;
+    let N = c.n();
     let S1 = c.get(K::S1);
     let S2 = c.get(K::S2);
     let S3 = c.get(K::S3);
@@ -425,9 +425,9 @@ pub fn gamma_singlet(c: &mut Cache, nf: u8) -> [[Complex<f64>; 2]; 2] {
 
 #[cfg(test)]
 mod tests {
-    use crate::cmplx;
-    use crate::{anomalous_dimensions::unpolarized::spacelike::as3::*, harmonics::cache::Cache};
-    use float_cmp::assert_approx_eq;
+    use super::*;
+    use crate::harmonics::cache::Cache;
+    use crate::{assert_approx_eq_cmplx, cmplx};
     use num::complex::Complex;
 
     const NF: u8 = 5;
@@ -436,20 +436,45 @@ mod tests {
     fn physical_constraints() {
         // number conservation
         let mut c = Cache::new(cmplx![1., 0.]);
-        assert_approx_eq!(f64, gamma_nsv(&mut c, NF).re, -0.000960586, epsilon = 3e-7);
-        assert_approx_eq!(f64, gamma_nsm(&mut c, NF).re, 0.000594225, epsilon = 6e-7);
+        assert_approx_eq_cmplx!(
+            f64,
+            gamma_nsv(&mut c, NF),
+            cmplx!(-0.000960586, 0.),
+            epsilon = 3e-7
+        );
+        assert_approx_eq_cmplx!(
+            f64,
+            gamma_nsm(&mut c, NF),
+            cmplx!(0.000594225, 0.),
+            epsilon = 6e-7
+        );
 
         let mut c = Cache::new(cmplx![2., 0.]);
         let gS2 = gamma_singlet(&mut c, NF);
         // gluon momentum conservation
-        assert_approx_eq!(f64, (gS2[0][1] + gS2[1][1]).re, -0.00388726, epsilon = 2e-6);
+        assert_approx_eq_cmplx!(
+            f64,
+            (gS2[0][1] + gS2[1][1]),
+            cmplx!(-0.00388726, 0.),
+            epsilon = 2e-6
+        );
         // quark momentum conservation
-        assert_approx_eq!(f64, (gS2[0][0] + gS2[1][0]).re, 0.00169375, epsilon = 2e-6);
+        assert_approx_eq_cmplx!(
+            f64,
+            (gS2[0][0] + gS2[1][0]),
+            cmplx!(0.00169375, 0.),
+            epsilon = 2e-6
+        );
     }
 
     #[test]
     fn N2() {
         let mut c = Cache::new(cmplx![2., 0.]);
-        assert_approx_eq!(f64, gamma_nsv(&mut c, NF).re, 188.325593, epsilon = 3e-7);
+        assert_approx_eq_cmplx!(
+            f64,
+            gamma_nsv(&mut c, NF),
+            cmplx!(188.325593, 0.),
+            epsilon = 3e-7
+        );
     }
 }

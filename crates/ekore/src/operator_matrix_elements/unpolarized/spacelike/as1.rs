@@ -1,4 +1,4 @@
-//! |NLO| |QCD|
+//! |NLO| |QCD|.
 
 use num::complex::Complex;
 use num::Zero;
@@ -11,7 +11,7 @@ use crate::harmonics::cache::{Cache, K};
 ///
 /// Implements Eq. (20a) of [\[Ball:2015tna\]](crate::bib::Ball2015tna).
 pub fn A_hh(c: &mut Cache, _nf: u8, L: f64) -> Complex<f64> {
-    let N = c.n;
+    let N = c.n();
     let S1m = c.get(K::S1) - 1. / N;
     let S2m = c.get(K::S2) - 1. / N.powu(2);
     let ahh_l = (2. + N - 3. * N.powu(2)) / (N * (1. + N)) + 4. * S1m;
@@ -30,7 +30,7 @@ pub fn A_hh(c: &mut Cache, _nf: u8, L: f64) -> Complex<f64> {
 ///
 /// Implements Eq. (20b) of [\[Ball:2015tna\]](crate::bib::Ball2015tna).
 pub fn A_gh(c: &mut Cache, _nf: u8, L: f64) -> Complex<f64> {
-    let N = c.n;
+    let N = c.n();
     let agh_l1 = (2. + N + N.powu(2)) / (N * (N.powu(2) - 1.));
     let agh_l0 = (-4. + 2. * N + N.powu(2) * (15. + N * (3. + N - N.powu(2))))
         / (N * (N.powu(2) - 1.)).powu(2);
@@ -41,7 +41,7 @@ pub fn A_gh(c: &mut Cache, _nf: u8, L: f64) -> Complex<f64> {
 ///
 /// Implements Eq. (B.2) of [\[Buza:1996wv\]](crate::bib::Buza1996wv).
 pub fn A_hg(c: &mut Cache, _nf: u8, L: f64) -> Complex<f64> {
-    let N = c.n;
+    let N = c.n();
     let den = 1. / (N * (N + 1.) * (2. + N));
     let num = 2. * (2. + N + N.powu(2));
     num * den * L
@@ -55,63 +55,54 @@ pub fn A_gg(_c: &mut Cache, _nf: u8, L: f64) -> Complex<f64> {
 }
 
 /// Compute the |NLO| singlet |OME|.
-pub fn A_singlet(c: &mut Cache, _nf: u8, L: f64) -> [[Complex<f64>; 3]; 3] {
+pub fn A_singlet(c: &mut Cache, nf: u8, L: f64) -> [[Complex<f64>; 3]; 3] {
     [
-        [A_gg(c, _nf, L), Complex::<f64>::zero(), A_gh(c, _nf, L)],
+        [A_gg(c, nf, L), Complex::<f64>::zero(), A_gh(c, nf, L)],
         [
             Complex::<f64>::zero(),
             Complex::<f64>::zero(),
             Complex::<f64>::zero(),
         ],
-        [A_hg(c, _nf, L), Complex::<f64>::zero(), A_hh(c, _nf, L)],
+        [A_hg(c, nf, L), Complex::<f64>::zero(), A_hh(c, nf, L)],
     ]
 }
 
 /// Compute the |NLO| non-singlet |OME|.
-pub fn A_ns(c: &mut Cache, _nf: u8, L: f64) -> [[Complex<f64>; 2]; 2] {
+pub fn A_ns(c: &mut Cache, nf: u8, L: f64) -> [[Complex<f64>; 2]; 2] {
     [
         [Complex::<f64>::zero(), Complex::<f64>::zero()],
-        [Complex::<f64>::zero(), A_hh(c, _nf, L)],
+        [Complex::<f64>::zero(), A_hh(c, nf, L)],
     ]
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::cmplx;
-    use crate::{
-        harmonics::cache::Cache, operator_matrix_elements::unpolarized::spacelike::as1::*,
-    };
-    use float_cmp::assert_approx_eq;
+    use super::*;
+    use crate::harmonics::cache::Cache;
+    use crate::{assert_approx_eq_cmplx, cmplx};
     use num::complex::Complex;
     const NF: u8 = 5;
 
     #[test]
     fn test_momentum_conservation() {
-        const N: Complex<f64> = cmplx![2., 0.];
+        const N: Complex<f64> = cmplx!(2., 0.);
         const L: f64 = 100.;
         let mut c = Cache::new(N);
         let aS1 = A_singlet(&mut c, NF, L);
         // heavy quark momentum conservation
-        assert_approx_eq!(
+        assert_approx_eq_cmplx!(
             f64,
-            (aS1[0][2] + aS1[1][2] + aS1[2][2]).re,
-            0.,
-            epsilon = 1e-10
-        );
-        assert_approx_eq!(
-            f64,
-            (aS1[0][2] + aS1[1][2] + aS1[2][2]).im,
-            0.,
+            (aS1[0][2] + aS1[1][2] + aS1[2][2]),
+            Complex::zero(),
             epsilon = 1e-10
         );
         // gluon momentum conservation
-        assert_approx_eq!(f64, (aS1[0][0] + aS1[1][0] + aS1[2][0]).re, 0.);
-        assert_approx_eq!(f64, (aS1[0][0] + aS1[1][0] + aS1[2][0]).im, 0.);
+        assert_approx_eq_cmplx!(f64, (aS1[0][0] + aS1[1][0] + aS1[2][0]), Complex::zero());
     }
 
     #[test]
     fn test_A1_intrinsic() {
-        const N: Complex<f64> = cmplx![2., 0.];
+        const N: Complex<f64> = cmplx!(2., 0.);
         const L: f64 = 3.0;
         let mut c = Cache::new(N);
         let aNS1i = A_ns(&mut c, NF, L);
@@ -125,16 +116,27 @@ mod tests {
         // Only even moments are available in that code.
         // Note there is a minus sign in the definition of L.
         const L: f64 = 10.;
-        let ref_val_gg = [-6.66667, -6.66667, -6.66667, -6.66667, -6.66667];
-        let ref_val_Hg = [6.66667, 3.66667, 2.61905, 2.05556, 1.69697];
+        let ref_val_gg = [
+            -6.666666667,
+            -6.666666667,
+            -6.666666667,
+            -6.666666667,
+            -6.666666667,
+        ];
+        let ref_val_Hg = [
+            6.666666667,
+            3.666666667,
+            2.61904761905,
+            2.0555555556,
+            1.696969697,
+        ];
 
         for n in 0..4 {
             let N = cmplx![2. * (n as f64) + 2., 0.];
             let mut c = Cache::new(N);
             let aS1 = A_singlet(&mut c, NF, L);
-            // lower numerical accuracy than python?
-            assert_approx_eq!(f64, aS1[0][0].re, ref_val_gg[n], epsilon = 4e-6);
-            assert_approx_eq!(f64, aS1[2][0].re, ref_val_Hg[n], epsilon = 5e-6);
+            assert_approx_eq_cmplx!(f64, aS1[0][0], cmplx!(ref_val_gg[n], 0.), epsilon = 1e-6);
+            assert_approx_eq_cmplx!(f64, aS1[2][0], cmplx!(ref_val_Hg[n], 0.), epsilon = 1e-6);
         }
     }
 }
