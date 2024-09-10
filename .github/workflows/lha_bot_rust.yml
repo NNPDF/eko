@@ -41,6 +41,7 @@ jobs:
       - name: Run benchmark
         run: |
           ./rustify.sh
+          poe compile
           poe lha -m "nnlo and sv"
           # TODO wait for polarized to reactivate
           # poe lha -m "ffns_pol and sv"
