@@ -54,10 +54,11 @@ pub fn gamma_singlet(c: &mut Cache, nf: u8) -> [[Complex<f64>; 2]; 2] {
 
 #[cfg(test)]
 mod tests {
-    use crate::cmplx;
-    use crate::{anomalous_dimensions::unpolarized::spacelike::as1::*, harmonics::cache::Cache};
-    use float_cmp::assert_approx_eq;
+    use super::*;
+    use crate::harmonics::cache::Cache;
+    use crate::{assert_approx_eq_cmplx, cmplx};
     use num::complex::Complex;
+    use num::Zero;
     const NF: u8 = 5;
 
     #[test]
@@ -65,8 +66,7 @@ mod tests {
         const N: Complex<f64> = cmplx![1., 0.];
         let mut c = Cache::new(N);
         let me = gamma_ns(&mut c, NF);
-        assert_approx_eq!(f64, me.re, 0., epsilon = 1e-12);
-        assert_approx_eq!(f64, me.im, 0., epsilon = 1e-12);
+        assert_approx_eq_cmplx!(f64, me, Complex::zero(), epsilon = 1e-12);
     }
 
     #[test]
@@ -74,8 +74,7 @@ mod tests {
         const N: Complex<f64> = cmplx![2., 0.];
         let mut c = Cache::new(N);
         let me = gamma_ns(&mut c, NF) + gamma_gq(&mut c, NF);
-        assert_approx_eq!(f64, me.re, 0., epsilon = 1e-12);
-        assert_approx_eq!(f64, me.im, 0., epsilon = 1e-12);
+        assert_approx_eq_cmplx!(f64, me, Complex::zero(), epsilon = 1e-12);
     }
 
     #[test]
@@ -83,8 +82,7 @@ mod tests {
         const N: Complex<f64> = cmplx![2., 0.];
         let mut c = Cache::new(N);
         let me = gamma_qg(&mut c, NF) + gamma_gg(&mut c, NF);
-        assert_approx_eq!(f64, me.re, 0., epsilon = 1e-12);
-        assert_approx_eq!(f64, me.im, 0., epsilon = 1e-12);
+        assert_approx_eq_cmplx!(f64, me, Complex::zero(), epsilon = 1e-12);
     }
 
     #[test]
@@ -92,8 +90,7 @@ mod tests {
         const N: Complex<f64> = cmplx![1., 0.];
         let mut c = Cache::new(N);
         let me = gamma_qg(&mut c, NF);
-        assert_approx_eq!(f64, me.re, -20. / 3.0, ulps = 32);
-        assert_approx_eq!(f64, me.im, 0., epsilon = 1e-12);
+        assert_approx_eq_cmplx!(f64, me, cmplx!(-20. / 3., 0.), ulps = 32, epsilon = 1e-12);
     }
 
     #[test]
@@ -101,8 +98,7 @@ mod tests {
         const N: Complex<f64> = cmplx![0., 1.];
         let mut c = Cache::new(N);
         let me = gamma_gq(&mut c, NF);
-        assert_approx_eq!(f64, me.re, 4. / 3.0, ulps = 32);
-        assert_approx_eq!(f64, me.im, -4. / 3.0, ulps = 32);
+        assert_approx_eq_cmplx!(f64, me, cmplx!(4. / 3.0, -4. / 3.0), ulps = 32);
     }
 
     #[test]
@@ -110,7 +106,12 @@ mod tests {
         const N: Complex<f64> = cmplx![0., 1.];
         let mut c = Cache::new(N);
         let me = gamma_gg(&mut c, NF);
-        assert_approx_eq!(f64, me.re, 5.195725159621, ulps = 32, epsilon = 1e-11);
-        assert_approx_eq!(f64, me.im, 10.52008856962, ulps = 32, epsilon = 1e-11);
+        assert_approx_eq_cmplx!(
+            f64,
+            me,
+            cmplx!(5.195725159621, 10.52008856962),
+            ulps = 32,
+            epsilon = 1e-11
+        );
     }
 }

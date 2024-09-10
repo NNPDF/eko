@@ -77,10 +77,9 @@ pub fn A_ns(c: &mut Cache, nf: u8, L: f64) -> [[Complex<f64>; 2]; 2] {
 
 #[cfg(test)]
 mod tests {
+    use super::*;
+    use crate::harmonics::cache::Cache;
     use crate::{assert_approx_eq_cmplx, cmplx};
-    use crate::{
-        harmonics::cache::Cache, operator_matrix_elements::unpolarized::spacelike::as1::*,
-    };
     use num::complex::Complex;
     const NF: u8 = 5;
 
@@ -94,11 +93,11 @@ mod tests {
         assert_approx_eq_cmplx!(
             f64,
             (aS1[0][2] + aS1[1][2] + aS1[2][2]),
-            cmplx!(0., 0.),
+            Complex::zero(),
             epsilon = 1e-10
         );
         // gluon momentum conservation
-        assert_approx_eq_cmplx!(f64, (aS1[0][0] + aS1[1][0] + aS1[2][0]), cmplx!(0., 0.));
+        assert_approx_eq_cmplx!(f64, (aS1[0][0] + aS1[1][0] + aS1[2][0]), Complex::zero());
     }
 
     #[test]
@@ -129,7 +128,7 @@ mod tests {
             3.666666667,
             2.61904761905,
             2.0555555556,
-            1.6969696967,
+            1.696969697,
         ];
 
         for n in 0..4 {

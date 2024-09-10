@@ -24,4 +24,8 @@ macro_rules! assert_approx_eq_cmplx {
         float_cmp::assert_approx_eq!($size, $ref.re, $target.re, epsilon = $epsilon);
         float_cmp::assert_approx_eq!($size, $ref.im, $target.im, epsilon = $epsilon);
     };
+    ($size:ty, $ref:expr, $target:expr, ulps=$ulps:expr, epsilon=$epsilon:expr) => {
+        float_cmp::assert_approx_eq!($size, $ref.re, $target.re, ulps = $ulps, epsilon = $epsilon);
+        float_cmp::assert_approx_eq!($size, $ref.im, $target.im, ulps = $ulps, epsilon = $epsilon);
+    };
 }
