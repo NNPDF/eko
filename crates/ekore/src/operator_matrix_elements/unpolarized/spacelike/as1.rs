@@ -1,4 +1,4 @@
-//! |NLO| |QCD|
+//! |NLO| |QCD|.
 
 use num::complex::Complex;
 use num::Zero;
