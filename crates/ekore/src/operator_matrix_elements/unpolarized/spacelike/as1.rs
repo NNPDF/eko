@@ -55,23 +55,23 @@ pub fn A_gg(_c: &mut Cache, _nf: u8, L: f64) -> Complex<f64> {
 }
 
 /// Compute the |NLO| singlet |OME|.
-pub fn A_singlet(c: &mut Cache, _nf: u8, L: f64) -> [[Complex<f64>; 3]; 3] {
+pub fn A_singlet(c: &mut Cache, nf: u8, L: f64) -> [[Complex<f64>; 3]; 3] {
     [
-        [A_gg(c, _nf, L), Complex::<f64>::zero(), A_gh(c, _nf, L)],
+        [A_gg(c, nf, L), Complex::<f64>::zero(), A_gh(c, nf, L)],
         [
             Complex::<f64>::zero(),
             Complex::<f64>::zero(),
             Complex::<f64>::zero(),
         ],
-        [A_hg(c, _nf, L), Complex::<f64>::zero(), A_hh(c, _nf, L)],
+        [A_hg(c, nf, L), Complex::<f64>::zero(), A_hh(c, nf, L)],
     ]
 }
 
 /// Compute the |NLO| non-singlet |OME|.
-pub fn A_ns(c: &mut Cache, _nf: u8, L: f64) -> [[Complex<f64>; 2]; 2] {
+pub fn A_ns(c: &mut Cache, nf: u8, L: f64) -> [[Complex<f64>; 2]; 2] {
     [
         [Complex::<f64>::zero(), Complex::<f64>::zero()],
-        [Complex::<f64>::zero(), A_hh(c, _nf, L)],
+        [Complex::<f64>::zero(), A_hh(c, nf, L)],
     ]
 }
 

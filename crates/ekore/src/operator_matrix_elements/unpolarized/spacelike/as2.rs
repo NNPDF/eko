@@ -255,16 +255,16 @@ pub fn A_gg(c: &mut Cache, _nf: u8, L: f64) -> Complex<f64> {
 }
 
 /// |NNLO| singlet |OME|
-pub fn A_singlet(c: &mut Cache, _nf: u8, L: f64, is_msbar: bool) -> [[Complex<f64>; 3]; 3] {
-    let A_hq_2 = A_hq_ps(c, _nf, L);
-    let A_qq_2 = A_qq_ns(c, _nf, L);
-    let mut A_hg_2 = A_hg(c, _nf, L);
-    let A_gq_2 = A_gq(c, _nf, L);
-    let mut A_gg_2 = A_gg(c, _nf, L);
+pub fn A_singlet(c: &mut Cache, nf: u8, L: f64, is_msbar: bool) -> [[Complex<f64>; 3]; 3] {
+    let A_hq_2 = A_hq_ps(c, nf, L);
+    let A_qq_2 = A_qq_ns(c, nf, L);
+    let mut A_hg_2 = A_hg(c, nf, L);
+    let A_gq_2 = A_gq(c, nf, L);
+    let mut A_gg_2 = A_gg(c, nf, L);
 
     if is_msbar {
-        A_hg_2 -= 2.0 * 4.0 * CF * as1::A_hg(c, _nf, 1.0);
-        A_gg_2 -= 2.0 * 4.0 * CF * as1::A_gg(c, _nf, 1.0);
+        A_hg_2 -= 2.0 * 4.0 * CF * as1::A_hg(c, nf, 1.0);
+        A_gg_2 -= 2.0 * 4.0 * CF * as1::A_gg(c, nf, 1.0);
     }
 
     [
@@ -275,9 +275,9 @@ pub fn A_singlet(c: &mut Cache, _nf: u8, L: f64, is_msbar: bool) -> [[Complex<f6
 }
 
 /// |NNLO| non-singlet |OME|
-pub fn A_ns(c: &mut Cache, _nf: u8, L: f64) -> [[Complex<f64>; 2]; 2] {
+pub fn A_ns(c: &mut Cache, nf: u8, L: f64) -> [[Complex<f64>; 2]; 2] {
     [
-        [A_qq_ns(c, _nf, L), Complex::<f64>::zero()],
+        [A_qq_ns(c, nf, L), Complex::<f64>::zero()],
         [Complex::<f64>::zero(), Complex::<f64>::zero()],
     ]
 }
