@@ -35,6 +35,10 @@ pub fn A_singlet(
     if matching_order_qcd >= 1 {
         A_s[0] = as1::A_singlet(c, nf, L);
     }
+    if matching_order_qcd >= 2 {
+        // TODO recover MSbar mass
+        A_s[1] = as2::A_singlet(c, nf, L, false);
+    }
     A_s
 }
 
@@ -54,6 +58,9 @@ pub fn A_non_singlet(
     ];
     if matching_order_qcd >= 1 {
         A_ns[0] = as1::A_ns(c, nf, L);
+    }
+    if matching_order_qcd >= 2 {
+        A_ns[1] = as2::A_ns(c, nf, L);
     }
     A_ns
 }
