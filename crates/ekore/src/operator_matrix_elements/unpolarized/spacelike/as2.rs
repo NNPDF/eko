@@ -4,7 +4,6 @@ use num::complex::Complex;
 use num::traits::Pow;
 use num::Zero;
 
-use crate::cmplx;
 use crate::constants::{CA, CF, TR, ZETA2, ZETA3};
 use crate::harmonics::cache::{Cache, K};
 
@@ -280,4 +279,55 @@ pub fn A_ns(c: &mut Cache, _nf: u8, L: f64) -> [[Complex<f64>; 2]; 2] {
         [A_qq_ns(c, _nf, L), Complex::<f64>::zero()],
         [Complex::<f64>::zero(), Complex::<f64>::zero()],
     ]
+}
+
+#[cfg(test)]
+mod test {
+    use crate::cmplx;
+    use crate::{
+        harmonics::cache::Cache, operator_matrix_elements::unpolarized::spacelike::as2::*,
+    };
+    use float_cmp::assert_approx_eq;
+    use num::complex::Complex;
+    const NF: u8 = 5;
+
+    #[test]
+    fn test_quark_number_conservation() {
+        let logs = [0., 100.];
+        for L in logs {
+            let N = cmplx![1., 0.];
+            let mut c = Cache::new(N);
+            let aNSqq2 = A_qq_ns(&mut c, NF, L);
+            assert_approx_eq!(f64, aNSqq2.re, 0.0, epsilon = 2e-11);
+            assert_approx_eq!(f64, aNSqq2.im, 0.0, epsilon = 2e-11);
+        }
+    }
+
+    #[test]
+    fn test_momentum_conservation() {
+        let logs = [0., 100.];
+        for L in logs {
+            let N = cmplx![2., 0.];
+            let mut c = Cache::new(N);
+            let aS2 = A_singlet(&mut c, NF, L, false);
+
+            // gluon momenum conservation
+            assert_approx_eq!(
+                f64,
+                (aS2[0][0] + aS2[1][0] + aS2[2][0]).re,
+                0.0,
+                epsilon = 2e-6
+            );
+            assert_approx_eq!(
+                f64,
+                (aS2[0][0] + aS2[1][0] + aS2[2][0]).im,
+                0.0,
+                epsilon = 2e-6
+            );
+
+            // quark momentum conservation
+            // assert_approx_eq!(f64, (aS2[0][1] + aS2[1][1] + aS2[2][1]).re, 0.0, epsilon = 1e-11);
+            // assert_approx_eq!(f64, (aS2[0][1] + aS2[1][1] + aS2[2][1]).im, 0.0, epsilon = 1e-11);
+        }
+    }
 }
