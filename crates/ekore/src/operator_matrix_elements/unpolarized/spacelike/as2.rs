@@ -1,4 +1,4 @@
-//! |NNLO| |QCD|
+//! |NNLO| |QCD|.
 
 use num::complex::Complex;
 use num::traits::Pow;
@@ -10,7 +10,8 @@ use crate::harmonics::cache::{Cache, K};
 use crate::operator_matrix_elements::unpolarized::spacelike::as1;
 
 /// |NNLO| light-light non-singlet |OME|.
-/// It is given in Eq.() of
+///
+/// Implements Eq. (B.4) of [\[Buza:1996wv\]](crate::bib::Buza1996wv).
 pub fn A_qq_ns(c: &mut Cache, _nf: u8, L: f64) -> Complex<f64> {
     let N = c.n();
     let S1 = c.get(K::S1);
@@ -40,8 +41,9 @@ pub fn A_qq_ns(c: &mut Cache, _nf: u8, L: f64) -> Complex<f64> {
     CF * TR * (a_qq_l2 * L.pow(2) + a_qq_l1 * L + a_qq_l0)
 }
 
-/// |NNLO| heavy-light pure-singlet |OME|
-/// It is given in Eq.() of
+/// |NNLO| heavy-light pure-singlet |OME|.
+///
+/// Implements Eq. (B.1) of [\[Buza:1996wv\]](crate::bib::Buza1996wv).
 pub fn A_hq_ps(c: &mut Cache, _nf: u8, L: f64) -> Complex<f64> {
     let N = c.n();
     let S2 = c.get(K::S1);
@@ -79,8 +81,10 @@ pub fn A_hq_ps(c: &mut Cache, _nf: u8, L: f64) -> Complex<f64> {
     CF * TR * (a_hq_l2 * L.pow(2) + a_hq_l1 * L + a_hq_l0)
 }
 
-/// |NNLO| heavy-gluon |OME|
-/// It is given in Eq.() of
+/// |NNLO| heavy-gluon |OME|.
+///
+/// Implements Eq. (B.3) of [\[Buza:1996wv\]](crate::bib::Buza1996wv).
+/// The expession for ``A_Hg_l0`` comes form [\[Bierenbaum:2009zt\]](crate::bib::Bierenbaum2009zt).
 pub fn A_hg(c: &mut Cache, _nf: u8, L: f64) -> Complex<f64> {
     let N = c.n();
     let S1 = c.get(K::S1);
@@ -178,8 +182,9 @@ pub fn A_hg(c: &mut Cache, _nf: u8, L: f64) -> Complex<f64> {
     a_hg_l2 * L.pow(2) + a_hg_l1 * L + a_hg_l0
 }
 
-/// |NNLO| gluon-quark |OME|
-/// It is given in Eq.() of
+/// |NNLO| gluon-quark |OME|.
+///
+/// Implements Eq. (B.5) of [\[Buza:1996wv\]](crate::bib::Buza1996wv).
 pub fn A_gq(c: &mut Cache, _nf: u8, L: f64) -> Complex<f64> {
     let N = c.n();
     let S1 = c.get(K::S1);
@@ -204,8 +209,9 @@ pub fn A_gq(c: &mut Cache, _nf: u8, L: f64) -> Complex<f64> {
     CF * TR * (a_gq_l2 * L.pow(2) + a_gq_l1 * L + a_gq_l0)
 }
 
-/// |NNLO| gluon-gluon |OME|
-/// It is given in Eq.() of
+/// |NNLO| gluon-gluon |OME|.
+///
+/// Implements Eq. (B.7) of [\[Buza:1996wv\]](crate::bib::Buza1996wv).
 pub fn A_gg(c: &mut Cache, _nf: u8, L: f64) -> Complex<f64> {
     let N = c.n();
     let S1 = c.get(K::S1);
@@ -253,17 +259,17 @@ pub fn A_gg(c: &mut Cache, _nf: u8, L: f64) -> Complex<f64> {
     a_gg_l2 * L.pow(2) + a_gg_l1 * L + a_gg_l0
 }
 
-/// |NNLO| singlet |OME|
-pub fn A_singlet(c: &mut Cache, _nf: u8, L: f64, is_msbar: bool) -> [[Complex<f64>; 3]; 3] {
-    let A_hq_2 = A_hq_ps(c, _nf, L);
-    let A_qq_2 = A_qq_ns(c, _nf, L);
-    let mut A_hg_2 = A_hg(c, _nf, L);
-    let A_gq_2 = A_gq(c, _nf, L);
-    let mut A_gg_2 = A_gg(c, _nf, L);
+/// |NNLO| singlet |OME|.
+pub fn A_singlet(c: &mut Cache, nf: u8, L: f64, is_msbar_mass: bool) -> [[Complex<f64>; 3]; 3] {
+    let A_hq_2 = A_hq_ps(c, nf, L);
+    let A_qq_2 = A_qq_ns(c, nf, L);
+    let mut A_hg_2 = A_hg(c, nf, L);
+    let A_gq_2 = A_gq(c, nf, L);
+    let mut A_gg_2 = A_gg(c, nf, L);
 
-    if is_msbar {
-        A_hg_2 -= 2.0 * 4.0 * CF * as1::A_hg(c, _nf, 1.0);
-        A_gg_2 -= 2.0 * 4.0 * CF * as1::A_gg(c, _nf, 1.0);
+    if is_msbar_mass {
+        A_hg_2 -= 2.0 * 4.0 * CF * as1::A_hg(c, nf, 1.0);
+        A_gg_2 -= 2.0 * 4.0 * CF * as1::A_gg(c, nf, 1.0);
     }
 
     [
@@ -273,10 +279,10 @@ pub fn A_singlet(c: &mut Cache, _nf: u8, L: f64, is_msbar: bool) -> [[Complex<f6
     ]
 }
 
-/// |NNLO| non-singlet |OME|
-pub fn A_ns(c: &mut Cache, _nf: u8, L: f64) -> [[Complex<f64>; 2]; 2] {
+/// |NNLO| non-singlet |OME|.
+pub fn A_ns(c: &mut Cache, nf: u8, L: f64) -> [[Complex<f64>; 2]; 2] {
     [
-        [A_qq_ns(c, _nf, L), Complex::<f64>::zero()],
+        [A_qq_ns(c, nf, L), Complex::<f64>::zero()],
         [Complex::<f64>::zero(), Complex::<f64>::zero()],
     ]
 }
