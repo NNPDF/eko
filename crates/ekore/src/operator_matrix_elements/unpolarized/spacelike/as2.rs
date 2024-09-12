@@ -46,7 +46,7 @@ pub fn A_qq_ns(c: &mut Cache, _nf: u8, L: f64) -> Complex<f64> {
 /// Implements Eq. (B.1) of [\[Buza:1996wv\]](crate::bib::Buza1996wv).
 pub fn A_hq_ps(c: &mut Cache, _nf: u8, L: f64) -> Complex<f64> {
     let N = c.n();
-    let S2 = c.get(K::S1);
+    let S2 = c.get(K::S2);
     let F1M = 1.0 / (N - 1.0) * (ZETA2 - (S2 - 1.0 / N.powu(2)));
     let F11 = 1.0 / (N + 1.0) * (ZETA2 - (S2 + 1.0 / (N + 1.0).powu(2)));
     let F12 = 1.0 / (N + 2.0) * (ZETA2 - (S2 + 1.0 / (N + 1.0).powu(2) + 1.0 / (N + 2.0).powu(2)));
@@ -285,4 +285,51 @@ pub fn A_ns(c: &mut Cache, nf: u8, L: f64) -> [[Complex<f64>; 2]; 2] {
         [A_qq_ns(c, nf, L), Complex::<f64>::zero()],
         [Complex::<f64>::zero(), Complex::<f64>::zero()],
     ]
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use crate::{assert_approx_eq_cmplx, cmplx};
+
+    use float_cmp::assert_approx_eq;
+    use num::complex::Complex;
+    const NF: u8 = 5;
+
+    #[test]
+    fn test_quark_number_conservation() {
+        let logs = [0., 100.];
+        for L in logs {
+            let N = cmplx![1., 0.];
+            let mut c = Cache::new(N);
+            let aNSqq2 = A_qq_ns(&mut c, NF, L);
+            assert_approx_eq_cmplx!(f64, aNSqq2, Complex::zero(), epsilon = 2e-11);
+        }
+    }
+
+    #[test]
+    fn test_momentum_conservation() {
+        let logs = [0., 100.];
+        for L in logs {
+            let N = cmplx![2., 0.];
+            let mut c = Cache::new(N);
+            let aS2 = A_singlet(&mut c, NF, L, false);
+
+            // gluon momenum conservation
+            assert_approx_eq_cmplx!(
+                f64,
+                aS2[0][0] + aS2[1][0] + aS2[2][0],
+                Complex::zero(),
+                epsilon = 2e-6
+            );
+
+            // quark momentum conservation
+            assert_approx_eq_cmplx!(
+                f64,
+                aS2[0][1] + aS2[1][1] + aS2[2][1],
+                Complex::zero(),
+                epsilon = 1e-11
+            );
+        }
+    }
 }
