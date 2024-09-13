@@ -31,7 +31,6 @@ def input_figure(theory, ops, pdf_name=None):
     -------
     firstPage : matplotlib.pyplot.Figure
         figure
-
     """
     firstPage = plt.figure(figsize=(25, 20))
     # theory
@@ -90,7 +89,6 @@ def plot_dist(x, y, yerr, yref, title=None, oMx_min=1e-2, oMx_max=0.5):
     -------
     fig : matplotlib.pyplot.figure
         created figure
-
     """
     np.seterr(divide="ignore", invalid="ignore")
     fig = plt.figure(figsize=(15, 5))
@@ -161,7 +159,6 @@ def plot_operator(var_name, op, op_err, log_operator=True, abs_operator=True):
     -------
     fig : matplotlib.pyplot.figure
         created figure
-
     """
     # get
     # op = ret["operators"][var_name]

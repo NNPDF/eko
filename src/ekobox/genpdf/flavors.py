@@ -19,7 +19,6 @@ def pid_to_flavor(pids):
     -------
     numpy.ndarray
         list of reprentations for each PID
-
     """
     ps = []
     zeros = np.zeros(len(br.flavor_basis_pids))
@@ -43,7 +42,6 @@ def evol_to_flavor(labels):
     -------
     numpy.ndarray
         list of reprentations for each distribution
-
     """
     ps = []
     for label in labels:
@@ -66,7 +64,6 @@ def project(blocks, reprs):
     -------
     list(dict) :
         filtered blocks
-
     """
     new_blocks = copy.deepcopy(blocks)
     for block in new_blocks:
@@ -101,7 +98,6 @@ def is_evolution_labels(labels):
     -------
     bool :
         is evolution basis
-
     """
     for label in labels:
         if not isinstance(label, str):
@@ -123,7 +119,6 @@ def is_pid_labels(labels):
     -------
     bool :
         is flavor basis
-
     """
     try:
         labels = np.array(labels, dtype=np.int_)

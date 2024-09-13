@@ -81,7 +81,6 @@ class EKO:
 
     The computation can be stopped at any time, without the loss of any of the
     intermediate results.
-
     """
 
     recipes: Inventory[Evolution]
@@ -205,7 +204,6 @@ class EKO:
         To be used as a contextmanager: the operator is automatically loaded as
         usual, but on the closing of the context manager it is dropped from
         memory.
-
         """
         try:
             yield self[ep]
@@ -232,7 +230,6 @@ class EKO:
         tuple
             couples of ``(q2, operator)``, loaded immediately before, unloaded
             immediately after
-
         """
         for target in self.operators:
             # recast to evolution point
@@ -246,11 +243,11 @@ class EKO:
             del self[ep]
 
     def __contains__(self, ep: EPoint) -> bool:
-        """Check whether the operator related to the evolution point is present.
+        """Check whether the operator related to the evolution point is
+        present.
 
         'Present' means, in this case, they are available in the :class:`EKO`.
         But it is telling nothing about being loaded in memory or not.
-
         """
         return Target.from_ep(ep) in self.operators
 
@@ -267,7 +264,6 @@ class EKO:
         ------
         ValueError
             if multiple values are found in the neighbourhood
-
         """
         eps = np.array([ep_ for ep_ in self if ep_[1] == ep[1]])
         mu2s = np.array([mu2 for mu2, _ in eps])
@@ -311,7 +307,6 @@ class EKO:
         -------
         EKO
             the copy created
-
         """
         # deepcopy is tuned to copy an open operator into a closed one, since
         # operators are always created closed (to avoid delegating the user to
@@ -344,7 +339,6 @@ class EKO:
         :attr:`EKO.access.path` to `None`.
         If you want to properly load from an archive, use the :meth:`read`
         constructor.
-
         """
         access = AccessConfigs(None, readonly=True, open=True)
 
@@ -371,9 +365,6 @@ class EKO:
         If the `extract` attribute is `True` the EKO is loaded from its archived
         format. Otherwise, the `path` is interpreted as the location of an
         already extracted folder.
-
-
-
         """
         if extract:
             dir_ = Path(tempfile.mkdtemp(prefix=TEMP_PREFIX)) if dest is None else dest
@@ -404,7 +395,6 @@ class EKO:
         """Read from and write on existing EKO.
 
         Alias of `EKO.read(..., readonly=False)`, see :meth:`read`.
-
         """
         return cls.read(*args, readonly=False, **kwargs)
 
@@ -425,7 +415,6 @@ class EKO:
         ------
         ValueError
             when trying to dump on default archive in read-only mode
-
         """
         if archive is None:
             self.access.assert_writeable(
@@ -439,9 +428,8 @@ class EKO:
     def close(self):
         """Close the current object, cleaning up.
 
-        If not in read-only mode, dump to permanent storage.
-        Remove the temporary directory used.
-
+        If not in read-only mode, dump to permanent storage. Remove the
+        temporary directory used.
         """
         if not self.access.readonly:
             # clean given path, to overwrite it - default 'w'rite behavior
@@ -468,7 +456,6 @@ class EKO:
         dict
             nested dictionary, storing all the values in the structure, but the
             operators themselves
-
         """
         return dict(mu2grid=self.mu2grid, metadata=self.metadata.raw)
 
@@ -514,7 +501,6 @@ class Builder:
         ------
         RuntimeError
             if not enough information is available (at least one card missing)
-
         """
         missing = []
         for card in ["theory", "operator"]:

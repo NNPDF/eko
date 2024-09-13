@@ -1,4 +1,5 @@
-r"""The write-up of the matching conditions is given in :doc:`Matching Conditions </theory/Matching>`."""
+r"""The write-up of the matching conditions is given in :doc:`Matching
+Conditions </theory/Matching>`."""
 
 import numpy as np
 
@@ -7,7 +8,8 @@ from .. import constants
 
 
 def pids_from_intrinsic_evol(label, nf, normalize):
-    r"""Obtain the list of pids with their corresponding weight, that are contributing to ``evol``.
+    r"""Obtain the list of pids with their corresponding weight, that are
+    contributing to ``evol``.
 
     The normalization of the weights is only needed for the output rotation:
 
@@ -53,7 +55,8 @@ def pids_from_intrinsic_evol(label, nf, normalize):
 
 
 def get_range(evol_labels, qed):
-    """Determine the number of light and heavy flavors participating in the input and output.
+    """Determine the number of light and heavy flavors participating in the
+    input and output.
 
     Here, we assume that the T distributions (e.g. T15) appears *always*
     before the corresponding V distribution (e.g. V15).
@@ -117,20 +120,21 @@ def rotate_pm_to_flavor(label):
     # no it has to be a quark with + or - appended
     if label[0] not in br.quark_names or label[1] not in ["+", "-"]:
         raise ValueError(f"Invalid pm label: {label}")
-    l = np.zeros(len(br.flavor_basis_pids))
+    w = np.zeros(len(br.flavor_basis_pids))
     idx = br.flavor_basis_names.index(label[0])
     pid = br.flavor_basis_pids[idx]
-    l[idx] = 1
+    w[idx] = 1
     # + is +, - is -
     if label[1] == "+":
-        l[br.flavor_basis_pids.index(-pid)] = 1
+        w[br.flavor_basis_pids.index(-pid)] = 1
     else:
-        l[br.flavor_basis_pids.index(-pid)] = -1
-    return l
+        w[br.flavor_basis_pids.index(-pid)] = -1
+    return w
 
 
 def rotate_matching(nf, qed, inverse=False):
-    """Rotation between matching basis (with e.g. S,g,...V8 and c+,c-) and new true evolution basis (with S,g,...V8,T15,V15).
+    """Rotation between matching basis (with e.g. S,g,...V8 and c+,c-) and new
+    true evolution basis (with S,g,...V8,T15,V15).
 
     Parameters
     ----------
@@ -147,32 +151,32 @@ def rotate_matching(nf, qed, inverse=False):
         mapping in dot notation between the bases
     """
     # the gluon and the photon do not care about new quarks
-    l = {"g.g": 1.0, "ph.ph": 1.0}
+    m = {"g.g": 1.0, "ph.ph": 1.0}
     # already active distributions
     q = br.quark_names[nf - 1]
     if not qed:
         for k in range(2, nf):  # nf is the upper, so excluded
             n = k**2 - 1
-            l[f"V{n}.V{n}"] = 1.0
-            l[f"T{n}.T{n}"] = 1.0
+            m[f"V{n}.V{n}"] = 1.0
+            m[f"T{n}.T{n}"] = 1.0
         # the new contributions
         n = nf**2 - 1  # nf is pointing upwards
         for tot, oth, qpm in (("S", f"T{n}", f"{q}+"), ("V", f"V{n}", f"{q}-")):
             if inverse:
-                l[f"{tot}.{tot}"] = (nf - 1.0) / nf
-                l[f"{tot}.{oth}"] = 1.0 / nf
-                l[f"{qpm}.{tot}"] = 1.0 / nf
-                l[f"{qpm}.{oth}"] = -1.0 / nf
+                m[f"{tot}.{tot}"] = (nf - 1.0) / nf
+                m[f"{tot}.{oth}"] = 1.0 / nf
+                m[f"{qpm}.{tot}"] = 1.0 / nf
+                m[f"{qpm}.{oth}"] = -1.0 / nf
             else:
-                l[f"{tot}.{tot}"] = 1.0
-                l[f"{tot}.{qpm}"] = 1.0
-                l[f"{oth}.{tot}"] = 1.0
-                l[f"{oth}.{qpm}"] = -(nf - 1.0)
+                m[f"{tot}.{tot}"] = 1.0
+                m[f"{tot}.{qpm}"] = 1.0
+                m[f"{oth}.{tot}"] = 1.0
+                m[f"{oth}.{qpm}"] = -(nf - 1.0)
     else:
         names = {3: "d3", 4: "u3", 5: "d8", 6: "u8"}
         for k in range(3, nf):
-            l[f"V{names[k]}.V{names[k]}"] = 1.0
-            l[f"T{names[k]}.T{names[k]}"] = 1.0
+            m[f"V{names[k]}.V{names[k]}"] = 1.0
+            m[f"T{names[k]}.T{names[k]}"] = 1.0
         for tot, totdelta, oth, qpm in (
             ("S", "Sdelta", f"T{names[nf]}", f"{q}+"),
             ("V", "Vdelta", f"V{names[nf]}", f"{q}-"),
@@ -180,34 +184,35 @@ def rotate_matching(nf, qed, inverse=False):
             a, b, c, d, e, f = qed_rotation_parameters(nf)
             if inverse:
                 den = -b * d + a * e - c * e + b * f
-                l[f"{tot}.{tot}"] = -(c * e - b * f) / den
-                l[f"{tot}.{totdelta}"] = e / den
-                l[f"{tot}.{oth}"] = -b / den
-                l[f"{totdelta}.{tot}"] = (c * d - a * f) / den
-                l[f"{totdelta}.{totdelta}"] = (f - d) / den
-                l[f"{totdelta}.{oth}"] = (a - c) / den
-                l[f"{qpm}.{tot}"] = (-b * d + a * e) / den
-                l[f"{qpm}.{totdelta}"] = -e / den
-                l[f"{qpm}.{oth}"] = b / den
+                m[f"{tot}.{tot}"] = -(c * e - b * f) / den
+                m[f"{tot}.{totdelta}"] = e / den
+                m[f"{tot}.{oth}"] = -b / den
+                m[f"{totdelta}.{tot}"] = (c * d - a * f) / den
+                m[f"{totdelta}.{totdelta}"] = (f - d) / den
+                m[f"{totdelta}.{oth}"] = (a - c) / den
+                m[f"{qpm}.{tot}"] = (-b * d + a * e) / den
+                m[f"{qpm}.{totdelta}"] = -e / den
+                m[f"{qpm}.{oth}"] = b / den
             else:
-                l[f"{tot}.{tot}"] = 1.0
-                l[f"{tot}.{qpm}"] = 1.0
-                l[f"{totdelta}.{tot}"] = a
-                l[f"{totdelta}.{totdelta}"] = b
-                l[f"{totdelta}.{qpm}"] = c
-                l[f"{oth}.{tot}"] = d
-                l[f"{oth}.{totdelta}"] = e
-                l[f"{oth}.{qpm}"] = f
+                m[f"{tot}.{tot}"] = 1.0
+                m[f"{tot}.{qpm}"] = 1.0
+                m[f"{totdelta}.{tot}"] = a
+                m[f"{totdelta}.{totdelta}"] = b
+                m[f"{totdelta}.{qpm}"] = c
+                m[f"{oth}.{tot}"] = d
+                m[f"{oth}.{totdelta}"] = e
+                m[f"{oth}.{qpm}"] = f
     # also higher quarks do not care
     for k in range(nf + 1, 6 + 1):
         q = br.quark_names[k - 1]
         for sgn in "+-":
-            l[f"{q}{sgn}.{q}{sgn}"] = 1.0
-    return l
+            m[f"{q}{sgn}.{q}{sgn}"] = 1.0
+    return m
 
 
 def rotate_matching_inverse(nf, qed):
-    """Inverse rotation between matching basis (with e.g. S,g,...V8 and c+,c-) and new true evolution basis (with S,g,...V8,T15,V15).
+    """Inverse rotation between matching basis (with e.g. S,g,...V8 and c+,c-)
+    and new true evolution basis (with S,g,...V8,T15,V15).
 
     Parameters
     ----------
@@ -263,7 +268,8 @@ def qed_rotation_parameters(nf):
 
 
 def pids_from_intrinsic_unified_evol(label, nf, normalize):
-    r"""Obtain the list of pids with their corresponding weight, that are contributing to intrinsic unified evolution.
+    r"""Obtain the list of pids with their corresponding weight, that are
+    contributing to intrinsic unified evolution.
 
     Parameters
     ----------

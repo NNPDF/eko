@@ -18,7 +18,6 @@ def update_runcards(
 
         cards = update(theory, operator)
         assert update(*cards) == cards
-
     """
     if isinstance(theory, TheoryCard) or isinstance(operator, OperatorCard):
         # if one is not a dict, both have to be new cards

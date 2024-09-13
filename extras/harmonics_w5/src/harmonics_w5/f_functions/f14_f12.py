@@ -10,7 +10,8 @@ import numpy as np
 
 @nb.njit(cache=True)
 def F14F12(n, S1, S21):
-    """Linear combination of :math:`M[( 2 S_{2,2}(x)- Li_2(x)^2/2)/(1+x)](N)`"""
+    """Linear combination of :math:`M[( 2 S_{2,2}(x)-
+    Li_2(x)^2/2)/(1+x)](N)`"""
     return (
         -0.5626569734260486
         + 0.49999902059348167

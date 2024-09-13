@@ -44,7 +44,6 @@ def load_tar(source: pathlib.Path, dest: pathlib.Path, errors: bool = False):
         dest tar name
     errors :
         whether to load also errors (default ``False``)
-
     """
     with tempfile.TemporaryDirectory() as tmpdirr:
         tmpdir = pathlib.Path(tmpdirr)
@@ -90,7 +89,6 @@ class PseudoTheory(DictLike):
 
     Used to provide a theory for the :class:`~eko.io.struct.EKO` builder, even when the theory
     information is not available.
-
     """
 
     heavy: HeavyInfo
@@ -118,7 +116,6 @@ class PseudoOperator(DictLike):
 
     Used to provide a theory for the :class:`~eko.io.struct.EKO` builder, even when the operator
     information is not fully available.
-
     """
 
     init: EPoint

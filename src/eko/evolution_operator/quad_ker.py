@@ -4,15 +4,11 @@ import logging
 
 import numba as nb
 import numpy as np
-from scipy import LowLevelCallable, integrate
 
-from .. import basis_rotation as br
 from .. import interpolation
 from .. import scale_variations as sv
 from ..kernels import non_singlet as ns
 from ..kernels import singlet as s
-from ..matchings import Segment
-from ..member import OpMember
 
 logger = logging.getLogger(__name__)
 
@@ -35,9 +31,9 @@ def select_singlet_element(ker, mode0, mode1):
     complex
         singlet integration kernel element
     """
-    k = 0 if mode0 == 100 else 1
-    l = 0 if mode1 == 100 else 1
-    return ker[k, l]
+    j = 0 if mode0 == 100 else 1
+    k = 0 if mode1 == 100 else 1
+    return ker[j, k]
 
 
 @nb.cfunc(

@@ -3,9 +3,8 @@
 import numpy as np
 import pytest
 
-import ekore.anomalous_dimensions.unpolarized.space_like.as2 as ad_as2
 import ekore.harmonics as h
-from eko.constants import CA, CF, TR, zeta2, zeta3
+from eko.constants import zeta2
 
 
 @pytest.mark.isolated

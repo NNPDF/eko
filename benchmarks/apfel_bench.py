@@ -1,6 +1,4 @@
-"""
-    Benchmark EKO to Apfel
-"""
+"""Benchmark EKO to Apfel."""
 
 import numpy as np
 from banana import register
@@ -21,9 +19,7 @@ def tolist(input_dict):
 
 
 class ApfelBenchmark(Runner):
-    """
-    Globally set the external program to Apfel
-    """
+    """Globally set the external program to Apfel."""
 
     external = "apfel"
 
@@ -37,7 +33,7 @@ class ApfelBenchmark(Runner):
 
 
 class BenchmarkVFNS(ApfelBenchmark):
-    """Benchmark VFNS"""
+    """Benchmark VFNS."""
 
     vfns_theory = {
         "FNS": "ZM-VFNS",
@@ -59,7 +55,7 @@ class BenchmarkVFNS(ApfelBenchmark):
     vfns_theory = tolist(vfns_theory)
 
     def benchmark_plain(self, pto):
-        """Plain configuration"""
+        """Plain configuration."""
 
         th = self.vfns_theory.copy()
         th.update({"PTO": [pto]})
@@ -68,7 +64,7 @@ class BenchmarkVFNS(ApfelBenchmark):
         )
 
     def benchmark_sv(self, pto, svmode):
-        """Scale Variation"""
+        """Scale Variation."""
 
         th = self.vfns_theory.copy()
         th.update(
@@ -86,7 +82,7 @@ class BenchmarkVFNS(ApfelBenchmark):
         )
 
     def benchmark_kthr(self, pto):
-        """Threshold scale different from heavy quark mass"""
+        """Threshold scale different from heavy quark mass."""
 
         th = self.vfns_theory.copy()
         th.update(
@@ -101,10 +97,10 @@ class BenchmarkVFNS(ApfelBenchmark):
         )
 
     def benchmark_msbar(self, pto):
-        """
-        MSbar heavy quark mass scheme
-        when  passing kthr != 1 both apfel and eko use ``kThr * msbar``,
-        as thr scale, where ``msbar`` is the usual ms_bar solution.
+        """MSbar heavy quark mass scheme when  passing kthr != 1 both apfel and
+        eko use ``kThr * msbar``, as thr scale, where ``msbar`` is the usual
+        ms_bar solution.
+
         However apfel and eko manage the alpha_s thr differently:
         apfel uses the given mass parameters as thr multiplied by the kthr,
         while in eko only the already computed thr matters, so the
@@ -132,7 +128,7 @@ class BenchmarkVFNS(ApfelBenchmark):
 
 
 class BenchmarkFFNS(ApfelBenchmark):
-    """Benckmark FFNS"""
+    """Benckmark FFNS."""
 
     ffns_theory = {
         "FNS": "FFNS",
@@ -150,7 +146,7 @@ class BenchmarkFFNS(ApfelBenchmark):
     ffns_theory = tolist(ffns_theory)
 
     def benchmark_plain(self, pto):
-        """Plain configuration"""
+        """Plain configuration."""
 
         th = self.ffns_theory.copy()
         th.update({"PTO": [pto]})
@@ -159,7 +155,7 @@ class BenchmarkFFNS(ApfelBenchmark):
         )
 
     def benchmark_plain_pol(self, pto):
-        """Plain configuration"""
+        """Plain configuration."""
 
         th = self.ffns_theory.copy()
         th.update({"PTO": [pto]})
@@ -169,7 +165,7 @@ class BenchmarkFFNS(ApfelBenchmark):
         self.run(cartesian_product(th), operators.build(op), ["ToyLH"])
 
     def benchmark_sv(self, pto, svmode):
-        """Scale Variation"""
+        """Scale Variation."""
 
         ts = []
         th = self.ffns_theory.copy()
@@ -198,7 +194,7 @@ class BenchmarkFFNS(ApfelBenchmark):
 
 
 class BenchmarkFFNS_qed(ApfelBenchmark):
-    """Benckmark FFNS"""
+    """Benckmark FFNS."""
 
     ffns_theory = {
         "Qref": 91.1870,
@@ -223,7 +219,7 @@ class BenchmarkFFNS_qed(ApfelBenchmark):
     ffns_theory = tolist(ffns_theory)
 
     def benchmark_plain(self, pto, qed):
-        """Plain configuration"""
+        """Plain configuration."""
 
         th = self.ffns_theory.copy()
         th.update({"PTO": [pto], "QED": [qed]})
@@ -240,7 +236,7 @@ class BenchmarkFFNS_qed(ApfelBenchmark):
         )
 
     def benchmark_sv(self, pto, qed, svmode):
-        """Scale Variation"""
+        """Scale Variation."""
 
         ts = []
         th = self.ffns_theory.copy()
@@ -277,7 +273,7 @@ class BenchmarkFFNS_qed(ApfelBenchmark):
 
 
 class BenchmarkVFNS_qed(ApfelBenchmark):
-    """Benckmark FFNS"""
+    """Benckmark FFNS."""
 
     vfns_theory = {
         "Qref": 91.1870,
@@ -301,7 +297,7 @@ class BenchmarkVFNS_qed(ApfelBenchmark):
     vfns_theory = tolist(vfns_theory)
 
     def benchmark_plain(self, pto, qed):
-        """Plain configuration"""
+        """Plain configuration."""
 
         th = self.vfns_theory.copy()
         th.update({"PTO": [pto], "QED": [qed]})

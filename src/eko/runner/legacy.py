@@ -23,7 +23,6 @@ class Runner:
     ----------
     setup : dict
         input configurations
-
     """
 
     banner = commons.BANNER
@@ -44,7 +43,6 @@ class Runner:
             operator specific options
         path :
             path where to store the computed operator
-
         """
         new_theory, new_operator = update_runcards(theory_card, operators_card)
 
@@ -95,7 +93,6 @@ class Runner:
         1. evolution is performed, computing the evolution operator in an
            internal flavor and x-space basis
         2. bases manipulations specified in the runcard are applied
-
         """
         with EKO.edit(self.path) as eko:
             # add all operators

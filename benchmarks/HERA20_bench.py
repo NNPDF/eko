@@ -1,7 +1,4 @@
-"""
-Benchmark HERAPDF2.0 pdf family
-
-"""
+"""Benchmark HERAPDF2.0 pdf family."""
 
 from banana import register
 
@@ -27,7 +24,7 @@ base_op = {"interpolation_xgrid": interpolation.lambertgrid(50, 1.0e-6)}
 
 
 class BenchmarkHERA20(Runner):
-    """Benchmark HERA20 pdfs"""
+    """Benchmark HERA20 pdfs."""
 
     external = "LHAPDF"
 

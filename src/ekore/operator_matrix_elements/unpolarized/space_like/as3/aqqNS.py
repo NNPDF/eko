@@ -40,7 +40,6 @@ def A_qqNS(n, cache, nf, L, eta):
     -------
     complex
         :math:`A_{qq}^{NS,(3)}(N)`
-
     """
     is_singlet = eta == 1
     S1 = c.get(c.S1, cache, n)

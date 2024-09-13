@@ -52,7 +52,6 @@ def a_gg3(n, cache, nf):
     -------
     complex
         :math:`a_{gg}^{(3)}(N)`
-
     """
     S1 = c.get(c.S1, cache, n)
     S2 = c.get(c.S2, cache, n)
@@ -309,7 +308,6 @@ def A_gg(n, cache, nf, L):
     -------
     complex
         :math:`A_{gg}^{S,(3)}(N)`
-
     """
     S1 = c.get(c.S1, cache, n)
     S2 = c.get(c.S2, cache, n)

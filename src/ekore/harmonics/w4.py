@@ -31,7 +31,6 @@ def S4(N):
     See Also
     --------
     ekore.harmonics.polygamma.cern_polygamma : :math:`\psi_k(N)`
-
     """
     return zeta4 - 1.0 / 6.0 * cern_polygamma(N + 1.0, 3)
 
@@ -65,7 +64,6 @@ def Sm4(N, hS4, hS4mh, hS4h, is_singlet=None):
     See Also
     --------
     eko.anomalous_dimension.w4.S4 : :math:`S_4(N)`
-
     """
     if is_singlet is None:
         return (
@@ -105,7 +103,6 @@ def Sm31(N, S1, Sm1, Sm2, is_singlet=None):
     See Also
     --------
     ekore.harmonics.g_functions.mellin_g6 : :math:`g_6(N)`
-
     """
     eta = symmetry_factor(N, is_singlet)
     return (
@@ -151,7 +148,6 @@ def Sm22(N, S1, S2, Sm2, Sm31, is_singlet=None):
     See Also
     --------
     ekore.harmonics.g_functions.mellin_g5 : :math:`g_5(N)`
-
     """
     eta = symmetry_factor(N, is_singlet)
     return (
@@ -188,7 +184,6 @@ def Sm211(N, S1, S2, Sm1, is_singlet=None):
     See Also
     --------
     ekore.harmonics.g_functions.mellin_g8 : :math:`g_8(N)`
-
     """
     eta = symmetry_factor(N, is_singlet)
     return (
@@ -228,7 +223,6 @@ def S211(N, S1, S2, S3):
     See Also
     --------
     ekore.harmonics.g_functions.mellin_g21 : :math:`g_21(N)`
-
     """
     return -gf.mellin_g21(N, S1, S2, S3) + 6 / 5 * zeta2**2
 
@@ -261,7 +255,6 @@ def S31(N, S1, S2, S3, S4):
     See Also
     --------
     ekore.harmonics.g_functions.mellin_g22 : :math:`g_22(N)`
-
     """
     return (
         1 / 2 * gf.mellin_g22(N, S1, S2, S3)

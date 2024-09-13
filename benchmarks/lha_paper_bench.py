@@ -1,6 +1,5 @@
-"""
-Benchmark to :cite:`Giele:2002hx` (LO + NLO) and :cite:`Dittmar:2005ed` (NNLO).
-"""
+"""Benchmark to :cite:`Giele:2002hx` (LO + NLO) and :cite:`Dittmar:2005ed`
+(NNLO)."""
 
 import os
 
@@ -27,7 +26,7 @@ base_theory = {
     "QED": 0,
     "Qedref": 0.0,
 }
-"""Global theory settings"""
+"""Global theory settings."""
 
 default_skip_pdfs = [22, -6, 6, "ph", "V35", "V24", "V15", "V8", "T35"]
 # ffns_skip_pdfs = vfns_skip_pdfs.copy()
@@ -136,7 +135,7 @@ class BaseBenchmark:
         raise NotImplementedError("runner method has to be overwritten!")
 
     def transformed_runner(self):
-        """Prepare runner for benchmark setup"""
+        """Prepare runner for benchmark setup."""
         r = self.runner()
         r.log_to_stdout = os.environ.get("EKO_LOG_STDOUT", False)
         return r

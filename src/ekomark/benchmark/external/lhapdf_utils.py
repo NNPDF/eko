@@ -8,8 +8,7 @@ from eko import basis_rotation as br
 def compute_LHAPDF_data(
     theory, operators, pdf, skip_pdfs, rotate_to_evolution_basis=False
 ):
-    """
-    Run LHAPDF to compute operators.
+    """Run LHAPDF to compute operators.
 
     Parameters
     ----------
@@ -26,7 +25,6 @@ def compute_LHAPDF_data(
     -------
     ref : dict
         output containing: target_xgrid, values
-
     """
     target_xgrid = operators["interpolation_xgrid"]
 

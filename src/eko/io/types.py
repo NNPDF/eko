@@ -47,17 +47,15 @@ class ReferenceRunning(list, Generic[T]):
     - it is constructed with a ``Running.typed(T, Scale)`` signature
     - it should always be used through the property accessors, rather then
       using the list itself
-
     """
 
     @classmethod
     def typed(cls, value: T, scale: Scale):
         """Define constructor from individual values.
 
-        This is the preferred constructor for references, since respects the
-        intended types of the values.
-        It is not the default one only to simplify (de)serialization.
-
+        This is the preferred constructor for references, since respects
+        the intended types of the values. It is not the default one only
+        to simplify (de)serialization.
         """
         return cls([value, scale])
 

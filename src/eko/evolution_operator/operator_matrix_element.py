@@ -1,4 +1,5 @@
-"""The |OME| for the non-trivial matching conditions in the |VFNS| evolution."""
+"""The |OME| for the non-trivial matching conditions in the |VFNS|
+evolution."""
 
 import copy
 import enum
@@ -41,7 +42,6 @@ def matching_method(s: InversionMethod) -> MatchingMethods:
     -------
     i :
         int representation
-
     """
     if s is not None:
         return MatchingMethods["BACKWARD_" + s.value.upper()]
@@ -50,7 +50,8 @@ def matching_method(s: InversionMethod) -> MatchingMethods:
 
 @nb.njit(cache=True)
 def build_ome(A, matching_order, a_s, backward_method):
-    r"""Construct the matching expansion in :math:`a_s` with the appropriate method.
+    r"""Construct the matching expansion in :math:`a_s` with the appropriate
+    method.
 
     Parameters
     ----------
@@ -67,7 +68,6 @@ def build_ome(A, matching_order, a_s, backward_method):
     -------
     ome : numpy.ndarray
         matching operator matrix
-
     """
     # to get the inverse one can use this FORM snippet
     # Symbol a;
@@ -157,7 +157,6 @@ def quad_ker(
     -------
     ker : float
         evaluated integration kernel
-
     """
     ker_base = QuadKerBase(u, is_log, logx, mode0)
     integrand = ker_base.integrand(areas)
@@ -202,8 +201,7 @@ def quad_ker(
 
 
 class OperatorMatrixElement(Operator):
-    r"""
-    Internal representation of a single |OME|.
+    r"""Internal representation of a single |OME|.
 
     The actual matrices are computed upon calling :meth:`compute`.
 

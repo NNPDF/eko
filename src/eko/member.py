@@ -11,8 +11,7 @@ from .evolution_operator import flavors
 
 
 class OpMember:
-    """
-    A single operator for a specific element in evolution basis.
+    """A single operator for a specific element in evolution basis.
 
     This class provide some basic mathematical operations such as products.
     It can also be applied to a pdf vector via :meth:`apply_pdf`.
@@ -25,7 +24,6 @@ class OpMember:
         operator matrix
     error : np.array
         operator error matrix
-
     """
 
     def __init__(self, value, error):
@@ -49,7 +47,6 @@ class OpMember:
         -------
         cls :
             1 all spaces
-
         """
         len_xgrid = other.value.shape[0]
         return cls(np.eye(len_xgrid), np.zeros((len_xgrid, len_xgrid)))
@@ -113,7 +110,6 @@ class MemberName:
     ----------
     name : str
         operator name
-
     """
 
     def __init__(self, name):
@@ -160,7 +156,6 @@ class OperatorBase:
         mapping of :class:`MemberName` onto :class:`OpMember`
     q2_final : float
         final scale
-
     """
 
     def __init__(self, op_members, q2_final):
@@ -182,7 +177,6 @@ class OperatorBase:
             mapping of :data:`str` onto :class:`OpMember`
         q2_final : float
             final scale
-
         """
         # map key to MemberName
         opms = {}
@@ -202,7 +196,6 @@ class OperatorBase:
         -------
         p : PhysicalOperator
             self @ other
-
         """
         if not isinstance(other, OperatorBase):
             raise ValueError("Can only multiply with another OperatorBase")
@@ -227,7 +220,6 @@ class OperatorBase:
         -------
         callable :
             operation to perform (np.matmul or np.multiply)
-
         """
         if isinstance(self, ScalarOperator) or isinstance(other, ScalarOperator):
             return operator.mul
@@ -250,7 +242,6 @@ class OperatorBase:
         -------
         dict
             new operator members dictionary
-
         """
         # prepare paths
         new_oms = {}
@@ -275,7 +266,6 @@ class OperatorBase:
         fraction operator space.
 
         If `qed` is passed, the unified intrinsic basis is used.
-
         """
         nf_in, nf_out = flavors.get_range(self.op_members.keys(), qed)
         len_pids = len(br.flavor_basis_pids)

@@ -51,7 +51,7 @@ def test_zero_qed():
 
 
 def test_der_lo():
-    """LO derivative"""
+    """LO derivative."""
     nf = 3
     beta0 = beta.beta_qcd((2, 0), nf)
     a0 = 5
@@ -65,7 +65,7 @@ def test_der_lo():
 
 
 def test_der_nlo_exp():
-    """expanded NLO derivative"""
+    """Expanded NLO derivative."""
     nf = 3
     beta0 = beta.beta_qcd((2, 0), nf)
     b_vec = [beta.beta_qcd((2 + i, 0), nf) / beta0 for i in range(0, 2 + 1)]
@@ -91,7 +91,7 @@ def test_der_nlo_exp():
 
 
 def test_der_nlo_exa():
-    """exact NLO derivative"""
+    """Exact NLO derivative."""
     nf = 3
     beta0 = beta.beta_qcd((2, 0), nf)
     b_vec = [beta.beta_qcd((2 + i, 0), nf) / beta0 for i in range(0, 2 + 1)]
@@ -115,7 +115,7 @@ def test_der_nlo_exa():
 
 
 def test_der_nnlo_exp():
-    """expanded NNLO derivative"""
+    """Expanded NNLO derivative."""
     nf = 3
     beta0 = beta.beta_qcd((2, 0), nf)
     b_vec = [beta.beta_qcd((2 + i, 0), nf) / beta0 for i in range(0, 2 + 1)]
@@ -138,7 +138,7 @@ def test_der_nnlo_exp():
     ) / delta_a
     toll = (
         (
-            -beta.b_qcd((3, 0), nf) ** 3
+            -(beta.b_qcd((3, 0), nf) ** 3)
             + 2 * beta.b_qcd((4, 0), nf) * beta.b_qcd((3, 0), nf)
         )
         / beta.beta_qcd((2, 0), nf)
@@ -179,7 +179,7 @@ def test_der_nnlo_exp():
 
 
 def test_der_nnlo_exa():
-    """exact NNLO derivative"""
+    """Exact NNLO derivative."""
     nf = 3
     beta0 = beta.beta_qcd((2, 0), nf)
     b_vec = [beta.beta_qcd((2 + i, 0), nf) / beta0 for i in range(0, 2 + 1)]

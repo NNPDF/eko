@@ -34,7 +34,6 @@ def gamma_nsm(n, nf, cache):
     complex
         |NLO| valence-like non-singlet anomalous dimension
         :math:`\\gamma_{ns,-}^{(1)}(N)`
-
     """
     S1 = c.get(c.S1, cache, n)
     S2 = c.get(c.S2, cache, n)
@@ -79,7 +78,6 @@ def gamma_nsp(n, nf, cache):
     complex
         |NLO| singlet-like non-singlet anomalous dimension
         :math:`\\gamma_{ns,+}^{(1)}(N)`
-
     """
     S1 = c.get(c.S1, cache, n)
     S2 = c.get(c.S2, cache, n)
@@ -118,7 +116,6 @@ def gamma_ps(n, nf):
     complex
         |NLO| pure-singlet quark-quark anomalous dimension
         :math:`\\gamma_{ps}^{(1)}(N)`
-
     """
     # fmt: off
     gqqps1_nfcf = (-4*(2 + n*(5 + n))*(4 + n*(4 + n*(7 + 5*n))))/((-1 + n)*np.power(n,3)*np.power(1 + n,3)*np.power(2 + n,2)) # pylint: disable=line-too-long
@@ -147,7 +144,6 @@ def gamma_qg(n, nf, cache):
     complex
         |NLO| quark-gluon singlet anomalous dimension
         :math:`\\gamma_{qg}^{(1)}(N)`
-
     """
     S1 = c.get(c.S1, cache, n)
     S2 = c.get(c.S2, cache, n)
@@ -182,7 +178,6 @@ def gamma_gq(n, nf, cache):
     complex
         |NLO| gluon-quark singlet anomalous dimension
         :math:`\\gamma_{gq}^{(1)}(N)`
-
     """
     S1 = c.get(c.S1, cache, n)
     S2 = c.get(c.S2, cache, n)
@@ -220,7 +215,6 @@ def gamma_gg(n, nf, cache):
     complex
         |NLO| gluon-gluon singlet anomalous dimension
         :math:`\\gamma_{gg}^{(1)}(N)`
-
     """
     S1 = c.get(c.S1, cache, n)
     Sp1p = c.get(c.S1h, cache, n)
@@ -261,7 +255,6 @@ def gamma_singlet(n, nf, cache):
     -------
     numpy.ndarray
         |NLO| singlet anomalous dimension matrix :math:`\\gamma_{S}^{(1)}(N)`
-
     """
     gamma_qq = gamma_nsp(n, nf, cache) + gamma_ps(n, nf)
     gamma_S_0 = np.array(
@@ -276,7 +269,8 @@ def gamma_singlet(n, nf, cache):
 
 @nb.njit(cache=True)
 def gamma_singlet_qed(N, nf, cache):
-    r"""Compute the leading-order singlet anomalous dimension matrix for the unified evolution basis.
+    r"""Compute the leading-order singlet anomalous dimension matrix for the
+    unified evolution basis.
 
     .. math::
         \\gamma_S^{(2,0)} = \\left(\begin{array}{cccc}
@@ -299,7 +293,6 @@ def gamma_singlet_qed(N, nf, cache):
     -------
     numpy.ndarray
         Leading-order singlet anomalous dimension matrix :math:`\\gamma_{S}^{(2,0)}(N)`
-
     """
     gamma_ns_p = gamma_nsp(N, nf, cache)
     gamma_qq = gamma_ns_p + gamma_ps(N, nf)
@@ -317,7 +310,8 @@ def gamma_singlet_qed(N, nf, cache):
 
 @nb.njit(cache=True)
 def gamma_valence_qed(N, nf, cache):
-    r"""Compute the leading-order valence anomalous dimension matrix for the unified evolution basis.
+    r"""Compute the leading-order valence anomalous dimension matrix for the
+    unified evolution basis.
 
     .. math::
         \\gamma_V^{(2,0)} = \\left(\begin{array}{cc}
@@ -338,7 +332,6 @@ def gamma_valence_qed(N, nf, cache):
     -------
     numpy.ndarray
         Leading-order singlet anomalous dimension matrix :math:`\\gamma_{V}^{(2,0)}(N)`
-
     """
     gamma_V = np.array(
         [

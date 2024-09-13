@@ -34,7 +34,6 @@ def solve(
     Note
     ----
     For further information about EKO inputs and output see :doc:`/code/IO`
-
     """
     # TODO: drop this
     legacy.Runner(theory_card, operators_card, path).compute()

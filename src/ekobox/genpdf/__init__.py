@@ -4,7 +4,7 @@ import copy
 import logging
 import pathlib
 import shutil
-from typing import Callable, List, Optional, Union
+from typing import Callable, List, Optional
 
 import numpy as np
 
@@ -22,8 +22,7 @@ def take_data(
     xgrid: Optional[List[float]] = None,
     evolgrid: Optional[List[EPoint]] = None,
 ):
-    """
-    Auxiliary function for `generate_pdf`.
+    """Auxiliary function for `generate_pdf`.
 
     It provides the info, the heads of the member files and the blocks
     to be generated to `generate_pdf`.
@@ -106,8 +105,7 @@ def generate_pdf(
     xgrid: Optional[List[float]] = None,
     evolgrid: Optional[List[EPoint]] = None,
 ):
-    """
-    Generate a new PDF from a parent PDF with a set of flavors.
+    """Generate a new PDF from a parent PDF with a set of flavors.
 
     If `parent_pdf_set` is the name of an available PDF set,
     it will be used as parent. In order to use the toy PDF
@@ -158,7 +156,6 @@ def generate_pdf(
     >>> anti_qed_singlet[br.flavor_basis_pids.index(2)] = 1
     >>> anti_qed_singlet[br.flavor_basis_pids.index(-2)] = 1
     >>> genpdf.generate_pdf("anti_qed_singlet", [anti_qed_singlet])
-
     """
     pathlib.Path(name).mkdir(exist_ok=True)
     # Checking label basis
@@ -207,7 +204,6 @@ def install_pdf(name):
     ----------
     name : str
         source pdf name
-
     """
     import lhapdf  # pylint: disable=import-error, import-outside-toplevel
 

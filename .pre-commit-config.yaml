@@ -18,6 +18,23 @@ repos:
     hooks:
       - id: pycln
         args: [--config=pyproject.toml]
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.6.4
+    hooks:
+      # Run the linter.
+      - id: ruff
+        args: [ --fix ]
+  - repo: https://github.com/pycqa/isort
+    rev: 5.13.2
+    hooks:
+      - id: isort
+        args: ["--profile", "black"]
+  - repo: https://github.com/PyCQA/docformatter
+    rev: v1.7.5
+    hooks:
+      - id: docformatter
+        additional_dependencies: [tomli]
+        args: [--in-place, --config, ./pyproject.toml]
   - repo: https://github.com/psf/black-pre-commit-mirror
     rev: 24.8.0
     hooks:
@@ -26,23 +43,6 @@ repos:
     rev: 1.18.0
     hooks:
       - id: blacken-docs
-  - repo: https://github.com/pycqa/isort
-    rev: 5.13.2
-    hooks:
-      - id: isort
-        args: ["--profile", "black"]
-  - repo: https://github.com/asottile/pyupgrade
-    rev: v3.17.0
-    hooks:
-      - id: pyupgrade
-  - repo: https://github.com/pycqa/pydocstyle
-    rev: 6.3.0
-    hooks:
-      - id: pydocstyle
-        files: ^src/
-        args: ["--add-ignore=D107,D105"]
-        additional_dependencies:
-          - toml
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.11.2
     hooks:

@@ -1,4 +1,5 @@
-r"""The |NLO| |OME| in the polarized case for the matching conditions in the |VFNS|.
+r"""The |NLO| |OME| in the polarized case for the matching conditions in the
+|VFNS|.
 
 Heavy quark contribution for intrinsic evolution are not considered for the polarized case.
 The matching conditions for the |VFNS| at :math:`\mu_F^2 \neq m_H^2` are provided in :cite:`Bierenbaum:2022biv`.
@@ -33,7 +34,6 @@ def A_hg(n, L):
     -------
     complex
         |NLO| heavy-gluon |OME| :math:`A_{Hg}^{S,(1)}`
-
     """
     gamma0_qghat = 2 * gamma0_qg(n, nf=1)
     return (1 / 2) * gamma0_qghat * (-L)
@@ -54,7 +54,6 @@ def A_gg(L):
     -------
     complex
         |NLO| gluon-gluon |OME| :math:`A_{gg,H}^{S,(1)}`
-
     """
     return A_gg_unpol(L)
 
@@ -81,7 +80,6 @@ def A_singlet(n, L):
     -------
     numpy.ndarray
         |NLO| singlet |OME| :math:`A^{S,(1)}`
-
     """
     A_S = np.array(
         [

@@ -52,9 +52,9 @@ def select_singlet_element(ker, mode0, mode1):
     complex
         singlet integration kernel element
     """
-    k = 0 if mode0 == 100 else 1
-    l = 0 if mode1 == 100 else 1
-    return ker[k, l]
+    j = 0 if mode0 == 100 else 1
+    k = 0 if mode1 == 100 else 1
+    return ker[j, k]
 
 
 @nb.njit(cache=True)
@@ -95,8 +95,7 @@ def select_QEDsinglet_element(ker, mode0, mode1):
 
 @nb.njit(cache=True)
 def select_QEDvalence_element(ker, mode0, mode1):
-    """
-    Select element of the QEDvalence matrix.
+    """Select element of the QEDvalence matrix.
 
     Parameters
     ----------
@@ -715,14 +714,13 @@ class Operator(sv.ScaleVariationModeMixin):
         return (self.a[0][1], self.a[1][1])
 
     def compute_aem_list(self):
-        """
-        Return the list of the couplings for the different values of :math:`a_s`.
+        """Return the list of the couplings for the different values of
+        :math:`a_s`.
 
         This functions is needed in order to compute the values of :math:`a_s`
         and :math:`a_em` in the middle point of the :math:`mu^2` interval, and
         the values of :math:`a_s` at the borders of every intervals.
         This is needed in the running_alphaem solution.
-
         """
         ev_op_iterations = self.config["ev_op_iterations"]
         if self.order[1] == 0:
@@ -808,7 +806,6 @@ class Operator(sv.ScaleVariationModeMixin):
         -------
         functools.partial
             partially initialized integration kernel
-
         """
         return functools.partial(
             quad_ker,
@@ -878,8 +875,8 @@ class Operator(sv.ScaleVariationModeMixin):
         k, logx = log_grid
         start_time = time.perf_counter()
         # iterate basis functions
-        for l, bf in enumerate(self.int_disp):
-            if k == l and l == self.grid_size - 1:
+        for j, bf in enumerate(self.int_disp):
+            if k == j and j == self.grid_size - 1:
                 continue
             temp_dict = {}
             # iterate sectors
@@ -983,11 +980,11 @@ class Operator(sv.ScaleVariationModeMixin):
                 res = pool.map(*args)
 
         # collect results
-        for k, row in enumerate(res):
-            for l, entry in enumerate(row):
+        for j, row in enumerate(res):
+            for k, entry in enumerate(row):
                 for label, (val, err) in entry.items():
-                    self.op_members[label].value[k][l] = val
-                    self.op_members[label].error[k][l] = err
+                    self.op_members[label].value[j][k] = val
+                    self.op_members[label].error[j][k] = err
 
         # closing comment
         logger.info(

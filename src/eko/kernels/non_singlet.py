@@ -26,7 +26,6 @@ def U_vec(gamma_ns, beta, order):
     -------
     np.ndarray
         U vector
-
     """
     U = np.zeros(order[0], dtype=np.complex_)
     beta0 = beta[0]
@@ -204,7 +203,6 @@ def n3lo_expanded(gamma_ns, a1, a0, beta):
     -------
     complex
         |N3LO| non-singlet expanded EKO
-
     """
     beta0 = beta[0]
     b_list = [betas / beta0 for betas in beta[1:]]
@@ -239,7 +237,6 @@ def n3lo_exact(gamma_ns, a1, a0, beta):
     -------
     complex
         |N3LO| non-singlet exact EKO
-
     """
     beta0 = beta[0]
     b_list = [betas / beta0 for betas in beta[1:]]
@@ -279,7 +276,6 @@ def eko_ordered_truncated(gamma_ns, a1, a0, beta, order, ev_op_iterations):
     -------
     complex
         non-singlet ordered truncated EKO
-
     """
     a_steps = np.geomspace(a0, a1, 1 + ev_op_iterations)
     U = U_vec(gamma_ns, beta, order)
@@ -319,7 +315,6 @@ def eko_truncated(gamma_ns, a1, a0, beta, order, ev_op_iterations):
     -------
     complex
         non-singlet truncated EKO
-
     """
     a_steps = np.geomspace(a0, a1, 1 + ev_op_iterations)
     U = U_vec(gamma_ns, beta, order)
@@ -373,7 +368,6 @@ def dispatcher(
     -------
     complex
         non-singlet EKO
-
     """
     betalist = [beta.beta_qcd((2 + i, 0), nf) for i in range(order[0])]
     # use always exact in LO

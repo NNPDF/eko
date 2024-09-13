@@ -1,10 +1,10 @@
-"""Contains the definitions of the :doc:`Flavor Basis and Evolution Basis </theory/FlavorSpace>`."""
+"""Contains the definitions of the :doc:`Flavor Basis and Evolution Basis
+</theory/FlavorSpace>`."""
 
 import numpy as np
 
 flavor_basis_pids = tuple([22] + list(range(-6, -1 + 1)) + [21] + list(range(1, 6 + 1)))
-r"""
-Sorted elements in Flavor Basis as |pid|.
+r"""Sorted elements in Flavor Basis as |pid|.
 
 Definition: `here <https://pdg.lbl.gov/2019/reviews/rpp2019-rev-monte-carlo-numbering.pdf>`_
 
@@ -49,8 +49,7 @@ evol_basis = (
     "T24",
     "T35",
 )
-r"""
-Sorted elements in Evolution Basis as :obj:`str`.
+r"""Sorted elements in Evolution Basis as :obj:`str`.
 
 Definition: :ref:`here <theory/FlavorSpace:flavor basis>`.
 
@@ -73,8 +72,7 @@ unified_evol_basis = (
     "Tu8",
     "Vu8",
 )
-r"""
-Sorted elements in Unified Evolution Basis as :obj:`str`.
+r"""Sorted elements in Unified Evolution Basis as :obj:`str`.
 
 Definition: :ref:`here <theory/FlavorSpace:flavor basis>`.
 
@@ -96,8 +94,7 @@ unified_evol_basis_pids = tuple(
     + [108 + 2, 208 + 2]
     + [108 + 1, 208 + 1]
 )
-r"""
-|pid| representation of :data:`unified_evol_basis`.
+r"""|pid| representation of :data:`unified_evol_basis`.
 
 The notation used for the non singlet compunents is the following:
 pid_ns(u) = pid_ns + 1, pid_ns(d) = pid_ns + 2.
@@ -157,9 +154,7 @@ full_unified_labels = (
 )
 
 anomalous_dimensions_basis = full_labels
-r"""
-Sorted elements in Anomalous Dimensions Basis as :obj:`str`.
-"""
+r"""Sorted elements in Anomalous Dimensions Basis as :obj:`str`."""
 matching_hplus_pid = 90
 matching_hminus_pid = 91
 
@@ -182,9 +177,8 @@ rotate_flavor_to_evolution = np.array(
         [0, -5, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, -5],
     ]
 )
-"""
-Basis rotation matrix between :doc:`Flavor Basis and Evolution Basis </theory/FlavorSpace>`.
-"""
+"""Basis rotation matrix between :doc:`Flavor Basis and Evolution Basis
+</theory/FlavorSpace>`."""
 
 # Tranformation from physical basis to QCDxQED evolution basis
 rotate_flavor_to_unified_evolution = np.array(
@@ -205,9 +199,8 @@ rotate_flavor_to_unified_evolution = np.array(
         [0, 2, 0, -1, 0, -1, 0, 0, 0, 1, 0, 1, 0, -2],
     ]
 )
-"""
-Basis rotation matrix between :doc:`Flavor Basis and Unified Evolution Basis </theory/FlavorSpace>`.
-"""
+"""Basis rotation matrix between :doc:`Flavor Basis and Unified Evolution Basis
+</theory/FlavorSpace>`."""
 
 
 map_ad_to_evolution = {
@@ -231,9 +224,7 @@ map_ad_to_evolution = {
         "V35.V35",
     ],
 }
-"""
-Map anomalous dimension sectors' names to their members
-"""
+"""Map anomalous dimension sectors' names to their members."""
 
 map_ad_to_unified_evolution = {
     (21, 21): ["g.g"],
@@ -276,8 +267,8 @@ map_ad_to_unified_evolution = {
 
 
 def ad_projector(ad_lab, nf, qed):
-    """
-    Build a projector (as a numpy array) for the given anomalous dimension sector.
+    """Build a projector (as a numpy array) for the given anomalous dimension
+    sector.
 
     Parameters
     ----------
@@ -322,8 +313,7 @@ def ad_projector(ad_lab, nf, qed):
 
 
 def select_light_flavors_uni_ev(ad_lab, nf):
-    """
-    Select light flavors for a given ad_lab.
+    """Select light flavors for a given ad_lab.
 
     Parameters
     ----------
@@ -356,8 +346,8 @@ def select_light_flavors_uni_ev(ad_lab, nf):
 
 
 def ad_projectors(nf, qed):
-    """
-    Build projectors tensor (as a numpy array), collecting all the individual sector projectors.
+    """Build projectors tensor (as a numpy array), collecting all the
+    individual sector projectors.
 
     Parameters
     ----------
@@ -379,8 +369,7 @@ def ad_projectors(nf, qed):
 
 
 def intrinsic_unified_evol_labels(nf):
-    """
-    Collect all labels in the intrinsic unified evolution basis.
+    """Collect all labels in the intrinsic unified evolution basis.
 
     Parameters
     ----------

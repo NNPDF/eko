@@ -175,7 +175,7 @@ def test_zero_n3lo_decompose(monkeypatch):
 
 
 def test_similarity():
-    """all methods should be similar"""
+    """All methods should be similar."""
     nf = 3
     a0 = 0.1
     delta_a = 1e-3

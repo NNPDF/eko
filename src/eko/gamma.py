@@ -18,7 +18,6 @@ def gamma_qcd_as1():
     -------
     gamma_0 : float
         first coefficient of the |QCD| gamma function :math:`\gamma_{m,0}^{n_f}`
-
     """
     return 4.0
 
@@ -38,7 +37,6 @@ def gamma_qcd_as2(nf):
     -------
     gamma_1 : float
         second coefficient of the |QCD| gamma function :math:`\gamma_{m,1}^{n_f}`
-
     """
     return 202.0 / 3.0 - 20.0 / 9.0 * nf
 
@@ -58,7 +56,6 @@ def gamma_qcd_as3(nf):
     -------
     gamma_2 : float
         third coefficient of the |QCD| gamma function :math:`\gamma_{m,2}^{n_f}`
-
     """
     return 1249.0 - (2216.0 / 27.0 + 160.0 / 3.0 * zeta3) * nf - 140.0 / 81.0 * nf**2
 
@@ -78,7 +75,6 @@ def gamma_qcd_as4(nf):
     -------
     gamma_3 : float
         fourth coefficient of the |QCD| gamma function :math:`\gamma_{m,3}^{n_f}`
-
     """
     return (
         4603055.0 / 162.0
@@ -111,7 +107,6 @@ def gamma(order, nf):
     -------
     gamma : float
         |QCD| gamma function coefficient
-
     """
     _gamma = 0.0
 

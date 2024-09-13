@@ -4,7 +4,6 @@ We provide transforms of:
 
 - :math:`(1-x)\ln^k(1-x), \quad k = 1,2,3`
 - :math:`\ln^k(1-x), \quad k = 1,3,4,5`
-
 """
 
 import numba as nb
@@ -46,7 +45,6 @@ def lm12m1(n, S1, S2):
     -------
     complex
         :math:`\mathcal{M}[(1-x)\ln^2(1-x)](N)`
-
     """
     return (
         -2 / (1 + n) ** 3
@@ -77,7 +75,6 @@ def lm13m1(n, S1, S2, S3):
     -------
     complex
         :math:`\mathcal{M}[(1-x)\ln^3(1-x)](N)`
-
     """
     return (
         3 * n * (1 + n) ** 2 * S1**2
@@ -109,7 +106,6 @@ def lm14m1(n, S1, S2, S3, S4):
     -------
     complex
         :math:`\mathcal{M}[(1-x)\ln^4(1-x)](N)`
-
     """
     return (
         -24 * n
@@ -157,7 +153,6 @@ def lm15m1(n, S1, S2, S3, S4, S5):
     -------
     complex
         :math:`\mathcal{M}[(1-x)\ln^5(1-x)](N)`
-
     """
     return (1 / (n * (1 + n) ** 6)) * (
         5 * n * (1 + n) ** 4 * S1**4
@@ -198,7 +193,6 @@ def lm11(n, S1):
     -------
     complex
         :math:`\mathcal{M}[\ln(1-x)](N)`
-
     """
     return -S1 / n
 
@@ -220,7 +214,6 @@ def lm12(n, S1, S2):
     -------
     complex
         :math:`\mathcal{M}[\ln^2(1-x)](N)`
-
     """
     return (S1**2 + S2) / n
 
@@ -244,7 +237,6 @@ def lm13(n, S1, S2, S3):
     -------
     complex
         :math:`\mathcal{M}[\ln^3(1-x)](N)`
-
     """
     return -((S1**3 + 3 * S1 * S2 + 2 * S3) / n)
 
@@ -270,7 +262,6 @@ def lm14(n, S1, S2, S3, S4):
     -------
     complex
         :math:`\mathcal{M}[\ln^4(1-x)](N)`
-
     """
     return (S1**4 + 6 * S1**2 * S2 + 3 * S2**2 + 8 * S1 * S3 + 6 * S4) / n
 
@@ -298,7 +289,6 @@ def lm15(n, S1, S2, S3, S4, S5):
     -------
     complex
         :math:`\mathcal{M}[\ln^5(1-x)](N)`
-
     """
     return (
         -(
@@ -327,7 +317,6 @@ def lm11m2(n, S1):
     -------
     complex
         :math:`\mathcal{M}[(1-x)^2\ln(1-x)](N)`
-
     """
     return (5 + 3 * n - (2 * (1 + n) * (2 + n) * S1) / n) / (
         (1 + n) ** 2 * (2 + n) ** 2
@@ -351,7 +340,6 @@ def lm12m2(n, S1, S2):
     -------
     complex
         :math:`\mathcal{M}[(1-x)^2\ln^2(1-x)](N)`
-
     """
     return (
         2
@@ -383,7 +371,6 @@ def lm13m2(n, S1, S2, S3):
     -------
     complex
         :math:`\mathcal{M}[(1-x)^2\ln^3(1-x)](N)`
-
     """
     return (
         -6 * n * (-17 - 21 * n - 2 * n**2 + 6 * n**3 + 2 * n**4)
@@ -419,7 +406,6 @@ def lm14m2(n, S1, S2, S3, S4):
     -------
     complex
         :math:`\mathcal{M}[(1-x)^2\ln^4(1-x)](N)`
-
     """
     return (
         2

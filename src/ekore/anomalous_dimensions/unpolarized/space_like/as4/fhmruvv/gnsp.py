@@ -1,4 +1,5 @@
-r"""The unpolarized, space-like anomalous dimension :math:`\gamma_{ns,+}^{(3)}`."""
+r"""The unpolarized, space-like anomalous dimension
+:math:`\gamma_{ns,+}^{(3)}`."""
 
 import numba as nb
 
@@ -39,7 +40,6 @@ def gamma_nsp(n, nf, cache, variation):
     complex
         |N3LO| singlet-like non-singlet anomalous dimension
         :math:`\gamma_{ns,+}^{(3)}(N)`
-
     """
     S1 = c.get(c.S1, cache, n)
     S2 = c.get(c.S2, cache, n)

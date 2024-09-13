@@ -47,7 +47,6 @@ def gamma_ns(order, mode, n, nf, n3lo_ad_variation, use_fhmruvv=False):
     -------
     numpy.ndarray
         non-singlet anomalous dimensions
-
     """
     cache = c.reset()
     # now combine
@@ -121,7 +120,6 @@ def gamma_singlet(order, n, nf, n3lo_ad_variation, use_fhmruvv=False):
     -------
     numpy.ndarray
         singlet anomalous dimensions matrices
-
     """
     cache = c.reset()
     gamma_s = np.zeros((order[0], 2, 2), np.complex_)
@@ -140,8 +138,7 @@ def gamma_singlet(order, n, nf, n3lo_ad_variation, use_fhmruvv=False):
 
 @nb.njit(cache=True)
 def gamma_ns_qed(order, mode, n, nf, n3lo_ad_variation, use_fhmruvv=False):
-    r"""
-    Compute the grid of the QED non-singlet anomalous dimensions.
+    r"""Compute the grid of the QED non-singlet anomalous dimensions.
 
     Parameters
     ----------
@@ -204,8 +201,8 @@ def gamma_ns_qed(order, mode, n, nf, n3lo_ad_variation, use_fhmruvv=False):
 
 @nb.njit(cache=True)
 def choose_ns_ad_aem1(mode, n, cache):
-    r"""
-    Select the non-singlet anomalous dimension at O(aem1) with the correct charge factor.
+    r"""Select the non-singlet anomalous dimension at O(aem1) with the correct
+    charge factor.
 
     Parameters
     ----------
@@ -220,7 +217,6 @@ def choose_ns_ad_aem1(mode, n, cache):
     -------
     numpy.ndarray
         non-singlet anomalous dimensions
-
     """
     if mode in [10102, 10202]:
         return constants.eu2 * aem1.gamma_ns(n, cache)
@@ -231,8 +227,8 @@ def choose_ns_ad_aem1(mode, n, cache):
 
 @nb.njit(cache=True)
 def choose_ns_ad_as1aem1(mode, n, cache):
-    r"""
-    Select the non-singlet anomalous dimension at O(as1aem1) with the correct charge factor.
+    r"""Select the non-singlet anomalous dimension at O(as1aem1) with the
+    correct charge factor.
 
     Parameters
     ----------
@@ -247,7 +243,6 @@ def choose_ns_ad_as1aem1(mode, n, cache):
     -------
     numpy.ndarray
         non-singlet anomalous dimensions
-
     """
     if mode == 10102:
         return constants.eu2 * as1aem1.gamma_nsp(n, cache)
@@ -262,8 +257,8 @@ def choose_ns_ad_as1aem1(mode, n, cache):
 
 @nb.njit(cache=True)
 def choose_ns_ad_aem2(mode, n, nf, cache):
-    r"""
-    Select the non-singlet anomalous dimension at O(aem2) with the correct charge factor.
+    r"""Select the non-singlet anomalous dimension at O(aem2) with the correct
+    charge factor.
 
     Parameters
     ----------
@@ -280,7 +275,6 @@ def choose_ns_ad_aem2(mode, n, nf, cache):
     -------
     numpy.ndarray
         non-singlet anomalous dimensions
-
     """
     if mode == 10102:
         return constants.eu2 * aem2.gamma_nspu(n, nf, cache)
@@ -295,8 +289,7 @@ def choose_ns_ad_aem2(mode, n, nf, cache):
 
 @nb.njit(cache=True)
 def gamma_singlet_qed(order, n, nf, n3lo_ad_variation, use_fhmruvv=False):
-    r"""
-    Compute the grid of the QED singlet anomalous dimensions matrices.
+    r"""Compute the grid of the QED singlet anomalous dimensions matrices.
 
     Parameters
     ----------
@@ -315,7 +308,6 @@ def gamma_singlet_qed(order, n, nf, n3lo_ad_variation, use_fhmruvv=False):
     -------
     numpy.ndarray
         singlet anomalous dimensions matrices
-
     """
     cache = c.reset()
     gamma_s = np.zeros((order[0] + 1, order[1] + 1, 4, 4), np.complex_)
@@ -340,8 +332,7 @@ def gamma_singlet_qed(order, n, nf, n3lo_ad_variation, use_fhmruvv=False):
 
 @nb.njit(cache=True)
 def gamma_valence_qed(order, n, nf, n3lo_ad_variation, use_fhmruvv=False):
-    r"""
-    Compute the grid of the QED valence anomalous dimensions matrices.
+    r"""Compute the grid of the QED valence anomalous dimensions matrices.
 
     Parameters
     ----------
@@ -361,7 +352,6 @@ def gamma_valence_qed(order, n, nf, n3lo_ad_variation, use_fhmruvv=False):
     -------
     numpy.ndarray
         valence anomalous dimensions matrices
-
     """
     cache = c.reset()
     gamma_v = np.zeros((order[0] + 1, order[1] + 1, 2, 2), np.complex_)

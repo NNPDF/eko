@@ -3,12 +3,14 @@
 The functions are described in :doc:`Mellin space </theory/Mellin>`.
 """
 
+# ruff: noqa
+
 import numba as nb
 import numpy as np
 
 
 @nb.njit(cache=True)
-def cern_polygamma(Z, K):  # pylint: disable=all
+def cern_polygamma(Z, K):
     r"""Compute the polygamma functions :math:`\psi_k(z)`.
 
     Reimplementation of ``WPSIPG`` (C317) in `CERNlib <http://cernlib.web.cern.ch/cernlib/>`_
@@ -28,7 +30,6 @@ def cern_polygamma(Z, K):  # pylint: disable=all
     -------
     H : complex
         k-th polygamma function :math:`\psi_k(z)`
-
     """
     # fmt: off
     DELTA = 5e-13
@@ -146,7 +147,6 @@ def recursive_harmonic_sum(base_value, n, iterations, weight):
     -------
     sni : complex
         :math:`S_{w}(N+k)`
-
     """
     fact = 0.0
     for i in range(1, iterations + 1):
@@ -173,7 +173,6 @@ def symmetry_factor(N, is_singlet=None):
         1 for singlet like quantities,
         -1 for non-singlet like quantities,
         :math:`(-1)^N` elsewise
-
     """
     if is_singlet is None:
         return (-1) ** N

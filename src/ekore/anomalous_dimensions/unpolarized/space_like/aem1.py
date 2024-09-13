@@ -23,7 +23,6 @@ def gamma_phq(N):
     -------
     complex
         Leading-order photon-quark anomalous dimension :math:`\\gamma_{\\gamma q}^{(0,1)}(N)`
-
     """
     return as1.gamma_gq(N) / constants.CF
 
@@ -47,7 +46,6 @@ def gamma_qph(N, nf):
     -------
     complex
         Leading-order quark-photon anomalous dimension :math:`\\gamma_{q \\gamma}^{(0,1)}(N)`
-
     """
     return as1.gamma_qg(N, nf) / constants.TR * constants.NC
 
@@ -67,7 +65,6 @@ def gamma_phph(nf):
     -------
     complex
         Leading-order phton-photon anomalous dimension :math:`\\gamma_{\\gamma \\gamma}^{(0,1)}(N)`
-
     """
     nu = constants.uplike_flavors(nf)
     nd = nf - nu
@@ -91,7 +88,6 @@ def gamma_ns(N, cache):
     -------
     complex
         Leading-order non-singlet QED anomalous dimension :math:`\\gamma_{ns}^{(0,1)}(N)`
-
     """
     return as1.gamma_ns(N, cache) / constants.CF
 
@@ -121,7 +117,6 @@ def gamma_singlet(N, nf, cache):
     -------
     numpy.ndarray
         Leading-order singlet anomalous dimension matrix :math:`\\gamma_{S}^{(0)}(N)`
-
     """
     e2avg, vue2m, vde2m, e2delta = constants.charge_combinations(nf)
     gamma_ph_q = gamma_phq(N)
@@ -177,7 +172,6 @@ def gamma_valence(N, nf, cache):
     -------
     numpy.ndarray
         Leading-order singlet anomalous dimension matrix :math:`\\gamma_{S}^{(0)}(N)`
-
     """
     e2avg, vue2m, vde2m, e2delta = constants.charge_combinations(nf)
     gamma_V_01 = np.array(

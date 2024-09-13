@@ -30,7 +30,6 @@ def gamma_nsp(N, nf, cache):
     complex
         NLO non-singlet positive anomalous dimension
         :math:`\gamma_{ns}^{(1)+}(N)`
-
     """
     NS = N * N
     NT = NS * N
@@ -111,7 +110,6 @@ def gamma_nsm(N, nf, cache):
     complex
         NLO non-singlet negative anomalous dimension
         :math:`\gamma_{ns}^{(1)-}(N)`
-
     """
     NS = N * N
     NT = NS * N
@@ -189,7 +187,6 @@ def gamma_qqs(N, nf):
     complex
         NLO quark-quark singlet anomalous dimension
         :math:`\gamma_{qq}^{(1)s}(N)`
-
     """
     qqS1 = (
         constants.CF
@@ -235,7 +232,6 @@ def gamma_qg(N, nf, cache):
     complex
         NLO quark-gluon anomalous dimension
         :math:`\gamma_{qg}^{(1)}(N)`
-
     """
     S1 = c.get(c.S1, cache, N)
     S2 = c.get(c.S2, cache, N)
@@ -371,7 +367,6 @@ def gamma_gq(N, nf, cache):
     complex
         NLO gluon-quark anomalous dimension
         :math:`\gamma_{gq}^{(1)}(N)`
-
     """
     S1 = c.get(c.S1, cache, N)
     S2 = c.get(c.S2, cache, N)
@@ -468,7 +463,6 @@ def gamma_gg(N, nf, cache):
     complex
         NLO gluon-gluon anomalous dimension
         :math:`\gamma_{gg}^{(1)}(N)`
-
     """
     S1 = c.get(c.S1, cache, N)
     S2 = c.get(c.S2, cache, N)
@@ -635,7 +629,6 @@ def gamma_singlet(N, nf, cache):
     numpy.ndarray
         NLO singlet anomalous dimension matrix
         :math:`\gamma_{s}^{(1)}`
-
     """
     gamma_qq = gamma_nsp(N, nf, cache) + gamma_qqs(N, nf)
 

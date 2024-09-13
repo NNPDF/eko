@@ -10,11 +10,10 @@ from . import exceptions
 class ReadOnlyOperator(RuntimeError, exceptions.OutputError):
     """It is not possible to write on a read-only operator.
 
-    In particular, the behavior would be deceitful, since writing is possible
-    in-memory and even on the temporary folder.
-    But eventually, no writing will happen on a persistent archive, so any
-    modification is lost after exiting the program.
-
+    In particular, the behavior would be deceitful, since writing is
+    possible in-memory and even on the temporary folder. But eventually,
+    no writing will happen on a persistent archive, so any modification
+    is lost after exiting the program.
     """
 
 
@@ -35,7 +34,6 @@ class ClosedOperator(RuntimeError, exceptions.OutputError):
     Still, the level of protection will be mild, since a thoruough protection
     would clutter a lot the code, requiring a lot of maintenance.
     "We are adult here".
-
     """
 
 
@@ -55,7 +53,6 @@ class AccessConfigs:
         """Check reading permission.
 
         Reading access is always granted on open operator.
-
         """
         return self.open
 
@@ -71,7 +68,6 @@ class AccessConfigs:
         ------
         exceptions.ClosedOperator
             if operator is closed
-
         """
         if not self.open:
             raise ClosedOperator
@@ -85,7 +81,6 @@ class AccessConfigs:
             see :meth:`assert_open`
         exceptions.ReadOnlyOperator
             if operators has been declared read-only
-
         """
         if msg is None:
             msg = ""

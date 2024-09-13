@@ -37,7 +37,6 @@ def ker_exact(a0, a1, order, nf):
 
         .. math::
             k_{exact} = e^{-\int_{a_s(\mu_{h,0}^2)}^{a_s(\mu^2)}\gamma_m(a_s)/ \beta(a_s)da_s}
-
     """
     b_vec = [beta_qcd((2, 0), nf)]
     g_vec = [gamma(1, nf)]
@@ -101,7 +100,6 @@ def ker_expanded(a0, a1, order, nf):
             & + \frac{a_s^3}{6} [ -2 b_3 c_0 - b_1^3 c_0 (1 + c_0) (2 + c_0) - 2 b_2 c_1 \\
             & - 3 b_2 c_0 c_1 + b_1^2 (2 + 3 c_0 (2 + c_0)) c_1 + c_1^3 + 3 c_1 c_2 \\
             & + b_1 (b_2 c_0 (4 + 3 c_0) - 3 (1 + c_0) c_1^2 - (2 + 3 c_0) c_2) + 2 c_3 ]
-
     """
     b0 = beta_qcd((2, 0), nf)
     c0 = gamma(1, nf) / b0
@@ -165,7 +163,6 @@ def ker_dispatcher(q2_to, q2m_ref, strong_coupling, xif2, nf):
     -------
     ker :
         Expanded or exact |MSbar| kernel
-
     """
     a0 = strong_coupling.a(q2m_ref * xif2, nf)[0]
     a1 = strong_coupling.a(q2_to * xif2, nf)[0]
@@ -194,7 +191,6 @@ def compute_matching_coeffs_up(nf: int):
     -------
     dict
         downward matching coefficient matrix
-
     """
     matching_coeffs_up = np.zeros((4, 4))
     matching_coeffs_up[2, 0] = -89.0 / 27.0
@@ -224,7 +220,6 @@ def compute_matching_coeffs_down(nf: int):
     -------
     dict
         downward matching coefficient matrix
-
     """
     c_up = compute_matching_coeffs_up(nf)
     return invert_matching_coeffs(c_up)
@@ -254,7 +249,6 @@ def solve(m2_ref, q2m_ref, strong_coupling, nf_ref, xif2):
     -------
     m2 : float
         :math:`m_{\overline{MS}}(\mu_2)^2`
-
     """
 
     def rge(m2, q2m_ref, strong_coupling, xif2, nf_ref):
@@ -305,7 +299,6 @@ def evolve(
     -------
     m2 : float
         :math:`m_{\overline{MS}}(\mu_2)^2`
-
     """
     matching_scales = np.array(strong_coupling.atlas.walls)[1:-1] * np.array(
         thresholds_ratios
@@ -375,7 +368,6 @@ def compute(
     -------
     masses : list
         list of |MSbar| masses squared
-
     """
     # TODO: sketch in the docs how the MSbar computation works with a figure.
     mu2_ref = couplings.ref[0] ** 2

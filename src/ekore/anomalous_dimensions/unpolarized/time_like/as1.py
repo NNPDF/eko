@@ -26,7 +26,6 @@ def gamma_qq(N, cache):
     complex
         LO quark-quark anomalous dimension
         :math:`\gamma_{qq}^{(0)}(N)`
-
     """
     S1 = c.get(c.S1, cache, N)
     result = constants.CF * (-3.0 + (4.0 * S1) - 2.0 / (N * (N + 1.0)))
@@ -50,7 +49,6 @@ def gamma_qg(N):
     complex
         LO quark-gluon anomalous dimension
         :math:`\gamma_{qg}^{(0)}(N)`
-
     """
     result = -(N**2 + N + 2.0) / (N * (N + 1.0) * (N + 2.0))
     return result
@@ -75,7 +73,6 @@ def gamma_gq(N, nf):
     complex
         LO quark-gluon anomalous dimension
         :math:`\gamma_{gq}^{(0)}(N)`
-
     """
     result = -4.0 * nf * constants.CF * (N**2 + N + 2.0) / (N * (N - 1.0) * (N + 1.0))
     return result
@@ -101,7 +98,6 @@ def gamma_gg(N, nf, cache):
     complex
         LO quark-quark anomalous dimension
         :math:`\gamma_{gg}^{(0)}(N)`
-
     """
     S1 = c.get(c.S1, cache, N)
     result = (2.0 * nf - 11.0 * constants.CA) / 3.0 + 4.0 * constants.CA * (
@@ -128,7 +124,6 @@ def gamma_ns(N, cache):
     complex
         LO quark-quark anomalous dimension
         :math:`\gamma_{ns}^{(0)}(N)`
-
     """
     return gamma_qq(N, cache)
 

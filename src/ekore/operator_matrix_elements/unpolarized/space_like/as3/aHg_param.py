@@ -1,8 +1,8 @@
-"""The approximated part of renormalization constant :math:`a_{Hg}^{(3)}(N)`."""
+"""The approximated part of renormalization constant
+:math:`a_{Hg}^{(3)}(N)`."""
 
 # pylint: skip-file
 import numba as nb
-import numpy as np
 
 from .....harmonics import cache as c
 from .....harmonics.log_functions import lm11, lm11m1, lm12, lm13, lm14, lm15
@@ -38,7 +38,6 @@ def a_Hg3(n, cache, nf):
     -------
     complex
         :math:`a_{Hg}^{(3)}(N)`
-
     """
     S1 = c.get(c.S1, cache, n)
     S2 = c.get(c.S2, cache, n)

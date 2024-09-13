@@ -19,7 +19,6 @@ def eko_identity(shape):
     -------
     np.array
         rank 5 array, representing an identity operator of the requested shape
-
     """
     i, k = np.ogrid[: shape[1], : shape[2]]
     eko_identity = np.zeros(shape[1:], int)

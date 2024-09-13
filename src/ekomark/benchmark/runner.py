@@ -34,8 +34,7 @@ class Runner(BenchmarkRunner):
 
     @staticmethod
     def load_ocards(session, ocard_updates):
-        """
-        Load operator cards.
+        """Load operator cards.
 
         Parameters
         ----------
@@ -57,8 +56,7 @@ class Runner(BenchmarkRunner):
         return []
 
     def run_me(self, theory, ocard, _pdf):
-        """
-        Run eko.
+        """Run eko.
 
         Parameters
         ----------
@@ -132,8 +130,7 @@ class Runner(BenchmarkRunner):
         return path
 
     def run_external(self, theory, ocard, pdf):
-        """
-        Run external library.
+        """Run external library.
 
         Parameters
         ----------
@@ -196,8 +193,7 @@ class Runner(BenchmarkRunner):
         )
 
     def log(self, theory, _, pdf, me, ext):
-        """
-        Return a proper log table.
+        """Return a proper log table.
 
         Parameters
         ----------
@@ -207,7 +203,6 @@ class Runner(BenchmarkRunner):
                 pdf
             me : eko.output.Output
                 eko output object containing all informations
-
         """
         # return a proper log table
         log_tabs = {}

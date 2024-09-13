@@ -1,4 +1,5 @@
-r"""This subpackage contains some Mellin transformations for 5th order harmonics sum.
+r"""This subpackage contains some Mellin transformations for 5th order harmonics
+sum.
 
 Notation refers to:
 

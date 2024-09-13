@@ -34,7 +34,6 @@ def A_hh(n, cache, L):
     -------
     complex
         |NLO| heavy-heavy |OME| :math:`A_{HH}^{(1)}`
-
     """
     S1m = c.get(c.S1, cache, n) - 1 / n  # harmonics.S1(n - 1)
     S2m = c.get(c.S2, cache, n) - 1 / n**2  # harmonics.S2(n - 1)
@@ -63,7 +62,6 @@ def A_gh(n, L):
     -------
     complex
         |NLO| gluon-heavy |OME| :math:`A_{gH}^{(1)}`
-
     """
     agh_l1 = (2 + n + n**2) / (n * (n**2 - 1))
     agh_l0 = (-4 + 2 * n + n**2 * (15 + n * (3 + n - n**2))) / (n * (n**2 - 1)) ** 2
@@ -87,7 +85,6 @@ def A_hg(n, L):
     -------
     complex
         |NLO| heavy-gluon |OME| :math:`A_{Hg}^{S,(1)}`
-
     """
     den = 1.0 / (n * (n + 1) * (2 + n))
     num = 2 * (2 + n + n**2)
@@ -109,7 +106,6 @@ def A_gg(L):
     -------
     complex
         |NLO| gluon-gluon |OME| :math:`A_{gg,H}^{S,(1)}`
-
     """
     return -2.0 / 3.0 * L
 
@@ -138,7 +134,6 @@ def A_singlet(n, cache, L):
     -------
     numpy.ndarray
         |NLO| singlet |OME| :math:`A^{S,(1)}`
-
     """
     A_S = np.array(
         [
@@ -174,6 +169,5 @@ def A_ns(n, cache, L):
     -------
     numpy.ndarray
         |NLO| non-singlet |OME| :math:`A^{S,(1)}`
-
     """
     return np.array([[0 + 0j, 0 + 0j], [0 + 0j, A_hh(n, cache, L)]], np.complex_)

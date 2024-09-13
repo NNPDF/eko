@@ -5,7 +5,6 @@ import pytest
 
 from eko import msbar_masses
 from eko.couplings import Couplings
-from eko.io import types
 from eko.io.runcards import TheoryCard
 from eko.quantities.couplings import CouplingEvolutionMethod
 from eko.quantities.heavy_quarks import HeavyQuarkMasses, QuarkMassRef, QuarkMassScheme

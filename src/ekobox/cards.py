@@ -84,7 +84,6 @@ def dump(card: RawCard, path: os.PathLike):
         card to dump
     path : str
         destination of the dumped card
-
     """
     with open(path, "w", encoding="utf-8") as fd:
         yaml.safe_dump(card, fd)
@@ -102,7 +101,6 @@ def load(path) -> RawCard:
     -------
     dict
         loaded card
-
     """
     with open(path, encoding="utf-8") as fd:
         card = yaml.safe_load(fd)

@@ -6,8 +6,7 @@ from eko import basis_rotation as br
 
 
 def compute_pegasus_data(theory, operators, skip_pdfs, rotate_to_evolution_basis=False):
-    """
-    Run Pegasus to compute operators.
+    """Run Pegasus to compute operators.
 
     Parameters
     ----------

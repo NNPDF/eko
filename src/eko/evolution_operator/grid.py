@@ -1,8 +1,8 @@
 """Define operators container and computing workflow.
 
-The first is the driver class of eko as it is the one that collects all the
-previously instantiated information and does the actual computation of the Q2s.
-
+The first is the driver class of eko as it is the one that collects all
+the previously instantiated information and does the actual computation
+of the Q2s.
 """
 
 import logging
@@ -51,7 +51,6 @@ class OperatorGrid(sv.ScaleVariationModeMixin):
     config: dict
     q2_grid: np.ndarray
     managers: dict
-
     """
 
     def __init__(
@@ -113,16 +112,15 @@ class OperatorGrid(sv.ScaleVariationModeMixin):
     def get_threshold_operators(self, path: List[Segment]) -> List[Operator]:
         """Generate the threshold operators.
 
-        This method is called everytime the OperatorGrid is asked for a grid on Q^2
-        with a list of the relevant areas.
-        If new threshold operators need to be computed, they will be
-        cached in an internal dictionary.
+        This method is called everytime the OperatorGrid is asked for a
+        grid on Q^2 with a list of the relevant areas. If new threshold
+        operators need to be computed, they will be cached in an
+        internal dictionary.
 
-        The internal dictionary is self._threshold_operators and its structure is:
-        (q2_from, q2_to) -> eko.operators.Operator
+        The internal dictionary is self._threshold_operators and its
+        structure is: (q2_from, q2_to) -> eko.operators.Operator
 
         It computes and stores the necessary macthing operators.
-
         """
         # The base area is always that of the reference q
         thr_ops = []
@@ -161,8 +159,8 @@ class OperatorGrid(sv.ScaleVariationModeMixin):
     def generate(self, q2: EPoint) -> OpDict:
         r"""Compute a single EKO.
 
-        eko :math:`\mathbf E(Q^2 \leftarrow Q_0^2)` in flavor basis as numpy array.
-
+        eko :math:`\mathbf E(Q^2 \leftarrow Q_0^2)` in flavor basis as
+        numpy array.
         """
         # The lists of areas as produced by the thresholds
         path = self.managers.atlas.path(q2)
