@@ -7,8 +7,9 @@ from eko import matchings
 from eko.beta import beta_qcd
 from eko.couplings import Couplings
 from eko.io.runcards import TheoryCard
+from eko.io.types import FlavorsNumber
 from eko.quantities.couplings import CouplingEvolutionMethod, CouplingsInfo
-from eko.quantities.heavy_quarks import FlavorsNumber, QuarkMassScheme
+from eko.quantities.heavy_quarks import QuarkMassScheme
 
 # try to load LHAPDF - if not available, we'll use the cached values
 try:
