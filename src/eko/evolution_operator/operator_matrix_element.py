@@ -17,6 +17,7 @@ from .. import basis_rotation as br
 from .. import scale_variations as sv
 from ..io.types import InversionMethod
 from ..matchings import Segment
+from ..scale_variations.exponentiated import gamma_variation
 from . import Operator, QuadKerBase
 
 logger = logging.getLogger(__name__)
@@ -188,7 +189,7 @@ def quad_ker(
 
     # correct for scale variations
     if sv_mode == sv.Modes.exponentiated:
-        A = sv.exponentiated.gamma_variation(A, order, nf, Lsv)
+        A = gamma_variation(A, order, nf, Lsv)
 
     # build the expansion in alpha_s depending on the strategy
     ker = build_ome(A, order, a_s, backward_method)

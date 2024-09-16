@@ -30,6 +30,8 @@ from ..kernels import singlet_qed as qed_s
 from ..kernels import valence_qed as qed_v
 from ..matchings import Segment, lepton_number
 from ..member import OpMember
+from ..scale_variations import expanded as sv_expanded
+from ..scale_variations import exponentiated as sv_exponentiated
 
 logger = logging.getLogger(__name__)
 
@@ -396,7 +398,7 @@ def quad_ker_qcd(
                 )
         # scale var exponentiated is directly applied on gamma
         if sv_mode == sv.Modes.exponentiated:
-            gamma_singlet = sv.exponentiated.gamma_variation(
+            gamma_singlet = sv_exponentiated.gamma_variation(
                 gamma_singlet, order, nf, L
             )
         ker = s.dispatcher(
@@ -412,7 +414,7 @@ def quad_ker_qcd(
         # scale var expanded is applied on the kernel
         if sv_mode == sv.Modes.expanded and not is_threshold:
             ker = np.ascontiguousarray(
-                sv.expanded.singlet_variation(gamma_singlet, as1, order, nf, L, dim=2)
+                sv_expanded.singlet_variation(gamma_singlet, as1, order, nf, L, dim=2)
             ) @ np.ascontiguousarray(ker)
         ker = select_singlet_element(ker, mode0, mode1)
     else:
@@ -429,7 +431,7 @@ def quad_ker_qcd(
                     order, mode0, ker_base.n, nf, n3lo_ad_variation, use_fhmruvv
                 )
         if sv_mode == sv.Modes.exponentiated:
-            gamma_ns = sv.exponentiated.gamma_variation(gamma_ns, order, nf, L)
+            gamma_ns = sv_exponentiated.gamma_variation(gamma_ns, order, nf, L)
         ker = ns.dispatcher(
             order,
             method,
@@ -440,7 +442,7 @@ def quad_ker_qcd(
             ev_op_iterations,
         )
         if sv_mode == sv.Modes.expanded and not is_threshold:
-            ker = sv.expanded.non_singlet_variation(gamma_ns, as1, order, nf, L) * ker
+            ker = sv_expanded.non_singlet_variation(gamma_ns, as1, order, nf, L) * ker
     return ker
 
 
@@ -520,7 +522,7 @@ def quad_ker_qed(
         )
         # scale var exponentiated is directly applied on gamma
         if sv_mode == sv.Modes.exponentiated:
-            gamma_s = sv.exponentiated.gamma_variation_qed(
+            gamma_s = sv_exponentiated.gamma_variation_qed(
                 gamma_s, order, nf, lepton_number(mu2_to), L, alphaem_running
             )
         ker = qed_s.dispatcher(
@@ -539,7 +541,7 @@ def quad_ker_qed(
         # However the distance between the two is very small and affects only the running aem
         if sv_mode == sv.Modes.expanded and not is_threshold:
             ker = np.ascontiguousarray(
-                sv.expanded.singlet_variation_qed(
+                sv_expanded.singlet_variation_qed(
                     gamma_s, as_list[-1], a_half[-1][1], alphaem_running, order, nf, L
                 )
             ) @ np.ascontiguousarray(ker)
@@ -550,7 +552,7 @@ def quad_ker_qed(
         )
         # scale var exponentiated is directly applied on gamma
         if sv_mode == sv.Modes.exponentiated:
-            gamma_v = sv.exponentiated.gamma_variation_qed(
+            gamma_v = sv_exponentiated.gamma_variation_qed(
                 gamma_v, order, nf, lepton_number(mu2_to), L, alphaem_running
             )
         ker = qed_v.dispatcher(
@@ -566,7 +568,7 @@ def quad_ker_qed(
         # scale var expanded is applied on the kernel
         if sv_mode == sv.Modes.expanded and not is_threshold:
             ker = np.ascontiguousarray(
-                sv.expanded.valence_variation_qed(
+                sv_expanded.valence_variation_qed(
                     gamma_v, as_list[-1], a_half[-1][1], alphaem_running, order, nf, L
                 )
             ) @ np.ascontiguousarray(ker)
@@ -577,7 +579,7 @@ def quad_ker_qed(
         )
         # scale var exponentiated is directly applied on gamma
         if sv_mode == sv.Modes.exponentiated:
-            gamma_ns = sv.exponentiated.gamma_variation_qed(
+            gamma_ns = sv_exponentiated.gamma_variation_qed(
                 gamma_ns, order, nf, lepton_number(mu2_to), L, alphaem_running
             )
         ker = qed_ns.dispatcher(
@@ -594,7 +596,7 @@ def quad_ker_qed(
         )
         if sv_mode == sv.Modes.expanded and not is_threshold:
             ker = (
-                sv.expanded.non_singlet_variation_qed(
+                sv_expanded.non_singlet_variation_qed(
                     gamma_ns, as_list[-1], a_half[-1][1], alphaem_running, order, nf, L
                 )
                 * ker

@@ -9,6 +9,8 @@ from .. import interpolation
 from .. import scale_variations as sv
 from ..kernels import non_singlet as ns
 from ..kernels import singlet as s
+from ..scale_variations import expanded as sv_expanded
+from ..scale_variations import exponentiated as sv_exponentiated
 
 logger = logging.getLogger(__name__)
 
@@ -110,7 +112,7 @@ def cb_quad_ker_qcd(
         im_gamma_singlet = nb.carray(im_gamma_raw, (order_qcd, 2, 2))
         gamma_singlet = re_gamma_singlet + im_gamma_singlet * 1j
         if sv_mode == sv.Modes.exponentiated:
-            gamma_singlet = sv.exponentiated.gamma_variation(
+            gamma_singlet = sv_exponentiated.gamma_variation(
                 gamma_singlet, order, nf, L
             )
         # construct eko
@@ -127,7 +129,7 @@ def cb_quad_ker_qcd(
         # scale var expanded is applied on the kernel
         if sv_mode == sv.Modes.expanded and not is_threshold:
             ker = np.ascontiguousarray(
-                sv.expanded.singlet_variation(gamma_singlet, as1, order, nf, L, dim=2)
+                sv_expanded.singlet_variation(gamma_singlet, as1, order, nf, L, dim=2)
             ) @ np.ascontiguousarray(ker)
         ker = select_singlet_element(ker, mode0, mode1)
     else:
@@ -136,7 +138,7 @@ def cb_quad_ker_qcd(
         im_gamma_ns = nb.carray(im_gamma_raw, order_qcd)
         gamma_ns = re_gamma_ns + im_gamma_ns * 1j
         if sv_mode == sv.Modes.exponentiated:
-            gamma_ns = sv.exponentiated.gamma_variation(gamma_ns, order, nf, L)
+            gamma_ns = sv_exponentiated.gamma_variation(gamma_ns, order, nf, L)
         # construct eko
         ker = ns.dispatcher(
             order,
@@ -148,7 +150,7 @@ def cb_quad_ker_qcd(
             ev_op_iterations,
         )
         if sv_mode == sv.Modes.expanded and not is_threshold:
-            ker = sv.expanded.non_singlet_variation(gamma_ns, as1, order, nf, L) * ker
+            ker = sv_expanded.non_singlet_variation(gamma_ns, as1, order, nf, L) * ker
     # recombine everything
     res = ker * pj * jac
     return np.real(res)
