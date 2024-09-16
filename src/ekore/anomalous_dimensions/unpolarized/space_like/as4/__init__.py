@@ -7,6 +7,7 @@ For further documentation see :doc:`N3LO anomalous dimensions
 import numba as nb
 import numpy as np
 
+from . import fhmruvv as fhmruvv
 from .ggg import gamma_gg
 from .ggq import gamma_gq
 from .gnsm import gamma_nsm
