@@ -1,8 +1,8 @@
 # pylint: skip-file
 """This module contains implemtation of F18.
 
-When using it, please cite :cite:`Blumlein:2009ta`.
-Mellin transform is defined with the convention x^(N).
+When using it, please cite :cite:`Blumlein:2009ta`. Mellin transform is
+defined with the convention x^(N).
 """
 import numba as nb
 import numpy as np

@@ -1,4 +1,5 @@
-"""Implementation of :cite:`Giele:2002hx` and  :cite:`Dittmar:2005ed` (NNLO and polarized)."""
+"""Implementation of :cite:`Giele:2002hx` and  :cite:`Dittmar:2005ed` (NNLO and
+polarized)."""
 
 import pathlib
 
@@ -71,7 +72,6 @@ def rotate_data(raw, is_ffns_nnlo=False, rotate_to_evolution_basis=False):
     -------
     dict
         rotated data
-
     """
     inp = []
     label_list = raw_label_list
@@ -96,8 +96,8 @@ def rotate_data(raw, is_ffns_nnlo=False, rotate_to_evolution_basis=False):
         # s_v = c_v count twice
         to_evolution[3, 4] = -2
         to_evolution[3, -4] = 2
-    for l in label_list:
-        inp.append(raw[l])
+    for lab in label_list:
+        inp.append(raw[lab])
     inp = np.array(inp)
     flav_pdfs = np.dot(to_flavor, inp)
 
@@ -124,7 +124,6 @@ def compute_LHA_data(theory, operators, rotate_to_evolution_basis=False):
     -------
     dict
         output containing: target_xgrid, values
-
     """
     polarized = operators["polarized"]
     mu2grid = np.power(operators["mugrid"], 2.0)
@@ -201,7 +200,6 @@ def save_initial_scale_plots_to_pdf(path, is_pol):
         output path
     is_pol : bool
         polarized pdf data
-
     """
     # load data
     if not is_pol:

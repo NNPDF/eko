@@ -10,7 +10,7 @@ from eko import interpolation
 
 
 def check_is_interpolator(interpolator):
-    """Check whether the functions are indeed interpolators"""
+    """Check whether the functions are indeed interpolators."""
     values = [0.1, 0.2, 0.4, 0.6, 0.8]
     # has to be in the range of the interpolation, but for the numerical integration of the
     # logartithmic interpolation to work it has to be setup in a rather larger area
@@ -45,7 +45,7 @@ def check_is_interpolator(interpolator):
 
 def check_correspondence_interpolators(inter_x, inter_N):
     """Check the correspondece between x and N space of the interpolators
-    inter_x and inter_N"""
+    inter_x and inter_N."""
     ngrid = [complex(1.0), complex(1.0 + 1j), complex(2.5 - 2j)]
     logxinv = np.log(0.9e-2)  # < 1e-2, to trick skipping
     for fun_x, fun_N in zip(inter_x, inter_N):
@@ -56,8 +56,7 @@ def check_correspondence_interpolators(inter_x, inter_N):
 
 
 def mellin_transform(f, N):
-    """
-    Mellin transformation
+    """Mellin transformation.
 
     Parameters
     ----------
@@ -153,7 +152,7 @@ class TestInterpolatorDispatcher:
                     assert_almost_equal(bx.evaluate_x(x), bN.evaluate_x(x))
 
     def test_math(self):
-        """Test math properties of interpolator"""
+        """Test math properties of interpolator."""
         poly_deg = 4
         for log in [True, False]:
             xgrid = interpolation.XGrid(np.linspace(0.09, 1, 10), log=log)

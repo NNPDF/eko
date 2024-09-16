@@ -30,7 +30,6 @@ def S5(N):
     See Also
     --------
     ekore.harmonics.polygamma.cern_polygamma : :math:`\psi_k(N)`
-
     """
     return zeta5 + 1.0 / 24.0 * cern_polygamma(N + 1.0, 4)
 
@@ -64,7 +63,6 @@ def Sm5(N, hS5, hS5mh, hS5h, is_singlet=None):
     See Also
     --------
     eko.harmonic.w5.S5 : :math:`S_5(N)`
-
     """
     if is_singlet is None:
         return (

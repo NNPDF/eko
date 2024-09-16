@@ -24,7 +24,6 @@ def A_hg(N, L):
     A_hg : complex
         |NLO| heavy-gluon |OME|
         :math:`A_{hg}^{S,(1)}`
-
     """
     result = (
         2
@@ -57,7 +56,6 @@ def A_gg(L):
     -------
     A_gg : complex
         |NLO| gluon-gluon |OME| :math:`A_{gg,H}^{S,(1)}`
-
     """
     return -2.0 / 3.0 * L
 
@@ -78,7 +76,6 @@ def A_singlet(N, L):
     numpy.ndarray
         |NLO| singlet |OME|
         :math:`A^{S,(1)}`
-
     """
     result = np.array(
         [[A_gg(L), 0 + 0j, 0], [0 + 0j, 0, 0], [A_hg(N, L), 0, 0]], np.complex_
@@ -95,7 +92,6 @@ def A_ns():
     A_ns : numpy.ndarray
         |NLO| non-singlet |OME|
         :math:`A^{S,(1)}`
-
     """
     result = np.array([[0, 0], [0, 0]], np.complex_)
     return result

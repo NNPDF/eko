@@ -45,7 +45,7 @@ def test_derivative():
 
 
 def test_der_n3lo_exa():
-    """exact N3LO derivative"""
+    """Exact N3LO derivative."""
     nf = 3
     a0 = 0.3
     a1 = 0.1
@@ -91,7 +91,7 @@ def test_der_n3lo_exa():
 
 
 def test_der_n3lo_exp():
-    """expanded N3LO derivative"""
+    """Expanded N3LO derivative."""
     nf = 3
     a0 = 0.3
     a1 = 0.1

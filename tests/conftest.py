@@ -114,7 +114,6 @@ class EKOFactory:
         dictionary::
 
             factory.get({})
-
         """
         if self.cache is None or update is not None:
             self.cache = self._create()

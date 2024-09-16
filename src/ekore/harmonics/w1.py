@@ -29,7 +29,6 @@ def S1(N):
     See Also
     --------
         ekore.harmonics.polygamma.cern_polygamma : :math:`\psi_k(N)`
-
     """
     return cern_polygamma(N + 1.0, 0) + np.euler_gamma
 
@@ -63,7 +62,6 @@ def Sm1(N, hS1, hS1mh, hS1h, is_singlet=None):
     See Also
     --------
         eko.anomalous_dimension.w1.S1 : :math:`S_1(N)`
-
     """
     if is_singlet is None:
         return (1 - (-1) ** N) / 2 * hS1mh + ((-1) ** N + 1) / 2 * hS1h - hS1

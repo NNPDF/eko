@@ -88,7 +88,6 @@ def mellin_g3(N, S1):
     ----
         We use the name from :cite:`MuselliPhD`, but not his implementation - rather we use the
         Pegasus :cite:`Vogt:2004ns` implementation.
-
     """
     cs = [1.0000e0, -0.9992e0, 0.9851e0, -0.9005e0, 0.6621e0, -0.3174e0, 0.0699e0]
     g3 = 0
@@ -115,7 +114,6 @@ def mellin_g4(N):
     -------
     mellin_g4 : complex
         Mellin transform :math:`\mathcal{M}[\text{Li}_2(-x)/(1+x)](N)`
-
     """
     g4 = -1 / 2 * zeta2 * log2
     for k, ak in enumerate(a1):
@@ -172,7 +170,6 @@ def mellin_g6(N, S1):
     -------
     mellin_g6 : complex
         Mellin transform :math:`\mathcal{M}[\text{Li}_3(x)/(1+x)](N)`
-
     """
     g6 = zeta3 * log2
     for k, ak in enumerate(a1):
@@ -203,7 +200,6 @@ def mellin_g8(N, S1, S2):
     -------
     mellin_g8 : complex
         Mellin transform :math:`\mathcal{M}[S_{1,2}(x)/(1+x)](N)`
-
     """
     g8 = zeta3 * log2
     for k, ak in enumerate(a1):
@@ -252,7 +248,8 @@ def mellin_g18(N, S1, S2):
 
 @nb.njit(cache=True)
 def mellin_g19(N, S1):
-    r"""Compute the Mellin transform of :math:`-(\text{Li}_2(-x) + \zeta_2/2)/(1-x)`.
+    r"""Compute the Mellin transform of :math:`-(\text{Li}_2(-x) +
+    \zeta_2/2)/(1-x)`.
 
     Implementation and definition in :eqref:`B.5.40` of :cite:`MuselliPhD` or in :eqref:`125` of
     :cite:`Bl_mlein_2000`, but none of them is fully correct.
@@ -268,7 +265,6 @@ def mellin_g19(N, S1):
     -------
     mellin_g19 : complex
         Mellin transform :math:`\mathcal{M}[-(\text{Li}_2(-x) + \zeta_2/2)/(1-x)](N)`
-
     """
     g19 = 1 / 2 * zeta2 * S1
     for k, ak in enumerate(a1):
@@ -351,7 +347,6 @@ def mellin_g22(N, S1, S2, S3):
     -------
     mellin_g22 : complex
         Mellin transform :math:`\mathcal{M}[-(\text{Li}_2(x) ln(x))/(1-x)](N)`
-
     """
     g22 = 0.0
     for k, ck in enumerate(c1):

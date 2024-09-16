@@ -21,7 +21,6 @@ def destination(dest: pathlib.Path):
     -------
     click.option
         generated option
-
     """
     return click.option(
         "-d",

@@ -1,6 +1,8 @@
 """This module benchmarks alpha_em against alphaQED23 and validphys.
 
-alphaQED23 can be obtained from http://www-com.physik.hu-berlin.de/~fjeger/software.html .
+alphaQED23 can be obtained from
+http://www-com.physik.hu-berlin.de/~fjeger/software.html
+.
 """
 
 import numpy as np
@@ -14,7 +16,7 @@ from eko.quantities.heavy_quarks import QuarkMassScheme
 @pytest.mark.isolated
 class BenchmarkCouplings:
     def test_alphaQED_high(self):
-        """testing aginst alphaQED23 for high Q values"""
+        """Testing aginst alphaQED23 for high Q values."""
         alphaQED23 = np.array(
             [
                 0.0075683,
@@ -90,7 +92,7 @@ class BenchmarkCouplings:
         np.testing.assert_allclose(alphaQED23, alpha_eko, rtol=3.2e-3)
 
     def test_validphys(self):
-        """testing aginst validphys"""
+        """Testing aginst validphys."""
         alpha_vp = np.array(
             [
                 0.007408255774054356,

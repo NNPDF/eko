@@ -329,7 +329,7 @@ index fe07ade9..0f58c9e5 100644
 -                )
 -        # scale var exponentiated is directly applied on gamma
 -        if sv_mode == sv.Modes.exponentiated:
--            gamma_singlet = sv.exponentiated.gamma_variation(
+-            gamma_singlet = sv_exponentiated.gamma_variation(
 -                gamma_singlet, order, nf, L
 -            )
 -        ker = s.dispatcher(
@@ -345,7 +345,7 @@ index fe07ade9..0f58c9e5 100644
 -        # scale var expanded is applied on the kernel
 -        if sv_mode == sv.Modes.expanded and not is_threshold:
 -            ker = np.ascontiguousarray(
--                sv.expanded.singlet_variation(gamma_singlet, as1, order, nf, L, dim=2)
+-                sv_expanded.singlet_variation(gamma_singlet, as1, order, nf, L, dim=2)
 -            ) @ np.ascontiguousarray(ker)
 -        ker = select_singlet_element(ker, mode0, mode1)
 -    else:
@@ -362,7 +362,7 @@ index fe07ade9..0f58c9e5 100644
 -                    order, mode0, ker_base.n, nf, n3lo_ad_variation, use_fhmruvv
 -                )
 -        if sv_mode == sv.Modes.exponentiated:
--            gamma_ns = sv.exponentiated.gamma_variation(gamma_ns, order, nf, L)
+-            gamma_ns = sv_exponentiated.gamma_variation(gamma_ns, order, nf, L)
 -        ker = ns.dispatcher(
 -            order,
 -            method,
@@ -373,7 +373,7 @@ index fe07ade9..0f58c9e5 100644
 -            ev_op_iterations,
 -        )
 -        if sv_mode == sv.Modes.expanded and not is_threshold:
--            ker = sv.expanded.non_singlet_variation(gamma_ns, as1, order, nf, L) * ker
+-            ker = sv_expanded.non_singlet_variation(gamma_ns, as1, order, nf, L) * ker
 -    return ker
 -
 -
@@ -453,7 +453,7 @@ index fe07ade9..0f58c9e5 100644
 -        )
 -        # scale var exponentiated is directly applied on gamma
 -        if sv_mode == sv.Modes.exponentiated:
--            gamma_s = sv.exponentiated.gamma_variation_qed(
+-            gamma_s = sv_exponentiated.gamma_variation_qed(
 -                gamma_s, order, nf, lepton_number(mu2_to), L, alphaem_running
 -            )
 -        ker = qed_s.dispatcher(
@@ -472,7 +472,7 @@ index fe07ade9..0f58c9e5 100644
 -        # However the distance between the two is very small and affects only the running aem
 -        if sv_mode == sv.Modes.expanded and not is_threshold:
 -            ker = np.ascontiguousarray(
--                sv.expanded.singlet_variation_qed(
+-                sv_expanded.singlet_variation_qed(
 -                    gamma_s, as_list[-1], a_half[-1][1], alphaem_running, order, nf, L
 -                )
 -            ) @ np.ascontiguousarray(ker)
@@ -483,7 +483,7 @@ index fe07ade9..0f58c9e5 100644
 -        )
 -        # scale var exponentiated is directly applied on gamma
 -        if sv_mode == sv.Modes.exponentiated:
--            gamma_v = sv.exponentiated.gamma_variation_qed(
+-            gamma_v = sv_exponentiated.gamma_variation_qed(
 -                gamma_v, order, nf, lepton_number(mu2_to), L, alphaem_running
 -            )
 -        ker = qed_v.dispatcher(
@@ -499,7 +499,7 @@ index fe07ade9..0f58c9e5 100644
 -        # scale var expanded is applied on the kernel
 -        if sv_mode == sv.Modes.expanded and not is_threshold:
 -            ker = np.ascontiguousarray(
--                sv.expanded.valence_variation_qed(
+-                sv_expanded.valence_variation_qed(
 -                    gamma_v, as_list[-1], a_half[-1][1], alphaem_running, order, nf, L
 -                )
 -            ) @ np.ascontiguousarray(ker)
@@ -510,7 +510,7 @@ index fe07ade9..0f58c9e5 100644
 -        )
 -        # scale var exponentiated is directly applied on gamma
 -        if sv_mode == sv.Modes.exponentiated:
--            gamma_ns = sv.exponentiated.gamma_variation_qed(
+-            gamma_ns = sv_exponentiated.gamma_variation_qed(
 -                gamma_ns, order, nf, lepton_number(mu2_to), L, alphaem_running
 -            )
 -        ker = qed_ns.dispatcher(
@@ -527,7 +527,7 @@ index fe07ade9..0f58c9e5 100644
 -        )
 -        if sv_mode == sv.Modes.expanded and not is_threshold:
 -            ker = (
--                sv.expanded.non_singlet_variation_qed(
+-                sv_expanded.non_singlet_variation_qed(
 -                    gamma_ns, as_list[-1], a_half[-1][1], alphaem_running, order, nf, L
 -                )
 -                * ker

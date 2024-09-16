@@ -64,7 +64,6 @@ def update_colors(nc):
     ----------
     nc : int
       Number of colors
-
     """
     global NC, CA, CF  # pylint: disable=global-statement
 
@@ -85,7 +84,6 @@ def uplike_flavors(nf):
     Returns
     -------
     nu : int
-
     """
     if nf > 6:
         raise NotImplementedError("Selected nf is not implemented")
@@ -95,8 +93,7 @@ def uplike_flavors(nf):
 
 @nb.njit(cache=True)
 def charge_combinations(nf):
-    """
-    Compute the combination of charges.
+    """Compute the combination of charges.
 
     Parameters
     ----------
@@ -108,7 +105,6 @@ def charge_combinations(nf):
     e2avg : float
     vue2m : float
     vde2m : float
-
     """
     nu = uplike_flavors(nf)
     nd = nf - nu

@@ -40,7 +40,7 @@ def test_modes():
 
 
 def test_ns_sv_dispacher():
-    """Test to identity"""
+    """Test to identity."""
     order = (4, 0)
     gamma_ns = np.random.rand(order[0])
     L = 0
@@ -52,7 +52,7 @@ def test_ns_sv_dispacher():
 
 
 def test_ns_sv_dispacher_qed():
-    """Test to identity"""
+    """Test to identity."""
     order = (4, 2)
     gamma_ns = np.random.rand(order[0], order[1])
     L = 0
@@ -69,7 +69,7 @@ def test_ns_sv_dispacher_qed():
 
 
 def test_singlet_sv_dispacher():
-    """Test to identity"""
+    """Test to identity."""
     order = (4, 0)
     gamma_singlet = np.random.rand(order[0], 2, 2)
     L = 0
@@ -81,7 +81,7 @@ def test_singlet_sv_dispacher():
 
 
 def test_singlet_sv_dispacher_qed():
-    """Test to identity"""
+    """Test to identity."""
     order = (4, 2)
     gamma_singlet = np.random.rand(order[0], order[1], 4, 4)
     L = 0
@@ -98,7 +98,7 @@ def test_singlet_sv_dispacher_qed():
 
 
 def test_valence_sv_dispacher_qed():
-    """Test to identity"""
+    """Test to identity."""
     order = (4, 2)
     gamma_valence = np.random.rand(order[0], order[1], 2, 2)
     L = 0

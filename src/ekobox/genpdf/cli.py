@@ -10,7 +10,6 @@ def cli():
     """Generate and install fake PDFs.
 
     See online documentation for a detailed explanation and examples.
-
     """
 
 

@@ -39,7 +39,6 @@ def A_qq_ns(n, cache, L):
     -------
     complex
         |NNLO| light-light non-singlet |OME| :math:`A_{qq,H}^{NS,(2)}`
-
     """
     S1 = c.get(c.S1, cache, n)
     S2 = c.get(c.S2, cache, n)
@@ -90,7 +89,6 @@ def A_hq_ps(n, cache, L):
     -------
     complex
         |NNLO| heavy-light pure-singlet |OME| :math:`A_{Hq}^{PS,(2)}`
-
     """
     S2 = c.get(c.S2, cache, n)
 
@@ -155,7 +153,6 @@ def A_hg(n, cache, L):
     -------
     complex
         |NNLO| heavy-gluon |OME| :math:`A_{Hg}^{S,(2)}`
-
     """
     S1 = c.get(c.S1, cache, n)
     S2 = c.get(c.S2, cache, n)
@@ -278,7 +275,6 @@ def A_gq(n, cache, L):
     -------
     complex
         |NNLO| gluon-quark |OME| :math:`A_{gq,H}^{S,(2)}`
-
     """
     S1 = c.get(c.S1, cache, n)
     S2 = c.get(c.S2, cache, n)
@@ -329,7 +325,6 @@ def A_gg(n, cache, L):
     -------
     complex
         |NNLO| gluon-gluon |OME| :math:`A_{gg,H}^{S,(2)}`
-
     """
     S1 = c.get(c.S1, cache, n)
     S1m = S1 - 1 / n  # harmonic_S1(n - 1)
@@ -424,7 +419,6 @@ def A_singlet(n, cache, L, is_msbar=False):
     -------
     numpy.ndarray
         |NNLO| singlet |OME| :math:`A^{S,(2)}(N)`
-
     """
     A_hq_2 = A_hq_ps(n, cache, L)
     A_qq_2 = A_qq_ns(n, cache, L)
@@ -463,6 +457,5 @@ def A_ns(n, cache, L):
     -------
     numpy.ndarray
         |NNLO| non-singlet |OME| :math:`A^{NS,(2)}`
-
     """
     return np.array([[A_qq_ns(n, cache, L), 0.0], [0 + 0j, 0 + 0j]], np.complex_)

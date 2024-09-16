@@ -1,6 +1,5 @@
 from io import StringIO
 
-import numpy as np
 import pytest
 import yaml
 
@@ -22,9 +21,9 @@ def test_flavored_mu2grid():
     deser = yaml.safe_load(stream)
     assert len(flavored) == len(deser)
     # after deserialization one is now list instead of tuple
-    for t, l in zip(flavored, deser):
-        assert len(t) == len(l)
-        assert t == tuple(l)
+    for tu, li in zip(flavored, deser):
+        assert len(tu) == len(li)
+        assert tu == tuple(li)
 
 
 def check_dumpable(no):
@@ -32,7 +31,7 @@ def check_dumpable(no):
     so = StringIO()
     yaml.dump(no.raw, so)
     so.seek(0)
-    noo = yaml.safe_load(so)
+    _noo = yaml.safe_load(so)
 
 
 def test_legacy_fallback():

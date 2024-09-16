@@ -33,7 +33,6 @@ def ekos_product(
     path :
         if not provided, the operation is done in-place, otherwie a new
         operator is written at the given path
-
     """
     # TODO: add a control on the theory (but before we need to implement
     # another kind of output which includes the theory and operator runcards)

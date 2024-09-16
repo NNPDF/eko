@@ -1,7 +1,5 @@
-"""
-    This module tests the implemented beta functions and the value
-    of alpha_s for different orders.
-"""
+"""This module tests the implemented beta functions and the value of alpha_s
+for different orders."""
 
 import numpy as np
 import pytest
@@ -11,22 +9,22 @@ from eko.constants import uplike_flavors, zeta3
 
 
 def _flav_test(function):
-    """Check that the given beta function `function` is valid
-    for any number of flavors up to 5"""
+    """Check that the given beta function `function` is valid for any number of
+    flavors up to 5."""
     for nf in range(5):
         result = function(nf)
         assert result > 0.0
 
 
 def test_beta_as2():
-    """Test first beta function coefficient"""
+    """Test first beta function coefficient."""
     _flav_test(beta.beta_qcd_as2)
     # from hep-ph/9706430
     np.testing.assert_approx_equal(beta.beta_qcd_as2(5), 4 * 23 / 12)
 
 
 def test_beta_aem2():
-    """Test first beta function coefficient"""
+    """Test first beta function coefficient."""
     # from hep-ph/9803211
     for nf in range(3, 6 + 1):
         for nl in range(2, 3 + 1):
@@ -39,14 +37,14 @@ def test_beta_aem2():
 
 
 def test_beta_as3():
-    """Test second beta function coefficient"""
+    """Test second beta function coefficient."""
     _flav_test(beta.beta_qcd_as3)
     # from hep-ph/9706430
     np.testing.assert_approx_equal(beta.beta_qcd_as3(5), 4**2 * 29 / 12)
 
 
 def test_beta_aem3():
-    """Test second beta function coefficient"""
+    """Test second beta function coefficient."""
     # from hep-ph/9803211
     for nf in range(3, 6 + 1):
         for nl in range(2, 3 + 1):
@@ -59,14 +57,14 @@ def test_beta_aem3():
 
 
 def test_beta_as4():
-    """Test third beta function coefficient"""
+    """Test third beta function coefficient."""
     _flav_test(beta.beta_qcd_as4)
     # from hep-ph/9706430
     np.testing.assert_approx_equal(beta.beta_qcd_as4(5), 4**3 * 9769 / 3456)
 
 
 def test_beta_as5():
-    """Test fourth beta function coefficient"""
+    """Test fourth beta function coefficient."""
     _flav_test(beta.beta_qcd_as5)
     # from hep-ph/9706430
     np.testing.assert_allclose(
@@ -75,7 +73,7 @@ def test_beta_as5():
 
 
 def test_beta():
-    """beta-wrapper"""
+    """beta-wrapper."""
     for nf in range(3, 6 + 1):
         for nl in range(2, 3 + 1):
             np.testing.assert_allclose(beta.beta_qcd((2, 0), nf), beta.beta_qcd_as2(nf))
@@ -99,19 +97,19 @@ def test_beta():
 
 
 def test_b():
-    """b-wrapper"""
+    """b-wrapper."""
     np.testing.assert_allclose(beta.b_qcd((2, 0), 3), 1.0)
     np.testing.assert_allclose(beta.b_qed((0, 2), 3, 3), 1.0)
 
 
 def test_zero():
-    """test that beta_qed is zero for nf=nl=0"""
+    """Test that beta_qed is zero for nf=nl=0."""
     for ord in range(2, 3 + 1):
         np.testing.assert_allclose(beta.beta_qed((0, ord), 0, 0), 0)
 
 
 def test_linearity():
-    """test linearity of QED beta function when nf=0"""
+    """Test linearity of QED beta function when nf=0."""
     for ord in range(2, 3 + 1):
         for nl in [0, 2]:
             np.testing.assert_allclose(

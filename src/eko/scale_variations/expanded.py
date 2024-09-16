@@ -1,8 +1,9 @@
 r"""Scale variation operator for the expanded scheme (``ModSV=expanded``).
 
-The expressions can be obtained using Eqs. (3.33) and (3.38) of :cite:`AbdulKhalek:2019ihb`.
-Be aware that corresponding the signs of the ingredients there are a number of differences.
-However, the ultimate sign can be obtained by comparing to the exponentiated scheme in the
+The expressions can be obtained using Eqs. (3.33) and (3.38) of
+:cite:`AbdulKhalek:2019ihb`. Be aware that corresponding the signs of
+the ingredients there are a number of differences. However, the ultimate
+sign can be obtained by comparing to the exponentiated scheme in the
 trunctated solution.
 """
 

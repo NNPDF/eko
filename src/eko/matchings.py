@@ -45,7 +45,6 @@ class Matching:
 
     The meaning of the flavor index `hq` is the PID of the corresponding heavy
     quark.
-
     """
 
     scale: SquaredScale
@@ -59,9 +58,8 @@ MatchedPath = List[Union[Segment, Matching]]
 class Atlas:
     r"""Holds information about the matching scales.
 
-    These scales are the :math:`Q^2` has to pass in order to get there from a
-    given :math:`Q^2_{ref}`.
-
+    These scales are the :math:`Q^2` has to pass in order to get there
+    from a given :math:`Q^2_{ref}`.
     """
 
     def __init__(self, matching_scales: MatchingScales, origin: EPoint):
@@ -91,7 +89,6 @@ class Atlas:
         from below.
 
         The origin is set with that number of flavors.
-
         """
         matching_scales = MatchingScales([0] * (nf - 3) + [np.inf] * (6 - nf))
         origin = (mu2, nf)
@@ -137,7 +134,6 @@ class Atlas:
 
         Since the only task required to determine a path is interleaving the
         correct matching scales, this is done by slicing the walls.
-
         """
         mu20, nf0 = self.origin
         mu2f, nff = self.normalize(target)
@@ -158,7 +154,6 @@ class Atlas:
 
         In practice, just a wrapper around :meth:`path` adding the intermediate
         matchings.
-
         """
         path = self.path(target)
         inverse = is_downward_path(path)
@@ -187,7 +182,6 @@ def nf_default(mu2: SquaredScale, atlas: Atlas) -> FlavorsNumber:
     So, the flow is defined starting with 3 flavors below the charm matching,
     and increasing by one every time a matching scale is passed while
     increasing the scale.
-
     """
     ref_idx = np.digitize(mu2, atlas.walls)
     return int(2 + ref_idx)
@@ -202,7 +196,6 @@ def is_downward_path(path: Path) -> bool:
       :class:`Segment`, note this can be different from each
       :attr:`Segment.is_downward`
     - in :math:`\mu^2`, when just one single :class:`Segment` is given
-
     """
     if len(path) == 1:
         return path[0].is_downward
@@ -229,6 +222,5 @@ def lepton_number(q2):
     -------
     int :
        Number of leptons
-
     """
     return 3 if q2 > MTAU**2 else 2

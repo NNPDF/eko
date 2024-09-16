@@ -46,7 +46,6 @@ def apply_qed(gamma_pure_qed, mu2_from, mu2_to):
     -------
     exp : float
         pure QED evolution kernel
-
     """
     return np.exp(gamma_pure_qed * np.log(mu2_from / mu2_to))
 

@@ -14,7 +14,8 @@ from ...unpolarized.space_like.as3 import gamma_nsp as gamma_nsm
 
 @nb.njit(cache=True)
 def gamma_gg(N, nf, cache):
-    r"""Compute the parametrized |NNLO| gluon-gluon polarized anomalous dimension.
+    r"""Compute the parametrized |NNLO| gluon-gluon polarized anomalous
+    dimension.
 
     Implement Eq. (4.12) of :cite:`Moch:2014sna`.
 
@@ -31,7 +32,6 @@ def gamma_gg(N, nf, cache):
     -------
     complex
         |NNLO| gluon-gluon anomalous dimension :math:`\\gamma_{gg}^{(2)}(N)`
-
     """
     S1 = c.get(c.S1, cache, N)
     S2 = c.get(c.S2, cache, N)
@@ -91,7 +91,8 @@ def gamma_gg(N, nf, cache):
 
 @nb.njit(cache=True)
 def gamma_qg(N, nf, cache):
-    r"""Compute the parametrized |NNLO| quark-gluon polarized anomalous dimension.
+    r"""Compute the parametrized |NNLO| quark-gluon polarized anomalous
+    dimension.
 
     Implement Eq. (4.10) of :cite:`Moch:2014sna`.
 
@@ -108,7 +109,6 @@ def gamma_qg(N, nf, cache):
     -------
     complex
         |NNLO| quark-gluon anomalous dimension :math:`\\gamma_{qg}^{(2)}(N)`
-
     """
     S1 = c.get(c.S1, cache, N)
     S2 = c.get(c.S2, cache, N)
@@ -157,7 +157,8 @@ def gamma_qg(N, nf, cache):
 
 @nb.njit(cache=True)
 def gamma_gq(N, nf, cache):
-    r"""Compute the parametrized |NNLO| gluon-quark polarized anomalous dimension.
+    r"""Compute the parametrized |NNLO| gluon-quark polarized anomalous
+    dimension.
 
     Implement Eq. (4.11) of :cite:`Moch:2014sna`.
 
@@ -174,7 +175,6 @@ def gamma_gq(N, nf, cache):
     -------
     complex
         |NNLO| gluon-quark anomalous dimension :math:`\\gamma_{gq}^{(2)}(N)`
-
     """
     S1 = c.get(c.S1, cache, N)
     S2 = c.get(c.S2, cache, N)
@@ -236,7 +236,8 @@ def gamma_gq(N, nf, cache):
 
 @nb.njit(cache=True)
 def gamma_ps(N, nf, cache):
-    r"""Compute the parametrized |NNLO| pure-singlet quark-quark polarized anomalous dimension.
+    r"""Compute the parametrized |NNLO| pure-singlet quark-quark polarized
+    anomalous dimension.
 
     Implement Eq. (4.9) of :cite:`Moch:2014sna`.
 
@@ -253,7 +254,6 @@ def gamma_ps(N, nf, cache):
     -------
     complex
         |NNLO| pure-singlet quark-quark anomalous dimension :math:`\\gamma_{ps}^{(2)}(N)`
-
     """
     S1 = c.get(c.S1, cache, N)
     S2 = c.get(c.S2, cache, N)
@@ -347,7 +347,6 @@ def gamma_nss(N, nf, cache):
     complex
         |NNLO| valence non-singlet anomalous dimension
         :math:`\\gamma_{ns,s}^{(2)}(N)`
-
     """
     S1 = c.get(c.S1, cache, N)
     S3 = c.get(c.S3, cache, N)
@@ -404,7 +403,6 @@ def gamma_nsv(N, nf, cache):
     complex
         |NNLO| valence non-singlet anomalous dimension
         :math:`\\gamma_{ns,v}^{(2)}(N)`
-
     """
     return gamma_nsm(N, nf, cache) + gamma_nss(N, nf, cache)
 
@@ -432,7 +430,6 @@ def gamma_singlet(N, nf, cache):
     -------
     numpy.ndarray
         |NNLO| singlet anomalous dimension matrix :math:`\gamma_{S}^{(2)}(N)`
-
     """
     gamma_qq = gamma_nsp(N, nf, cache) + gamma_ps(N, nf, cache)
     gamma_S_0 = np.array(

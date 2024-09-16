@@ -1,4 +1,5 @@
-r"""The unpolarized, space-like anomalous dimension :math:`\gamma_{ns,+}^{(3)}`."""
+r"""The unpolarized, space-like anomalous dimension
+:math:`\gamma_{ns,+}^{(3)}`."""
 
 import numba as nb
 
@@ -9,7 +10,8 @@ from .gnsm import gamma_ns_nf3
 
 @nb.njit(cache=True)
 def gamma_nsp_nf2(n, cache):
-    r"""Return the parametrized singlet-like non-singlet part proportional to :math:`nf^2`.
+    r"""Return the parametrized singlet-like non-singlet part proportional to
+    :math:`nf^2`.
 
     From :cite:`Moch:2017uml` ancillary files.
 
@@ -24,7 +26,6 @@ def gamma_nsp_nf2(n, cache):
     -------
     complex
         |N3LO| singlet-like non-singlet anomalous dimension :math:`\gamma_{ns,+}^{(3)}|_{nf^2}`
-
     """
     S1 = c.get(c.S1, cache, n)
     S2 = c.get(c.S2, cache, n)
@@ -55,7 +56,8 @@ def gamma_nsp_nf2(n, cache):
 
 @nb.njit(cache=True)
 def gamma_nsp_nf1(n, cache):
-    r"""Return the parametrized singlet-like non-singlet part proportional to :math:`nf^1`.
+    r"""Return the parametrized singlet-like non-singlet part proportional to
+    :math:`nf^1`.
 
     Parameters
     ----------
@@ -68,7 +70,6 @@ def gamma_nsp_nf1(n, cache):
     -------
     complex
         |N3LO| singlet-like non-singlet anomalous dimension :math:`\gamma_{ns,+}^{(3)}|_{nf^1}`
-
     """
     S1 = c.get(c.S1, cache, n)
     S2 = c.get(c.S2, cache, n)
@@ -98,7 +99,8 @@ def gamma_nsp_nf1(n, cache):
 
 @nb.njit(cache=True)
 def gamma_nsp_nf0(n, cache):
-    r"""Return the parametrized singlet-like non-singlet part proportional to :math:`nf^0`.
+    r"""Return the parametrized singlet-like non-singlet part proportional to
+    :math:`nf^0`.
 
     Parameters
     ----------
@@ -111,7 +113,6 @@ def gamma_nsp_nf0(n, cache):
     -------
     complex
         |N3LO| singlet-like non-singlet anomalous dimension :math:`\gamma_{ns,+}^{(3)}|_{nf^0}`
-
     """
     S1 = c.get(c.S1, cache, n)
     S2 = c.get(c.S2, cache, n)
@@ -158,7 +159,6 @@ def gamma_nsp(n, nf, cache):
     complex
         |N3LO| singlet-like non-singlet anomalous dimension
         :math:`\gamma_{ns,+}^{(3)}(N)`
-
     """
     return (
         gamma_nsp_nf0(n, cache)

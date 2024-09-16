@@ -216,8 +216,8 @@ def mk_op_members(shape=(2, 2), qed=False):
     m = np.random.rand(len(full_labels), *shape)
     e = np.random.rand(len(full_labels), *shape)
     om = {}
-    for j, l in enumerate(full_labels):
-        om[l] = member.OpMember(m[j], e[j])
+    for j, lab in enumerate(full_labels):
+        om[lab] = member.OpMember(m[j], e[j])
     return om
 
 

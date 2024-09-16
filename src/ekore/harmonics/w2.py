@@ -30,7 +30,6 @@ def S2(N):
     See Also
     --------
         ekore.harmonics.polygamma.cern_polygamma : :math:`\psi_k(N)`
-
     """
     return -cern_polygamma(N + 1.0, 1) + zeta2
 
@@ -65,7 +64,6 @@ def Sm2(N, hS2, hS2mh, hS2h, is_singlet=None):
     See Also
     --------
         eko.anomalous_dimension.w2.S2 : :math:`S_2(N)`
-
     """
     if is_singlet is None:
         return 1 / 2 * ((1 - (-1) ** N) / 2 * hS2mh + ((-1) ** N + 1) / 2 * hS2h) - hS2

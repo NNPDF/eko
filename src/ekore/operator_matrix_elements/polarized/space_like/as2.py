@@ -1,8 +1,11 @@
-r"""Contains the |NNLO| |OME| in the polarized case for the matching conditions in the |VFNS|.
+r"""Contains the |NNLO| |OME| in the polarized case for the matching conditions
+in the |VFNS|.
 
-The equations are given in :cite:`Bierenbaum:2022biv`.
-As in the |NLO| |OME|, in the paper, an additional factor 2 can be found in front of the anomalous dimensions and factor (-1) for odd powers of L.
-The anomalous dimensions and beta function with the addition 'hat' are defined as in the |NLO| case.
+The equations are given in :cite:`Bierenbaum:2022biv`. As in the |NLO|
+|OME|, in the paper, an additional factor 2 can be found in front of the
+anomalous dimensions and factor (-1) for odd powers of L. The anomalous
+dimensions and beta function with the addition 'hat' are defined as in
+the |NLO| case.
 """
 
 import numba as nb
@@ -17,7 +20,8 @@ from ....anomalous_dimensions.polarized.space_like.as2 import gamma_qg as gamma1
 from ....harmonics import cache as c
 
 beta_0hat = -4 / 3 * TR
-"""This is the lowest order beta function with the addition 'hat' defined as above."""
+"""This is the lowest order beta function with the addition 'hat' defined as
+above."""
 
 
 @nb.njit(cache=True)
@@ -39,7 +43,6 @@ def A_qq_ns(n, cache, L):
     -------
     complex
         |NNLO| light-light non-singlet |OME| :math:`A_{qq,H}^{NS,(2)}`
-
     """
     S1 = c.get(c.S1, cache, n)
     S2 = c.get(c.S2, cache, n)
@@ -105,7 +108,6 @@ def A_hq_ps(n, cache, L, nf):
     -------
     complex
         |NNLO| heavy-light pure-singlet |OME| :math:`A_{Hq}^{PS,(2)}`
-
     """
     S2 = c.get(c.S2, cache, n)
 
@@ -154,7 +156,6 @@ def A_hg(n, cache, L):
     -------
     complex
         |NNLO| heavy-gluon |OME| :math:`A_{Hg}^{S,(2)}`
-
     """
     S1 = c.get(c.S1, cache, n)
     S2 = c.get(c.S2, cache, n)
@@ -279,7 +280,6 @@ def A_gq(n, cache, L):
     -------
     complex
         |NNLO| gluon-quark |OME| :math:`A_{gq,H}^{S,(2)}`
-
     """
     S1 = c.get(c.S1, cache, n)
     S2 = c.get(c.S2, cache, n)
@@ -330,7 +330,6 @@ def A_gg(n, cache, L):
     -------
     complex
         |NNLO| gluon-gluon |OME| :math:`A_{gg,H}^{S,(2)}`
-
     """
     S1 = c.get(c.S1, cache, n)
     ggg1_canf = (
@@ -398,7 +397,6 @@ def A_singlet(n, cache, L, nf):
     -------
     numpy.ndarray
         |NNLO| singlet |OME| :math:`A^{S,(2)}(N)`
-
     """
     return np.array(
         [
@@ -433,6 +431,5 @@ def A_ns(n, cache, L):
     -------
     numpy.ndarray
         |NNLO| non-singlet |OME| :math:`A^{NS,(2)}`
-
     """
     return np.array([[A_qq_ns(n, cache, L), 0.0], [0 + 0j, 0 + 0j]], np.complex_)

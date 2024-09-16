@@ -9,12 +9,13 @@ from ....harmonics import cache as c
 
 # Non Singlet sector is swapped
 from ...unpolarized.space_like.as2 import gamma_nsm as gamma_nsp
-from ...unpolarized.space_like.as2 import gamma_nsp as gamma_nsm
+from ...unpolarized.space_like.as2 import gamma_nsp as gamma_nsm  # noqa
 
 
 @nb.njit(cache=True)
 def gamma_ps(n, nf):
-    r"""Compute the |NLO| polarized pure-singlet quark-quark anomalous dimension :cite:`Gluck:1995yr` (eq A.3).
+    r"""Compute the |NLO| polarized pure-singlet quark-quark anomalous dimension
+    :cite:`Gluck:1995yr` (eq A.3).
 
     Parameters
     ----------
@@ -27,7 +28,6 @@ def gamma_ps(n, nf):
     -------
     complex
         |NLO| pure-singlet quark-quark anomalous dimension :math:`\\gamma_{ps}^{(1)}(n)`
-
     """
     gqqps1_nfcf = (2 * (n + 2) * (1 + 2 * n + n**3)) / ((1 + n) ** 3 * n**3)
     result = 4.0 * TR * nf * CF * gqqps1_nfcf
@@ -36,7 +36,8 @@ def gamma_ps(n, nf):
 
 @nb.njit(cache=True)
 def gamma_qg(n, nf, cache):
-    r"""Compute the |NLO| polarized quark-gluon singlet anomalous dimension :cite:`Gluck:1995yr` (eq A.4).
+    r"""Compute the |NLO| polarized quark-gluon singlet anomalous dimension
+    :cite:`Gluck:1995yr` (eq A.4).
 
     Parameters
     ----------
@@ -51,7 +52,6 @@ def gamma_qg(n, nf, cache):
     -------
     complex
         |NLO| quark-gluon singlet anomalous dimension :math:`\\gamma_{qg}^{(1)}(n)`
-
     """
     S1 = c.get(c.S1, cache, n)
     S2 = c.get(c.S2, cache, n)
@@ -74,7 +74,8 @@ def gamma_qg(n, nf, cache):
 
 @nb.njit(cache=True)
 def gamma_gq(n, nf, cache):
-    r"""Compute the |NLO| polarized gluon-quark singlet anomalous dimension :cite:`Gluck:1995yr` (eq A.5).
+    r"""Compute the |NLO| polarized gluon-quark singlet anomalous dimension
+    :cite:`Gluck:1995yr` (eq A.5).
 
     Parameters
     ----------
@@ -89,7 +90,6 @@ def gamma_gq(n, nf, cache):
     -------
     complex
         |NLO| gluon-quark singlet anomalous dimension :math:`\\gamma_{gq}^{(1)}(n)`
-
     """
     S1 = c.get(c.S1, cache, n)
     S2 = c.get(c.S2, cache, n)
@@ -116,7 +116,8 @@ def gamma_gq(n, nf, cache):
 
 @nb.njit(cache=True)
 def gamma_gg(n, nf, cache):
-    r"""Compute the |NLO| polarized gluon-gluon singlet anomalous dimension :cite:`Gluck:1995yr` (eq A.6).
+    r"""Compute the |NLO| polarized gluon-gluon singlet anomalous dimension
+    :cite:`Gluck:1995yr` (eq A.6).
 
     Parameters
     ----------
@@ -131,7 +132,6 @@ def gamma_gg(n, nf, cache):
     -------
     complex
         |NLO| gluon-quark singlet anomalous dimension :math:`\\gamma_{gq}^{(1)}(n)`
-
     """
     S1 = c.get(c.S1, cache, n)
     Sp1m = c.get(c.S1mh, cache, n)
@@ -186,7 +186,6 @@ def gamma_singlet(n, nf, cache):
     -------
     numpy.ndarray
         |NLO| singlet anomalous dimension matrix :math:`\gamma_{S}^{(1)}(N)`
-
     """
     gamma_qq = gamma_nsp(n, nf, cache) + gamma_ps(n, nf)
     gamma_S_0 = np.array(

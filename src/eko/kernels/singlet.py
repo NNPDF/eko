@@ -470,7 +470,8 @@ def sum_u(uvec, a):
 def eko_perturbative(
     gamma_singlet, a1, a0, beta, order, ev_op_iterations, ev_op_max_order, is_exact
 ):
-    """Singlet |NLO|,|NNLO| or |N3LO| perturbative EKO, depending on which r is passed.
+    """Singlet |NLO|,|NNLO| or |N3LO| perturbative EKO, depending on which r is
+    passed.
 
     Parameters
     ----------

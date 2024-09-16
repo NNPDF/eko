@@ -25,7 +25,6 @@ class InternalPaths:
     relative to this root.
     In case only the relative paths are required, just create this structure
     with :attr:`root` equal to emtpty string or ``"."``.
-
     """
 
     root: pathlib.Path
@@ -62,7 +61,6 @@ class InternalPaths:
 
         This is the one containing the actual EKO components, after
         computation has been performed.
-
         """
         return self.root / OPERATORSDIR
 

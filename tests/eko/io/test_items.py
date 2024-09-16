@@ -1,6 +1,5 @@
 import io
 
-import lz4.frame
 import numpy as np
 import pytest
 

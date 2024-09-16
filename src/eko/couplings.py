@@ -1,11 +1,10 @@
 r"""Manage running (and fixed) couplings.
 
-Manage QCD coupling :math:`\alpha_s` and QED coupling :math:`\alpha`.
-We provide an interface to access them simultaneously and provide several
+Manage QCD coupling :math:`\alpha_s` and QED coupling :math:`\alpha`. We
+provide an interface to access them simultaneously and provide several
 strategies to solve the associated |RGE|.
 
 See :doc:`pQCD ingredients </theory/pQCD>`.
-
 """
 
 import logging
@@ -281,7 +280,8 @@ def expanded_qed(ref, order, beta0, b_vec, lmu):
 def couplings_expanded_alphaem_running(
     order, couplings_ref, nf, nl, scale_from, scale_to, decoupled_running
 ):
-    r"""Compute coupled expanded expression of the couplings for running alphaem.
+    r"""Compute coupled expanded expression of the couplings for running
+    alphaem.
 
     Implement Eqs. (17-18) from :cite:`Surguladze:1996hx`
 
@@ -320,12 +320,12 @@ def couplings_expanded_alphaem_running(
     if not decoupled_running:
         if order[1] >= 1:
             res_as += (
-                -couplings_ref[0] ** 2
+                -(couplings_ref[0] ** 2)
                 * b_qcd((2, 1), nf)
                 * np.log(1 + beta0_qcd * couplings_ref[1] * lmu)
             )
             res_aem += (
-                -couplings_ref[1] ** 2
+                -(couplings_ref[1] ** 2)
                 * b_qed((1, 2), nf, nl)
                 * np.log(1 + beta0_qed * couplings_ref[0] * lmu)
             )
@@ -389,7 +389,8 @@ _CouplingsCacheKey = Tuple[float, float, int, float, float]
 
 
 class Couplings:
-    r"""Compute the strong and electromagnetic coupling constants :math:`a_s, a_{em}`.
+    r"""Compute the strong and electromagnetic coupling constants :math:`a_s,
+    a_{em}`.
 
     Note that
 
@@ -730,7 +731,8 @@ class Couplings:
         scale_to,
         nf_to=None,
     ):
-        r"""Compute couplings :math:`a_i(\mu_R^2) = \frac{\alpha_i(\mu_R^2)}{4\pi}`.
+        r"""Compute couplings :math:`a_i(\mu_R^2) =
+        \frac{\alpha_i(\mu_R^2)}{4\pi}`.
 
         Parameters
         ----------
@@ -804,7 +806,6 @@ class Couplings:
         -------
         a_s : float
             couplings :math:`a_s(\mu_R^2) = \frac{\alpha_s(\mu_R^2)}{4\pi}`
-
         """
         return self.a(scale_to, nf_to)[0]
 
