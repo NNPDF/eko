@@ -340,9 +340,7 @@ def eko_truncated(gamma_ns, a1, a0, beta, order, ev_op_iterations):
 
 
 @nb.njit(cache=True)
-def dispatcher(
-    order, method, gamma_ns, a1, a0, nf, ev_op_iterations
-):  # pylint: disable=too-many-return-statements
+def dispatcher(order, method, gamma_ns, a1, a0, nf, ev_op_iterations):  # pylint: disable=too-many-return-statements
     """Determine used kernel and call it.
 
     In LO we always use the exact solution.

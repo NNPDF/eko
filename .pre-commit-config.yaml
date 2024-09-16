@@ -24,21 +24,14 @@ repos:
       # Run the linter.
       - id: ruff
         args: [ --fix ]
-  - repo: https://github.com/pycqa/isort
-    rev: 5.13.2
-    hooks:
-      - id: isort
-        args: ["--profile", "black"]
+      # Run the formatter.
+      - id: ruff-format
   - repo: https://github.com/PyCQA/docformatter
     rev: v1.7.5
     hooks:
       - id: docformatter
         additional_dependencies: [tomli]
         args: [--in-place, --config, ./pyproject.toml]
-  - repo: https://github.com/psf/black-pre-commit-mirror
-    rev: 24.8.0
-    hooks:
-      - id: black
   - repo: https://github.com/asottile/blacken-docs
     rev: 1.18.0
     hooks:
@@ -53,14 +46,14 @@ repos:
   - repo: local
     hooks:
     - id: fmt
-      name: fmt
+      name: cargo fmt
       description: Format Rust files with cargo fmt.
       entry: cargo fmt --
       language: system
       files: ^crates/.*\.rs$
       args: []
     - id: clippy
-      name: clippy
+      name: cargo clippy
       description: Check Rust files with cargo clippy.
       entry: cargo clippy --all-targets --all-features -- -Dclippy::all
       pass_filenames: false
