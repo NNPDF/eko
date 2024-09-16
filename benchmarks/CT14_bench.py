@@ -1,5 +1,4 @@
-"""
-Benchmark CT14 pdf family
+"""Benchmark CT14 pdf family.
 
 - as far as I understand, the llo family uses LO splitting functions with LO alphas evolution,
   whereas the lo family uses LO splitting functions with NLO alphas evolution
@@ -25,7 +24,7 @@ base_theory = {
 
 
 class BenchmarkCT14(Runner):
-    """Benchmark CT14 pdfs"""
+    """Benchmark CT14 pdfs."""
 
     external = "LHAPDF"
 

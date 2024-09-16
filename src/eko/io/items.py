@@ -24,9 +24,8 @@ class Header:
 class Evolution(Header):
     """Information to compute an evolution operator.
 
-    It describes the evolution with a fixed number of light flavors between two
-    scales.
-
+    It describes the evolution with a fixed number of light flavors
+    between two scales.
     """
 
     origin: SquaredScale
@@ -63,12 +62,12 @@ class Evolution(Header):
     where each lane corresponds to |DGLAP| evolution with the relative number
     of running flavors, and the vertical bridges are the perturbative matchings
     between two different "adjacent" schemes.
-
     """
 
     @classmethod
     def from_atlas(cls, segment: matchings.Segment, cliff: bool = False):
-        """Create instance from analogous :class:`eko.matchings.Atlas` object."""
+        """Create instance from analogous :class:`eko.matchings.Atlas`
+        object."""
         return cls(**asdict(segment), cliff=cliff)
 
     @property
@@ -82,7 +81,6 @@ class Matching(Header):
     """Information to compute a matching operator.
 
     Describe the matching between two different flavor number schemes.
-
     """
 
     scale: SquaredScale
@@ -91,7 +89,8 @@ class Matching(Header):
 
     @classmethod
     def from_atlas(cls, matching: matchings.Matching):
-        """Create instance from analogous :class:`eko.matchings.Atlas` object."""
+        """Create instance from analogous :class:`eko.matchings.Atlas`
+        object."""
         return cls(**asdict(matching))
 
     @property
@@ -132,15 +131,13 @@ class Operator:
     ----
     IO works with streams in memory, in order to avoid intermediate write on
     disk (keep read from and write to tar file only).
-
     """
 
     operator: npt.NDArray
     """Content of the evolution operator."""
     error: Optional[npt.NDArray] = None
     """Errors on individual operator elements (mainly used for integration
-    error, but it can host any kind of error).
-    """
+    error, but it can host any kind of error)."""
 
     def save(self, stream: BinaryIO) -> bool:
         """Save content of operator to bytes.
@@ -151,7 +148,6 @@ class Operator:
         The returned value tells whether the operator saved contained or not
         the error (this control even the format, ``npz`` with errors, ``npy``
         otherwise).
-
         """
         aux = io.BytesIO()
         if self.error is None:
@@ -176,7 +172,6 @@ class Operator:
 
         An input `stream` is used to load the operator from, in order to
         support the operation both on disk and in memory.
-
         """
         extracted_stream = io.BytesIO(lz4.frame.decompress(stream.read()))
         content = np.load(extracted_stream)

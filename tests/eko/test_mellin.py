@@ -1,4 +1,4 @@
-"""Test Mellin module"""
+"""Test Mellin module."""
 
 import numpy as np
 from numpy.testing import assert_allclose, assert_almost_equal
@@ -7,7 +7,7 @@ from eko import mellin
 
 
 def check_path_derivation(path, jacobian, extra_args):
-    """Check the derivatives of the path"""
+    """Check the derivatives of the path."""
 
     epss = [1e-2, 1e-3, 1e-4, 1e-5]
     for t0 in [0.2, 0.4, 0.6, 0.8]:  # avoid 0.5 due to Talbot+edge
@@ -24,7 +24,7 @@ def check_path_derivation(path, jacobian, extra_args):
 
 
 def check_path_symmetry(path, jac, extra_args):
-    """Check symmetry arount 1/2"""
+    """Check symmetry arount 1/2."""
     for t in [0.1, 0.2, 0.3]:
         plow = path(0.5 - t, *extra_args)
         phigh = path(0.5 + t, *extra_args)

@@ -1,5 +1,5 @@
 diff --git a/src/eko/evolution_operator/__init__.py b/src/eko/evolution_operator/__init__.py
-index fe07ade9..0f58c9e5 100644
+index bd1b19d6..f543f7bc 100644
 --- a/src/eko/evolution_operator/__init__.py
 +++ b/src/eko/evolution_operator/__init__.py
 @@ -3,16 +3,16 @@ r"""Contains the central operator classes.
@@ -21,10 +21,10 @@ index fe07ade9..0f58c9e5 100644
 
  import ekore.anomalous_dimensions.polarized.space_like as ad_ps
  import ekore.anomalous_dimensions.unpolarized.space_like as ad_us
-@@ -30,92 +30,10 @@ from ..kernels import singlet_qed as qed_s
- from ..kernels import valence_qed as qed_v
- from ..matchings import Segment, lepton_number
+@@ -32,91 +32,10 @@ from ..matchings import Segment, lepton_number
  from ..member import OpMember
+ from ..scale_variations import expanded as sv_expanded
+ from ..scale_variations import exponentiated as sv_exponentiated
 +from .quad_ker import cb_quad_ker_qcd
 
  logger = logging.getLogger(__name__)
@@ -48,9 +48,9 @@ index fe07ade9..0f58c9e5 100644
 -    complex
 -        singlet integration kernel element
 -    """
--    k = 0 if mode0 == 100 else 1
--    l = 0 if mode1 == 100 else 1
--    return ker[k, l]
+-    j = 0 if mode0 == 100 else 1
+-    k = 0 if mode1 == 100 else 1
+-    return ker[j, k]
 -
 -
 -@nb.njit(cache=True)
@@ -91,8 +91,7 @@ index fe07ade9..0f58c9e5 100644
 -
 -@nb.njit(cache=True)
 -def select_QEDvalence_element(ker, mode0, mode1):
--    """
--    Select element of the QEDvalence matrix.
+-    """Select element of the QEDvalence matrix.
 -
 -    Parameters
 -    ----------
@@ -115,7 +114,7 @@ index fe07ade9..0f58c9e5 100644
  spec = [
      ("is_singlet", nb.boolean),
      ("is_QEDsinglet", nb.boolean),
-@@ -187,421 +105,6 @@ class QuadKerBase:
+@@ -188,421 +107,6 @@ class QuadKerBase:
          return self.path.prefactor * pj * self.path.jac
 
 
@@ -329,7 +328,7 @@ index fe07ade9..0f58c9e5 100644
 -                )
 -        # scale var exponentiated is directly applied on gamma
 -        if sv_mode == sv.Modes.exponentiated:
--            gamma_singlet = sv.exponentiated.gamma_variation(
+-            gamma_singlet = sv_exponentiated.gamma_variation(
 -                gamma_singlet, order, nf, L
 -            )
 -        ker = s.dispatcher(
@@ -345,7 +344,7 @@ index fe07ade9..0f58c9e5 100644
 -        # scale var expanded is applied on the kernel
 -        if sv_mode == sv.Modes.expanded and not is_threshold:
 -            ker = np.ascontiguousarray(
--                sv.expanded.singlet_variation(gamma_singlet, as1, order, nf, L, dim=2)
+-                sv_expanded.singlet_variation(gamma_singlet, as1, order, nf, L, dim=2)
 -            ) @ np.ascontiguousarray(ker)
 -        ker = select_singlet_element(ker, mode0, mode1)
 -    else:
@@ -362,7 +361,7 @@ index fe07ade9..0f58c9e5 100644
 -                    order, mode0, ker_base.n, nf, n3lo_ad_variation, use_fhmruvv
 -                )
 -        if sv_mode == sv.Modes.exponentiated:
--            gamma_ns = sv.exponentiated.gamma_variation(gamma_ns, order, nf, L)
+-            gamma_ns = sv_exponentiated.gamma_variation(gamma_ns, order, nf, L)
 -        ker = ns.dispatcher(
 -            order,
 -            method,
@@ -373,7 +372,7 @@ index fe07ade9..0f58c9e5 100644
 -            ev_op_iterations,
 -        )
 -        if sv_mode == sv.Modes.expanded and not is_threshold:
--            ker = sv.expanded.non_singlet_variation(gamma_ns, as1, order, nf, L) * ker
+-            ker = sv_expanded.non_singlet_variation(gamma_ns, as1, order, nf, L) * ker
 -    return ker
 -
 -
@@ -453,7 +452,7 @@ index fe07ade9..0f58c9e5 100644
 -        )
 -        # scale var exponentiated is directly applied on gamma
 -        if sv_mode == sv.Modes.exponentiated:
--            gamma_s = sv.exponentiated.gamma_variation_qed(
+-            gamma_s = sv_exponentiated.gamma_variation_qed(
 -                gamma_s, order, nf, lepton_number(mu2_to), L, alphaem_running
 -            )
 -        ker = qed_s.dispatcher(
@@ -472,7 +471,7 @@ index fe07ade9..0f58c9e5 100644
 -        # However the distance between the two is very small and affects only the running aem
 -        if sv_mode == sv.Modes.expanded and not is_threshold:
 -            ker = np.ascontiguousarray(
--                sv.expanded.singlet_variation_qed(
+-                sv_expanded.singlet_variation_qed(
 -                    gamma_s, as_list[-1], a_half[-1][1], alphaem_running, order, nf, L
 -                )
 -            ) @ np.ascontiguousarray(ker)
@@ -483,7 +482,7 @@ index fe07ade9..0f58c9e5 100644
 -        )
 -        # scale var exponentiated is directly applied on gamma
 -        if sv_mode == sv.Modes.exponentiated:
--            gamma_v = sv.exponentiated.gamma_variation_qed(
+-            gamma_v = sv_exponentiated.gamma_variation_qed(
 -                gamma_v, order, nf, lepton_number(mu2_to), L, alphaem_running
 -            )
 -        ker = qed_v.dispatcher(
@@ -499,7 +498,7 @@ index fe07ade9..0f58c9e5 100644
 -        # scale var expanded is applied on the kernel
 -        if sv_mode == sv.Modes.expanded and not is_threshold:
 -            ker = np.ascontiguousarray(
--                sv.expanded.valence_variation_qed(
+-                sv_expanded.valence_variation_qed(
 -                    gamma_v, as_list[-1], a_half[-1][1], alphaem_running, order, nf, L
 -                )
 -            ) @ np.ascontiguousarray(ker)
@@ -510,7 +509,7 @@ index fe07ade9..0f58c9e5 100644
 -        )
 -        # scale var exponentiated is directly applied on gamma
 -        if sv_mode == sv.Modes.exponentiated:
--            gamma_ns = sv.exponentiated.gamma_variation_qed(
+-            gamma_ns = sv_exponentiated.gamma_variation_qed(
 -                gamma_ns, order, nf, lepton_number(mu2_to), L, alphaem_running
 -            )
 -        ker = qed_ns.dispatcher(
@@ -527,7 +526,7 @@ index fe07ade9..0f58c9e5 100644
 -        )
 -        if sv_mode == sv.Modes.expanded and not is_threshold:
 -            ker = (
--                sv.expanded.non_singlet_variation_qed(
+-                sv_expanded.non_singlet_variation_qed(
 -                    gamma_ns, as_list[-1], a_half[-1][1], alphaem_running, order, nf, L
 -                )
 -                * ker
@@ -537,7 +536,7 @@ index fe07ade9..0f58c9e5 100644
 
  OpMembers = Dict[OperatorLabel, OpMember]
  """Map of all operators."""
-@@ -792,50 +295,6 @@ class Operator(sv.ScaleVariationModeMixin):
+@@ -792,49 +296,6 @@ class Operator(sv.ScaleVariationModeMixin):
          """Return the evolution method."""
          return ev_method(EvolutionMethod(self.config["method"]))
 
@@ -557,7 +556,6 @@ index fe07ade9..0f58c9e5 100644
 -        -------
 -        functools.partial
 -            partially initialized integration kernel
--
 -        """
 -        return functools.partial(
 -            quad_ker,
@@ -588,7 +586,7 @@ index fe07ade9..0f58c9e5 100644
      def initialize_op_members(self):
          """Init all operators with the identity or zeros."""
          eye = OpMember(
-@@ -858,10 +317,13 @@ class Operator(sv.ScaleVariationModeMixin):
+@@ -857,10 +318,13 @@ class Operator(sv.ScaleVariationModeMixin):
              else:
                  self.op_members[n] = zero.copy()
 
@@ -606,7 +604,7 @@ index fe07ade9..0f58c9e5 100644
          """Run the integration for each grid point.
 
          Parameters
-@@ -876,18 +332,54 @@ class Operator(sv.ScaleVariationModeMixin):
+@@ -875,18 +333,54 @@ class Operator(sv.ScaleVariationModeMixin):
          """
          column = []
          k, logx = log_grid
@@ -630,8 +628,8 @@ index fe07ade9..0f58c9e5 100644
 +        self.update_cfg(cfg)
 +
          # iterate basis functions
-         for l, bf in enumerate(self.int_disp):
-             if k == l and l == self.grid_size - 1:
+         for j, bf in enumerate(self.int_disp):
+             if k == j and j == self.grid_size - 1:
                  continue
 +            # add emtpy labels with 0s
 +            if bf.is_below_x(np.exp(logx)):

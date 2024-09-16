@@ -4,8 +4,7 @@ import re
 
 
 def get_all_files(path):
-    """
-    Find all .py files in `path`
+    """Find all .py files in `path`
 
     Parameters
     ----------
@@ -22,8 +21,7 @@ def get_all_files(path):
 
 
 def search_file(path):
-    """
-    Search all todo tags in the file
+    """Search all todo tags in the file.
 
     Parameters
     ----------
@@ -38,8 +36,8 @@ def search_file(path):
     todos = []
     o = path.read_text().splitlines()
     j = 1
-    for l in o:
-        m = re.search(r"\s*#\s+TODO\s+(.+)$", l)  # TODO grep sourdings?
+    for lines in o:
+        m = re.search(r"\s*#\s+TODO\s+(.+)$", lines)  # TODO grep sourdings?
         # i.e. if multiple lines?
         if m is not None:
             todos.append((j, m.group(1)))
@@ -48,8 +46,7 @@ def search_file(path):
 
 
 def write_output(fn, file_list):
-    """
-    Writes the list to a file
+    """Writes the list to a file.
 
     Parameters
     ----------

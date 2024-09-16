@@ -1,4 +1,4 @@
-"""Benchmark the polarized NNLO OME against PEGASUS"""
+"""Benchmark the polarized NNLO OME against PEGASUS."""
 
 import numpy as np
 import pytest
@@ -28,18 +28,18 @@ def check_pegasus_ome_ps_as2_s(N, NF):
     NM = N - 1.0
     N1 = N + 1.0
     N2 = N + 2.0
-    NI = 1.0 / N
-    NMI = 1.0 / NM
+    # NI = 1.0 / N
+    # NMI = 1.0 / NM
     N1I = 1.0 / N1
-    N2I = 1.0 / N2
+    # N2I = 1.0 / N2
     #
-    S1M = S1 - NI
-    S2M = S2 - NI * NI
-    S3M = S3 - NI**3
+    # S1M = S1 - NI
+    # S2M = S2 - NI * NI
+    # S3M = S3 - NI**3
     S11 = S1 + N1I
-    S21 = S2 + N1I * N1I
-    S31 = S3 + N1I**3
-    S22 = S21 + N2I * N2I
+    # S21 = S2 + N1I * N1I
+    # S31 = S3 + N1I**3
+    # S22 = S21 + N2I * N2I
     ACG3 = h.g_functions.mellin_g3(N1, S11)
     #
     #   CALL BET(N1,V1)
@@ -115,7 +115,7 @@ def check_pegasus_ome_ps_as2_s(N, NF):
         * N2
         / N**2
         / N1**2
-        * (NM * (2 * S2 + ZETA2) - (4 * N**3 - 4 * N**2 - 3 * N - 1) / N**2 / N1**2)
+        * (NM * (2 * S2 + ZETA2) + (4 * N**3 - 4 * N**2 - 3 * N - 1) / N**2 / N1**2)
         + ZETA2 / 8 * G0QG_HAT * G0GQ
     )
     #

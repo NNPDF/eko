@@ -1,8 +1,7 @@
 """Abstraction for serializations.
 
-A few known types are directly registered here, in order to be transparently
-codified in more native structures.
-
+A few known types are directly registered here, in order to be
+transparently codified in more native structures.
 """
 
 import copy
@@ -28,7 +27,6 @@ class DictLike:
 
     Some collections and scalar objects are normalized to native Python
     structures, in order to simplify the on-disk representation.
-
     """
 
     @classmethod
@@ -44,7 +42,6 @@ class DictLike:
         -------
         DictLike
             instance with `dictionary` content loaded as attributes
-
         """
         dictionary = copy.deepcopy(dictionary)
 
@@ -86,7 +83,6 @@ class DictLike:
         The default implementation is just :meth:`DictLike._from_dict`, but it
         can be safely overwritten (usually transforming the input before a call
         to :meth:`DictLike._from_dict` itself).
-
         """
         return cls._from_dict(dictionary)
 
@@ -104,7 +100,6 @@ class DictLike:
         -------
         dict
             dictionary representation
-
         """
         dictionary = {}
 
@@ -120,7 +115,6 @@ class DictLike:
         The default implementation is just :meth:`DictLike._raw`, but it can be
         safely overwritten (usually starting from :meth:`DictLike._raw`
         itself).
-
         """
         return self._raw()
 
@@ -182,7 +176,6 @@ def load_enum(type_, value):
     ------
     ValueError
         if `value` is not the name nor the value of any enum variant
-
     """
     try:
         return type_[value]

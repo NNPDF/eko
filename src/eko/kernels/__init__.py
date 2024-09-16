@@ -30,6 +30,5 @@ def ev_method(s: EvolutionMethod) -> EvoMethods:
     -------
     i :
         int representation
-
     """
     return EvoMethods[s.value.upper().replace("-", "_")]

@@ -41,9 +41,8 @@ def retrieve(ep: EvolutionPoint, eko: EKO) -> List[Operator]:
 def _dot4(op1: npt.NDArray, op2: npt.NDArray) -> npt.NDArray:
     """Dot product between rank 4 objects.
 
-    The product is performed considering them as matrices indexed by pairs, so
-    linearizing the indices in pairs.
-
+    The product is performed considering them as matrices indexed by
+    pairs, so linearizing the indices in pairs.
     """
     return np.einsum("aibj,bjck->aick", op1, op2)
 
@@ -79,7 +78,6 @@ def _dotop(op1: Operator, op2: Operator) -> Operator:
         \max_{\sgn_{da_i}, \sgn{db_i}} (a_i + da_i)(b_i + db_i) - a_i b_i =
         \max_{\sgn_{da_i}, \sgn{db_i}} da_i \cdot b_i + a_i \cdot db_i + \mathcal{O}(d^2) =
         |da_i| \cdot |b_i| + |a_i| \cdot |db_i| + \mathcal{O}(d^2)
-
     """
     val = _dot4(op1.operator, op2.operator)
 
@@ -105,6 +103,5 @@ def join(elements: List[Operator]) -> Operator:
     .. todo::
 
         consider if reversing the path...
-
     """
     return reduce(_dotop, reversed(elements))

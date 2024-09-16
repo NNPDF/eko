@@ -38,7 +38,6 @@ def A_Hq(n, cache, nf, L):  # pylint: disable=too-many-locals
     -------
     complex
         :math:`A_{Hq}^{S,(3)}(N)`
-
     """
     S1 = c.get(c.S1, cache, n)
     S2 = c.get(c.S2, cache, n)

@@ -22,7 +22,6 @@ def list_to_str(ls, fmt="%.6e"):
     -------
     str :
         final string
-
     """
     return " ".join([fmt % x for x in ls])
 
@@ -39,7 +38,6 @@ def array_to_str(ar):
     -------
     str :
         final string
-
     """
     table = ""
     for line in ar:
@@ -60,7 +58,6 @@ def dump_blocks(name, member, blocks, pdf_type=None):
         pdf blocks of data
     inherit : str
         str to be copied in the head of member files
-
     """
     path_name = pathlib.Path(name)
     target = path_name / f"{path_name.stem}_{member:04d}.dat"
@@ -95,7 +92,6 @@ def dump_info(name, info):
         target name or path
     info : dict
         info dictionary
-
     """
     path_name = pathlib.Path(name)
     target = path_name / f"{path_name.stem}.info"
@@ -123,7 +119,6 @@ def dump_set(name, info, member_blocks, pdf_type_list=None):
         blocks for all members
     pdf_type : list(str)
         list of strings to be copied in the head of member files
-
     """
     dump_info(name, info)
     for mem, blocks in enumerate(member_blocks):

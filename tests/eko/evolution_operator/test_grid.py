@@ -1,8 +1,8 @@
 """Checks that the operator grid works as intended.
 
-These test can be slow as they require the computation of several values of Q
-But they should be fast as the grid is very small.
-It does *not* test whether the result is correct, it can just test that it is sane
+These test can be slow as they require the computation of several values
+of Q But they should be fast as the grid is very small. It does *not*
+test whether the result is correct, it can just test that it is sane
 """
 
 import enum
@@ -50,7 +50,7 @@ def test_compute_mu2grid(theory_ffns, operator_card, tmp_path):
 
 
 def test_grid_computation_VFNS(theory_card, operator_card, tmp_path):
-    """Checks that the grid can be computed"""
+    """Checks that the grid can be computed."""
     mugrid = [(3, 4), (5, 5), (5, 4)]
     operator_card.mugrid = mugrid
     opgrid = legacy.Runner(

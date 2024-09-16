@@ -7,8 +7,9 @@ from eko import matchings
 from eko.beta import beta_qcd
 from eko.couplings import Couplings
 from eko.io.runcards import TheoryCard
+from eko.io.types import FlavorsNumber
 from eko.quantities.couplings import CouplingEvolutionMethod, CouplingsInfo
-from eko.quantities.heavy_quarks import FlavorsNumber, QuarkMassScheme
+from eko.quantities.heavy_quarks import QuarkMassScheme
 
 # try to load LHAPDF - if not available, we'll use the cached values
 try:
@@ -46,9 +47,8 @@ def ref_couplings(ref_values, ref_scale: float, ref_nf: FlavorsNumber) -> Coupli
 @pytest.mark.isolated
 class BenchmarkCouplings:
     def test_a_s(self):
-        """Tests the value of alpha_s (for now only at LO)
-        for a given set of parameters
-        """
+        """Tests the value of alpha_s (for now only at LO) for a given set of
+        parameters."""
         # source: JCM
         known_val = 0.0091807954
         ref_mu2 = 90
@@ -574,12 +574,12 @@ class BenchmarkCouplings:
             np.testing.assert_allclose(apfel_vals, np.array(my_vals))
 
     def _get_Lambda2_LO(self, as_ref, scale_ref, nf):
-        """Transformation to Lambda_QCD"""
+        """Transformation to Lambda_QCD."""
         beta0 = beta_qcd((2, 0), nf)
         return scale_ref * np.exp(-1.0 / (as_ref * beta0))
 
     def benchmark_lhapdf_ffns_lo(self):
-        """test FFNS LO towards LHAPDF"""
+        """Test FFNS LO towards LHAPDF."""
         Q2s = [1, 1e1, 1e2, 1e3, 1e4]
         coupling_ref = np.array([0.118, 0.007496])
         scale_ref = 91.0
@@ -626,7 +626,7 @@ class BenchmarkCouplings:
         np.testing.assert_allclose(lhapdf_vals, np.array(my_vals), rtol=5e-4)
 
     def benchmark_apfel_exact(self):
-        """test exact towards APFEL"""
+        """Test exact towards APFEL."""
         Q2s = [1e1, 1e2, 1e3, 1e4]
         coupling_ref = np.array([0.118, 0.007496])
         scale_ref = 90
@@ -694,7 +694,7 @@ class BenchmarkCouplings:
             np.testing.assert_allclose(apfel_vals, np.array(my_vals), rtol=2e-4)
 
     def benchmark_lhapdf_exact(self):
-        """test exact towards LHAPDF"""
+        """Test exact towards LHAPDF."""
         Q2s = [1e1, 1e2, 1e3, 1e4]
         coupling_ref = np.array([0.118, 0.007496])
         scale_ref = 90
@@ -765,7 +765,7 @@ class BenchmarkCouplings:
             np.testing.assert_allclose(lhapdf_vals, np.array(my_vals), rtol=2e-4)
 
     def benchmark_lhapdf_zmvfns_lo(self):
-        """test ZM-VFNS LO towards LHAPDF"""
+        """Test ZM-VFNS LO towards LHAPDF."""
         Q2s = [1, 1e1, 1e2, 1e3, 1e4]
         coupling_ref = np.array([0.118, 0.007496])
         scale_ref = 900

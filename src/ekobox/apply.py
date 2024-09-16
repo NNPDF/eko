@@ -17,8 +17,7 @@ def apply_pdf(
     targetgrid=None,
     rotate_to_evolution_basis=False,
 ):
-    """
-    Apply all available operators to the input PDFs.
+    """Apply all available operators to the input PDFs.
 
     Parameters
     ----------
@@ -68,8 +67,7 @@ class PdfResult:
 def apply_pdf_flavor(
     eko: EKO, lhapdf_like, targetgrid=None, flavor_rotation=None, labels=None
 ):
-    """
-    Apply all available operators to the input PDFs.
+    """Apply all available operators to the input PDFs.
 
     Parameters
     ----------

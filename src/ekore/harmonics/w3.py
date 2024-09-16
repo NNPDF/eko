@@ -31,7 +31,6 @@ def S3(N):
     See Also
     --------
     ekore.harmonics.polygamma.cern_polygamma : :math:`\psi_k(N)`
-
     """
     return 0.5 * cern_polygamma(N + 1.0, 2) + zeta3
 
@@ -65,7 +64,6 @@ def Sm3(N, hS3, hS3mh, hS3h, is_singlet=None):
     See Also
     --------
     ekore.harmonics.w3.S3 : :math:`S_3(N)`
-
     """
     if is_singlet is None:
         return (
@@ -96,7 +94,6 @@ def S21(N, S1, S2):
     -------
     S21 : complex
         Harmonic sum :math:`S_{2,1}(N)`
-
     """
     return -gf.mellin_g18(N, S1, S2) + 2 * zeta3
 
@@ -124,7 +121,6 @@ def Sm21(N, S1, Sm1, is_singlet=None):
     -------
     Sm21 : complex
         Harmonic sum :math:`S_{-2,1}(N)`
-
     """
     # Note mellin g3 was integrated following x^(N-1) convention.
     eta = symmetry_factor(N, is_singlet)
@@ -161,7 +157,6 @@ def S2m1(N, S2, Sm1, Sm2, is_singlet=None):
     -------
     S2m1 : complex
         Harmonic sum :math:`S_{2,-1}(N)`
-
     """
     eta = symmetry_factor(N, is_singlet)
     return (
@@ -195,6 +190,5 @@ def Sm2m1(N, S1, S2, Sm2):
     -------
     Sm2m1 : complex
         Harmonic sum :math:`S_{-2,-1}(N)`
-
     """
     return -gf.mellin_g19(N, S1) + log2 * (S2 - Sm2) - 5 / 8 * zeta3

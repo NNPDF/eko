@@ -1,7 +1,4 @@
-"""
-Benchmark CT18 pdf family
-
-"""
+"""Benchmark CT18 pdf family."""
 
 from banana import register
 
@@ -23,7 +20,7 @@ base_theory = {
 
 
 class BenchmarkCT18(Runner):
-    """Benchmark CT18 pdfs"""
+    """Benchmark CT18 pdfs."""
 
     external = "LHAPDF"
 

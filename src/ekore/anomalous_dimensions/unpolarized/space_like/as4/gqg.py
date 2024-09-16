@@ -1,6 +1,7 @@
 # pylint: skip-file
 # fmt: off
-r"""The unpolarized, space-like anomalous dimension :math:`\gamma_{qg}^{(3)}`."""
+r"""The unpolarized, space-like anomalous dimension
+:math:`\gamma_{qg}^{(3)}`."""
 import numba as nb
 import numpy as np
 
@@ -21,7 +22,8 @@ from .....harmonics.log_functions import (
 
 @nb.njit(cache=True)
 def gamma_qg_nf3(n, cache):
-    r"""Return the part proportional to :math:`nf^3` of :math:`\gamma_{qg}^{(3)}`.
+    r"""Return the part proportional to :math:`nf^3` of
+    :math:`\gamma_{qg}^{(3)}`.
 
     The expression is copied exact from :eqref:`3.12` of :cite:`Davies:2016jie`.
 
@@ -36,7 +38,6 @@ def gamma_qg_nf3(n, cache):
     -------
     complex
         |N3LO| non-singlet anomalous dimension :math:`\gamma_{qg}^{(3)}|_{nf^3}`
-
     """
     S1 = c.get(c.S1, cache, n)
     S2 = c.get(c.S2, cache, n)
@@ -350,7 +351,8 @@ def gamma_qg_nf3(n, cache):
 
 @nb.njit(cache=True)
 def gamma_qg_nf1(n, cache, variation):
-    r"""Return the part proportional to :math:`nf^1` of :math:`\gamma_{qg}^{(3)}`.
+    r"""Return the part proportional to :math:`nf^1` of
+    :math:`\gamma_{qg}^{(3)}`.
 
     Parameters
     ----------
@@ -365,7 +367,6 @@ def gamma_qg_nf1(n, cache, variation):
     -------
     complex
         |N3LO| non-singlet anomalous dimension :math:`\gamma_{qg}^{(3)}|_{nf^1}`
-
     """
     S1 = c.get(c.S1, cache, n)
     S2 = c.get(c.S2, cache, n)
@@ -410,7 +411,8 @@ def gamma_qg_nf1(n, cache, variation):
 
 @nb.njit(cache=True)
 def gamma_qg_nf2(n, cache, variation):
-    r"""Return the part proportional to :math:`nf^2` of :math:`\gamma_{qg}^{(3)}`.
+    r"""Return the part proportional to :math:`nf^2` of
+    :math:`\gamma_{qg}^{(3)}`.
 
     Parameters
     ----------
@@ -425,7 +427,6 @@ def gamma_qg_nf2(n, cache, variation):
     -------
     complex
         |N3LO| non-singlet anomalous dimension :math:`\gamma_{qg}^{(3)}|_{nf^2}`
-
     """
     S1 = c.get(c.S1, cache, n)
     S2 = c.get(c.S2, cache, n)
@@ -487,7 +488,6 @@ def gamma_qg(n, nf, cache, variation):
     complex
         |N3LO| quark-gluon singlet anomalous dimension
         :math:`\gamma_{qg}^{(3)}(N)`
-
     """
     return (
         +nf * gamma_qg_nf1(n, cache, variation)

@@ -12,7 +12,7 @@ from .base import command
 _logger = logging.getLogger(__name__)
 
 DESTINATION = pathlib.Path.cwd().absolute() / "runcards"
-"""Default destination for generated files"""
+"""Default destination for generated files."""
 
 option_dest = lib.destination(DESTINATION)
 
@@ -29,7 +29,6 @@ def sub_example(destination: pathlib.Path):
 
     Pay attention that they are in no way intended as defaults, but just
     examples to quickstart.
-
     """
     destination.mkdir(parents=True, exist_ok=True)
     theory = cards.example.theory()

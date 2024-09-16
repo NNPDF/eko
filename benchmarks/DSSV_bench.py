@@ -1,7 +1,7 @@
 """Benchmark DSSV pdf family.
 
-Note that the PDF set is private, but can be obtained from the
-authors upon request.
+Note that the PDF set is private, but can be obtained from the authors
+upon request.
 """
 
 from banana import register

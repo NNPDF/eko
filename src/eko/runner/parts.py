@@ -92,7 +92,6 @@ def _matching_configs(eko: EKO) -> dict:
 
         Legacy interface, make use of a dedicated object.
     """
-    tcard = eko.theory_card
     ocard = eko.operator_card
     return dict(
         **_evolve_configs(eko),

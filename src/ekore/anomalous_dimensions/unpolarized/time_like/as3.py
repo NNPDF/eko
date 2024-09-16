@@ -30,7 +30,6 @@ def gamma_nsp(N, nf, cache):
     complex
         NNLO non-singlet positive anomalous dimension
         :math:`\gamma_{ns,+}^{(2)}(N)`
-
     """
     NI = 1 / N
     NI2 = NI * NI
@@ -136,7 +135,6 @@ def gamma_nsm(N, nf, cache):
     complex
         NNLO non-singlet negative anomalous dimension
         :math:`\gamma_{ns,-}^{(2)}(N)`
-
     """
     NI = 1 / N
     NI2 = NI * NI
@@ -247,7 +245,6 @@ def gamma_nsv(N, nf, cache):
     complex
         NNLO non-singlet valence anomalous dimension
         :math:`\gamma_{ns,v}^{(2)}(N)`
-
     """
     NI = 1 / N
     NI2 = NI * NI
@@ -322,7 +319,6 @@ def gamma_qq(N, nf, cache):
     complex
         NNLO quark-quark anomalous dimension
         :math:`\gamma_{qq}^{(2)}(N)`
-
     """
     NI = 1 / N
     NI2 = NI * NI
@@ -434,7 +430,6 @@ def gamma_qg(N, nf, cache):
     complex
         NNLO quark-gluon anomalous dimension
         :math:`\gamma_{qg}^{(2)}(N)`
-
     """
     NI = 1 / N
     NI2 = NI * NI
@@ -570,7 +565,6 @@ def gamma_gq(N, nf, cache):
     complex
         NNLO gluon-quark anomalous dimension
         :math:`\gamma_{gq}^{(2)}(N)`
-
     """
     NI = 1 / N
     NI2 = NI * NI
@@ -677,7 +671,6 @@ def gamma_gg(N, nf, cache):
     complex
         NNLO gluon-gluon anomalous dimension
         :math:`\gamma_{gg}^{(2)}(N)`
-
     """
     NI = 1 / N
     NI2 = NI * NI
@@ -803,7 +796,6 @@ def gamma_singlet(N, nf, cache):
     numpy.ndarray
         NNLO singlet anomalous dimension matrix
         :math:`\gamma_{s}^{(2)}`
-
     """
     result = np.array(
         [

@@ -358,11 +358,11 @@ class TestOperatorMatrixElement:
                     (200, 200),
                     (br.matching_hminus_pid, br.matching_hminus_pid),
                 ]
-                for l in test_labels:
+                for lab in test_labels:
                     if skip_ns:
-                        assert l not in labels
+                        assert lab not in labels
                     else:
-                        assert l in labels
+                        assert lab in labels
                 test_labels = [
                     (21, 21),
                     (21, 100),
@@ -374,11 +374,11 @@ class TestOperatorMatrixElement:
                     (br.matching_hplus_pid, 100),
                     (br.matching_hplus_pid, br.matching_hplus_pid),
                 ]
-                for l in test_labels:
+                for lab in test_labels:
                     if skip_singlet:
-                        assert l not in labels
+                        assert lab not in labels
                     else:
-                        assert l in labels
+                        assert lab in labels
 
     def test_compute_n3lo(self, theory_ffns, operator_card, tmp_path):
         theory_card: TheoryCard = theory_ffns(5)

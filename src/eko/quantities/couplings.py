@@ -5,7 +5,7 @@ import enum
 
 from ..io.dictlike import DictLike
 from ..io.types import EvolutionPoint as EPoint
-from ..io.types import LinearScale, ReferenceRunning, Scalar
+from ..io.types import ReferenceRunning, Scalar
 
 Coupling = Scalar
 CouplingRef = ReferenceRunning[Coupling]
@@ -15,8 +15,8 @@ CouplingRef = ReferenceRunning[Coupling]
 class CouplingsInfo(DictLike):
     """Reference values for coupling constants.
 
-    Also includes further information, defining the run of the couplings.
-
+    Also includes further information, defining the run of the
+    couplings.
     """
 
     alphas: Coupling

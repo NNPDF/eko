@@ -1,6 +1,4 @@
-"""
-Benchmark to Pegasus :cite:`Vogt:2004ns`
-"""
+"""Benchmark to Pegasus :cite:`Vogt:2004ns`"""
 
 import numpy as np
 from banana import register
@@ -21,11 +19,10 @@ def tolist(input_dict):
 
 
 class PegasusBenchmark(Runner):
-    """
-    Globally set the external program to Pegasus.
+    """Globally set the external program to Pegasus.
 
-    `imodev = 1` exactly corresponds to `perturbative-exact`.
-    However, the difference between `perturbative-exact` and `iterate-exact` is
+    `imodev = 1` exactly corresponds to `perturbative-exact`. However,
+    the difference between `perturbative-exact` and `iterate-exact` is
     subleading (~ 1e-4 relative difference).
     """
 
@@ -41,7 +38,7 @@ class PegasusBenchmark(Runner):
 
 
 class BenchmarkVFNS(PegasusBenchmark):
-    """Benckmark VFNS"""
+    """Benckmark VFNS."""
 
     zm_theory = {
         "FNS": "ZM-VFNS",
@@ -66,7 +63,7 @@ class BenchmarkVFNS(PegasusBenchmark):
     vfns_theory = tolist(zm_theory)
 
     def benchmark_plain(self, pto):
-        """Plain configuration"""
+        """Plain configuration."""
 
         th = self.vfns_theory.copy()
         th.update(
@@ -79,7 +76,7 @@ class BenchmarkVFNS(PegasusBenchmark):
         )
 
     def benchmark_sv(self, pto, svmode):
-        """Scale Variation"""
+        """Scale Variation."""
 
         th = self.vfns_theory.copy()
         th.update(
@@ -95,7 +92,7 @@ class BenchmarkVFNS(PegasusBenchmark):
 
 
 class BenchmarkFFNS(PegasusBenchmark):
-    """Benckmark FFNS"""
+    """Benckmark FFNS."""
 
     ffns_theory = {
         "FNS": "FFNS",
@@ -117,7 +114,7 @@ class BenchmarkFFNS(PegasusBenchmark):
     ffns_theory = tolist(ffns_theory)
 
     def benchmark_plain(self, pto):
-        """Plain configuration"""
+        """Plain configuration."""
 
         th = self.ffns_theory.copy()
         th.update(
@@ -130,7 +127,7 @@ class BenchmarkFFNS(PegasusBenchmark):
         )
 
     def benchmark_plain_pol(self, pto):
-        """Plain polarized configuration"""
+        """Plain polarized configuration."""
 
         th = self.ffns_theory.copy()
         th.update({"PTO": [pto]})
@@ -139,7 +136,7 @@ class BenchmarkFFNS(PegasusBenchmark):
         self.run(cartesian_product(th), operators.build(op), ["ToyLH_polarized"])
 
     def benchmark_sv(self, pto, svmode):
-        """Scale Variation"""
+        """Scale Variation."""
 
         th = self.ffns_theory.copy()
         th.update(

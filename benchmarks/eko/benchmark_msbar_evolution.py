@@ -231,10 +231,10 @@ class BenchmarkMSbar:
             )
 
     def benchmark_msbar_solution_kthr(self, theory_card: TheoryCard):
-        """
-        With this test you can see that in EKO
-        the solution value of mb is not affected by "kbThr",
-        since mb is searched with an Nf=5 larger range.
+        """With this test you can see that in EKO the solution value of mb is
+        not affected by "kbThr", since mb is searched with an Nf=5 larger
+        range.
+
         While in Apfel this doesn't happen.
         """
         update_theory(theory_card)

@@ -6,6 +6,7 @@ from eko import scale_variations as sv
 from eko.couplings import CouplingEvolutionMethod, Couplings, CouplingsInfo
 from eko.mellin import Path
 from eko.quantities.heavy_quarks import QuarkMassScheme
+from eko.scale_variations.exponentiated import gamma_variation
 from ekore.anomalous_dimensions.unpolarized.space_like import gamma_ns, gamma_singlet
 
 map_singlet_entries = {"gg": (1, 1), "gq": (1, 0), "qg": (0, 1), "qq": (0, 0)}
@@ -49,13 +50,13 @@ def integrand(u, x, order, entry, nf, ns_mode, n3lo_variation, L):
     if is_singlet:
         gamma = gamma_singlet((order + 1, 0), path.n, nf, n3lo_variation)
         if L != 0:
-            gamma = sv.exponentiated.gamma_variation(gamma, (order + 1, 0), nf, L)
+            gamma = gamma_variation(gamma, (order + 1, 0), nf, L)
         idx1, idx2 = map_singlet_entries[entry]
         gamma = gamma[order, idx1, idx2]
     else:
         gamma = gamma_ns((order + 1, 0), ns_mode, path.n, nf, n3lo_variation)
         if L != 0:
-            gamma = sv.exponentiated.gamma_variation(gamma, (order + 1, 0), nf, L)
+            gamma = gamma_variation(gamma, (order + 1, 0), nf, L)
         gamma = gamma[order]
 
     # recombine everything

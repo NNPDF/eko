@@ -63,7 +63,6 @@ The expressions are based on:
       Freitas, A. von Manteuffel, C. Schneider, K. Schönwald.
       The non-first-order-factorizable contributions to the three-loop single-mass
       operator matrix elements $A_{Qg}^{(3)}$ and $\Delta A_{Qg}^{(3)}$.
-
 """
 
 import numba as nb
@@ -107,7 +106,6 @@ def A_singlet(n, cache, nf, L):
     -------
     A_S : numpy.ndarray
         |N3LO| singlet |OME| :math:`A^{S,(3)}(N)`
-
     """
     A_hq_3 = A_Hq(n, cache, nf, L)
     A_hg_3 = A_Hg(n, cache, nf, L)
@@ -158,6 +156,5 @@ def A_ns(n, cache, nf, L):
     -------
     A_NS : numpy.ndarray
         |N3LO| non-singlet |OME| :math:`A^{NS,(3)}`
-
     """
     return np.array([[A_qqNS(n, cache, nf, L, -1), 0.0], [0 + 0j, 0 + 0j]], np.complex_)

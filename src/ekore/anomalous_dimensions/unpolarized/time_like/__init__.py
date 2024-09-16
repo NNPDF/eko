@@ -26,7 +26,6 @@ def gamma_ns(order, mode, n, nf):
     -------
     numpy.ndarray
         non-singlet anomalous dimensions
-
     """
     cache = c.reset()
     gamma_ns = np.zeros(order[0], np.complex_)
@@ -67,7 +66,6 @@ def gamma_singlet(order, n, nf):
     -------
     numpy.ndarray
         singlet anomalous dimensions matrices
-
     """
     cache = c.reset()
     gamma_s = np.zeros((order[0], 2, 2), np.complex_)

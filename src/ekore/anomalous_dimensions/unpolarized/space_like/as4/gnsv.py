@@ -1,4 +1,5 @@
-r"""The unpolarized, space-like anomalous dimension :math:`\gamma_{ns,v}^{(3)}`."""
+r"""The unpolarized, space-like anomalous dimension
+:math:`\gamma_{ns,v}^{(3)}`."""
 
 import numba as nb
 
@@ -23,7 +24,6 @@ def gamma_nss_nf2(n, cache):
     -------
     complex
         |N3LO| sea non-singlet anomalous dimension :math:`\gamma_{ns,s}^{(3)}|_{nf^2}`
-
     """
     S1 = c.get(c.S1, cache, n)
     S2 = c.get(c.S2, cache, n)
@@ -189,7 +189,6 @@ def gamma_nss_nf1(n, cache):
     -------
     complex
         |N3LO| sea non-singlet anomalous dimension :math:`\gamma_{ns,s}^{(3)}|_{nf^1}`
-
     """
     S1 = c.get(c.S1, cache, n)
     S2 = c.get(c.S2, cache, n)
@@ -245,7 +244,6 @@ def gamma_nsv(n, nf, cache):
     complex
         |N3LO| valence non-singlet anomalous dimension
         :math:`\gamma_{ns,v}^{(3)}(N)`
-
     """
     return (
         gamma_nsm(n, nf, cache)

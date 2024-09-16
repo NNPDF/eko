@@ -25,7 +25,7 @@ class MyNestedDictLike(dictlike.DictLike):
 
 @dataclass
 class MyDictLike(dictlike.DictLike):
-    l: npt.NDArray
+    nda: npt.NDArray
     f: float
     x: interpolation.XGrid
     t: tuple
@@ -37,7 +37,7 @@ class MyDictLike(dictlike.DictLike):
 def test_serialization():
     d = MyDictLike.from_dict(
         dict(
-            l=np.arange(5.0),
+            nda=np.arange(5.0),
             f=np.arange(5.0)[-1],
             x=[0.1, 1.0],
             t=(1.0, 2.0),
@@ -54,8 +54,8 @@ def test_serialization():
     yaml.safe_dump(d.raw, stream)
     stream.seek(0)
     ddd = yaml.safe_load(stream)
-    assert "l" in ddd
-    np.testing.assert_allclose(ddd["l"], np.arange(5.0))
+    assert "nda" in ddd
+    np.testing.assert_allclose(ddd["nda"], np.arange(5.0))
 
 
 @dataclass
@@ -73,7 +73,6 @@ def test_unsupported():
 
     It is not possible to deserialize actually abstract type hints, not
     corresponding to any instantiatable class.
-
     """
     with pytest.raises(TypeError):
         UnsupportedDictLike.from_dict(dict(sf=[3.14]))

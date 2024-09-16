@@ -1,0 +1,46 @@
+# A single CI script with github workflow.
+name: LHA Benchmarks (Rust)
+
+on:
+  push:
+    branches-ignore:
+      - "*"
+    tags:
+  pull_request:
+    types:
+      - closed
+      - ready_for_review
+      - review_requested
+  workflow_dispatch:
+
+jobs:
+  lhabench:
+    name: LHA paper Benchmarks
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/nnpdf/bench-evol:v2
+      credentials:
+        username: ${{ github.repository_owner }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          # tags needed for dynamic versioning
+          fetch-depth: 0
+      - name: Install and configure Poetry
+        uses: snok/install-poetry@v1
+        with:
+          virtualenvs-create: false
+          installer-parallel: true
+      - name: Install project
+        run: |
+          poetry install --no-interaction --with test -E mark -E box
+      - name: Install task runner
+        run: pip install poethepoet
+      - name: Run benchmark
+        run: |
+          ./rustify.sh
+          poe lha -m "nnlo and sv"
+          # TODO wait for polarized to reactivate
+          # poe lha -m "ffns_pol and sv"

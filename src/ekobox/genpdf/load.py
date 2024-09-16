@@ -25,7 +25,6 @@ def load_info_from_file(pdfset_name):
     -------
     dict
         info dictionary
-
     """
     import lhapdf  # pylint: disable=import-error, import-outside-toplevel
 
@@ -51,7 +50,6 @@ def load_blocks_from_file(pdfset_name, member):
         head of member file
     list(dict) :
         pdf blocks of data
-
     """
     import lhapdf  # pylint: disable=import-error, import-outside-toplevel
 

@@ -1,7 +1,6 @@
 import logging
 
 import pytest
-import yaml
 
 from eko.io import metadata, paths
 

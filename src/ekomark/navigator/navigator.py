@@ -29,7 +29,6 @@ class NavigatorApp(bnav.navigator.NavigatorApp):
         banana configuration
     mode : str
         mode identifier
-
     """
 
     myname = "eko"
@@ -44,7 +43,6 @@ class NavigatorApp(bnav.navigator.NavigatorApp):
             database record
         obj : dict
             to be updated pandas record
-
         """
         for f in [
             "PTO",
@@ -69,7 +67,6 @@ class NavigatorApp(bnav.navigator.NavigatorApp):
             database record
         obj : dict
             to be updated pandas record
-
         """
         xgrid = op["interpolation_xgrid"]
         obj["xgrid"] = (
@@ -94,7 +91,6 @@ class NavigatorApp(bnav.navigator.NavigatorApp):
             database record
         obj : dict
             to be updated pandas record
-
         """
         vals = cac["result"]["values"]
         q2s = list(vals.keys())
@@ -118,7 +114,6 @@ class NavigatorApp(bnav.navigator.NavigatorApp):
             database record
         obj : dict
             to be updated pandas record
-
         """
         q2s = lg["log"].q2s
         crash = lg.get("_crash", None)
@@ -139,7 +134,6 @@ class NavigatorApp(bnav.navigator.NavigatorApp):
         ----------
         doc_hash : hash
             log hash
-
         """
         dfds = self.log_as_dfd(doc_hash)
         log = self.get(bnav.l, doc_hash)
@@ -160,7 +154,6 @@ class NavigatorApp(bnav.navigator.NavigatorApp):
         ----------
         doc_hash : hash
             log hash
-
         """
         log = self.get(bnav.l, doc_hash)
         dfd = log["log"]
@@ -206,7 +199,6 @@ class NavigatorApp(bnav.navigator.NavigatorApp):
         ----------
         doc_hash : hash
             log hash
-
         """
         log = self.get(bnav.l, doc_hash)
         directory = (
@@ -241,7 +233,6 @@ class NavigatorApp(bnav.navigator.NavigatorApp):
         -------
         bool :
             is actual name?
-
         """
         return name in br.evol_basis or name in br.flavor_basis_names
 
@@ -257,7 +248,6 @@ class NavigatorApp(bnav.navigator.NavigatorApp):
             if hash the doc_hash of the cache to be loaded
         dfd2 : dict or hash
             if hash the doc_hash of the cache to be loaded
-
         """
         # load json documents
         id1, cache1 = self.load_dfd(dfd1, self.cache_as_dfd)

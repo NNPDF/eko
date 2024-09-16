@@ -85,7 +85,7 @@ def plot_ad_expansion(entry, nf=4, plot_xspace=False, logscale=False):
 
 
 def plot_ad(entry, q2=None, nf=4, plot_xspace=False, plot_ratio=False, logscale=False):
-    """Plot the splitting function at fixed order"""
+    """Plot the splitting function at fixed order."""
     fig = plt.figure(figsize=(7, 5))
     gs = fig.add_gridspec(5, 1)
     ax = plt.subplot(gs[:, 0])

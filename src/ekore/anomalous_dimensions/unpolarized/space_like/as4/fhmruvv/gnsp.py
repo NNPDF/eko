@@ -1,4 +1,5 @@
-r"""The unpolarized, space-like anomalous dimension :math:`\gamma_{ns,+}^{(3)}`."""
+r"""The unpolarized, space-like anomalous dimension
+:math:`\gamma_{ns,+}^{(3)}`."""
 
 import numba as nb
 
@@ -39,7 +40,6 @@ def gamma_nsp(n, nf, cache, variation):
     complex
         |N3LO| singlet-like non-singlet anomalous dimension
         :math:`\gamma_{ns,+}^{(3)}(N)`
-
     """
     S1 = c.get(c.S1, cache, n)
     S2 = c.get(c.S2, cache, n)
@@ -194,8 +194,7 @@ def gamma_nsp(n, nf, cache, variation):
 
     # The singular piece.
     A4qI = (
-        2.120902 * 10**4
-        - 5.179372 * 10**3 * nf
+        2.120902 * 10**4 - 5.179372 * 10**3 * nf
         # + 1.955772 * 10**2 * nf**2
         # + 3.272344 * nf**3
     )
@@ -211,9 +210,7 @@ def gamma_nsp(n, nf, cache, variation):
 
     # ..The local piece.
     B4qI = (
-        2.579609 * 10**4
-        + 0.08
-        - (5.818637 * 10**3 + 0.97) * nf
+        2.579609 * 10**4 + 0.08 - (5.818637 * 10**3 + 0.97) * nf
         # + (1.938554 * 10**2 + 0.0037) * nf**2
         # + 3.014982 * nf**3
     )

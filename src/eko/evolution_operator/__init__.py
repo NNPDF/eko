@@ -30,6 +30,8 @@ from ..kernels import singlet_qed as qed_s
 from ..kernels import valence_qed as qed_v
 from ..matchings import Segment, lepton_number
 from ..member import OpMember
+from ..scale_variations import expanded as sv_expanded
+from ..scale_variations import exponentiated as sv_exponentiated
 
 logger = logging.getLogger(__name__)
 
@@ -52,9 +54,9 @@ def select_singlet_element(ker, mode0, mode1):
     complex
         singlet integration kernel element
     """
-    k = 0 if mode0 == 100 else 1
-    l = 0 if mode1 == 100 else 1
-    return ker[k, l]
+    j = 0 if mode0 == 100 else 1
+    k = 0 if mode1 == 100 else 1
+    return ker[j, k]
 
 
 @nb.njit(cache=True)
@@ -95,8 +97,7 @@ def select_QEDsinglet_element(ker, mode0, mode1):
 
 @nb.njit(cache=True)
 def select_QEDvalence_element(ker, mode0, mode1):
-    """
-    Select element of the QEDvalence matrix.
+    """Select element of the QEDvalence matrix.
 
     Parameters
     ----------
@@ -397,7 +398,7 @@ def quad_ker_qcd(
                 )
         # scale var exponentiated is directly applied on gamma
         if sv_mode == sv.Modes.exponentiated:
-            gamma_singlet = sv.exponentiated.gamma_variation(
+            gamma_singlet = sv_exponentiated.gamma_variation(
                 gamma_singlet, order, nf, L
             )
         ker = s.dispatcher(
@@ -413,7 +414,7 @@ def quad_ker_qcd(
         # scale var expanded is applied on the kernel
         if sv_mode == sv.Modes.expanded and not is_threshold:
             ker = np.ascontiguousarray(
-                sv.expanded.singlet_variation(gamma_singlet, as1, order, nf, L, dim=2)
+                sv_expanded.singlet_variation(gamma_singlet, as1, order, nf, L, dim=2)
             ) @ np.ascontiguousarray(ker)
         ker = select_singlet_element(ker, mode0, mode1)
     else:
@@ -430,7 +431,7 @@ def quad_ker_qcd(
                     order, mode0, ker_base.n, nf, n3lo_ad_variation, use_fhmruvv
                 )
         if sv_mode == sv.Modes.exponentiated:
-            gamma_ns = sv.exponentiated.gamma_variation(gamma_ns, order, nf, L)
+            gamma_ns = sv_exponentiated.gamma_variation(gamma_ns, order, nf, L)
         ker = ns.dispatcher(
             order,
             method,
@@ -441,7 +442,7 @@ def quad_ker_qcd(
             ev_op_iterations,
         )
         if sv_mode == sv.Modes.expanded and not is_threshold:
-            ker = sv.expanded.non_singlet_variation(gamma_ns, as1, order, nf, L) * ker
+            ker = sv_expanded.non_singlet_variation(gamma_ns, as1, order, nf, L) * ker
     return ker
 
 
@@ -521,7 +522,7 @@ def quad_ker_qed(
         )
         # scale var exponentiated is directly applied on gamma
         if sv_mode == sv.Modes.exponentiated:
-            gamma_s = sv.exponentiated.gamma_variation_qed(
+            gamma_s = sv_exponentiated.gamma_variation_qed(
                 gamma_s, order, nf, lepton_number(mu2_to), L, alphaem_running
             )
         ker = qed_s.dispatcher(
@@ -540,7 +541,7 @@ def quad_ker_qed(
         # However the distance between the two is very small and affects only the running aem
         if sv_mode == sv.Modes.expanded and not is_threshold:
             ker = np.ascontiguousarray(
-                sv.expanded.singlet_variation_qed(
+                sv_expanded.singlet_variation_qed(
                     gamma_s, as_list[-1], a_half[-1][1], alphaem_running, order, nf, L
                 )
             ) @ np.ascontiguousarray(ker)
@@ -551,7 +552,7 @@ def quad_ker_qed(
         )
         # scale var exponentiated is directly applied on gamma
         if sv_mode == sv.Modes.exponentiated:
-            gamma_v = sv.exponentiated.gamma_variation_qed(
+            gamma_v = sv_exponentiated.gamma_variation_qed(
                 gamma_v, order, nf, lepton_number(mu2_to), L, alphaem_running
             )
         ker = qed_v.dispatcher(
@@ -567,7 +568,7 @@ def quad_ker_qed(
         # scale var expanded is applied on the kernel
         if sv_mode == sv.Modes.expanded and not is_threshold:
             ker = np.ascontiguousarray(
-                sv.expanded.valence_variation_qed(
+                sv_expanded.valence_variation_qed(
                     gamma_v, as_list[-1], a_half[-1][1], alphaem_running, order, nf, L
                 )
             ) @ np.ascontiguousarray(ker)
@@ -578,7 +579,7 @@ def quad_ker_qed(
         )
         # scale var exponentiated is directly applied on gamma
         if sv_mode == sv.Modes.exponentiated:
-            gamma_ns = sv.exponentiated.gamma_variation_qed(
+            gamma_ns = sv_exponentiated.gamma_variation_qed(
                 gamma_ns, order, nf, lepton_number(mu2_to), L, alphaem_running
             )
         ker = qed_ns.dispatcher(
@@ -595,7 +596,7 @@ def quad_ker_qed(
         )
         if sv_mode == sv.Modes.expanded and not is_threshold:
             ker = (
-                sv.expanded.non_singlet_variation_qed(
+                sv_expanded.non_singlet_variation_qed(
                     gamma_ns, as_list[-1], a_half[-1][1], alphaem_running, order, nf, L
                 )
                 * ker
@@ -715,14 +716,13 @@ class Operator(sv.ScaleVariationModeMixin):
         return (self.a[0][1], self.a[1][1])
 
     def compute_aem_list(self):
-        """
-        Return the list of the couplings for the different values of :math:`a_s`.
+        """Return the list of the couplings for the different values of
+        :math:`a_s`.
 
         This functions is needed in order to compute the values of :math:`a_s`
         and :math:`a_em` in the middle point of the :math:`mu^2` interval, and
         the values of :math:`a_s` at the borders of every intervals.
         This is needed in the running_alphaem solution.
-
         """
         ev_op_iterations = self.config["ev_op_iterations"]
         if self.order[1] == 0:
@@ -808,7 +808,6 @@ class Operator(sv.ScaleVariationModeMixin):
         -------
         functools.partial
             partially initialized integration kernel
-
         """
         return functools.partial(
             quad_ker,
@@ -878,8 +877,8 @@ class Operator(sv.ScaleVariationModeMixin):
         k, logx = log_grid
         start_time = time.perf_counter()
         # iterate basis functions
-        for l, bf in enumerate(self.int_disp):
-            if k == l and l == self.grid_size - 1:
+        for j, bf in enumerate(self.int_disp):
+            if k == j and j == self.grid_size - 1:
                 continue
             temp_dict = {}
             # iterate sectors
@@ -983,11 +982,11 @@ class Operator(sv.ScaleVariationModeMixin):
                 res = pool.map(*args)
 
         # collect results
-        for k, row in enumerate(res):
-            for l, entry in enumerate(row):
+        for j, row in enumerate(res):
+            for k, entry in enumerate(row):
                 for label, (val, err) in entry.items():
-                    self.op_members[label].value[k][l] = val
-                    self.op_members[label].error[k][l] = err
+                    self.op_members[label].value[j][k] = val
+                    self.op_members[label].error[j][k] = err
 
         # closing comment
         logger.info(
@@ -1001,23 +1000,27 @@ class Operator(sv.ScaleVariationModeMixin):
         if self.order[1] == 0:
             if self.order[0] == 1:  # in LO +=-=v
                 for label in ["nsV", "ns-"]:
-                    self.op_members[(br.non_singlet_pids_map[label], 0)].value = (
-                        self.op_members[
-                            (br.non_singlet_pids_map["ns+"], 0)
-                        ].value.copy()
-                    )
-                    self.op_members[(br.non_singlet_pids_map[label], 0)].error = (
-                        self.op_members[
-                            (br.non_singlet_pids_map["ns+"], 0)
-                        ].error.copy()
-                    )
+                    self.op_members[
+                        (br.non_singlet_pids_map[label], 0)
+                    ].value = self.op_members[
+                        (br.non_singlet_pids_map["ns+"], 0)
+                    ].value.copy()
+                    self.op_members[
+                        (br.non_singlet_pids_map[label], 0)
+                    ].error = self.op_members[
+                        (br.non_singlet_pids_map["ns+"], 0)
+                    ].error.copy()
             elif self.order[0] == 2:  # in NLO -=v
-                self.op_members[(br.non_singlet_pids_map["nsV"], 0)].value = (
-                    self.op_members[(br.non_singlet_pids_map["ns-"], 0)].value.copy()
-                )
-                self.op_members[(br.non_singlet_pids_map["nsV"], 0)].error = (
-                    self.op_members[(br.non_singlet_pids_map["ns-"], 0)].error.copy()
-                )
+                self.op_members[
+                    (br.non_singlet_pids_map["nsV"], 0)
+                ].value = self.op_members[
+                    (br.non_singlet_pids_map["ns-"], 0)
+                ].value.copy()
+                self.op_members[
+                    (br.non_singlet_pids_map["nsV"], 0)
+                ].error = self.op_members[
+                    (br.non_singlet_pids_map["ns-"], 0)
+                ].error.copy()
         # at O(as0aem1) u-=u+, d-=d+
         # starting from O(as1aem1) P+ != P-
         # However the solution with pure QED is not implemented in EKO

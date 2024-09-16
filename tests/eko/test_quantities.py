@@ -9,26 +9,26 @@ from eko.quantities import heavy_quarks as hq
 def test_HeavyQuarks():
     with pytest.raises(ValueError):
         hq.MatchingRatios([1, 2, 3, 4])
-    l = hq.MatchingRatios([0.5, 2.0, 3.0])
-    assert len(l) == 3
-    assert l.c == 0.5
-    assert l.b == 2.0
-    assert l.t == 3.0
-    l.c = 0.7
-    assert len(l) == 3
-    assert l.c == 0.7
-    assert l.b == 2.0
-    assert l.t == 3.0
-    l.b = 2.7
-    assert len(l) == 3
-    assert l.c == 0.7
-    assert l.b == 2.7
-    assert l.t == 3.0
-    l.t = 3.7
-    assert len(l) == 3
-    assert l.c == 0.7
-    assert l.b == 2.7
-    assert l.t == 3.7
+    r = hq.MatchingRatios([0.5, 2.0, 3.0])
+    assert len(r) == 3
+    assert r.c == 0.5
+    assert r.b == 2.0
+    assert r.t == 3.0
+    r.c = 0.7
+    assert len(r) == 3
+    assert r.c == 0.7
+    assert r.b == 2.0
+    assert r.t == 3.0
+    r.b = 2.7
+    assert len(r) == 3
+    assert r.c == 0.7
+    assert r.b == 2.7
+    assert r.t == 3.0
+    r.t = 3.7
+    assert len(r) == 3
+    assert r.c == 0.7
+    assert r.b == 2.7
+    assert r.t == 3.7
 
 
 def test_HeavyInfo():

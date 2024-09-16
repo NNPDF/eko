@@ -1,7 +1,8 @@
 """Benchmark the unpolarized NLO anomalous dimensions against PEGASUS.
 
-Recall that we obtained our representation not from PEGASUS, but derived it
-ourselves (see comment there)."""
+Recall that we obtained our representation not from PEGASUS, but derived
+it ourselves (see comment there).
+"""
 
 import numpy as np
 import pytest

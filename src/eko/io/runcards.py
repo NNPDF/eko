@@ -47,9 +47,10 @@ class TheoryCard(DictLike):
     xif: float
     """Ratio between factorization scale and process scale."""
     n3lo_ad_variation: N3LOAdVariation
-    """|N3LO| anomalous dimension variation: ``(gg, gq, qg, qq, nsp, nsm, nsv)``."""
+    """|N3LO| anomalous dimension variation: ``(gg, gq, qg, qq, nsp, nsm,
+    nsv)``."""
     use_fhmruvv: Optional[bool] = False
-    """If True use the |FHMRUVV| |N3LO| anomalous dimensions"""
+    """If True use the |FHMRUVV| |N3LO| anomalous dimensions."""
     matching_order: Optional[Order] = None
     """Matching conditions perturbative order tuple, ``(QCD, QED)``."""
 
@@ -189,7 +190,6 @@ class Legacy:
         else:
             em_running = False
         ms = self.heavies("m%s", old)
-        ks = self.heavies("k%sThr", old)
         new["couplings"] = dict(
             alphas=old["alphas"],
             alphaem=alphaem,

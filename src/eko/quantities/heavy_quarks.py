@@ -7,7 +7,7 @@ from typing import Generic, List, Sequence, TypeVar
 import numpy as np
 
 from ..io.dictlike import DictLike
-from ..io.types import FlavorsNumber, LinearScale, ReferenceRunning, SquaredScale
+from ..io.types import LinearScale, ReferenceRunning, SquaredScale
 
 FLAVORS = "cbt"
 
@@ -82,7 +82,6 @@ class HeavyInfo(DictLike):
     ----
     All scales and ratios in this structure are linear, so you can consider
     them as quantities in :math:`GeV` or ratios of them.
-
     """
 
     masses: HeavyQuarkMasses
@@ -90,7 +89,7 @@ class HeavyInfo(DictLike):
     masses_scheme: QuarkMassScheme
     """Scheme used to specify heavy quark masses."""
     matching_ratios: MatchingRatios
-    """Matching scale of heavy quark masses"""
+    """Matching scale of heavy quark masses."""
 
     @property
     def squared_ratios(self) -> List[float]:
