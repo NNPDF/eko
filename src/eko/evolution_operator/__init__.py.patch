@@ -586,7 +586,7 @@ index bd1b19d6..f543f7bc 100644
      def initialize_op_members(self):
          """Init all operators with the identity or zeros."""
          eye = OpMember(
-@@ -857,10 +318,13 @@ class Operator(sv.ScaleVariationModeMixin):
+@@ -857,10 +318,14 @@ class Operator(sv.ScaleVariationModeMixin):
              else:
                  self.op_members[n] = zero.copy()
 
@@ -599,12 +599,13 @@ index bd1b19d6..f543f7bc 100644
 +        cfg.as1 = self.as_list[1]
 +        cfg.as0 = self.as_list[0]
 +        cfg.py = ekors.ffi.cast("void *", cb_quad_ker_qcd.address)
++        cfg.method_num = self.ev_method
 +
 +    def run_op_integration(self, log_grid):
          """Run the integration for each grid point.
 
          Parameters
-@@ -875,18 +333,54 @@ class Operator(sv.ScaleVariationModeMixin):
+@@ -875,18 +339,53 @@ class Operator(sv.ScaleVariationModeMixin):
          """
          column = []
          k, logx = log_grid
@@ -619,11 +620,10 @@ index bd1b19d6..f543f7bc 100644
 +        cfg.nf = self.nf
 +        cfg.is_log = self.int_disp.log
 +        cfg.logx = logx
-+        cfg.L = np.log(self.xif2)
-+        cfg.method_num = 1
++        cfg.Lsv = np.log(self.xif2)
 +        cfg.ev_op_iterations = self.config["ev_op_iterations"]
 +        cfg.ev_op_max_order_qcd = self.config["ev_op_max_order"][0]
-+        cfg.sv_mode_num = 1
++        cfg.sv_mode_num = self.sv_mode
 +        cfg.is_threshold = self.is_threshold
 +        self.update_cfg(cfg)
 +

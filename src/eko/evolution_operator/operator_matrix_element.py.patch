@@ -143,7 +143,7 @@ index 098b52db..b56e27d1 100644
  class OperatorMatrixElement(Operator):
      r"""Internal representation of a single |OME|.
 
-@@ -290,41 +186,14 @@ class OperatorMatrixElement(Operator):
+@@ -290,41 +186,15 @@ class OperatorMatrixElement(Operator):
              )
          return labels
 
@@ -190,6 +190,7 @@ index 098b52db..b56e27d1 100644
 +        cfg.as1 = self.a_s
 +        cfg.as0 = 0.0
 +        cfg.Lsv = np.log(self.xif2)
++        cfg.method_num = self.backward_method
 
      @property
      def a_s(self):

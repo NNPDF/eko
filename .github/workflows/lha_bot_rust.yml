@@ -17,17 +17,27 @@ jobs:
   lhabench:
     name: LHA paper Benchmarks
     runs-on: ubuntu-latest
-    container:
-      image: ghcr.io/nnpdf/bench-evol:v2
-      credentials:
-        username: ${{ github.repository_owner }}
-        password: ${{ secrets.GITHUB_TOKEN }}
+    # container:
+    #   image: ghcr.io/nnpdf/bench-evol:v2
+    #   credentials:
+    #     username: ${{ github.repository_owner }}
+    #     password: ${{ secrets.GITHUB_TOKEN }}
+
+    strategy:
+      matrix:
+        python-version: ["3.12"]
+      fail-fast: false
 
     steps:
       - uses: actions/checkout@v2
+        # with:
+        #   # tags needed for dynamic versioning
+        #   fetch-depth: 0
+      - name: Set up Python ${{ matrix.python-version }} 🐍
+        id: setup-python
+        uses: actions/setup-python@v5
         with:
-          # tags needed for dynamic versioning
-          fetch-depth: 0
+          python-version: ${{ matrix.python-version }}
       - name: Install and configure Poetry
         uses: snok/install-poetry@v1
         with:
@@ -41,6 +51,7 @@ jobs:
       - name: Run benchmark
         run: |
           ./rustify.sh
+          poe compile
           poe lha -m "nnlo and sv"
           # TODO wait for polarized to reactivate
           # poe lha -m "ffns_pol and sv"
