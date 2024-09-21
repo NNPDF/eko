@@ -35,7 +35,6 @@ def subcommand(paths: Sequence[pathlib.Path]):
     - theory card: "theory.yaml"
     - operator card: "operator.yaml"
     - output: "eko.tar".
-
     """
     if len(paths) == 1:
         theory = paths[0] / THEORY

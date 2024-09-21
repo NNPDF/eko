@@ -2,16 +2,14 @@ import numpy as np
 import pytest
 
 import eko
-from eko import EKO
 from eko import basis_rotation as br
 from eko import interpolation
-from eko.io import manipulate, runcards
+from eko.io import manipulate
 from ekobox.mock import eko_identity
-from tests.conftest import EKOFactory
 
 
 def chk_keys(a, b):
-    """Check all keys are preserved"""
+    """Check all keys are preserved."""
     assert sorted(a.keys()) == sorted(b.keys())
     for key, value in a.items():
         if isinstance(value, dict):

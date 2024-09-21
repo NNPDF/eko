@@ -30,13 +30,12 @@ class Metadata(DictLike):
     Unfortunately, for nested structures it is not possible to detect a change
     in their attributes, so a call to :meth:`update` has to be performed
     manually.
-
     """
 
     origin: EPoint
     """Inital scale."""
     xgrid: XGrid
-    """Interpolation grid"""
+    """Interpolation grid."""
     # tagging information
     _path: Optional[pathlib.Path] = None
     """Path to the open dir."""
@@ -58,7 +57,6 @@ class Metadata(DictLike):
         -------
         bool
             loaded metadata
-
         """
         path = pathlib.Path(path)
         content = cls.from_dict(
@@ -83,7 +81,6 @@ class Metadata(DictLike):
         ------
         RuntimeError
             if path has not been initialized before
-
         """
         if self._path is None:
             raise RuntimeError(
@@ -98,5 +95,6 @@ class Metadata(DictLike):
 
     @property
     def raw(self):
-        """Override default :meth:`DictLike.raw` representation to exclude path."""
+        """Override default :meth:`DictLike.raw` representation to exclude
+        path."""
         return self.public_raw

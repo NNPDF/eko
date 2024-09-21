@@ -1,7 +1,5 @@
 import copy
 
-import numpy as np
-
 from eko import EKO
 from eko.io.runcards import TheoryCard
 from eko.runner.managed import solve
@@ -10,7 +8,7 @@ from . import check_shapes
 
 
 def test_raw(theory_card, operator_card, tmp_path):
-    """we don't check the content here, but only the shape"""
+    """We don't check the content here, but only the shape."""
     path = tmp_path / "eko.tar"
     tc = theory_card
     oc = operator_card

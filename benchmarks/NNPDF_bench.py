@@ -1,6 +1,4 @@
-"""
-Benchmark NNPDF pdf family
-"""
+"""Benchmark NNPDF pdf family."""
 
 from banana import register
 
@@ -11,9 +9,7 @@ register(__file__)
 
 
 class BenchmarkNNPDF(Runner):
-    """
-    Globally set the external program to LHAPDF
-    """
+    """Globally set the external program to LHAPDF."""
 
     external = "LHAPDF"
 
@@ -49,7 +45,7 @@ base_theory = {
 
 
 class BenchmarkNNPDF31(BenchmarkNNPDF):
-    """Benchmark NNPDF3.1"""
+    """Benchmark NNPDF3.1."""
 
     def benchmark_nlo(self, Q0=1.65, mugrid=(10,)):
         theory_card = {
@@ -64,7 +60,7 @@ class BenchmarkNNPDF31(BenchmarkNNPDF):
 
 
 class BenchmarkNNPDF31_luxqed(BenchmarkNNPDF):
-    """Benchmark NNPDF3.1_luxqed"""
+    """Benchmark NNPDF3.1_luxqed."""
 
     def benchmark_nnlo(self, Q0=1.65, mugrid=(10,)):
         theory_card = {
@@ -91,7 +87,7 @@ class BenchmarkNNPDF31_luxqed(BenchmarkNNPDF):
 
 
 class BenchmarkNNPDF40(BenchmarkNNPDF):
-    """Benchmark NNPDF4.0"""
+    """Benchmark NNPDF4.0."""
 
     def benchmark_nlo(self, Q0=1.65, mugrid=(10,)):
         theory_card = {
@@ -119,7 +115,7 @@ class BenchmarkNNPDF40(BenchmarkNNPDF):
 
 
 class BenchmarkNNPDFpol11(BenchmarkNNPDF):
-    """Benchmark NNPDFpol11"""
+    """Benchmark NNPDFpol11."""
 
     def benchmark(self, Q0=1.65, mugrid=(10,)):
         theory_card = {

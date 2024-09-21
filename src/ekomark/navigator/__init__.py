@@ -1,4 +1,4 @@
-"""ekomark specialization of the navigator."""
+"""Ekomark specialization of the navigator."""
 
 import argparse
 import pathlib

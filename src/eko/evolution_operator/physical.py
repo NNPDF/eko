@@ -5,8 +5,7 @@ from .. import member
 
 
 class PhysicalOperator(member.OperatorBase):
-    """
-    Join several fixed flavor scheme operators together.
+    """Join several fixed flavor scheme operators together.
 
     - provides the connection between the 7-dimensional anomalous dimension
       basis and the 15-dimensional evolution basis
@@ -24,8 +23,8 @@ class PhysicalOperator(member.OperatorBase):
 
     @classmethod
     def ad_to_evol_map(cls, op_members, nf, q2_final, qed=False):
-        """
-        Obtain map between the 3-dimensional anomalous dimension basis and the 4-dimensional evolution basis.
+        """Obtain map between the 3-dimensional anomalous dimension basis and
+        the 4-dimensional evolution basis.
 
         .. todo:: in VFNS sometimes IC is irrelevant if nf>=4
 

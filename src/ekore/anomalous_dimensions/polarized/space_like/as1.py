@@ -26,7 +26,6 @@ def gamma_qg(N, nf):
     -------
     complex
       |LO| polarized quark-gluon anomalous dimension :math:`\gamma_{qg}^{(0)}(N)`
-
     """
     gamma = -(N - 1) / N / (N + 1)
     result = 2.0 * constants.TR * 2.0 * nf * gamma
@@ -48,7 +47,6 @@ def gamma_gq(N):
     -------
     complex
       |LO| gluon-quark anomalous dimension :math:`\gamma_{gq}^{(0)}(N)`
-
     """
     gamma = -(N + 2) / N / (N + 1)
     result = 2.0 * constants.CF * gamma
@@ -74,7 +72,6 @@ def gamma_gg(N, cache, nf):
     -------
     complex
       |LO| gluon-gluon anomalous dimension :math:`\gamma_{gg}^{(0)}(N)`
-
     """
     S1 = c.get(c.S1, cache, N)
     gamma = -S1 + 2 / N / (N + 1)
@@ -105,7 +102,6 @@ def gamma_singlet(N, cache, nf):
     -------
     numpy.ndarray
       |LO| singlet anomalous dimension matrix :math:`\gamma_{S}^{(0)}(N)`
-
     """
     gamma_qq = gamma_ns(N, cache)
     gamma_S_0 = np.array(

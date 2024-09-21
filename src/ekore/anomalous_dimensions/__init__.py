@@ -21,7 +21,8 @@ import numpy as np
 
 @nb.njit(cache=True)
 def exp_matrix_2D(gamma_S):
-    r"""Compute the exponential and the eigensystem of the singlet anomalous dimension matrix.
+    r"""Compute the exponential and the eigensystem of the singlet anomalous
+    dimension matrix.
 
     Parameters
     ----------
@@ -44,7 +45,6 @@ def exp_matrix_2D(gamma_S):
     e_m : numpy.ndarray
         projector for the negative eigenvalue of the singlet anomalous
         dimension matrix :math:`\gamma_{S}(N)`
-
     """
     # compute eigenvalues
     det = np.sqrt(
@@ -78,7 +78,6 @@ def exp_matrix(gamma):
         array of the eigenvalues of the matrix lambda
     e : numpy.ndarray
         projectors on the eigenspaces of the matrix gamma :math:`\gamma(N)`
-
     """
     dim = gamma.shape[0]
     e = np.zeros((dim, dim, dim), np.complex_)

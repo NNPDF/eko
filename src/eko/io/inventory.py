@@ -50,7 +50,6 @@ class Inventory(Generic[H]):
     """Assets manager.
 
     In particular, manage autosave, autoload, and memory caching.
-
     """
 
     path: Path
@@ -86,9 +85,8 @@ class Inventory(Generic[H]):
     def __getitem__(self, header: H) -> Optional[Operator]:
         r"""Retrieve operator for given header.
 
-        If the operator is not already in memory, it will be automatically
-        loaded.
-
+        If the operator is not already in memory, it will be
+        automatically loaded.
         """
         self.access.assert_open()
 
@@ -120,7 +118,6 @@ class Inventory(Generic[H]):
         """Set operator for given header.
 
         Header and operator are automatically dumped on disk.
-
         """
         self.access.assert_writeable()
 
@@ -164,7 +161,6 @@ class Inventory(Generic[H]):
         This is only useful if the operator has been mutated in place, that in
         general should be avoided, since the operator should only be the result
         of a full computation or a library manipulation.
-
         """
         self.cache[header] = None
 
@@ -175,7 +171,6 @@ class Inventory(Generic[H]):
         respect to the real content on disk.
         To iterate the full content of the disk, just call right before
         :meth:`sync`.
-
         """
         yield from self.cache
 
@@ -191,7 +186,6 @@ class Inventory(Generic[H]):
 
         Despite the name, the operation is non-destructive, so, even if cache
         has been abused, nothing will be deleted nor unloaded.
-
         """
         for path in self.path.iterdir():
             if path.suffix != HEADER_EXT:

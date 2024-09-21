@@ -1,6 +1,4 @@
-"""
-    This module tests the implemented gamma functions
-"""
+"""This module tests the implemented gamma functions."""
 
 import numpy as np
 import pytest
@@ -9,7 +7,7 @@ from eko import gamma
 
 
 def test_gamma():
-    """gamma-wrapper"""
+    """gamma-wrapper."""
     nf = 3
     np.testing.assert_allclose(gamma.gamma(1, nf), gamma.gamma_qcd_as1())
     np.testing.assert_allclose(gamma.gamma(2, nf), gamma.gamma_qcd_as2(nf))

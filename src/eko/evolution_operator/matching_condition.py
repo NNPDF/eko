@@ -5,8 +5,7 @@ from .. import member
 
 
 class MatchingCondition(member.OperatorBase):
-    """
-    Matching conditions for |PDF| at threshold.
+    """Matching conditions for |PDF| at threshold.
 
     The continuation of the (formally) heavy non-singlet distributions
     with either the full singlet :math:`S` or the full valence :math:`V`
@@ -22,8 +21,7 @@ class MatchingCondition(member.OperatorBase):
         q2_thr,
         qed=False,
     ):
-        """
-        Create the instance from the |OME|.
+        """Create the instance from the |OME|.
 
         Parameters
         ----------

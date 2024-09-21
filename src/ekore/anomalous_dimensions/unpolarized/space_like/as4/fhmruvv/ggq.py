@@ -1,4 +1,5 @@
-r"""The unpolarized, space-like anomalous dimension :math:`\gamma_{gq}^{(3)}`."""
+r"""The unpolarized, space-like anomalous dimension
+:math:`\gamma_{gq}^{(3)}`."""
 
 import numba as nb
 
@@ -41,7 +42,6 @@ def gamma_gq(n, nf, cache, variation):
     complex
         |N3LO| gluon-quark singlet anomalous dimension
         :math:`\gamma_{gq}^{(3)}(N)`
-
     """
     S1 = c.get(c.S1, cache, n)
     S2 = c.get(c.S2, cache, n)

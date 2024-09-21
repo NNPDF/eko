@@ -28,7 +28,6 @@ def A_singlet(matching_order, n, nf, L, is_msbar):
     -------
     numpy.ndarray
         singlet |OME|
-
     """
     cache = c.reset()
     A_s = np.zeros((matching_order[0], 3, 3), np.complex_)
@@ -60,7 +59,6 @@ def A_non_singlet(matching_order, n, nf, L):
     -------
     numpy.ndarray
         non-singlet |OME|
-
     """
     cache = c.reset()
     A_ns = np.zeros((matching_order[0], 2, 2), np.complex_)

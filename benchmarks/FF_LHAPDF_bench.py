@@ -1,4 +1,4 @@
-"""Benchmark FFs from LHAPDF"""
+"""Benchmark FFs from LHAPDF."""
 
 from banana import register
 

@@ -15,10 +15,7 @@
 #
 #
 
-import inspect
 import pathlib
-
-import numba as nb
 
 import eko
 
@@ -298,24 +295,6 @@ mathjax3_config = {
 }
 
 
-# I don't know where and when, but at some point sphinx stopped to detect the documentation
-# hidden below numba. This issue is discussed here https://github.com/sphinx-doc/sphinx/issues/3783
-# pointing to this conf.py:
-# https://github.com/duetosymmetry/qnm/blob/d286cad616a4abe5ff3b4e05adbfb4b0e305583e/docs/conf.py#L71-L93
-# However, it doesn't do the trick truly, but the idea is take from there ...
-# see also
-# https://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html#docstring-preprocessing
-def process_numba_docstring(
-    app, what, name, obj, options, lines
-):  # pylint: disable=unused-argument
-    """Recover the docstring under numba, as the numba.njit decorator doesn't repeat the __doc__"""
-    if not isinstance(obj, nb.core.registry.CPUDispatcher):
-        return
-    original = obj.py_func
-    orig_sig = inspect.signature(original)
-    lines = orig_sig.__doc__
-
-
 # https://github.com/readthedocs/readthedocs.org/issues/1139#issuecomment-312626491
 def run_apidoc(_):
     import sys  # pylint: disable=import-outside-toplevel
@@ -336,7 +315,6 @@ def run_apidoc(_):
 
 
 def setup(app):
-    """Configure Sphinx"""
+    """Configure Sphinx."""
     app.setup_extension("sphinx.ext.autodoc")
-    app.connect("autodoc-process-docstring", process_numba_docstring)
     app.connect("builder-inited", run_apidoc)

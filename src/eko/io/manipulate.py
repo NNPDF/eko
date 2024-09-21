@@ -31,7 +31,6 @@ def rotation(
 
     However, the check and the computation are delegated respectively to the
     callables `check` and `compute`.
-
     """
     if new is None:
         return None
@@ -56,7 +55,6 @@ def xgrid_compute_rotation(
     By default, the roation is computed for a target xgrid. Whether the function
     should be used for an input xgrid, the `swap` argument should be set to
     `True`, in order to compute it in the other direction (i.e. the transposed).
-
     """
     if swap:
         new, old = old, new
@@ -138,7 +136,8 @@ def flavor_reshape(
     targetpids: Optional[npt.NDArray] = None,
     inputpids: Optional[npt.NDArray] = None,
 ) -> Operator:
-    """Change the operator to have in the output targetpids and/or in the input inputpids.
+    """Change the operator to have in the output targetpids and/or in the input
+    inputpids.
 
     Parameters
     ----------
@@ -148,7 +147,6 @@ def flavor_reshape(
         target rotation specified in the flavor basis
     inputpids :
         input rotation specified in the flavor basis
-
     """
     # calling with no arguments is an error
     if targetpids is None and inputpids is None:
@@ -219,7 +217,6 @@ def to_evol(elem: Operator, source: bool = True, target: bool = False) -> Operat
         rotate on the input tensor
     target :
         rotate on the output tensor
-
     """
     # rotate
     inputpids = br.rotate_flavor_to_evolution if source else None
@@ -238,7 +235,6 @@ def to_uni_evol(elem: Operator, source: bool = True, target: bool = False) -> Op
         rotate on the input tensor
     target :
         rotate on the output tensor
-
     """
     # rotate
     inputpids = br.rotate_flavor_to_unified_evolution if source else None

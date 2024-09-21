@@ -25,7 +25,8 @@ def evolve_pdfs(
     name="Evolved_PDF",
     info_update=None,
 ):
-    """Evolves one or several initial_PDFs and dump the evolved PDFs in lhapdf format.
+    """Evolves one or several initial_PDFs and dump the evolved PDFs in lhapdf
+    format.
 
     Parameters
     ----------
@@ -121,7 +122,6 @@ def collect_blocks(evolved_PDF: dict, q2block_per_nf: dict, xgrid: list):
         block coordinates
     xgrid :
         x grid
-
     """
     all_blocks = []
 

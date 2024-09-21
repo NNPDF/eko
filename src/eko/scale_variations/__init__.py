@@ -1,14 +1,13 @@
 """Define possible scale variations schemes.
 
-A Mathematica snippet to check the formulas is available in the
-extras folder.
+A Mathematica snippet to check the formulas is available in the extras
+folder.
 """
 
 import enum
 from typing import Any, Dict
 
 from ..io.types import ScaleVariationsMethod
-from . import expanded, exponentiated
 
 
 class Modes(enum.IntEnum):
@@ -31,7 +30,6 @@ def sv_mode(s: ScaleVariationsMethod) -> Modes:
     -------
     i :
         int representation
-
     """
     if s is not None:
         return Modes[s.value]

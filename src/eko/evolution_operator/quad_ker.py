@@ -10,6 +10,8 @@ from .. import scale_variations as sv
 from ..io.types import InversionMethod
 from ..kernels import non_singlet as ns
 from ..kernels import singlet as s
+from ..scale_variations import expanded as sv_expanded
+from ..scale_variations import exponentiated as sv_exponentiated
 
 logger = logging.getLogger(__name__)
 
@@ -32,9 +34,9 @@ def select_singlet_element(ker, mode0, mode1):
     complex
         singlet integration kernel element
     """
-    k = 0 if mode0 == 100 else 1
-    l = 0 if mode1 == 100 else 1
-    return ker[k, l]
+    j = 0 if mode0 == 100 else 1
+    k = 0 if mode1 == 100 else 1
+    return ker[j, k]
 
 
 CB_SIGNATURE = nb.types.double(
@@ -113,7 +115,7 @@ def cb_quad_ker_qcd(
         im_gamma_singlet = nb.carray(im_gamma_raw, (order_qcd, 2, 2))
         gamma_singlet = re_gamma_singlet + im_gamma_singlet * 1j
         if sv_mode == sv.Modes.exponentiated:
-            gamma_singlet = sv.exponentiated.gamma_variation(
+            gamma_singlet = sv_exponentiated.gamma_variation(
                 gamma_singlet, order, nf, Lsv
             )
         # construct eko
@@ -130,7 +132,7 @@ def cb_quad_ker_qcd(
         # scale var expanded is applied on the kernel
         if sv_mode == sv.Modes.expanded and not is_threshold:
             ker = np.ascontiguousarray(
-                sv.expanded.singlet_variation(gamma_singlet, as1, order, nf, Lsv, dim=2)
+                sv_expanded.singlet_variation(gamma_singlet, as1, order, nf, Lsv, dim=2)
             ) @ np.ascontiguousarray(ker)
         ker = select_singlet_element(ker, mode0, mode1)
     else:
@@ -139,7 +141,7 @@ def cb_quad_ker_qcd(
         im_gamma_ns = nb.carray(im_gamma_raw, order_qcd)
         gamma_ns = re_gamma_ns + im_gamma_ns * 1j
         if sv_mode == sv.Modes.exponentiated:
-            gamma_ns = sv.exponentiated.gamma_variation(gamma_ns, order, nf, Lsv)
+            gamma_ns = sv_exponentiated.gamma_variation(gamma_ns, order, nf, Lsv)
         # construct eko
         ker = ns.dispatcher(
             order,
@@ -151,7 +153,7 @@ def cb_quad_ker_qcd(
             ev_op_iterations,
         )
         if sv_mode == sv.Modes.expanded and not is_threshold:
-            ker = sv.expanded.non_singlet_variation(gamma_ns, as1, order, nf, Lsv) * ker
+            ker = sv_expanded.non_singlet_variation(gamma_ns, as1, order, nf, Lsv) * ker
     # recombine everything
     res = ker * pj * jac
     return np.real(res)
@@ -159,7 +161,8 @@ def cb_quad_ker_qcd(
 
 @nb.njit(cache=True)
 def build_ome(A, matching_order, a_s, backward_method):
-    r"""Construct the matching expansion in :math:`a_s` with the appropriate method.
+    r"""Construct the matching expansion in :math:`a_s` with the appropriate
+    method.
 
     Parameters
     ----------
@@ -176,7 +179,6 @@ def build_ome(A, matching_order, a_s, backward_method):
     -------
     ome : numpy.ndarray
         matching operator matrix
-
     """
     # to get the inverse one can use this FORM snippet
     # Symbol a;

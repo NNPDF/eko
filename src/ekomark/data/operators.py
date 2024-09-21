@@ -56,8 +56,7 @@ pegasus_exact_config = {
 
 
 def build(update=None):
-    """
-    Generate all operator card updates.
+    """Generate all operator card updates.
 
     Parameters
     ----------
@@ -81,8 +80,7 @@ def build(update=None):
 
 # db interface
 def load(session, updates):
-    """
-    Load operator records from the DB.
+    """Load operator records from the DB.
 
     Parameters
     ----------

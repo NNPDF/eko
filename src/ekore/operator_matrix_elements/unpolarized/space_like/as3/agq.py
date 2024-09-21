@@ -30,7 +30,6 @@ def A_gq(n, cache, nf, L):  # pylint: disable=too-many-locals
     -------
     complex
         :math:`A_{gq}^{S,(3)}(N)`
-
     """
     S1 = c.get(c.S1, cache, n)
     Sm1 = c.get(c.Sm1, cache, n, is_singlet=True)

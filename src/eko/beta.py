@@ -1,5 +1,4 @@
-r"""
-Compute the QCD beta function coefficients.
+r"""Compute the QCD beta function coefficients.
 
 See :doc:`pQCD ingredients </theory/pQCD>`.
 """
@@ -25,7 +24,6 @@ def beta_qcd_as2(nf):
     -------
         beta_qcd_as2 : float
             first coefficient of the QCD beta function :math:`\\beta_qcd_as2^{n_f}`
-
     """
     beta_qcd_as2 = 11.0 / 3.0 * constants.CA - 4.0 / 3.0 * constants.TR * nf
     return beta_qcd_as2
@@ -48,7 +46,6 @@ def beta_qed_aem2(nf, nl):
     -------
         beta_qed_aem2 : float
             first coefficient of the QED beta function :math:`\\beta_qed_aem2^{n_f}`
-
     """
     nu = constants.uplike_flavors(nf)
     nd = nf - nu
@@ -73,7 +70,6 @@ def beta_qcd_as3(nf):
     -------
         beta_qcd_as3 : float
             second coefficient of the QCD beta function :math:`\\beta_qcd_as3^{n_f}`
-
     """
     TF = constants.TR * nf
     b_ca2 = 34.0 / 3.0 * constants.CA * constants.CA
@@ -100,7 +96,6 @@ def beta_qed_aem3(nf, nl):
     -------
         beta_qed_aem3 : float
             second coefficient of the QED beta function :math:`\\beta_qed_aem3^{n_f}`
-
     """
     nu = constants.uplike_flavors(nf)
     nd = nf - nu
@@ -125,7 +120,6 @@ def beta_qcd_as2aem1(nf):
     -------
         beta_as2aem1 : float
             first QED correction of the QCD beta function :math:`\\beta_as2aem1^{n_f}`
-
     """
     nu = constants.uplike_flavors(nf)
     nd = nf - nu
@@ -148,7 +142,6 @@ def beta_qed_aem2as1(nf):
     -------
         beta_aem2as1 : float
             first QCD correction of the QED beta function :math:`\\beta_aem2as1^{n_f}`
-
     """
     nu = constants.uplike_flavors(nf)
     nd = nf - nu
@@ -173,7 +166,6 @@ def beta_qcd_as4(nf):
     -------
         beta_qcd_as4 : float
             third coefficient of the QCD beta function :math:`\\beta_qcd_as4^{n_f}`
-
     """
     TF = constants.TR * nf
     beta_qcd_as4 = (
@@ -202,7 +194,6 @@ def beta_qcd_as5(nf):
     -------
         beta_qcd_as5 : float
             fourth coefficient of the QCD beta function :math:`\\beta_qcd_as5^{n_f}`
-
     """
     beta_qcd_as5 = (
         149753.0 / 6.0
@@ -229,7 +220,6 @@ def beta_qcd(k, nf):
     -------
         beta_qcd : float
             beta_qcd_k(nf)
-
     """
     beta_ = 0
     if k == (2, 0):
@@ -264,7 +254,6 @@ def beta_qed(k, nf, nl):
     -------
         beta_qed : float
             beta_qed_k(nf)
-
     """
     beta_ = 0
     if k == (0, 2):
@@ -293,7 +282,6 @@ def b_qcd(k, nf):
     -------
         b_qcd : float
             b_qcd_k(nf)
-
     """
     return beta_qcd(k, nf) / beta_qcd((2, 0), nf)
 
@@ -315,6 +303,5 @@ def b_qed(k, nf, nl):
     -------
         b_qed : float
             b_qed_k(nf)
-
     """
     return beta_qed(k, nf, nl) / beta_qed((0, 2), nf, nl)

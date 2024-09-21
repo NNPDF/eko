@@ -21,7 +21,6 @@ def roots(b_list):
     -------
     list
         list of complex roots
-
     """
     b1, b2, b3 = b_list
     d1 = -(b2**2) + 3 * b1 * b3
@@ -59,7 +58,6 @@ def derivative(r, b_list):
     -------
     float :
         evaluated derivative
-
     """
     b1, b2, b3 = b_list
     return b1 + 2 * b2 * r + 3 * b3 * r**2
@@ -92,7 +90,6 @@ def j33_exact(a1, a0, beta0, b_list, roots):
     -------
     float
         evaluated integral
-
     """
     integral = 0
     for r in roots:
@@ -127,7 +124,6 @@ def j23_exact(a1, a0, beta0, b_list, roots):
     -------
     float
         evaluated integral
-
     """
     integral = 0
     for r in roots:
@@ -162,7 +158,6 @@ def j13_exact(a1, a0, beta0, b_list, roots):
     -------
     float
         evaluated integral
-
     """
     integral = 0
     for r in roots:
@@ -197,7 +192,6 @@ def j03_exact(j12, j13, j23, j33, b_list):
     -------
     float
         evaluated integral
-
     """
     b1, b2, b3 = b_list
     return j12 - b1 * j13 - b2 * j23 - b3 * j33
@@ -225,7 +219,6 @@ def j33_expanded(a1, a0, beta0):
     -------
     float
         evaluated integral
-
     """
     return 1 / (3 * beta0) * (a1**3 - a0**3)
 
@@ -254,7 +247,6 @@ def j23_expanded(a1, a0, beta0, b_list):
     -------
     float
         evaluated integral
-
     """
     b1 = b_list[0]
     return 1 / beta0 * (1 / 2 * (a1**2 - a0**2) - b1 / 3 * (a1**3 - a0**3))
@@ -284,7 +276,6 @@ def j13_expanded(a1, a0, beta0, b_list):
     -------
     float
         evaluated integral
-
     """
     b1, b2, _ = b_list
     return (1 / beta0) * (
@@ -322,6 +313,5 @@ def j03_expanded(j12, j13, j23, j33, b_list):
     See Also
     --------
     j03_exact
-
     """
     return j03_exact(j12, j13, j23, j33, b_list)

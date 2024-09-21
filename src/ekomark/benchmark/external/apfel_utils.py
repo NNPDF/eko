@@ -11,8 +11,7 @@ from eko import basis_rotation as br
 def compute_apfel_data(
     theory, operators, pdf, skip_pdfs, rotate_to_evolution_basis=False
 ):
-    """
-    Run APFEL to compute operators.
+    """Run APFEL to compute operators.
 
     Parameters
     ----------

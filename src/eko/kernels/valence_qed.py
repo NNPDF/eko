@@ -17,8 +17,7 @@ def dispatcher(
     ev_op_iterations,
     _ev_op_max_order,
 ):
-    """
-    Determine used kernel and call it.
+    """Determine used kernel and call it.
 
     Parameters
     ----------

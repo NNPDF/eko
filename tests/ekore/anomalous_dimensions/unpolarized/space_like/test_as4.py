@@ -217,8 +217,7 @@ def test_diff_pm_nf2():
     # Note that discrepancy for low moments is higher due to
     # oscillating behavior which is not captured by our parametrization
     def deltaB3(n, sx_cache):
-        """
-        Implementation of Eq. 3.4 of :cite:`Davies:2016jie`.
+        """Implementation of Eq. 3.4 of :cite:`Davies:2016jie`.
 
         Parameters
         ----------

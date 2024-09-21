@@ -1,9 +1,9 @@
 """Utilities to manipulate unstructured IO.
 
-The content is treated independently on the particular data content, but as
-generic uknown data in an abstract file format, e.g. a tar archive or YAML data
-file, as opposed to structured YAML representing a specific runcard.
-
+The content is treated independently on the particular data content, but
+as generic uknown data in an abstract file format, e.g. a tar archive or
+YAML data file, as opposed to structured YAML representing a specific
+runcard.
 """
 
 import os
@@ -24,7 +24,6 @@ def is_within_directory(directory: os.PathLike, target: os.PathLike) -> bool:
         the directory where the target is supposed to be contained
     target:
         the target file to check
-
     """
     abs_dir = Path(directory).absolute()
     abs_target = Path(target).absolute()
@@ -53,7 +52,6 @@ def safe_extractall(
         the tar archive object to be extracted
     path:
         the path to extract to, if not specified the current directory is used
-
     """
     if path is None:
         path = Path.cwd()

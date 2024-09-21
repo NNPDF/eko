@@ -35,7 +35,6 @@ def S41(N, S1, S2, S3):
     --------
     eko.harmonic.f_functions.F9 :
         :math:`\mathcal{M}[(\text{Li}_4(x)/(x-1))_{+}](N)`
-
     """
     return -f.F9(N, S1) + S1 * zeta4 - S2 * zeta3 + S3 * zeta2
 
@@ -64,7 +63,6 @@ def S311(N, S1, S2):
     --------
     eko.harmonic.f_functions.F11 :
         :math:`\mathcal{M}[(\text{S}_{2,2}(x)/(x-1))_{+}](N)`
-
     """
     return f.F11(N, S1, S2) + zeta3 * S2 - zeta4 / 4 * S1
 
@@ -97,7 +95,6 @@ def S221(N, S1, S2, S21):
         :math:`\mathcal{M}[(\text{S}_{2,2}(x)/(x-1))_{+}](N)`
     eko.harmonic.f_functions.F13 :
         :math:`\mathcal{M}[(\text{Li}_{2}^2(x)/(x-1))_{+}](N)`
-
     """
     return (
         -2 * f.F11(N, S1, S2)
@@ -135,7 +132,6 @@ def Sm221(N, S1, Sm1, S21, Sm21):
     --------
     eko.harmonic.f_functions.F14F12 :
         :math:`\mathcal{M}[(2 \text{S}_{2,2}(x) - 1/2 \text{Li}_{2}^2(x))/(x+1)](N)`
-
     """
     return (
         (-1) ** (N + 1) * (f.F14F12(N, S1, S21))
@@ -184,7 +180,6 @@ def S21m2(N, S1, S2, Sm1, Sm2, Sm3, S21, Sm21, S2m1):
         :math:`\mathcal{M}[
             (\text{ln}(x) \text{S}_{1,2}(−x) − \text{Li}_2^2(−x)/2)/(x+1)
             ](N)`
-
     """
     return (
         (-1) ** (N) * f.F16(N, S1, Sm1, Sm2, Sm3, Sm21)
@@ -221,7 +216,6 @@ def S2111(N, S1, S2, S3):
     --------
     eko.harmonic.f_functions.F17 :
         :math:`\mathcal{M}[(\text{S}_{1,3}(x)/(x-1))_{+}](N)`
-
     """
     return -f.F17(N, S1, S2, S3) + zeta4 * S1
 
@@ -254,7 +248,6 @@ def Sm2111(N, S1, S2, S3, Sm1):
     --------
     eko.harmonic.f_functions.F18 :
         :math:`\mathcal{M}[\text{S}_{1,3}(x)/(x+1)](N)`
-
     """
     return (
         (-1) ** (N + 1) * f.F18(N, S1, S2, S3)
@@ -294,7 +287,6 @@ def S23(N, S1, S2, S3):
                 \text{ln}(x)[\text{S}_{1,2}(1-x) - \zeta_3]
                 +3 [\text{S}_{1,3}(1-x) - \zeta_4]
             /(x-1))_{+}](N)`
-
     """
     return f.F19(N, S1, S2, S3) + 3 * zeta4 * S1
 
@@ -332,7 +324,6 @@ def Sm23(N, Sm1, Sm2, Sm3, is_singlet=None):
                 \text{ln}(x)[\text{S}_{1,2}(1-x) - \zeta_3]
                 +3 [\text{S}_{1,3}(1-x) - \zeta_4]
             /(x+1)](N)`
-
     """
     eta = symmetry_factor(N, is_singlet)
     return (
@@ -377,7 +368,6 @@ def S2m3(N, S2, Sm1, Sm2, Sm3):
                 -2  \text{ln}(x) \text{Li}_3(-x)
                 +3 \text{Li}_4(-x)
             )/(x-1)](N)`
-
     """
     return (
         (-1) ** (N + 1) * f.F21(N, Sm1, Sm2, Sm3)

@@ -1,4 +1,4 @@
-"""Tests for the threshold class"""
+"""Tests for the threshold class."""
 
 from dataclasses import astuple
 

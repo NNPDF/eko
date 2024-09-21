@@ -106,7 +106,6 @@ def get(
     -------
     complex :
         requested harmonic sum evaluated at n
-
     """
     # Maybe improve error
     if key < 0 or key >= len(cache):

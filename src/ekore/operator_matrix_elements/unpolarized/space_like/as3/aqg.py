@@ -30,7 +30,6 @@ def A_qg(n, cache, nf, L):
     -------
     complex
         :math:`A_{qg}^{S,(3)}(N)`
-
     """
     S1 = c.get(c.S1, cache, n)
     S2 = c.get(c.S2, cache, n)

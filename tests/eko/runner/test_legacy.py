@@ -1,7 +1,6 @@
 import copy
 import enum
 
-import numpy as np
 import pytest
 
 import eko
@@ -13,7 +12,7 @@ from . import check_shapes
 
 
 def test_raw(theory_card, operator_card, tmp_path):
-    """we don't check the content here, but only the shape"""
+    """We don't check the content here, but only the shape."""
     path = tmp_path / "eko.tar"
     tc = theory_card
     oc = operator_card
@@ -24,7 +23,7 @@ def test_raw(theory_card, operator_card, tmp_path):
 
 
 def test_mass_scheme(theory_card, operator_card, tmp_path):
-    """we don't check the content here, but only the shape"""
+    """We don't check the content here, but only the shape."""
 
     # wrong mass scheme
     class FakeEM(enum.Enum):

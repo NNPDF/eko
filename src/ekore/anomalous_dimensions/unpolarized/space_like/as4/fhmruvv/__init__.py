@@ -1,6 +1,7 @@
 """The |FHMRUVV| |N3LO| Altarelli-Parisi splitting kernels approximations.
 
-Authors follow Pegasus convention and so there is an additional global minus sign with respect to our conventions.
+Authors follow Pegasus convention and so there is an additional global
+minus sign with respect to our conventions.
 """
 
 import numba as nb
@@ -41,7 +42,6 @@ def gamma_singlet(N, nf, cache, variation):
     numpy.ndarray
         |N3LO| singlet anomalous dimension matrix
         :math:`\gamma_{S}^{(3)}(N)`
-
     """
     gamma_qq = gamma_nsp(N, nf, cache, variation[3]) + gamma_ps(
         N, nf, cache, variation[3]
@@ -61,7 +61,8 @@ def gamma_singlet(N, nf, cache, variation):
 
 @nb.njit(cache=True)
 def gamma_singlet_qed(N, nf, cache, variation):
-    r"""Compute the leading-order singlet anomalous dimension matrix for the unified evolution basis.
+    r"""Compute the leading-order singlet anomalous dimension matrix for the
+    unified evolution basis.
 
     .. math::
         \\gamma_S^{(3,0)} = \\left(\begin{array}{cccc}
@@ -86,7 +87,6 @@ def gamma_singlet_qed(N, nf, cache, variation):
     -------
     numpy.ndarray
         Leading-order singlet anomalous dimension matrix :math:`\\gamma_{S}^{(3,0)}(N)`
-
     """
     gamma_np_p = gamma_nsp(N, nf, cache, variation[3])
     gamma_qq = gamma_np_p + gamma_ps(N, nf, cache, variation[3])
@@ -109,7 +109,8 @@ def gamma_singlet_qed(N, nf, cache, variation):
 
 @nb.njit(cache=True)
 def gamma_valence_qed(N, nf, cache, variation):
-    r"""Compute the leading-order valence anomalous dimension matrix for the unified evolution basis.
+    r"""Compute the leading-order valence anomalous dimension matrix for the
+    unified evolution basis.
 
     .. math::
         \\gamma_V^{(3,0)} = \\left(\begin{array}{cc}
@@ -132,7 +133,6 @@ def gamma_valence_qed(N, nf, cache, variation):
     -------
     numpy.ndarray
         Leading-order singlet anomalous dimension matrix :math:`\\gamma_{V}^{(3,0)}(N)`
-
     """
     gamma_V = np.array(
         [
