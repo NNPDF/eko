@@ -1,7 +1,6 @@
 //! |NLO| |QCD|.
 
 use num::complex::Complex;
-use num::Zero;
 
 use super::super::super::unpolarized::spacelike::as2::gamma_nsm as unpol_nsm;
 use super::super::super::unpolarized::spacelike::as2::gamma_nsp as unpol_nsp;
