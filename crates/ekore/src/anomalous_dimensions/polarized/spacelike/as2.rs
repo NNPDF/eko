@@ -158,12 +158,12 @@ mod tests {
 
         // singlet sector
         let gS1 = gamma_singlet(&mut c, NF);
-        //     // ps
-        //     assert_approx_eq_cmplx!(
-        //         f64,
-        //         gamma_ps(&mut c, NF),
-        //         cmplx!(-40.0 * CF * (NF as f64) / 27.0, 0.)
-        //     );
+        // ps
+        assert_approx_eq_cmplx!(
+            f64,
+            -gamma_ps(&mut c, NF),
+            cmplx!(-4.0 * CF * TR * (NF as f64) * 13. / 27.0, 0.)
+        );
         //     // qg
         //     assert_approx_eq_cmplx!(
         //         f64,
