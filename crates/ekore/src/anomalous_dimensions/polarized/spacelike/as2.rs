@@ -55,28 +55,30 @@ pub fn gamma_qg(c: &mut Cache, nf: u8) -> Complex<f64> {
 ///
 /// Implements Eq. (A.5) of [\[Gluck:1995yr\]][crate::bib::Gluck1995yr].
 pub fn gamma_gq(c: &mut Cache, nf: u8) -> Complex<f64> {
-    Complex::zero()
-    // let N = c.n();
-    // let S1 = c.get(K::S1);
-    // let S2 = c.get(K::S2);
-    // let Sp2m = c.get(K::S2mh);
-    // #[rustfmt::skip]
-    // let ggq1_cfcf = (
-    //     (2 * (S1**2 + S2) * (n + 2)) / (n * (n + 1))
-    //     - (2 * S1 * (n + 2) * (1 + 3 * n)) / (n * (1 + n) ** 2)
-    //     - ((n + 2) * (2 + 15 * n + 8 * n**2 - 12.0 * n**3 - 9.0 * n**4))
-    //     / (n**3 * (1 + n) ** 3)
-    //     + 8 * (n + 2) / (n**2 * (1 + n) ** 2)
-    // ) * 0.5;
-    // #[rustfmt::skip]
-    // let ggq1_cfca = -(-(-(S1 * *2) - S2 + Sp2m) * (n + 2) / (n * (n + 1))
-    //     - S1 * (12 + 22 * n + 11 * n * *2) / (3 * n * *2 * (n + 1))
-    //     + (36 + 72 * n + 41 * n * *2 + 254 * n * *3 + 271 * n * *4 + 76 * n * *5)
-    //         / (9 * n * *3 * (1 + n) * *3));
-    // #[rustfmt::skip]
-    // let ggq1_cfnf =
-    //     (-S1 * (n + 2)) / (3 * n * (n + 1)) + ((n + 2) * (2 + 5 * n)) / (9 * n * (1 + n) * *2);
-    // 4 * CF * (CA * ggq1_cfca + CF * ggq1_cfcf + 4.0 * TR * nf * ggq1_cfnf)
+    let n = c.n();
+    let S1 = c.get(K::S1);
+    let S2 = c.get(K::S2);
+    let Sp2m = c.get(K::S2mh);
+    #[rustfmt::skip]
+    let ggq1_cfcf = (
+        (2. * (S1.powu(2) + S2) * (n + 2.)) / (n * (n + 1.))
+        - (2. * S1 * (n + 2.) * (1. + 3. * n)) / (n * (1. + n).powu(2))
+        - ((n + 2.) * (2. + 15. * n + 8. * n.powu(2) - 12.0 * n.powu(3) - 9.0 * n.powu(4)))
+        / (n.powu(3) * (1. + n).powu(3))
+        + 8. * (n + 2.) / (n.powu(2) * (1. + n).powu(2))
+    ) * 0.5;
+    #[rustfmt::skip]
+    let ggq1_cfca = -(
+        -(-(S1.powu(2)) - S2 + Sp2m) * (n + 2.) / (n * (n + 1.))
+        - S1 * (12. + 22. * n + 11. * n.powu(2)) / (3. * n.powu(2) * (n + 1.))
+        + (36. + 72. * n + 41. * n.powu(2) + 254. * n.powu(3) + 271. * n.powu(4) + 76. * n.powu(5))
+            / (9. * n.powu(3) * (1. + n).powu(3))
+    );
+    #[rustfmt::skip]
+    let ggq1_cfnf =(-S1 * (n + 2.)) / (3. * n * (n + 1.)) + ((n + 2.) * (2. + 5. * n)) / (
+        9. * n * (1. + n).powu(2)
+    );
+    4. * CF * (CA * ggq1_cfca + CF * ggq1_cfcf + 4.0 * TR * (nf as f64) * ggq1_cfnf)
 }
 
 /// Compute the gluon-gluon singlet anomalous dimension.
@@ -150,57 +152,35 @@ mod tests {
         // assert_approx_eq_cmplx!(f64, gS1[0][0], cmplx!(12. * TR * (NF as f64) * CF, 0.), epsilon = 1e-6);
     }
 
-    // #[test]
-    // fn N2() {
-    //     // reference values are obtained from MMa
-    //     let mut c = Cache::new(cmplx!(2., 0.));
+    #[test]
+    fn N2() {
+        let mut c = Cache::new(cmplx!(2., 0.));
 
-    //     // ns+
-    //     assert_approx_eq_cmplx!(
-    //         f64,
-    //         gamma_nsp(&mut c, NF),
-    //         cmplx!(
-    //             (-112.0 * CF + 376.0 * CA - 64.0 * (NF as f64)) * CF / 27.0,
-    //             0.
-    //         ),
-    //         epsilon = 2e-6
-    //     );
-
-    //     // ns-
-    //     let check = ((34.0 / 27.0 * (-47.0 + 6. * PI.pow(2)) - 16.0 * ZETA3) * CF
-    //         + (373.0 / 9.0 - 34.0 * PI.pow(2) / 9.0 + 8.0 * ZETA3) * CA
-    //         - 64.0 * (NF as f64) / 27.0)
-    //         * CF;
-    //     assert_approx_eq_cmplx!(
-    //         f64,
-    //         gamma_nsm(&mut c, NF),
-    //         cmplx!(check, 0.),
-    //         epsilon = 2e-6
-    //     );
-
-    //     // singlet sector
-    //     let gS1 = gamma_singlet(&mut c, NF);
-    //     // ps
-    //     assert_approx_eq_cmplx!(
-    //         f64,
-    //         gamma_ps(&mut c, NF),
-    //         cmplx!(-40.0 * CF * (NF as f64) / 27.0, 0.)
-    //     );
-    //     // qg
-    //     assert_approx_eq_cmplx!(
-    //         f64,
-    //         gS1[0][1],
-    //         cmplx!((-74.0 * CF - 35.0 * CA) * (NF as f64) / 27.0, 0.)
-    //     );
-    //     // gq
-    //     assert_approx_eq_cmplx!(
-    //         f64,
-    //         gS1[1][0],
-    //         cmplx!(
-    //             (112.0 * CF - 376.0 * CA + 104.0 * (NF as f64)) * CF / 27.0,
-    //             0.
-    //         ),
-    //         epsilon = 1e-13
-    //     );
-    // }
+        // singlet sector
+        let gS1 = gamma_singlet(&mut c, NF);
+        //     // ps
+        //     assert_approx_eq_cmplx!(
+        //         f64,
+        //         gamma_ps(&mut c, NF),
+        //         cmplx!(-40.0 * CF * (NF as f64) / 27.0, 0.)
+        //     );
+        //     // qg
+        //     assert_approx_eq_cmplx!(
+        //         f64,
+        //         gS1[0][1],
+        //         cmplx!((-74.0 * CF - 35.0 * CA) * (NF as f64) / 27.0, 0.)
+        //     );
+        // gq
+        assert_approx_eq_cmplx!(
+            f64,
+            -gS1[1][0],
+            cmplx!(
+                4. * (-2.074074074074074 * CF.pow(2)
+                    + CA * CF * (29. / 54. - 2. / 3. * (1. / 2. - PI.pow(2) / 3.))
+                    + (4. * CF * (NF as f64) * TR) / 27.),
+                0.
+            ),
+            epsilon = 1e-13
+        );
+    }
 }
