@@ -85,38 +85,37 @@ pub fn gamma_gq(c: &mut Cache, nf: u8) -> Complex<f64> {
 ///
 /// Implements Eq. (A.6) of [\[Gluck:1995yr\]][crate::bib::Gluck1995yr].
 pub fn gamma_gg(c: &mut Cache, nf: u8) -> Complex<f64> {
-    Complex::zero()
-    // let n = c.n();
-    // let S1 = c.get(K::S1);
-    // let Sp1m = c.get(K::S1mh);
-    // let Sp2m = c.get(K::S2mh);
-    // let Sp3m = c.get(K::S3mh);
-    // let S1h = c.get(K::S1h);
-    // let g3n = c.get(K::G3);
-    // let SSCHLM = ZETA2 / 2 * (Sp1m - S1h + 2. / n) - S1 / n * *2 - g3 - 5 * ZETA3 / 8.;
-    // #[rustfmt::skip]
-    // let ggg1_caca = (
-    //     -4 * S1 * Sp2m
-    //     - Sp3m
-    //     + 8 * SSCHLM
-    //     + 8 * Sp2m / (n * (n + 1))
-    //     + 2.0
-    //     * S1
-    //     * (72 + 144 * n + 67 * n**2 + 134 * n**3 + 67 * n**4)
-    //     / (9 * n**2 * (n + 1) ** 2)
-    //     - (144 + 258 * n + 7 * n**2 + 698 * n**3 + 469 * n**4 + 144 * n**5 + 48 * n**6)
-    //     / (9 * n**3 * (1 + n) ** 3)
-    // ) * 0.5;
-    // #[rustfmt::skip]
-    // let ggg1_canf = (
-    //     -5 * S1 / 9
-    //     + (-3 + 13 * n + 16 * n**2 + 6 * n**3 + 3 * n**4) / (9 * n**2 * (1 + n) ** 2)
-    // ) * 4;
-    // #[rustfmt::skip]
-    // let ggg1_cfnf = (4 + 2 * n - 8 * n**2 + n**3 + 5 * n**4 + 3 * n**5 + n**6) / (
-    //     n**3 * (1 + n) ** 3
-    // );
-    // 4 * (CA * *2 * ggg1_caca + TR * nf * (CA * ggg1_canf + CF * ggg1_cfnf))
+    let n = c.n();
+    let S1 = c.get(K::S1);
+    let Sp1m = c.get(K::S1mh);
+    let Sp2m = c.get(K::S2mh);
+    let Sp3m = c.get(K::S3mh);
+    let S1h = c.get(K::S1h);
+    let g3 = c.get(K::G3);
+    let SSCHLM = ZETA2 / 2. * (Sp1m - S1h + 2. / n) - S1 / n.powu(2) - g3 - 5. * ZETA3 / 8.;
+    #[rustfmt::skip]
+    let ggg1_caca = (
+        -4. * S1 * Sp2m
+        - Sp3m
+        + 8. * SSCHLM
+        + 8. * Sp2m / (n * (n + 1.))
+        + 2.0
+        * S1
+        * (72. + 144. * n + 67. * n.powu(2) + 134. * n.powu(3) + 67. * n.powu(4))
+        / (9. * n.powu(2) * (n + 1.).powu(2))
+        - (144. + 258. * n + 7. * n.powu(2) + 698. * n.powu(3) + 469. * n.powu(4) + 144. * n.powu(5) + 48. * n.powu(6))
+        / (9. * n.powu(3) * (1. + n).powu(3))
+    ) * 0.5;
+    #[rustfmt::skip]
+    let ggg1_canf = (
+        -5. * S1 / 9.
+        + (-3. + 13. * n + 16. * n.powu(2) + 6.* n.powu(3) + 3. * n.powu(4)) / (9. * n.powu(2) * (1. + n).powu(2))
+    ) * 4.;
+    #[rustfmt::skip]
+    let ggg1_cfnf = (4. + 2. * n - 8. * n.powu(2) + n.powu(3) + 5. * n.powu(4) + 3. * n.powu(5) + n.powu(6)) / (
+        n.powu(3) * (1. + n).powu(3)
+    );
+    4. * (CA * CA * ggg1_caca + TR * (nf as f64) * (CA * ggg1_canf + CF * ggg1_cfnf))
 }
 
 /// Compute the singlet anomalous dimension matrix.
@@ -146,10 +145,15 @@ mod tests {
         let mut c = Cache::new(cmplx!(1., 0.));
         assert_approx_eq_cmplx!(f64, gamma_qg(&mut c, NF), Complex::zero(), epsilon = 2e-6);
 
-        // // qg momentum
-        // let mut c = Cache::new(cmplx!(1., 0.));
-        // let gS1 = gamma_singlet(&mut c, NF);
-        // assert_approx_eq_cmplx!(f64, gS1[0][0], cmplx!(12. * TR * (NF as f64) * CF, 0.), epsilon = 1e-6);
+        // qg momentum
+        let mut c = Cache::new(cmplx!(1., 0.));
+        let gS1 = gamma_singlet(&mut c, NF);
+        assert_approx_eq_cmplx!(
+            f64,
+            gS1[0][0],
+            cmplx!(12. * TR * (NF as f64) * CF, 0.),
+            epsilon = 2e-6
+        );
     }
 
     #[test]
@@ -164,12 +168,18 @@ mod tests {
             -gamma_ps(&mut c, NF),
             cmplx!(-4.0 * CF * TR * (NF as f64) * 13. / 27.0, 0.)
         );
-        //     // qg
-        //     assert_approx_eq_cmplx!(
-        //         f64,
-        //         gS1[0][1],
-        //         cmplx!((-74.0 * CF - 35.0 * CA) * (NF as f64) / 27.0, 0.)
-        //     );
+        // qg
+        assert_approx_eq_cmplx!(
+            f64,
+            -gS1[0][1],
+            cmplx!(
+                4. * (NF as f64)
+                    * (0.574074074 * CF - 2. * CA * (-7. / 18. + 1. / 6. * (5. - PI.pow(2) / 3.)))
+                    * TR,
+                0.
+            ),
+            epsilon = 1e-9
+        );
         // gq
         assert_approx_eq_cmplx!(
             f64,
