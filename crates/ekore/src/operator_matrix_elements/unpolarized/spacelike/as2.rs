@@ -357,7 +357,7 @@ mod test {
     }
 
     #[test]
-    fn test_Blumlein_2() {
+    fn Blumlein_2() {
         let ref_val_gg = [
             [-9.96091, -30.0093, -36.5914, -40.6765, -43.6823],
             [-289.097, -617.811, -739.687, -820.771, -882.573],
@@ -429,6 +429,52 @@ mod test {
                     epsilon = 4e-6 * (-ref_val_qq[i][n - 2])
                 );
             }
+        }
+    }
+
+    #[test]
+    fn Hg2_pegasus() {
+        let L = 0.;
+        for n in 3..20 {
+            let N = cmplx![n as f64, 0.];
+
+            let mut c = Cache::new(N);
+
+            let S1 = c.get(K::S1);
+            let S2 = c.get(K::S2);
+            let S3 = c.get(K::S3);
+
+            let aS2 = A_singlet(&mut c, NF, L, false);
+            let E2 = 2.0 / N * (ZETA3 - S3 + 1.0 / N * (ZETA2 - S2 - S1 / N));
+
+            let a_hg_param = -0.006 + 1.111 * (S1.powu(3) + 3.0 * S1 * S2 + 2.0 * S3) / N
+                - 0.400 * (S1.powu(2) + S2) / N
+                + 2.770 * S1 / N
+                - 24.89 / (N - 1.0)
+                - 187.8 / N
+                + 249.6 / (N + 1.0)
+                + 1.556 * 6.0 / N.powu(4)
+                - 3.292 * 2.0 / N.powu(3)
+                + 93.68 * 1.0 / N.powu(2)
+                - 146.8 * E2;
+
+            assert_approx_eq_cmplx!(f64, aS2[2][0], a_hg_param, epsilon = 7e-4 * a_hg_param.re);
+        }
+    }
+
+    #[test]
+    fn msbar_matcing() {
+        let logs = [0., 100.];
+        for L in logs {
+            let N = cmplx![2., 0.];
+            let mut c = Cache::new(N);
+            let aS2 = A_singlet(&mut c, NF, L, false);
+            assert_approx_eq_cmplx!(
+                f64,
+                aS2[0][0] + aS2[1][0] + aS2[2][0],
+                Complex::zero(),
+                epsilon = 2e-6
+            );
         }
     }
 }
