@@ -292,7 +292,6 @@ mod test {
     use super::*;
     use crate::{assert_approx_eq_cmplx, cmplx};
 
-    use float_cmp::assert_approx_eq;
     use num::complex::Complex;
     const NF: u8 = 5;
 
@@ -330,6 +329,106 @@ mod test {
                 Complex::zero(),
                 epsilon = 1e-11
             );
+
+            // additional test, maybe to be moved in a different function
+
+            assert_approx_eq_cmplx!(f64, aS2[1][0], Complex::zero());
+
+            let aNS2 = A_ns(&mut c, NF, L);
+
+            assert_approx_eq_cmplx!(f64, aNS2[1][1], Complex::zero());
+
+            for el in aS2.iter() {
+                assert_approx_eq_cmplx!(f64, el[2], Complex::zero());
+            }
+        }
+    }
+
+    #[test]
+    fn pegasus_sign() {
+        let ref_val = cmplx![-21133.9, 0.];
+        let N = cmplx![2., 0.];
+        let mut c = Cache::new(N);
+        let L = 100.;
+
+        let aS2 = A_singlet(&mut c, NF, L, false);
+        // add macro for this?
+        assert_approx_eq_cmplx!(f64, aS2[0][0], ref_val, epsilon = 4e-5 * (21133.9));
+    }
+
+    #[test]
+    fn test_Blumlein_2() {
+        let ref_val_gg = [
+            [-9.96091, -30.0093, -36.5914, -40.6765, -43.6823],
+            [-289.097, -617.811, -739.687, -820.771, -882.573],
+        ];
+
+        let ref_val_gq = [
+            [5.82716, 1.34435, 0.739088, 0.522278, 0.413771],
+            [191.506, 60.3468, 37.0993, 27.3308, 21.8749],
+        ];
+
+        let ref_val_Hg = [
+            [9.96091, 10.6616, 9.27572, 8.25694, 7.49076],
+            [289.097, 278.051, 223.261, 186.256, 160.027],
+        ];
+
+        let ref_val_Hq = [
+            [-2.66667, -0.365962, -0.15071, -0.084247, -0.0543195],
+            [-101.432, -17.2316, -7.25937, -4.04249, -2.58706],
+        ];
+
+        let ref_val_qq = [
+            [
+                -3.16049, -5.0571, -6.43014, -7.51258, -8.409, -9.17546, -9.84569, -10.4416,
+                -10.9783,
+            ],
+            [
+                -90.0741, -139.008, -173.487, -200.273, -222.222, -240.833, -256.994, -271.28,
+                -284.083,
+            ],
+        ];
+
+        for n in 2..11 {
+            for (i, L) in [0., 10.].iter().enumerate() {
+                let N = cmplx![n as f64, 0.];
+                let mut c = Cache::new(N);
+
+                let aS2 = A_singlet(&mut c, NF, *L, false);
+                if n % 2 == 0 {
+                    let idx = n / 2 - 1;
+                    assert_approx_eq_cmplx!(
+                        f64,
+                        aS2[0][0],
+                        cmplx![ref_val_gg[i][idx], 0.],
+                        epsilon = 2e-6 * (-ref_val_gg[i][idx])
+                    );
+                    assert_approx_eq_cmplx!(
+                        f64,
+                        aS2[0][1],
+                        cmplx![ref_val_gq[i][idx], 0.],
+                        epsilon = 4e-6 * (ref_val_gq[i][idx])
+                    );
+                    assert_approx_eq_cmplx!(
+                        f64,
+                        aS2[2][0],
+                        cmplx![ref_val_Hg[i][idx], 0.],
+                        epsilon = 3e-6 * (ref_val_Hg[i][idx])
+                    );
+                    assert_approx_eq_cmplx!(
+                        f64,
+                        aS2[2][1],
+                        cmplx![ref_val_Hq[i][idx], 0.],
+                        epsilon = 3e-6 * (-ref_val_Hq[i][idx])
+                    );
+                }
+                assert_approx_eq_cmplx!(
+                    f64,
+                    aS2[1][1],
+                    cmplx![ref_val_qq[i][n - 2], 0.],
+                    epsilon = 4e-6 * (-ref_val_qq[i][n - 2])
+                );
+            }
         }
     }
 }
