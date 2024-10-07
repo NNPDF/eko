@@ -70,22 +70,21 @@ pub unsafe extern "C" fn rust_quad_ker_qcd(u: f64, rargs: *mut c_void) -> f64 {
             );
         }
     } else if is_singlet {
+        let gamma_singlet_qcd = match args.is_polarized {
+            true => ekore::anomalous_dimensions::polarized::spacelike::gamma_singlet_qcd,
+            false => ekore::anomalous_dimensions::unpolarized::spacelike::gamma_singlet_qcd,
+        };
         raw = unravel(
-            ekore::anomalous_dimensions::unpolarized::spacelike::gamma_singlet_qcd(
-                args.order_qcd,
-                &mut c,
-                args.nf,
-            ),
+            gamma_singlet_qcd(args.order_qcd, &mut c, args.nf),
             args.order_qcd,
         );
     } else {
         // we can not do 1D
-        let res = ekore::anomalous_dimensions::unpolarized::spacelike::gamma_ns_qcd(
-            args.order_qcd,
-            args.mode0,
-            &mut c,
-            args.nf,
-        );
+        let gamma_ns_qcd = match args.is_polarized {
+            true => ekore::anomalous_dimensions::polarized::spacelike::gamma_ns_qcd,
+            false => ekore::anomalous_dimensions::unpolarized::spacelike::gamma_ns_qcd,
+        };
+        let res = gamma_ns_qcd(args.order_qcd, args.mode0, &mut c, args.nf);
         for el in res.iter().take(args.order_qcd) {
             raw.re.push(el.re);
             raw.im.push(el.im);
