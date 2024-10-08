@@ -10,3 +10,13 @@ use crate::harmonics::polygamma::cern_polygamma;
 pub fn S1(N: Complex<f64>) -> Complex<f64> {
     cern_polygamma(N + 1.0, 0) + 0.577_215_664_901_532_9
 }
+
+/// Analytic continuation of harmonic sum $S_{-1}(N)$ for even moments.
+pub fn Sm1e(hS1: Complex<f64>, hS1h: Complex<f64>) -> Complex<f64> {
+    hS1h - hS1
+}
+
+/// Analytic continuation of harmonic sum $S_{-1}(N)$ for odd moments.
+pub fn Sm1o(hS1: Complex<f64>, hS1mh: Complex<f64>) -> Complex<f64> {
+    hS1mh - hS1
+}
