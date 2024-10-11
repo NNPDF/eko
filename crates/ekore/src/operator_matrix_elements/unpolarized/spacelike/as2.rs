@@ -463,7 +463,7 @@ mod test {
     }
 
     #[test]
-    fn msbar_matcing() {
+    fn msbar_matching() {
         let logs = [0., 100.];
         for L in logs {
             let N = cmplx![2., 0.];
