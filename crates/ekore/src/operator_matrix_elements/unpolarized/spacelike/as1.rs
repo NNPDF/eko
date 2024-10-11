@@ -51,7 +51,7 @@ pub fn A_hg(c: &mut Cache, _nf: u8, L: f64) -> Complex<f64> {
 ///
 /// Implements Eq. (B.6) of [\[Buza:1996wv\]](crate::bib::Buza1996wv).
 pub fn A_gg(_c: &mut Cache, _nf: u8, L: f64) -> Complex<f64> {
-    cmplx![-2.0 / 3.0 * L, 0.]
+    cmplx!(-2.0 / 3.0 * L, 0.)
 }
 
 /// Compute the |NLO| singlet |OME|.
@@ -132,7 +132,7 @@ mod tests {
         ];
 
         for n in 0..4 {
-            let N = cmplx![2. * (n as f64) + 2., 0.];
+            let N = cmplx!(2. * (n as f64) + 2., 0.);
             let mut c = Cache::new(N);
             let aS1 = A_singlet(&mut c, NF, L);
             assert_approx_eq_cmplx!(f64, aS1[0][0], cmplx!(ref_val_gg[n], 0.), epsilon = 1e-6);

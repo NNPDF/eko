@@ -32,19 +32,19 @@ mod tests {
 
     #[test]
     fn test_mellin_g3() {
-        const NS: [Complex<f64>; 3] = [cmplx![1.0, 0.0], cmplx![2.0, 0.0], cmplx![1.0, 1.0]];
+        const NS: [Complex<f64>; 3] = [cmplx!(1.0, 0.0), cmplx!(2.0, 0.0), cmplx!(1.0, 1.0)];
         // NIntegrate[x^({1, 2, 1 + I} - 1) PolyLog[2, x]/(1 + x), {x, 0, 1}]
         const REFVALS: [Complex<f64>; 3] = [
-            cmplx![0.3888958462, 0.],
-            cmplx![0.2560382207, 0.],
-            cmplx![0.3049381491, -0.1589060625],
+            cmplx!(0.3888958462, 0.),
+            cmplx!(0.2560382207, 0.),
+            cmplx!(0.3049381491, -0.1589060625),
         ];
         for it in NS.iter().enumerate() {
             let n = *it.1;
             let s1 = w1::S1(n);
             let refval = REFVALS[it.0];
             let g3 = g3(n, s1);
-            assert_approx_eq_cmplx![f64, g3, refval, epsilon = 1e-6];
+            assert_approx_eq_cmplx!(f64, g3, refval, epsilon = 1e-6);
         }
     }
 }

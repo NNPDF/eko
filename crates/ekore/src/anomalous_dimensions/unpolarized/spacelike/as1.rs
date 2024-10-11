@@ -63,7 +63,7 @@ mod tests {
 
     #[test]
     fn number_conservation() {
-        const N: Complex<f64> = cmplx![1., 0.];
+        const N: Complex<f64> = cmplx!(1., 0.);
         let mut c = Cache::new(N);
         let me = gamma_ns(&mut c, NF);
         assert_approx_eq_cmplx!(f64, me, Complex::zero(), epsilon = 1e-12);
@@ -71,7 +71,7 @@ mod tests {
 
     #[test]
     fn quark_momentum_conservation() {
-        const N: Complex<f64> = cmplx![2., 0.];
+        const N: Complex<f64> = cmplx!(2., 0.);
         let mut c = Cache::new(N);
         let me = gamma_ns(&mut c, NF) + gamma_gq(&mut c, NF);
         assert_approx_eq_cmplx!(f64, me, Complex::zero(), epsilon = 1e-12);
@@ -79,7 +79,7 @@ mod tests {
 
     #[test]
     fn gluon_momentum_conservation() {
-        const N: Complex<f64> = cmplx![2., 0.];
+        const N: Complex<f64> = cmplx!(2., 0.);
         let mut c = Cache::new(N);
         let me = gamma_qg(&mut c, NF) + gamma_gg(&mut c, NF);
         assert_approx_eq_cmplx!(f64, me, Complex::zero(), epsilon = 1e-12);
@@ -87,7 +87,7 @@ mod tests {
 
     #[test]
     fn gamma_qg_() {
-        const N: Complex<f64> = cmplx![1., 0.];
+        const N: Complex<f64> = cmplx!(1., 0.);
         let mut c = Cache::new(N);
         let me = gamma_qg(&mut c, NF);
         assert_approx_eq_cmplx!(f64, me, cmplx!(-20. / 3., 0.), ulps = 32, epsilon = 1e-12);
@@ -95,7 +95,7 @@ mod tests {
 
     #[test]
     fn gamma_gq_() {
-        const N: Complex<f64> = cmplx![0., 1.];
+        const N: Complex<f64> = cmplx!(0., 1.);
         let mut c = Cache::new(N);
         let me = gamma_gq(&mut c, NF);
         assert_approx_eq_cmplx!(f64, me, cmplx!(4. / 3.0, -4. / 3.0), ulps = 32);
@@ -103,7 +103,7 @@ mod tests {
 
     #[test]
     fn gamma_gg_() {
-        const N: Complex<f64> = cmplx![0., 1.];
+        const N: Complex<f64> = cmplx!(0., 1.);
         let mut c = Cache::new(N);
         let me = gamma_gg(&mut c, NF);
         assert_approx_eq_cmplx!(

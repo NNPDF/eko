@@ -135,7 +135,7 @@ pub fn gamma_nsv(c: &mut Cache, nf: u8) -> Complex<f64> {
     let B12 = -(S1 + 1.0 / (N + 1.0) + 1.0 / (N + 2.0)) / (N + 2.0);
 
     let B1M = if N.im.abs() < 1.0e-5 && (N - 1.0).re.abs() < 1.0e-5 {
-        cmplx![-ZETA2, 0.]
+        cmplx!(-ZETA2, 0.)
     } else {
         -(S1 - 1.0 / N) / (N - 1.0)
     };
@@ -435,7 +435,7 @@ mod tests {
     #[test]
     fn physical_constraints() {
         // number conservation
-        let mut c = Cache::new(cmplx![1., 0.]);
+        let mut c = Cache::new(cmplx!(1., 0.));
         assert_approx_eq_cmplx!(
             f64,
             gamma_nsv(&mut c, NF),
@@ -449,7 +449,7 @@ mod tests {
             epsilon = 6e-7
         );
 
-        let mut c = Cache::new(cmplx![2., 0.]);
+        let mut c = Cache::new(cmplx!(2., 0.));
         let gS2 = gamma_singlet(&mut c, NF);
         // gluon momentum conservation
         assert_approx_eq_cmplx!(
@@ -469,7 +469,7 @@ mod tests {
 
     #[test]
     fn N2() {
-        let mut c = Cache::new(cmplx![2., 0.]);
+        let mut c = Cache::new(cmplx!(2., 0.));
         assert_approx_eq_cmplx!(
             f64,
             gamma_nsv(&mut c, NF),

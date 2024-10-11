@@ -141,7 +141,7 @@ mod tests {
     #[test]
     fn test_recursive_harmonic_sum() {
         const SX: [fn(Complex<f64>) -> Complex<f64>; 4] = [w1::S1, w2::S2, w3::S3, w4::S4];
-        const NS: [Complex<f64>; 2] = [cmplx![1.0, 0.0], cmplx![2.34, 3.45]];
+        const NS: [Complex<f64>; 2] = [cmplx!(1.0, 0.0), cmplx!(2.34, 3.45)];
         const ITERS: [usize; 2] = [1, 2];
         for sit in SX.iter().enumerate() {
             for nit in NS.iter().enumerate() {
