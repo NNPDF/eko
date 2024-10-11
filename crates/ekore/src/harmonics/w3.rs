@@ -17,12 +17,12 @@ pub fn S3(N: Complex<f64>) -> Complex<f64> {
 
 /// Analytic continuation of harmonic sum $S_{-3}(N)$ for even moments.
 pub fn Sm3e(hS3: Complex<f64>, hS3h: Complex<f64>) -> Complex<f64> {
-    1. / (2_f64).pow(2) * hS3h - hS3
+    1. / (2.).pow(2) * hS3h - hS3
 }
 
 /// Analytic continuation of harmonic sum $S_{-3}(N)$ for odd moments.
 pub fn Sm3o(hS3: Complex<f64>, hS3mh: Complex<f64>) -> Complex<f64> {
-    1. / (2_f64).pow(2) * hS3mh - hS3
+    1. / (2.).pow(2) * hS3mh - hS3
 }
 
 /// Analytic continuation of harmonic sum $S_{-2,1}(N)$ for even moments.
