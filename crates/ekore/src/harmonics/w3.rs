@@ -27,12 +27,15 @@ pub fn Sm3o(hS3: Complex<f64>, hS3mh: Complex<f64>) -> Complex<f64> {
 
 /// Analytic continuation of harmonic sum $S_{-2,1}(N)$ for even moments.
 pub fn Sm21e(N: Complex<f64>, hS1: Complex<f64>, hSm1: Complex<f64>) -> Complex<f64> {
-    let eta = 1.;
-    -eta * g3(N + 1., hS1 + 1. / (N + 1.)) + ZETA2 * hSm1 - 5. / 8. * ZETA3 + ZETA2 * LN_2
+    Sm21(N, 1., hS1, hSm1)
 }
 
 /// Analytic continuation of harmonic sum $S_{-2,1}(N)$ for odd moments.
 pub fn Sm21o(N: Complex<f64>, hS1: Complex<f64>, hSm1: Complex<f64>) -> Complex<f64> {
-    let eta = -1.;
+    Sm21(N, -1., hS1, hSm1)
+}
+
+/// Analytic continuation of harmonic sum $S_{-2,1}(N)$ for odd moments.
+fn Sm21(N: Complex<f64>, eta: f64, hS1: Complex<f64>, hSm1: Complex<f64>) -> Complex<f64> {
     -eta * g3(N + 1., hS1 + 1. / (N + 1.)) + ZETA2 * hSm1 - 5. / 8. * ZETA3 + ZETA2 * LN_2
 }
