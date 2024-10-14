@@ -8,23 +8,17 @@ macro_rules! cmplx {
     };
 }
 
-/// Shorthand complex number contructor.
+/// Shorthand complex number comparators.
 #[cfg(test)]
 #[macro_export]
 macro_rules! assert_approx_eq_cmplx {
-    ($size:ty, $ref:expr, $target:expr) => {
-        use float_cmp::assert_approx_eq;
-        assert_approx_eq!($size, $ref.re, $target.re);
-        assert_approx_eq!($size, $ref.im, $target.im);
+    ($size:ty, $ref:expr, $target:expr, rel=$rel:expr) => {
+        assert!($target.norm() > 0.0, "target has norm=0!");
+        float_cmp::assert_approx_eq!($size, $ref.re, $target.re, epsilon = $rel * $target.norm());
+        float_cmp::assert_approx_eq!($size, $ref.im, $target.im, epsilon = $rel * $target.norm());
     };
-    ($size:ty, $ref:expr, $target:expr, ulps=$ulps:expr) => {
-        use float_cmp::assert_approx_eq;
-        assert_approx_eq!($size, $ref.re, $target.re, ulps = $ulps);
-        assert_approx_eq!($size, $ref.im, $target.im, ulps = $ulps);
-    };
-    ($size:ty, $ref:expr, $target:expr, epsilon=$epsilon:expr) => {
-        use float_cmp::assert_approx_eq;
-        assert_approx_eq!($size, $ref.re, $target.re, epsilon = $epsilon);
-        assert_approx_eq!($size, $ref.im, $target.im, epsilon = $epsilon);
+    ($size:ty, $ref:expr, $target:expr $(, $set:ident = $val:expr)*) => {
+        float_cmp::assert_approx_eq!($size, $ref.re, $target.re $(, $set = $val)*);
+        float_cmp::assert_approx_eq!($size, $ref.im, $target.im $(, $set = $val)*);
     };
 }

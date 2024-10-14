@@ -33,11 +33,11 @@ pub const ZETA3: f64 = 1.2020569031595942;
 /// $\zeta(4) = \pi^4 / 90$.
 pub const ZETA4: f64 = 1.082323233711138;
 
-/// singlet-like non-singlet PID
+/// singlet-like non-singlet |PID|.
 pub const PID_NSP: u16 = 10101;
 
-/// valence-like non-singlet PID
+/// valence-like non-singlet |PID|.
 pub const PID_NSM: u16 = 10201;
 
-/// non-singlet all-valence PID
+/// non-singlet all-valence |PID|.
 pub const PID_NSV: u16 = 10200;
