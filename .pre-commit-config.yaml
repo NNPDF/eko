@@ -24,6 +24,9 @@ repos:
       # Run the linter.
       - id: ruff
         args: [ --fix ]
+      # Sort imports
+      - id: ruff
+        args: [ --select, I, --fix ]
       # Run the formatter.
       - id: ruff-format
   - repo: https://github.com/PyCQA/docformatter
