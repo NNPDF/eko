@@ -67,50 +67,6 @@ def apply_pdf(
     errors :
         Integration errors for PDFs for the computed evolution points
     """
-    # prepare post-process
-    qed = eko.theory_card.order[1] > 0
-    flavor_rotation = None
-    labels = br.flavor_basis_pids
-    if rotate_to_evolution_basis:
-        if not qed:
-            flavor_rotation = br.rotate_flavor_to_evolution
-            labels = br.evol_basis_pids
-        else:
-            flavor_rotation = br.rotate_flavor_to_unified_evolution
-            labels = br.unified_evol_basis_pids
-    return apply_pdf_flavor(eko, lhapdf_like, labels, targetgrid, flavor_rotation)
-
-
-def apply_pdf_flavor(
-    eko: EKO,
-    lhapdf_like,
-    flavor_labels: Sequence[int],
-    targetgrid: npt.ArrayLike = None,
-    flavor_rotation: npt.ArrayLike = None,
-) -> tuple[LabeledPdfResult, LabeledErrorResult]:
-    """Apply all available operators to the input PDF.
-
-    Parameters
-    ----------
-    eko :
-        eko output object containing all informations
-    lhapdf_like : Any
-        object that provides an `xfxQ2` callable (as `lhapdf <https://lhapdf.hepforge.org/>`_
-        and :class:`ekomark.toyLH.toyPDF` do) (and thus is in flavor basis)
-    flavor_labels :
-        flavor names
-    targetgrid :
-        if given, interpolates to the targetgrid (instead of xgrid)
-    flavor_rotation :
-        if give, rotate in flavor space
-
-    Returns
-    -------
-    pdfs :
-        PDFs for the computed evolution points
-    errors :
-        Integration errors for PDFs for the computed evolution points
-    """
     # create pdfs
     input_pdfs = np.zeros((len(br.flavor_basis_pids), len(eko.xgrid)))
     for j, pid in enumerate(br.flavor_basis_pids):
@@ -121,10 +77,19 @@ def apply_pdf_flavor(
         )
     # apply
     grids, grid_errors = apply_grids(eko, input_pdfs[None, :])
-    new_grids = rotate_result(eko, grids, flavor_labels, targetgrid, flavor_rotation)
-    new_errors = rotate_result(
-        eko, grid_errors, flavor_labels, targetgrid, flavor_rotation
-    )
+    # post-process
+    qed = eko.theory_card.order[1] > 0
+    flavor_rotation = None
+    labels = br.flavor_basis_pids
+    if rotate_to_evolution_basis:
+        if not qed:
+            flavor_rotation = br.rotate_flavor_to_evolution
+            labels = br.evol_basis_pids
+        else:
+            flavor_rotation = br.rotate_flavor_to_unified_evolution
+            labels = br.unified_evol_basis_pids
+    new_grids = rotate_result(eko, grids, labels, targetgrid, flavor_rotation)
+    new_errors = rotate_result(eko, grid_errors, labels, targetgrid, flavor_rotation)
     # unwrap the replica axis again
     pdfs: LabeledPdfResult = {}
     errors: LabeledErrorResult = {}
