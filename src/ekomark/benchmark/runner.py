@@ -228,12 +228,12 @@ class Runner(BenchmarkRunner):
                 rotate_to_evolution[3, :] = [0, 0, 0, 0, 0, -1, -1, 0, 1, 1, 0, 0, 0, 0]
 
         with EKO.read(me) as eko:
-            pdf_grid = apply.apply_pdf_flavor(
+            pdf_grid, errors = apply.apply_pdf_flavor(
                 eko,
                 pdf,
+                labels,
                 xgrid,
                 flavor_rotation=rotate_to_evolution,
-                labels=labels,
             )
         for q2, ref_pdfs in ext["values"].items():
             log_tab = dfdict.DFdict()
@@ -243,9 +243,8 @@ class Runner(BenchmarkRunner):
                 if len(eps) == 0:
                     raise KeyError(f"PDF at Q2={q2} not found")
                 raise KeyError(f"More than one evolution point found for Q2={q2}")
-            res = pdf_grid[eps[0]]
-            my_pdfs = res["pdfs"]
-            my_pdf_errs = res["errors"]
+            my_pdfs = pdf_grid[eps[0]]
+            my_pdf_errs = errors[eps[0]]
 
             for key in my_pdfs:
                 if key in self.skip_pdfs(theory):
