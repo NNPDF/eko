@@ -23,7 +23,8 @@ def gamma_gq(n, nf, cache, variation):
     r"""Compute the |N3LO| gluon-quark singlet anomalous dimension.
 
     The routine is taken from :cite:`Falcioni:2024xyt`.
-    Lower moments were published also in :cite:`Moch:2023tdj`.
+    A previous version based only on the lowest 10 moments
+    was given in :cite:`Moch:2023tdj`.
 
 
     Parameters
