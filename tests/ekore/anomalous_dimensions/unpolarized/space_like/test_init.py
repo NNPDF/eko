@@ -118,7 +118,7 @@ def test_gamma_ns():
     # as4
     assert_allclose(
         ad_us.gamma_ns(
-            (4, 0), br.non_singlet_pids_map["ns-"], 1, nf, n3lo_ad_variation
+            (4, 0), br.non_singlet_pids_map["ns-"], 1, nf, n3lo_ad_variation, use_fhmruvv = False
         ),
         np.zeros(4),
         atol=2e-4,
@@ -126,7 +126,7 @@ def test_gamma_ns():
     # N3LO valence has a spurious pole, need to add a small shift
     assert_allclose(
         ad_us.gamma_ns(
-            (4, 0), br.non_singlet_pids_map["nsV"], 1 + 1e-6, nf, n3lo_ad_variation
+            (4, 0), br.non_singlet_pids_map["nsV"], 1 + 1e-6, nf, n3lo_ad_variation, use_fhmruvv = False
         ),
         np.zeros(4),
         atol=5e-4,
