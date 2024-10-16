@@ -7,6 +7,28 @@ Moreover, the analytical structure of these function is already known to be comp
 since in Mellin space they include harmonics sum up to weight 7, for which an
 analytical expression is not available.
 
+We provide two different types of approximations, depending on the key ``use_fhmruvv``.
+The theory card parameter ``n3lo_ad_variation=(gg, gq, qg, qq, nsp, nsm, nsv)``, 
+which is set to ``(0,0,0,0,0,0,0)`` as default, can be varied to obtain parametrization uncertainties.
+
+In particular:
+
+* ``use_fhmruvv = True`` (default option) adopts the parametrizations as provided 
+  in :cite:`Moch:2017uml,Falcioni:2023luc,Falcioni:2023vqq,Falcioni:2024xyt,Falcioni:2024qpd`. 
+  For each of the 7 splitting functions, the approximation error can be obtained by varying 
+  the entries of ``n3lo_ad_variation`` in the range: ``0``, 
+  cental value (default), ``1`` down variation, ``2`` up variation.
+
+* ``use_fhmruvv = False`` adopts an in-house parametrization, constructed as described below.
+  In this case only variations of the singlet sector are available. Currently one 
+  can vary ``n3lo_ad_variation`` in the range: ``0-19`` for ``gg``, ``0-15`` for ``gg``,
+  ``0-15`` for ``qg``, ``0-6`` for ``qq``.
+  Note these approximations will be no longer updated and are now deprecated. 
+
+
+In house approximation
+----------------------
+
 Here, we describe the various assumptions and limits used in order to reconstruct a parametrization
 that can approximate their contribution.
 In particular we take advantage of some known physical constrains,
@@ -21,7 +43,7 @@ In any case |N3LO| |DGLAP| evolution at small-x, especially for singlet-like PDF
 until the splitting function resummation is available up to |NNLL|.
 
 Non-singlet sector
-------------------
+^^^^^^^^^^^^^^^^^^
 
 In the non-singlet sector we construct a parametrization for
 :math:`\gamma_{ns,-}^{(3)},\gamma_{ns,-}^{(3)},\gamma_{ns,s}^{(3)}` where:
@@ -147,7 +169,7 @@ In |EKO| they are implemented as follows:
             It is checked that this contribution is much more smaller than the values of :math:`B_4`.
 
 Singlet sector
---------------
+^^^^^^^^^^^^^^
 
 In the singlet sector we construct a parametrization for
 :math:`\gamma_{gg}^{(3)},\gamma_{gq}^{(3)},\gamma_{qg}^{(3)},\gamma_{qq}^{(3)}` where:
