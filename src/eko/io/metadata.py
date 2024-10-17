@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from typing import Optional
 
 import yaml
+from packaging.version import parse
 
 from .. import version as vmod
 from ..interpolation import XGrid
@@ -59,9 +60,15 @@ class Metadata(DictLike):
             loaded metadata
         """
         path = pathlib.Path(path)
-        content = cls.from_dict(
-            yaml.safe_load(InternalPaths(path).metadata.read_text(encoding="utf-8"))
-        )
+        # read raw file first to catch version
+        raw = yaml.safe_load(InternalPaths(path).metadata.read_text(encoding="utf-8"))
+        version = parse(raw["version"])
+        if version.major == 0 and version.minor == 13:
+            raise NotImplementedError("TODO")
+        elif version.major == 0 and version.minor == 14:
+            raise NotImplementedError("TODO")
+        else:
+            content = cls.from_dict(raw)
         content._path = path
         return content
 
@@ -70,7 +77,7 @@ class Metadata(DictLike):
         if self._path is None:
             logger.info("Impossible to set metadata, no file attached.")
         else:
-            with open(InternalPaths(self._path).metadata, "w") as fd:
+            with open(InternalPaths(self._path).metadata, "w", encoding="utf8") as fd:
                 yaml.safe_dump(self.raw, fd)
 
     @property
