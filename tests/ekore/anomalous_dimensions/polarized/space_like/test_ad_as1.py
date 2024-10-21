@@ -2,7 +2,7 @@
 import numpy as np
 
 import ekore.anomalous_dimensions.polarized.space_like.as1 as as1
-from eko import constants
+from eko import beta, constants
 from ekore import harmonics
 
 NF = 5
@@ -30,3 +30,10 @@ def test_gluon_momentum():
 def test_qg_helicity_conservation():
     N = complex(1.0, 0.0)
     np.testing.assert_almost_equal(as1.gamma_qg(N, NF), 0)
+
+
+def test_axial_anomaly():
+    # violation of the axial current conservation happens only through loops
+    N = complex(1.0, 0.0)
+    cache = harmonics.cache.reset()
+    np.testing.assert_allclose(as1.gamma_gg(N, cache, NF), -beta.beta_qcd_as2(NF))
