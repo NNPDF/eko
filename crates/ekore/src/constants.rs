@@ -61,12 +61,25 @@ pub fn uplike_flavors(nf: u8) -> u8 {
     nf / 2
 }
 
-pub fn charge_combinations(nf: u8) -> Vec<f64> {
+pub struct ChargeCombinations {
+    pub e2avg: f64,
+    pub vue2m: f64,
+    pub vde2m: f64,
+    pub e2delta: f64,
+}
+
+pub fn charge_combinations(nf: u8) -> ChargeCombinations {
     let nu = uplike_flavors(nf) as f64;
     let nd = (nf as f64) - nu;
     let e2avg = (nu * eu2 + nd * ed2) / (nf as f64);
     let vue2m = nu / (nf as f64) * (eu2 - ed2);
     let vde2m = nd / (nf as f64) * (eu2 - ed2);
     let e2delta = vde2m - vue2m + e2avg;
-    vec![e2avg, vue2m, vde2m, e2delta]
+
+    ChargeCombinations {
+        e2avg,
+        vue2m,
+        vde2m,
+        e2delta,
+    }
 }

@@ -42,10 +42,6 @@ pub fn gamma_ns(c: &mut Cache, nf: u8) -> Complex<f64> {
 /// Implements Eq. (2.5) of
 pub fn gamma_singlet(c: &mut Cache, nf: u8) -> [[Complex<f64>; 4]; 4] {
     let cc = charge_combinations(nf);
-    let e2avg = cc[0];
-    let vue2m = cc[1];
-    let vde2m = cc[2];
-    let e2delta = cc[3];
 
     let gamma_ph_q = gamma_phq(c, nf);
     let gamma_q_ph = gamma_qph(c, nf);
@@ -61,20 +57,20 @@ pub fn gamma_singlet(c: &mut Cache, nf: u8) -> [[Complex<f64>; 4]; 4] {
         [
             Complex::<f64>::zero(),
             gamma_phph(c, nf),
-            e2avg * gamma_ph_q,
-            vue2m * gamma_ph_q,
+            cc.e2avg * gamma_ph_q,
+            cc.vue2m * gamma_ph_q,
         ],
         [
             Complex::<f64>::zero(),
-            e2avg * gamma_q_ph,
-            e2avg * gamma_nonsinglet,
-            vue2m * gamma_nonsinglet,
+            cc.e2avg * gamma_q_ph,
+            cc.e2avg * gamma_nonsinglet,
+            cc.vue2m * gamma_nonsinglet,
         ],
         [
             Complex::<f64>::zero(),
-            vde2m * gamma_q_ph,
-            vde2m * gamma_nonsinglet,
-            e2delta * gamma_nonsinglet,
+            cc.vde2m * gamma_q_ph,
+            cc.vde2m * gamma_nonsinglet,
+            cc.e2delta * gamma_nonsinglet,
         ],
     ]
 }
@@ -84,14 +80,10 @@ pub fn gamma_singlet(c: &mut Cache, nf: u8) -> [[Complex<f64>; 4]; 4] {
 /// Implements Eq. (2.5) of
 pub fn gamma_valence(c: &mut Cache, nf: u8) -> [[Complex<f64>; 2]; 2] {
     let cc = charge_combinations(nf);
-    let e2avg = cc[0];
-    let vue2m = cc[1];
-    let vde2m = cc[2];
-    let e2delta = cc[3];
 
     [
-        [e2avg * gamma_ns(c, nf), vue2m * gamma_ns(c, nf)],
-        [vde2m * gamma_ns(c, nf), e2delta * gamma_ns(c, nf)],
+        [cc.e2avg * gamma_ns(c, nf), cc.vue2m * gamma_ns(c, nf)],
+        [cc.vde2m * gamma_ns(c, nf), cc.e2delta * gamma_ns(c, nf)],
     ]
 }
 
