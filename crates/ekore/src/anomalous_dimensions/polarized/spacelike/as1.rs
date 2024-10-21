@@ -82,4 +82,15 @@ mod tests {
         let me = gamma_qg(&mut c, NF);
         assert_approx_eq_cmplx!(f64, me, Complex::zero(), epsilon = 1e-12);
     }
+
+    // TODO: activate this test once the beta function will be available
+    // #[test]
+    // fn axial_anomaly() {
+    //     const N: Complex<f64> = cmplx!(1., 0.);
+    //     let mut c = Cache::new(N);
+    //     let me = gamma_gg(&mut c, NF);
+    //     let beta = -1.0 * beta_qcd_as2(NF);
+    //     assert_approx_eq_cmplx!(f64, me, beta);
+    // }
+
 }
