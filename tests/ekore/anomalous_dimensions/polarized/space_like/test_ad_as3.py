@@ -1,8 +1,10 @@
 # Test NNLO Polarized splitting functions
 import numpy as np
 
+import ekore.anomalous_dimensions.polarized.space_like.as2 as as2
 import ekore.anomalous_dimensions.polarized.space_like.as3 as as3
 import ekore.anomalous_dimensions.unpolarized.space_like.as3 as as3_unpol
+from eko import beta
 from eko.constants import zeta2, zeta3
 from ekore import harmonics
 
@@ -53,4 +55,16 @@ def test_ns():
     )
     np.testing.assert_allclose(
         as3_unpol.gamma_nsp(N, nf, cache), as3.gamma_nsm(N, nf, cache)
+    )
+
+
+def test_axial_anomaly():
+    # violation of the axial current conservation happens only through loops
+    N = complex(1.0, 0.0)
+    cache = harmonics.cache.reset()
+    np.testing.assert_allclose(
+        as3.gamma_gg(N, nf, cache), -beta.beta_qcd_as4(nf), rtol=2e-5
+    )
+    np.testing.assert_allclose(
+        as3.gamma_ps(N, nf, cache), -2 * nf * as2.gamma_gq(N, nf, cache), rtol=3e-6
     )
