@@ -90,10 +90,14 @@ def benchmark_inverse_matching():
     with pytest.raises(AssertionError):
         np.testing.assert_allclose(op1_nf3.operator, op2_nf3.operator)
 
-    pdf1, _ = apply.apply_pdf(eko_output1, toy.mkPDF("ToyLH", 0))
-    pdf2, _ = apply.apply_pdf(eko_output2, toy.mkPDF("ToyLH", 0))
+    pdf1 = apply.apply_pdf(eko_output1, toy.mkPDF("ToyLH", 0))
+    pdf2 = apply.apply_pdf(eko_output2, toy.mkPDF("ToyLH", 0))
 
     # test that different PTO matching is applied correctly
-    np.testing.assert_allclose(pdf1[(MC**2, 4)][C_PID], pdf2[(MC**2, 4)][C_PID])
+    np.testing.assert_allclose(
+        pdf1[(MC**2, 4)]["pdfs"][C_PID], pdf2[(MC**2, 4)]["pdfs"][C_PID]
+    )
     with pytest.raises(AssertionError):
-        np.testing.assert_allclose(pdf1[(MC**2, 3)][C_PID], pdf2[(MC**2, 3)][C_PID])
+        np.testing.assert_allclose(
+            pdf1[(MC**2, 3)]["pdfs"][C_PID], pdf2[(MC**2, 3)]["pdfs"][C_PID]
+        )

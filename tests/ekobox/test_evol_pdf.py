@@ -113,7 +113,11 @@ def test_collect_blocks():
     def mk(eps):
         f = {}
         for ep in eps:
-            f[ep] = {pid: np.random.rand(len(xgrid)) for pid in br.flavor_basis_pids}
+            f[ep] = {
+                "pdfs": {
+                    pid: np.random.rand(len(xgrid)) for pid in br.flavor_basis_pids
+                }
+            }
         return f
 
     # basic
