@@ -92,5 +92,4 @@ mod tests {
     //     let beta = -1.0 * beta_qcd_as2(NF);
     //     assert_approx_eq_cmplx!(f64, me, beta);
     // }
-
 }
