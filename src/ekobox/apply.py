@@ -12,31 +12,20 @@ from eko.io import EKO
 from eko.io.types import EvolutionPoint
 
 RawPdfResult = dict[EvolutionPoint, npt.ArrayLike]
-"""Evolved PDFs as raw grids.
+"""PDFs as raw grids.
 
 The key is given by the associated evolution point. The values are
-tensors sorted by (replica, flavor, xgrid).
-"""
-
-RawErrorResult = dict[EvolutionPoint, Optional[npt.ArrayLike]]
-"""Integration errors for evolved PDFs as raw grids.
-
-The key is given by the associated evolution point. The values are
-tensors sorted by (replica, flavor, xgrid).
+tensors sorted by (replica, flavor, xgrid). It may be the PDF or the
+associated integration error.
 """
 
 
 LabeledPdfResult = dict[EvolutionPoint, dict[int, npt.ArrayLike]]
-"""Evolved PDFs labeled by their PDF identifier.
+"""PDFs labeled by their PDF identifier.
 
 The outer key is given by the associated evolution point. The inner key
-is the |PID|. The inner values are the values for along the xgrid.
-"""
-LabeledErrorResult = dict[EvolutionPoint, dict[int, Optional[npt.ArrayLike]]]
-"""Integration errors for evolved PDFs labeled by their PDF identifier.
-
-The outer key is given by the associated evolution point. The inner key
-is the |PID|. The inner values are the values for along the xgrid.
+is the |PID|. The inner values are the values for along the xgrid. It
+may be the PDF or the associated integration error.
 """
 
 
@@ -45,7 +34,7 @@ def apply_pdf(
     lhapdf_like,
     targetgrid: npt.ArrayLike = None,
     rotate_to_evolution_basis: bool = False,
-) -> tuple[LabeledPdfResult, LabeledErrorResult]:
+) -> tuple[LabeledPdfResult, LabeledPdfResult]:
     """Apply all available operators to the input PDF.
 
     Parameters
@@ -87,7 +76,7 @@ def apply_pdf_flavor(
     flavor_labels: Sequence[int],
     targetgrid: npt.ArrayLike = None,
     flavor_rotation: npt.ArrayLike = None,
-) -> tuple[LabeledPdfResult, LabeledErrorResult]:
+) -> tuple[LabeledPdfResult, LabeledPdfResult]:
     """Apply all available operators to the input PDF.
 
     Parameters
@@ -127,25 +116,21 @@ def apply_pdf_flavor(
     )
     # unwrap the replica axis again
     pdfs: LabeledPdfResult = {}
-    errors: LabeledErrorResult = {}
+    errors: LabeledPdfResult = {}
     for ep, pdf in new_grids.items():
-        pdfs[ep] = {
-            lab: grid[0] if grid is not None else None for lab, grid in pdf.items()
-        }
-        errors[ep] = {
-            lab: (grid[0] if grid is not None else None)
-            for lab, grid in new_errors[ep].items()
-        }
+        pdfs[ep] = {lab: grid[0] for lab, grid in pdf.items()}
+        if ep in new_errors:
+            errors[ep] = {lab: (grid[0]) for lab, grid in new_errors[ep].items()}
     return pdfs, errors
 
 
 def rotate_result(
     eko: EKO,
-    grids: RawErrorResult,
+    grids: RawPdfResult,
     flavor_labels: Sequence[int],
     targetgrid: Optional[npt.ArrayLike] = None,
     flavor_rotation: Optional[npt.ArrayLike] = None,
-) -> LabeledErrorResult:
+) -> LabeledPdfResult:
     """Rotate and relabel PDFs.
 
     Parameters
@@ -170,10 +155,8 @@ def rotate_result(
     if flavor_rotation is not None:
         new_grids = {}
         for ep, pdf_grid in grids.items():
-            new_grids[ep] = (
-                np.einsum("ab,rbk->rak", flavor_rotation, pdf_grid, optimize="optimal")
-                if pdf_grid is not None
-                else None
+            new_grids[ep] = np.einsum(
+                "ab,rbk->rak", flavor_rotation, pdf_grid, optimize="optimal"
             )
         grids = new_grids
 
@@ -188,10 +171,8 @@ def rotate_result(
         x_rotation = b.get_interpolation(targetgrid)
         new_grids = {}
         for ep, pdf_grid in grids.items():
-            new_grids[ep] = (
-                np.einsum("jk,rbk->rbj", x_rotation, pdf_grid, optimize="optimal")
-                if pdf_grid is not None
-                else None
+            new_grids[ep] = np.einsum(
+                "jk,rbk->rbj", x_rotation, pdf_grid, optimize="optimal"
             )
         grids = new_grids
 
@@ -201,9 +182,7 @@ def rotate_result(
         new_grids[ep] = dict(
             zip(
                 flavor_labels,
-                np.swapaxes(pdf_grid, 0, 1)
-                if pdf_grid is not None
-                else [None] * len(flavor_labels),
+                np.swapaxes(pdf_grid, 0, 1),
             )
         )
     grids = new_grids
@@ -217,7 +196,7 @@ _EKO_CONTRACTION = "ajbk,rbk->raj"
 
 def apply_grids(
     eko: EKO, input_grids: npt.ArrayLike
-) -> tuple[RawPdfResult, RawErrorResult]:
+) -> tuple[RawPdfResult, RawPdfResult]:
     """Apply all available operators to the input grids.
 
     Parameters
@@ -231,7 +210,7 @@ def apply_grids(
     -------
     pdfs :
         output PDFs for the computed evolution points
-    pdfs :
+    errors :
         associated integration errors for the computed evolution points
     """
     # sanity check
@@ -245,14 +224,13 @@ def apply_grids(
         )
     # iterate
     pdfs: RawPdfResult = {}
-    errors: RawErrorResult = {}
+    errors: RawPdfResult = {}
     for ep, elem in eko.items():
         pdfs[ep] = np.einsum(
             _EKO_CONTRACTION, elem.operator, input_grids, optimize="optimal"
         )
-        errors[ep] = (
-            np.einsum(_EKO_CONTRACTION, elem.error, input_grids, optimize="optimal")
-            if elem.error is not None
-            else None
-        )
+        if elem.error is not None:
+            errors[ep] = np.einsum(
+                _EKO_CONTRACTION, elem.error, input_grids, optimize="optimal"
+            )
     return pdfs, errors
