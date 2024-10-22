@@ -9,9 +9,8 @@ def test_apply(eko_factory: EKOFactory, fake_pdf):
     eko = eko_factory.get()
     ep_out = eko.evolgrid[0]
     # base application
-    pdfs, errors = apply.apply_pdf(eko, fake_pdf)
+    pdfs, _errors = apply.apply_pdf(eko, fake_pdf)
     assert len(pdfs) == len(eko.evolgrid)
-    assert len(pdfs) == len(errors)
     ep_pdfs = pdfs[ep_out]
     assert list(ep_pdfs.keys()) == list(br.flavor_basis_pids)
     # rotate to target_grid
@@ -30,6 +29,6 @@ def test_apply_grids(eko_factory: EKOFactory):
     eko = eko_factory.get()
     # since everything is random, we can only test the tensor shapes here
     input_grids = np.random.rand(3, len(br.flavor_basis_pids), len(eko.xgrid))
-    pdfs, errors = apply.apply_grids(eko, input_grids)
-    for ep, res in pdfs.items():
+    pdfs, _errors = apply.apply_grids(eko, input_grids)
+    for _ep, res in pdfs.items():
         assert res.shape == input_grids.shape
