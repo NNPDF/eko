@@ -53,6 +53,15 @@ pub const PID_NSM: u16 = 10201;
 /// non-singlet all-valence |PID|.
 pub const PID_NSV: u16 = 10200;
 
+/// QED |PID|. Need to give sensible names
+pub const PID_NSP_EU2: u16 = 10102;
+
+pub const PID_NSP_ED2: u16 = 10103;
+
+pub const PID_NSM_EU2: u16 = 10202;
+
+pub const PID_NSM_ED2: u16 = 10203;
+
 /// compute the number of up flavors
 pub fn uplike_flavors(nf: u8) -> u8 {
     if nf > 6 {

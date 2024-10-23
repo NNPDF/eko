@@ -1,6 +1,8 @@
 //! The unpolarized, space-like anomalous dimensions at various couplings power.
 
-use crate::constants::{PID_NSM, PID_NSP, PID_NSV};
+use crate::constants::{
+    ed2, eu2, PID_NSM, PID_NSM_ED2, PID_NSM_EU2, PID_NSP, PID_NSP_ED2, PID_NSP_EU2, PID_NSV,
+};
 use crate::harmonics::cache::Cache;
 use num::complex::Complex;
 use num::Zero;
@@ -55,4 +57,27 @@ pub fn gamma_singlet_qcd(order_qcd: usize, c: &mut Cache, nf: u8) -> Vec<[[Compl
         gamma_S[2] = as3::gamma_singlet(c, nf);
     }
     gamma_S
+}
+
+/// Compute the tower of the QED non-singlet anomalous dimensions.
+pub fn gamma_ns_qed(
+    order_qcd: usize,
+    order_qed: usize,
+    mode: u16,
+    c: &mut Cache,
+    nf: u8,
+) -> Vec<Vec<Complex<f64>>> {
+    let row = vec![Complex::<f64>::zero(); order_qcd + 1];
+    let mut gamma_ns = vec![row; order_qed + 1];
+    gamma_ns[1][0] = as1::gamma_ns(c, nf);
+    gamma_ns[0][1] = choose_ns_as_aem1(mode, c, nf);
+    gamma_ns
+}
+
+pub fn choose_ns_as_aem1(mode: u16, c: &mut Cache, nf: u8) -> Complex<f64> {
+    match mode {
+        PID_NSP_EU2 | PID_NSM_EU2 => eu2 * aem1::gamma_ns(c, nf),
+        PID_NSP_ED2 | PID_NSM_ED2 => ed2 * aem1::gamma_ns(c, nf),
+        _ => panic!("Unkown non-singlet sector element"),
+    }
 }
