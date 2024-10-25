@@ -1,7 +1,8 @@
 //! The $O(a_s^1a_{em}^1)$ Altarelli-Parisi splitting kernels.
+use crate::cmplx;
 use num::complex::Complex;
 
-use crate::constants::{CA, CF};
+use crate::constants::{ed2, eu2, uplike_flavors, CA, CF, NC, TR};
 use crate::harmonics::cache::{Cache, K};
 
 /// Compute the $O(a_s^1a_{em}^1)$ photon-quark anomalous dimension.
@@ -59,4 +60,51 @@ pub fn gamma_qph(c: &mut Cache, nf: u8) -> Complex<f64> {
     let tmp_S2 = 4.0 * (2.0 + N + N.powu(2)) / (N * (1.0 + N) * (2.0 + N));
 
     2.0 * (nf as f64) * CA * CF * (tmp_const + tmp_S1 * S1 + tmp_S12 * S1.powu(2) + tmp_S2 * S2)
+}
+
+/// Compute the $O(a_s^1a_{em}^1)$ gluon-photon anomalous dimension.
+///
+/// Implements Eq. (27) of
+pub fn gamma_gph(c: &mut Cache, _nf: u8) -> Complex<f64> {
+    let N = c.n();
+    CF * CA
+        * (8.0 * (-4.0 + N * (-4.0 + N * (-5.0 + N * (-10.0 + N + 2.0 * N.powu(2) * (2.0 + N))))))
+        / (N.powu(3) * (1.0 + N).powu(3) * (-2.0 + N + N.powu(2)))
+}
+
+/// Compute the $O(a_s^1a_{em}^1)$ photon-gluon anomalous dimension.
+///
+/// Implements Eq. (30) of
+pub fn gamma_phg(c: &mut Cache, nf: u8) -> Complex<f64> {
+    TR / CF / CA * (NC as f64) * gamma_gph(c, nf)
+}
+
+/// Compute the $O(a_s^1a_{em}^1)$ quark-gluon singlet anomalous dimension.
+///
+/// Implements Eq. (29) of
+pub fn gamma_qg(c: &mut Cache, nf: u8) -> Complex<f64> {
+    TR / CF / CA * (NC as f64) * gamma_qph(c, nf)
+}
+
+/// Compute the $O(a_s^1a_{em}^1)$ gluon-quark singlet anomalous dimension.
+///
+/// Implements Eq. (35) of
+pub fn gamma_gq(c: &mut Cache, nf: u8) -> Complex<f64> {
+    gamma_phq(c, nf)
+}
+
+/// Compute the $O(a_s^1a_{em}^1)$ photon-photon singlet anomalous dimension.
+///
+/// Implements Eq. (28) of
+pub fn gamma_phph(_c: &mut Cache, nf: u8) -> Complex<f64> {
+    let nu = uplike_flavors(nf);
+    let nd = nf - nu;
+    cmplx!(4.0 * CF * CA * ((nu as f64) * eu2 + (nd as f64) * ed2), 0.)
+}
+
+/// Compute the $O(a_s^1a_{em}^1)$ gluon-gluon singlet anomalous dimension.
+///
+/// Implements Eq. (31) of
+pub fn gamma_gg(_c: &mut Cache, _nf: u8) -> Complex<f64> {
+    cmplx!(4.0 * TR * (NC as f64), 0.)
 }
