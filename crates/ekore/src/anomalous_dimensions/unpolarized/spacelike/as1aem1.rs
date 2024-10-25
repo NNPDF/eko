@@ -2,7 +2,7 @@
 use crate::cmplx;
 use num::complex::Complex;
 
-use crate::constants::{ed2, eu2, uplike_flavors, CA, CF, NC, TR};
+use crate::constants::{ed2, eu2, uplike_flavors, CA, CF, NC, TR, ZETA2, ZETA3};
 use crate::harmonics::cache::{Cache, K};
 
 /// Compute the $O(a_s^1a_{em}^1)$ photon-quark anomalous dimension.
@@ -45,6 +45,7 @@ pub fn gamma_qph(c: &mut Cache, nf: u8) -> Complex<f64> {
     let S1 = c.get(K::S1);
     let S2 = c.get(K::S2);
 
+    #[rustfmt::skip]
     let tmp_const = -2.0
         * (4.0
             + 8.0 * N
@@ -107,4 +108,35 @@ pub fn gamma_phph(_c: &mut Cache, nf: u8) -> Complex<f64> {
 /// Implements Eq. (31) of
 pub fn gamma_gg(_c: &mut Cache, _nf: u8) -> Complex<f64> {
     cmplx!(4.0 * TR * (NC as f64), 0.)
+}
+
+/// Compute the $O(a_s^1a_{em}^1)$ singlet-like non singlet anomalous dimension.
+///
+/// Implements Eqs. (33-34) of
+pub fn gamma_nsp(c: &mut Cache, _nf: u8) -> Complex<f64> {
+    let N = c.n();
+    let S1 = c.get(K::S1);
+    let S2 = c.get(K::S2);
+    let S3 = c.get(K::S3);
+    let S1h = c.get(K::S1h);
+    let S2h = c.get(K::S2h);
+    let S3h = c.get(K::S3h);
+    let S1p1h = c.get(K::S1ph);
+    let S2p1h = c.get(K::S2ph);
+    let S3p1h = c.get(K::S3ph);
+    let g3N = c.get(K::G3);
+    let g3Np2 = c.get(K::G3p2);
+
+    #[rustfmt::skip]
+    let result = 32.0 * ZETA2 * S1h - 32.0 * ZETA2 * S1p1h
+        + 8.0 / (N + N.powu(2)) * S2h
+        - 4.0 * S3h + (24.0 + 16.0 / (N + N.powu(2))) * S2
+        - 32.0 * S3 - 8.0 / (N + N.powu(2)) * S2p1h
+        + S1 * (16.0 * (3.0 / N.powu(2) - 3.0 / (1.0 + N).powu(2) + 2.0 * ZETA2) - 16.0 * S2h
+            - 32.0 * S2 + 16.0 * S2p1h )
+        + (-8.0 + N * (-32.0 + N * ( -8.0 - 3.0 * N * (3.0 + N) * (3.0 + N.powu(2)) - 48.0 * (1.0 + N).powu(2) * ZETA2)))
+        / (N.powu(3) * (1.0 + N).powu(3))
+        + 32.0 * (g3N + g3Np2) + 4.0 * S3p1h - 16.0 * ZETA3;
+
+    CF * result
 }
