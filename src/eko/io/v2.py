@@ -23,4 +23,6 @@ def update_metadata(paths: InternalPaths, raw: dict) -> dict:
         compatible raw yaml content
     """
     raw["data_version"] = 2
+    raw["xgrid"] = raw["bases"]["xgrid"]
+    del raw["bases"]
     return raw
