@@ -2,7 +2,9 @@
 use crate::cmplx;
 use num::complex::Complex;
 
-use crate::constants::{ed2, eu2, uplike_flavors, CA, CF, NC, TR, ZETA2, ZETA3};
+use crate::constants::{
+    ed2, eu2, uplike_flavors, ChargeCombinations, CA, CF, NC, TR, ZETA2, ZETA3,
+};
 use crate::harmonics::cache::{Cache, K};
 
 /// Compute the $O(a_s^1a_{em}^1)$ photon-quark anomalous dimension.
@@ -190,4 +192,53 @@ pub fn gamma_nsm(c: &mut Cache, _nf: u8) -> Complex<f64> {
         - 16.0 * ZETA3;
 
     CF * result
+}
+
+/// Compute the $O(a_s^1a_{em}^1)$ singlet sector.
+pub fn gamma_singlet(c: &mut Cache, nf: u8) -> [[Complex<f64>; 4]; 4] {
+    let cc = ChargeCombinations { nf };
+    // let e2avg = cc.e2avg();
+    // let vue2m = cc.vue2m();
+    // let vde2m = cc.vde2m();
+    // let e2delta = cc.e2delta();
+    let e2_tot = nf as f64 * cc.e2avg();
+
+    [
+        [
+            e2_tot * gamma_gg(c, nf),
+            e2_tot * gamma_gph(c, nf),
+            cc.e2avg() * gamma_gq(c, nf),
+            cc.vue2m() * gamma_gq(c, nf),
+        ],
+        [
+            e2_tot * gamma_phg(c, nf),
+            gamma_phph(c, nf),
+            cc.e2avg() * gamma_phq(c, nf),
+            cc.vue2m() * gamma_phq(c, nf),
+        ],
+        [
+            cc.e2avg() * gamma_qg(c, nf),
+            cc.e2avg() * gamma_qph(c, nf),
+            cc.e2avg() * gamma_nsp(c, nf),
+            cc.vue2m() * gamma_nsp(c, nf),
+        ],
+        [
+            cc.vde2m() * gamma_qg(c, nf),
+            cc.vde2m() * gamma_qph(c, nf),
+            cc.vde2m() * gamma_nsp(c, nf),
+            cc.e2delta() * gamma_nsp(c, nf),
+        ],
+    ]
+}
+
+/// Compute the $O(a_s^1a_{em}^1)$ valence sector.
+pub fn gamma_valence(c: &mut Cache, nf: u8) -> [[Complex<f64>; 2]; 2] {
+    let cc = ChargeCombinations { nf };
+    [
+        [cc.e2avg() * gamma_nsm(c, nf), cc.vue2m() * gamma_nsm(c, nf)],
+        [
+            cc.vde2m() * gamma_nsm(c, nf) * gamma_nsm(c, nf),
+            cc.e2delta() * gamma_nsm(c, nf),
+        ],
+    ]
 }
