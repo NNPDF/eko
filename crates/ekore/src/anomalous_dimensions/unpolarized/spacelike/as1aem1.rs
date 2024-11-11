@@ -242,3 +242,68 @@ pub fn gamma_valence(c: &mut Cache, nf: u8) -> [[Complex<f64>; 2]; 2] {
         ],
     ]
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::{assert_approx_eq_cmplx, cmplx};
+    use num::complex::Complex;
+    use num::Zero;
+    const NF: u8 = 5;
+
+    #[test]
+    fn number_conservation() {
+        const N: Complex<f64> = cmplx!(1., 0.);
+        let mut c = Cache::new(N);
+        let me = gamma_nsm(&mut c, NF);
+        assert_approx_eq_cmplx!(f64, me, Complex::zero(), epsilon = 1e-4);
+    }
+
+    #[test]
+    fn gluon_momentum_conservation() {
+        const N: Complex<f64> = cmplx!(2., 0.);
+        let mut c = Cache::new(N);
+
+        for nf in 2..7 {
+            let nu = uplike_flavors(nf);
+            let nd = nf - nu;
+            assert_approx_eq_cmplx!(
+                f64,
+                eu2 * gamma_qg(&mut c, nu)
+                    + ed2 * gamma_qg(&mut c, nd)
+                    + (nu as f64 * eu2 + nd as f64 * ed2) * gamma_phg(&mut c, nf)
+                    + (nu as f64 * eu2 + nd as f64 * ed2) * gamma_gg(&mut c, nf),
+                cmplx!(0., 0.),
+                epsilon = 1e-14
+            );
+        }
+    }
+
+    #[test]
+    fn photon_momentum_conservation() {
+        const N: Complex<f64> = cmplx!(2., 0.);
+        let mut c = Cache::new(N);
+
+        for nf in 2..7 {
+            let nu = uplike_flavors(nf);
+            let nd = nf - nu;
+            assert_approx_eq_cmplx!(
+                f64,
+                eu2 * gamma_qph(&mut c, nu)
+                    + ed2 * gamma_qph(&mut c, nd)
+                    + gamma_phph(&mut c, nf)
+                    + (nu as f64 * eu2 + nd as f64 * ed2) * gamma_gph(&mut c, nf),
+                cmplx!(0., 0.),
+                epsilon = 1e-14
+            );
+        }
+    }
+
+    #[test]
+    fn quark_momentum_conservation() {
+        const N: Complex<f64> = cmplx!(2., 0.);
+        let mut c = Cache::new(N);
+        let me = gamma_nsp(&mut c, NF) + gamma_gq(&mut c, NF) + gamma_phq(&mut c, NF);
+        assert_approx_eq_cmplx!(f64, me, Complex::zero(), epsilon = 1e-4);
+    }
+}
