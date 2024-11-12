@@ -25,7 +25,7 @@ from . import aem1, aem2, as1, as1aem1, as2, as3, as4
 
 
 @nb.njit(cache=True)
-def gamma_ns(order, mode, n, nf, n3lo_ad_variation, use_fhmruvv=False):
+def gamma_ns(order, mode, n, nf, n3lo_ad_variation, use_fhmruvv=True):
     r"""Compute the tower of the non-singlet anomalous dimensions.
 
     Parameters
@@ -100,7 +100,7 @@ def gamma_ns(order, mode, n, nf, n3lo_ad_variation, use_fhmruvv=False):
 
 
 @nb.njit(cache=True)
-def gamma_singlet(order, n, nf, n3lo_ad_variation, use_fhmruvv=False):
+def gamma_singlet(order, n, nf, n3lo_ad_variation, use_fhmruvv=True):
     r"""Compute the tower of the singlet anomalous dimensions matrices.
 
     Parameters
@@ -137,7 +137,7 @@ def gamma_singlet(order, n, nf, n3lo_ad_variation, use_fhmruvv=False):
 
 
 @nb.njit(cache=True)
-def gamma_ns_qed(order, mode, n, nf, n3lo_ad_variation, use_fhmruvv=False):
+def gamma_ns_qed(order, mode, n, nf, n3lo_ad_variation, use_fhmruvv=True):
     r"""Compute the grid of the QED non-singlet anomalous dimensions.
 
     Parameters
@@ -288,7 +288,7 @@ def choose_ns_ad_aem2(mode, n, nf, cache):
 
 
 @nb.njit(cache=True)
-def gamma_singlet_qed(order, n, nf, n3lo_ad_variation, use_fhmruvv=False):
+def gamma_singlet_qed(order, n, nf, n3lo_ad_variation, use_fhmruvv=True):
     r"""Compute the grid of the QED singlet anomalous dimensions matrices.
 
     Parameters
@@ -331,7 +331,7 @@ def gamma_singlet_qed(order, n, nf, n3lo_ad_variation, use_fhmruvv=False):
 
 
 @nb.njit(cache=True)
-def gamma_valence_qed(order, n, nf, n3lo_ad_variation, use_fhmruvv=False):
+def gamma_valence_qed(order, n, nf, n3lo_ad_variation, use_fhmruvv=True):
     r"""Compute the grid of the QED valence anomalous dimensions matrices.
 
     Parameters

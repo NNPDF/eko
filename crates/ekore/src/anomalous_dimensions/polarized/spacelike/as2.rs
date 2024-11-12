@@ -128,6 +128,7 @@ pub fn gamma_singlet(c: &mut Cache, nf: u8) -> [[Complex<f64>; 2]; 2] {
 
 #[cfg(test)]
 mod tests {
+    use super::super::as1::gamma_gq as as1_gamma_gq;
     use super::*;
     use crate::harmonics::cache::Cache;
     use crate::{assert_approx_eq_cmplx, cmplx};
@@ -191,5 +192,18 @@ mod tests {
             ),
             epsilon = 1e-13
         );
+    }
+
+    #[test]
+    fn axial_anomaly() {
+        const N: Complex<f64> = cmplx!(1., 0.);
+        let mut c = Cache::new(N);
+        let me_ps = gamma_ps(&mut c, NF);
+        let as1_gq = -2.0 * (NF as f64) * as1_gamma_gq(&mut c, NF);
+        assert_approx_eq_cmplx!(f64, me_ps, as1_gq);
+        // TODO: activate this test once the beta function will be available
+        // let me_gg = gamma_gg(&mut c, NF);
+        // let beta = -1.0 * beta_qcd_as2(NF);
+        // assert_approx_eq_cmplx!(f64, me_gg, beta, rel=9e-7);
     }
 }

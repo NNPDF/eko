@@ -19,7 +19,7 @@ repos:
       - id: pycln
         args: [--config=pyproject.toml]
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.6.9
+    rev: v0.7.2
     hooks:
       # Run the linter.
       - id: ruff
@@ -36,7 +36,7 @@ repos:
         additional_dependencies: [tomli]
         args: [--in-place, --config, ./pyproject.toml]
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.11.2
+    rev: v1.13.0
     hooks:
       - id: mypy
         additional_dependencies: [types-PyYAML]
@@ -59,6 +59,6 @@ repos:
       types: [file, rust]
       language: system
   - repo: https://github.com/pre-commit/pre-commit
-    rev: v4.0.0
+    rev: v4.0.1
     hooks:
       - id: validate_manifest
