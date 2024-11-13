@@ -354,6 +354,14 @@ class EKO:
         )
         loaded.operators.sync()
 
+        # check operator shape is still compatible
+        for _, op in loaded.items():
+            try:
+                assert op.operator.shape[1] == op.operator.shape[3]
+                assert op.operator.shape[0] == op.operator.shape[2]
+            except AssertionError as exc:
+                raise ValueError("Not squared EKOs are no longer supported.") from exc
+
         return loaded
 
     @classmethod
