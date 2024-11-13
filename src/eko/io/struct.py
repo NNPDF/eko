@@ -360,7 +360,9 @@ class EKO:
                 assert op.operator.shape[1] == op.operator.shape[3]
                 assert op.operator.shape[0] == op.operator.shape[2]
             except AssertionError as exc:
-                raise ValueError("Not squared EKOs are no longer supported.") from exc
+                raise ValueError(
+                    "Loading not squared EKOs is no longer possible."
+                ) from exc
 
         return loaded
 
