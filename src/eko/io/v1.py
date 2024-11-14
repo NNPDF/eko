@@ -51,6 +51,12 @@ def update_theory(raw: dict) -> dict:
     # adjust heavy
     for key in ["intrinsic_flavors", "num_flavs_init", "num_flavs_max_pdf"]:
         del raw["heavy"][key]
+
+    # update old names
+    if "use_fhmv" in raw:
+        raw["use_fhmruvv"] = raw["use_fhmv"]
+        del raw["use_fhmv"]
+
     return raw
 
 
