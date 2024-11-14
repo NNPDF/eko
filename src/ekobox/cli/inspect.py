@@ -1,4 +1,4 @@
-"""Launch EKO calculations, with legacy mu2grid mode."""
+"""Inspect EKO content."""
 
 import pathlib
 
