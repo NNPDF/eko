@@ -14,6 +14,7 @@ struct RawCmplx {
 }
 
 /// Map tensors to c-ordered list
+/// (res is a vector with dim order_qcd filled with DIMxDIM matrices)
 fn unravel<const DIM: usize>(res: Vec<[[Complex<f64>; DIM]; DIM]>, order_qcd: usize) -> RawCmplx {
     let mut target = RawCmplx {
         re: Vec::<f64>::new(),
@@ -25,6 +26,50 @@ fn unravel<const DIM: usize>(res: Vec<[[Complex<f64>; DIM]; DIM]>, order_qcd: us
                 target.re.push(el.re);
                 target.im.push(el.im);
             }
+        }
+    }
+    target
+}
+
+/// Map tensors to c-ordered list in the QED singlet and valence case
+/// (res is a matrix with dim order_qcd x order_qed filled with DIMxDIM matrices)
+fn unravel_qed_singlet<const DIM: usize>(
+    res: Vec<Vec<[[Complex<f64>; DIM]; DIM]>>,
+    order_qcd: usize,
+    order_qed: usize,
+) -> RawCmplx {
+    let mut target = RawCmplx {
+        re: Vec::<f64>::new(),
+        im: Vec::<f64>::new(),
+    };
+    for obj_ in res.iter().take(order_qcd) {
+        for obj in obj_.iter().take(order_qed) {
+            for col in obj.iter().take(DIM) {
+                for el in col.iter().take(DIM) {
+                    target.re.push(el.re);
+                    target.im.push(el.im);
+                }
+            }
+        }
+    }
+    target
+}
+
+/// Map tensors to c-ordered list in the QED singlet and valence case
+/// (res is a matrix with dim order_qcd x order_qed filled with complex numbers)
+fn unravel_qed_ns<const DIM: usize>(
+    res: Vec<Vec<Complex<f64>>>,
+    order_qcd: usize,
+    order_qed: usize,
+) -> RawCmplx {
+    let mut target = RawCmplx {
+        re: Vec::<f64>::new(),
+        im: Vec::<f64>::new(),
+    };
+    for col in res.iter().take(order_qcd) {
+        for el in col.iter().take(order_qed) {
+            target.re.push(el.re);
+            target.im.push(el.im);
         }
     }
     target
