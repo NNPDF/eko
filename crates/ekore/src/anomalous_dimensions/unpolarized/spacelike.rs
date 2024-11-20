@@ -68,8 +68,8 @@ pub fn gamma_ns_qed(
     c: &mut Cache,
     nf: u8,
 ) -> Vec<Vec<Complex<f64>>> {
-    let row = vec![Complex::<f64>::zero(); order_qcd + 1];
-    let mut gamma_ns = vec![row; order_qed + 1];
+    let col = vec![Complex::<f64>::zero(); order_qcd + 1];
+    let mut gamma_ns = vec![col; order_qed + 1];
     gamma_ns[1][0] = as1::gamma_ns(c, nf);
     gamma_ns[0][1] = choose_ns_as_aem1(mode, c, nf);
     gamma_ns[1][1] = choose_ns_as_as1aem1(mode, c, nf);
@@ -100,7 +100,7 @@ pub fn gamma_singlet_qed(
     c: &mut Cache,
     nf: u8,
 ) -> Vec<Vec<[[Complex<f64>; 4]; 4]>> {
-    let row = vec![
+    let col = vec![
         [[
             Complex::<f64>::zero(),
             Complex::<f64>::zero(),
@@ -110,7 +110,7 @@ pub fn gamma_singlet_qed(
         order_qcd + 1
     ];
 
-    let mut gamma_s = vec![row; order_qed + 1];
+    let mut gamma_s = vec![col; order_qed + 1];
 
     gamma_s[1][0] = as1::gamma_singlet_qed(c, nf);
     gamma_s[0][1] = aem1::gamma_singlet(c, nf);
@@ -125,9 +125,9 @@ pub fn gamma_valence_qed(
     c: &mut Cache,
     nf: u8,
 ) -> Vec<Vec<[[Complex<f64>; 2]; 2]>> {
-    let row = vec![[[Complex::<f64>::zero(), Complex::<f64>::zero(),]; 2]; order_qcd + 1];
+    let col = vec![[[Complex::<f64>::zero(), Complex::<f64>::zero(),]; 2]; order_qcd + 1];
 
-    let mut gamma_v = vec![row; order_qed + 1];
+    let mut gamma_v = vec![col; order_qed + 1];
     gamma_v[1][0] = as1::gamma_valence_qed(c, nf);
     gamma_v[0][1] = aem1::gamma_valence(c, nf);
     gamma_v[1][1] = as1aem1::gamma_valence(c, nf);
