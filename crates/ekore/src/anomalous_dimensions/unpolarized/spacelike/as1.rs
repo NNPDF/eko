@@ -1,6 +1,7 @@
 //! |LO| |QCD|.
 
 use num::complex::Complex;
+use num::Zero;
 
 use crate::constants::{CA, CF, TR};
 use crate::harmonics::cache::{Cache, K};
@@ -49,6 +50,37 @@ pub fn gamma_singlet(c: &mut Cache, nf: u8) -> [[Complex<f64>; 2]; 2] {
     [
         [gamma_qq, gamma_qg(c, nf)],
         [gamma_gq(c, nf), gamma_gg(c, nf)],
+    ]
+}
+
+/// Compute the leading-order singlet anomalous dimension matrix
+/// for the unified evolution basis.
+pub fn gamma_singlet_qed(c: &mut Cache, nf: u8) -> Vec<[Complex<f64>; 4]> {
+    vec![
+        [
+            gamma_gg(c, nf),
+            Complex::<f64>::zero(),
+            gamma_gq(c, nf),
+            Complex::<f64>::zero(),
+        ],
+        [
+            Complex::<f64>::zero(),
+            Complex::<f64>::zero(),
+            Complex::<f64>::zero(),
+            Complex::<f64>::zero(),
+        ],
+        [
+            gamma_qg(c, nf),
+            Complex::<f64>::zero(),
+            gamma_ns(c, nf),
+            Complex::<f64>::zero(),
+        ],
+        [
+            Complex::<f64>::zero(),
+            Complex::<f64>::zero(),
+            Complex::<f64>::zero(),
+            gamma_ns(c, nf),
+        ],
     ]
 }
 

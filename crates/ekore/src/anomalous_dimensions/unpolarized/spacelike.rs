@@ -72,6 +72,7 @@ pub fn gamma_ns_qed(
     let mut gamma_ns = vec![row; order_qed + 1];
     gamma_ns[1][0] = as1::gamma_ns(c, nf);
     gamma_ns[0][1] = choose_ns_as_aem1(mode, c, nf);
+    gamma_ns[1][1] = choose_ns_as_as1aem1(mode, c, nf);
     gamma_ns
 }
 
@@ -81,4 +82,42 @@ pub fn choose_ns_as_aem1(mode: u16, c: &mut Cache, nf: u8) -> Complex<f64> {
         PID_NSP_ED2 | PID_NSM_ED2 => ed2 * aem1::gamma_ns(c, nf),
         _ => panic!("Unkown non-singlet sector element"),
     }
+}
+
+pub fn choose_ns_as_as1aem1(mode: u16, c: &mut Cache, nf: u8) -> Complex<f64> {
+    match mode {
+        PID_NSP_EU2 => eu2 * as1aem1::gamma_nsp(c, nf),
+        PID_NSP_ED2 => ed2 * as1aem1::gamma_nsp(c, nf),
+        PID_NSM_EU2 => eu2 * as1aem1::gamma_nsm(c, nf),
+        PID_NSM_ED2 => ed2 * as1aem1::gamma_nsm(c, nf),
+        _ => panic!("Unkown non-singlet sector element"),
+    }
+}
+
+pub fn gamma_singlet_qed(
+    order_qcd: usize,
+    order_qed: usize,
+    mode: u16,
+    c: &mut Cache,
+    nf: u8,
+) -> Vec<Vec<Vec<[Complex<f64>; 4]>>> {
+    let mut row = vec![
+        vec![
+            [
+                Complex::<f64>::zero(),
+                Complex::<f64>::zero(),
+                Complex::<f64>::zero(),
+                Complex::<f64>::zero()
+            ];
+            4
+        ];
+        order_qcd + 1
+    ];
+
+    let mut gamma_s = vec![row; order_qed + 1];
+
+    gamma_s[1][0] = as1::gamma_singlet_qed(c, nf);
+    gamma_s[0][1] = aem1::gamma_singlet(c, nf);
+    gamma_s[1][1] = as1aem1::gamma_singlet(c, nf);
+    gamma_s
 }

@@ -195,7 +195,7 @@ pub fn gamma_nsm(c: &mut Cache, _nf: u8) -> Complex<f64> {
 }
 
 /// Compute the $O(a_s^1a_{em}^1)$ singlet sector.
-pub fn gamma_singlet(c: &mut Cache, nf: u8) -> [[Complex<f64>; 4]; 4] {
+pub fn gamma_singlet(c: &mut Cache, nf: u8) -> Vec<[Complex<f64>; 4]> {
     let cc = ChargeCombinations { nf };
     // let e2avg = cc.e2avg();
     // let vue2m = cc.vue2m();
@@ -203,7 +203,7 @@ pub fn gamma_singlet(c: &mut Cache, nf: u8) -> [[Complex<f64>; 4]; 4] {
     // let e2delta = cc.e2delta();
     let e2_tot = nf as f64 * cc.e2avg();
 
-    [
+    vec![
         [
             e2_tot * gamma_gg(c, nf),
             e2_tot * gamma_gph(c, nf),
