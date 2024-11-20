@@ -137,3 +137,94 @@ pub fn gamma_valence_qed(
     gamma_v[1][1] = as1aem1::gamma_valence(c, nf);
     gamma_v
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::{assert_approx_eq_cmplx, cmplx};
+    use num::complex::Complex;
+    use num::Zero;
+
+    #[test]
+    fn gamma_ns() {
+        const NF: u8 = 3;
+        const N: Complex<f64> = cmplx!(1., 0.);
+        let mut c = Cache::new(N);
+        assert_approx_eq_cmplx!(
+            f64,
+            gamma_ns_qcd(3, PID_NSP, &mut c, NF)[0],
+            cmplx!(0., 0.),
+            epsilon = 1e-14
+        );
+
+        for i in [0, 1] {
+            assert_approx_eq_cmplx!(
+                f64,
+                gamma_ns_qcd(2, PID_NSM, &mut c, NF)[i],
+                cmplx!(0., 0.),
+                epsilon = 2e-6
+            );
+        }
+
+        for i in 0..3 {
+            assert_approx_eq_cmplx!(
+                f64,
+                gamma_ns_qcd(3, PID_NSM, &mut c, NF)[i],
+                cmplx!(0., 0.),
+                epsilon = 2e-4
+            );
+        }
+
+        for i in 0..3 {
+            assert_approx_eq_cmplx!(
+                f64,
+                gamma_ns_qcd(3, PID_NSV, &mut c, NF)[i],
+                cmplx!(0., 0.),
+                epsilon = 8e-4
+            );
+        }
+    }
+
+    #[test]
+    fn test_gamma_ns_qed() {
+        const NF: u8 = 3;
+        const N: Complex<f64> = cmplx!(1., 0.);
+        let mut c = Cache::new(N);
+
+        for i in [0, 1] {
+            for j in [0, 1] {
+                assert_approx_eq_cmplx!(
+                    f64,
+                    gamma_ns_qed(1, 1, PID_NSM_EU2, &mut c, NF)[i][j],
+                    cmplx!(0., 0.),
+                    epsilon = 1e-5
+                );
+            }
+        }
+
+        for i in [0, 1] {
+            for j in [0, 1] {
+                assert_approx_eq_cmplx!(
+                    f64,
+                    gamma_ns_qed(1, 1, PID_NSM_ED2, &mut c, NF)[i][j],
+                    cmplx!(0., 0.),
+                    epsilon = 1e-5
+                );
+            }
+        }
+
+        assert_approx_eq_cmplx!(
+            f64,
+            gamma_ns_qed(1, 1, PID_NSP_EU2, &mut c, NF)[0][1],
+            cmplx!(0., 0.),
+            epsilon = 1e-5
+        );
+
+        assert_approx_eq_cmplx!(
+            f64,
+            gamma_ns_qed(1, 1, PID_NSP_ED2, &mut c, NF)[0][1],
+            cmplx!(0., 0.),
+            epsilon = 1e-5
+        );
+    }
+}
