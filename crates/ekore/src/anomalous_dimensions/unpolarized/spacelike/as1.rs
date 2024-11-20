@@ -84,6 +84,15 @@ pub fn gamma_singlet_qed(c: &mut Cache, nf: u8) -> Vec<[Complex<f64>; 4]> {
     ]
 }
 
+/// Compute the leading-order valence anomalous dimension matrix
+/// for the unified evolution basis.
+pub fn gamma_valence_qed(c: &mut Cache, nf: u8) -> Vec<[Complex<f64>; 2]> {
+    vec![
+        [gamma_ns(c, nf), Complex::<f64>::zero()],
+        [Complex::<f64>::zero(), gamma_ns(c, nf)],
+    ]
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
