@@ -55,8 +55,8 @@ pub fn gamma_singlet(c: &mut Cache, nf: u8) -> [[Complex<f64>; 2]; 2] {
 
 /// Compute the leading-order singlet anomalous dimension matrix
 /// for the unified evolution basis.
-pub fn gamma_singlet_qed(c: &mut Cache, nf: u8) -> Vec<[Complex<f64>; 4]> {
-    vec![
+pub fn gamma_singlet_qed(c: &mut Cache, nf: u8) -> [[Complex<f64>; 4]; 4] {
+    [
         [
             gamma_gg(c, nf),
             Complex::<f64>::zero(),
@@ -86,8 +86,8 @@ pub fn gamma_singlet_qed(c: &mut Cache, nf: u8) -> Vec<[Complex<f64>; 4]> {
 
 /// Compute the leading-order valence anomalous dimension matrix
 /// for the unified evolution basis.
-pub fn gamma_valence_qed(c: &mut Cache, nf: u8) -> Vec<[Complex<f64>; 2]> {
-    vec![
+pub fn gamma_valence_qed(c: &mut Cache, nf: u8) -> [[Complex<f64>; 2]; 2] {
+    [
         [gamma_ns(c, nf), Complex::<f64>::zero()],
         [Complex::<f64>::zero(), gamma_ns(c, nf)],
     ]

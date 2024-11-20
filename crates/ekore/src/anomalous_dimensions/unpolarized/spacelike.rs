@@ -94,23 +94,19 @@ pub fn choose_ns_as_as1aem1(mode: u16, c: &mut Cache, nf: u8) -> Complex<f64> {
     }
 }
 
-/// Compute the grid of the QED singlet anomalous dimensions matrices
 pub fn gamma_singlet_qed(
     order_qcd: usize,
     order_qed: usize,
     c: &mut Cache,
     nf: u8,
-) -> Vec<Vec<Vec<[Complex<f64>; 4]>>> {
+) -> Vec<Vec<[[Complex<f64>; 4]; 4]>> {
     let row = vec![
-        vec![
-            [
-                Complex::<f64>::zero(),
-                Complex::<f64>::zero(),
-                Complex::<f64>::zero(),
-                Complex::<f64>::zero()
-            ];
-            4
-        ];
+        [[
+            Complex::<f64>::zero(),
+            Complex::<f64>::zero(),
+            Complex::<f64>::zero(),
+            Complex::<f64>::zero()
+        ]; 4];
         order_qcd + 1
     ];
 
@@ -128,8 +124,8 @@ pub fn gamma_valence_qed(
     order_qed: usize,
     c: &mut Cache,
     nf: u8,
-) -> Vec<Vec<Vec<[Complex<f64>; 2]>>> {
-    let row = vec![vec![[Complex::<f64>::zero(), Complex::<f64>::zero(),]; 2]; order_qcd + 1];
+) -> Vec<Vec<[[Complex<f64>; 2]; 2]>> {
+    let row = vec![[[Complex::<f64>::zero(), Complex::<f64>::zero(),]; 2]; order_qcd + 1];
 
     let mut gamma_v = vec![row; order_qed + 1];
     gamma_v[1][0] = as1::gamma_valence_qed(c, nf);

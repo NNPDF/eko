@@ -40,14 +40,14 @@ pub fn gamma_ns(c: &mut Cache, nf: u8) -> Complex<f64> {
 /// Compute the leading-order singlet QED anomalous dimension matrix
 ///
 /// Implements Eq. (2.5) of
-pub fn gamma_singlet(c: &mut Cache, nf: u8) -> Vec<[Complex<f64>; 4]> {
+pub fn gamma_singlet(c: &mut Cache, nf: u8) -> [[Complex<f64>; 4]; 4] {
     let cc = ChargeCombinations { nf };
 
     let gamma_ph_q = gamma_phq(c, nf);
     let gamma_q_ph = gamma_qph(c, nf);
     let gamma_nonsinglet = gamma_ns(c, nf);
 
-    vec![
+    [
         [
             Complex::<f64>::zero(),
             Complex::<f64>::zero(),
@@ -78,10 +78,10 @@ pub fn gamma_singlet(c: &mut Cache, nf: u8) -> Vec<[Complex<f64>; 4]> {
 /// Compute the leading-order valence QED anomalous dimension matrix
 ///
 /// Implements Eq. (2.5) of
-pub fn gamma_valence(c: &mut Cache, nf: u8) -> Vec<[Complex<f64>; 2]> {
+pub fn gamma_valence(c: &mut Cache, nf: u8) -> [[Complex<f64>; 2]; 2] {
     let cc = ChargeCombinations { nf };
 
-    vec![
+    [
         [cc.e2avg() * gamma_ns(c, nf), cc.vue2m() * gamma_ns(c, nf)],
         [cc.vde2m() * gamma_ns(c, nf), cc.e2delta() * gamma_ns(c, nf)],
     ]
