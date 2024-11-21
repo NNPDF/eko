@@ -57,11 +57,7 @@ fn unravel_qed_singlet<const DIM: usize>(
 
 /// Map tensors to c-ordered list in the QED singlet and valence case
 /// (res is a matrix with dim order_qcd x order_qed filled with complex numbers)
-fn unravel_qed_ns<const DIM: usize>(
-    res: Vec<Vec<Complex<f64>>>,
-    order_qcd: usize,
-    order_qed: usize,
-) -> RawCmplx {
+fn unravel_qed_ns(res: Vec<Vec<Complex<f64>>>, order_qcd: usize, order_qed: usize) -> RawCmplx {
     let mut target = RawCmplx {
         re: Vec::<f64>::new(),
         im: Vec::<f64>::new(),
@@ -115,13 +111,30 @@ pub unsafe extern "C" fn rust_quad_ker_qcd(u: f64, rargs: *mut c_void) -> f64 {
             );
         }
     } else if is_singlet {
-        let gamma_singlet_qcd = match args.is_polarized {
-            true => ekore::anomalous_dimensions::polarized::spacelike::gamma_singlet_qcd,
-            false => ekore::anomalous_dimensions::unpolarized::spacelike::gamma_singlet_qcd,
-        };
-        raw = unravel(
-            gamma_singlet_qcd(args.order_qcd, &mut c, args.nf),
+        if args.is_qed {
+            let gamma_singlet_qed =
+                ekore::anomalous_dimensions::unpolarized::spacelike::gamma_singlet_qed;
+            raw = unravel_qed_singlet(
+                gamma_singlet_qed(args.order_qcd, args.order_qed, &mut c, args.nf),
+                args.order_qcd,
+                args.order_qed,
+            );
+        } else {
+            let gamma_singlet_qcd = match args.is_polarized {
+                true => ekore::anomalous_dimensions::polarized::spacelike::gamma_singlet_qcd,
+                false => ekore::anomalous_dimensions::unpolarized::spacelike::gamma_singlet_qcd,
+            };
+            raw = unravel(
+                gamma_singlet_qcd(args.order_qcd, &mut c, args.nf),
+                args.order_qcd,
+            );
+        }
+    } else if args.is_qed {
+        let gamma_ns_qed = ekore::anomalous_dimensions::unpolarized::spacelike::gamma_ns_qed;
+        raw = unravel_qed_ns(
+            gamma_ns_qed(args.order_qcd, args.order_qed, args.mode0, &mut c, args.nf),
             args.order_qcd,
+            args.order_qed,
         );
     } else {
         // we can not do 1D
@@ -145,6 +158,7 @@ pub unsafe extern "C" fn rust_quad_ker_qcd(u: f64, rargs: *mut c_void) -> f64 {
         jac.re,
         jac.im,
         args.order_qcd,
+        args.order_qed,
         is_singlet,
         args.mode0,
         args.mode1,
@@ -175,6 +189,7 @@ type PyQuadKerQCDT = unsafe extern "C" fn(
     f64,
     f64,
     usize,
+    usize,
     bool,
     u16,
     u16,
@@ -201,6 +216,7 @@ type PyQuadKerQCDT = unsafe extern "C" fn(
 #[derive(Clone, Copy)]
 pub struct QuadQCDargs {
     pub order_qcd: usize,
+    pub order_qed: usize,
     pub mode0: u16,
     pub mode1: u16,
     pub is_polarized: bool,
@@ -221,6 +237,7 @@ pub struct QuadQCDargs {
     pub sv_mode_num: u8,
     pub is_threshold: bool,
     pub is_ome: bool,
+    pub is_qed: bool,
     pub Lsv: f64,
 }
 
@@ -236,6 +253,7 @@ pub unsafe extern "C" fn my_py(
     _re_jac: f64,
     _im_jac: f64,
     _order_qcd: usize,
+    _order_qed: usize,
     _is_singlet: bool,
     _mode0: u16,
     _mode1: u16,
@@ -269,6 +287,7 @@ pub unsafe extern "C" fn my_py(
 pub unsafe extern "C" fn empty_qcd_args() -> QuadQCDargs {
     QuadQCDargs {
         order_qcd: 0,
+        order_qed: 0,
         mode0: 0,
         mode1: 0,
         is_polarized: false,
@@ -289,6 +308,7 @@ pub unsafe extern "C" fn empty_qcd_args() -> QuadQCDargs {
         sv_mode_num: 0,
         is_threshold: false,
         is_ome: false,
+        is_qed: false,
         Lsv: 0.,
     }
 }
