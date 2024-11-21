@@ -33,7 +33,7 @@ fn unravel<const DIM: usize>(res: Vec<[[Complex<f64>; DIM]; DIM]>, order_qcd: us
 
 /// Map tensors to c-ordered list in the QED singlet and valence case
 /// (res is a matrix with dim order_qcd x order_qed filled with DIMxDIM matrices)
-fn unravel_qed_singlet<const DIM: usize>(
+fn unravel_qed<const DIM: usize>(
     res: Vec<Vec<[[Complex<f64>; DIM]; DIM]>>,
     order_qcd: usize,
     order_qed: usize,
@@ -55,7 +55,7 @@ fn unravel_qed_singlet<const DIM: usize>(
     target
 }
 
-/// Map tensors to c-ordered list in the QED singlet and valence case
+/// Map tensors to c-ordered list in the QED non-singlet case
 /// (res is a matrix with dim order_qcd x order_qed filled with complex numbers)
 fn unravel_qed_ns(res: Vec<Vec<Complex<f64>>>, order_qcd: usize, order_qed: usize) -> RawCmplx {
     let mut target = RawCmplx {
@@ -79,6 +79,7 @@ fn unravel_qed_ns(res: Vec<Vec<Complex<f64>>>, order_qcd: usize, order_qed: usiz
 pub unsafe extern "C" fn rust_quad_ker_qcd(u: f64, rargs: *mut c_void) -> f64 {
     let args = *(rargs as *mut QuadQCDargs);
     let is_singlet = (100 == args.mode0) || (21 == args.mode0) || (90 == args.mode0);
+    let is_qed_valence = (10200 == args.mode0) || (10204 == args.mode0);
     // prepare Mellin stuff
     let path = mellin::TalbotPath::new(u, args.logx, is_singlet);
     let jac = path.jac() * path.prefactor();
@@ -114,7 +115,7 @@ pub unsafe extern "C" fn rust_quad_ker_qcd(u: f64, rargs: *mut c_void) -> f64 {
         if args.is_qed {
             let gamma_singlet_qed =
                 ekore::anomalous_dimensions::unpolarized::spacelike::gamma_singlet_qed;
-            raw = unravel_qed_singlet(
+            raw = unravel_qed(
                 gamma_singlet_qed(args.order_qcd, args.order_qed, &mut c, args.nf),
                 args.order_qcd,
                 args.order_qed,
@@ -130,12 +131,22 @@ pub unsafe extern "C" fn rust_quad_ker_qcd(u: f64, rargs: *mut c_void) -> f64 {
             );
         }
     } else if args.is_qed {
-        let gamma_ns_qed = ekore::anomalous_dimensions::unpolarized::spacelike::gamma_ns_qed;
-        raw = unravel_qed_ns(
-            gamma_ns_qed(args.order_qcd, args.order_qed, args.mode0, &mut c, args.nf),
-            args.order_qcd,
-            args.order_qed,
-        );
+        if is_qed_valence {
+            let gamma_valence_qed =
+                ekore::anomalous_dimensions::unpolarized::spacelike::gamma_valence_qed;
+            raw = unravel_qed(
+                gamma_valence_qed(args.order_qcd, args.order_qed, &mut c, args.nf),
+                args.order_qcd,
+                args.order_qed,
+            );
+        } else {
+            let gamma_ns_qed = ekore::anomalous_dimensions::unpolarized::spacelike::gamma_ns_qed;
+            raw = unravel_qed_ns(
+                gamma_ns_qed(args.order_qcd, args.order_qed, args.mode0, &mut c, args.nf),
+                args.order_qcd,
+                args.order_qed,
+            );
+        }
     } else {
         // we can not do 1D
         let gamma_ns_qcd = match args.is_polarized {
