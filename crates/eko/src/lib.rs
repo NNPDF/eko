@@ -188,6 +188,12 @@ pub unsafe extern "C" fn rust_quad_ker_qcd(u: f64, rargs: *mut c_void) -> f64 {
         args.sv_mode_num,
         args.is_threshold,
         args.Lsv,
+        // additional QED params
+        args.as_list,
+        args.mu2_from,
+        args.mu2_to,
+        args.a_half,
+        args.alphaem_running,
     )
 }
 
@@ -219,6 +225,11 @@ type PyQuadKerQCDT = unsafe extern "C" fn(
     u8,
     bool,
     f64,
+    *const f64,
+    f64,
+    f64,
+    f64,
+    bool,
 ) -> f64;
 
 /// Additional integration parameters
@@ -249,6 +260,12 @@ pub struct QuadQCDargs {
     pub is_threshold: bool,
     pub is_ome: bool,
     pub Lsv: f64,
+    // additional param required for QED
+    pub as_list: *const f64,
+    pub mu2_from: f64,
+    pub mu2_to: f64,
+    pub a_half: f64,
+    pub alphaem_running: bool,
 }
 
 /// Empty placeholder function for python callback.
@@ -282,6 +299,11 @@ pub unsafe extern "C" fn my_py(
     _sv_mode_num: u8,
     _is_threshold: bool,
     _lsv: f64,
+    _as_list: *const f64,
+    _mu2_from: f64,
+    _mu2_to: f64,
+    _a_half: f64,
+    _alphaem_running: bool,
 ) -> f64 {
     0.
 }
@@ -319,5 +341,10 @@ pub unsafe extern "C" fn empty_qcd_args() -> QuadQCDargs {
         is_threshold: false,
         is_ome: false,
         Lsv: 0.,
+        as_list: [].as_ptr(),
+        mu2_from: 0.,
+        mu2_to: 0.,
+        a_half: 0.,
+        alphaem_running: false,
     }
 }
