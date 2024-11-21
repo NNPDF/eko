@@ -112,7 +112,7 @@ pub unsafe extern "C" fn rust_quad_ker_qcd(u: f64, rargs: *mut c_void) -> f64 {
             );
         }
     } else if is_singlet {
-        if args.is_qed {
+        if args.order_qed > 0 {
             let gamma_singlet_qed =
                 ekore::anomalous_dimensions::unpolarized::spacelike::gamma_singlet_qed;
             raw = unravel_qed(
@@ -130,7 +130,7 @@ pub unsafe extern "C" fn rust_quad_ker_qcd(u: f64, rargs: *mut c_void) -> f64 {
                 args.order_qcd,
             );
         }
-    } else if args.is_qed {
+    } else if args.order_qed > 0 {
         if is_qed_valence {
             let gamma_valence_qed =
                 ekore::anomalous_dimensions::unpolarized::spacelike::gamma_valence_qed;
@@ -248,7 +248,6 @@ pub struct QuadQCDargs {
     pub sv_mode_num: u8,
     pub is_threshold: bool,
     pub is_ome: bool,
-    pub is_qed: bool,
     pub Lsv: f64,
 }
 
@@ -319,7 +318,6 @@ pub unsafe extern "C" fn empty_qcd_args() -> QuadQCDargs {
         sv_mode_num: 0,
         is_threshold: false,
         is_ome: false,
-        is_qed: false,
         Lsv: 0.,
     }
 }
