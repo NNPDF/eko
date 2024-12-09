@@ -78,6 +78,7 @@ fn unravel_qed_ns(res: Vec<Vec<Complex<f64>>>, order_qcd: usize, order_qed: usiz
 #[no_mangle]
 pub unsafe extern "C" fn rust_quad_ker_qcd(u: f64, rargs: *mut c_void) -> f64 {
     let args = *(rargs as *mut QuadQCDargs);
+    
     let is_singlet = (100 == args.mode0) || (21 == args.mode0) || (90 == args.mode0)|| (22 == args.mode0) || (101 == args.mode0);
     let is_qed_valence = (10200 == args.mode0) || (10204 == args.mode0);
     // prepare Mellin stuff
