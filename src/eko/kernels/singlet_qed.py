@@ -97,7 +97,7 @@ def dispatcher(
     e_s : numpy.ndarray
         singlet EKO
     """
-    if method is EvoMethods.ITERATE_EXACT:
+    if method == EvoMethods.ITERATE_EXACT:
         return eko_iterate(
             gamma_singlet, as_list, a_half, nf, order, ev_op_iterations, 4
         )
