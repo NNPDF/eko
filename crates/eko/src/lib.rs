@@ -84,6 +84,7 @@ pub unsafe extern "C" fn rust_quad_ker_qcd(u: f64, rargs: *mut c_void) -> f64 {
         || (90 == args.mode0)
         || (22 == args.mode0)
         || (101 == args.mode0);
+
     let is_qed_valence = (10200 == args.mode0) || (10204 == args.mode0);
     // prepare Mellin stuff
     let path = mellin::TalbotPath::new(u, args.logx, is_singlet);
