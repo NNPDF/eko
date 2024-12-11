@@ -375,7 +375,7 @@ def dispatcher(order, method, gamma_ns, a1, a0, nf, ev_op_iterations):  # pylint
         return eko_ordered_truncated(
             gamma_ns, a1, a0, betalist, order, ev_op_iterations
         )
-    if method is EvoMethods.TRUNCATED:
+    if method == EvoMethods.TRUNCATED:
         return eko_truncated(gamma_ns, a1, a0, betalist, order, ev_op_iterations)
 
     # NLO
