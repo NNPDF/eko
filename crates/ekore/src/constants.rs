@@ -76,7 +76,7 @@ pub struct ChargeCombinations {
 
 impl ChargeCombinations {
     pub fn nu(&self) -> u8 {
-        uplike_flavors(self.nf)
+        self.nf / 2
     }
 
     pub fn nd(&self) -> u8 {
