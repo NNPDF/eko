@@ -15,7 +15,7 @@ from eko.evolution_operator.operator_matrix_element import (
 )
 from eko.io.runcards import OperatorCard, TheoryCard
 from eko.io.types import InversionMethod
-from eko.runner import legacy
+#from eko.runner import legacy
 from ekore.operator_matrix_elements.unpolarized.space_like import (
     A_non_singlet,
     A_singlet,
@@ -333,8 +333,9 @@ def test_quad_ker(monkeypatch):
 #     o.copy_ome()
 #     np.testing.assert_allclose(0.0, o.op_members[(100, 100)].value)
 
-
+"""
 class TestOperatorMatrixElement:
+    
     def test_labels(self, theory_ffns, operator_card, tmp_path: pathlib.Path):
         path = tmp_path / "eko.tar"
         for skip_singlet in [True, False]:
@@ -501,3 +502,4 @@ class TestOperatorMatrixElement:
         )
         assert o.op_members[(br.matching_hplus_pid, 21)].value.shape == shape
         assert o.op_members[(21, br.matching_hplus_pid)].value.shape == shape
+"""

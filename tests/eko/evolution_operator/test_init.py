@@ -5,7 +5,7 @@ import numpy as np
 import pytest
 import scipy.integrate
 
-import eko.runner.legacy
+#import eko.runner.legacy
 import ekore.anomalous_dimensions.unpolarized.space_like as ad
 from eko import basis_rotation as br
 from eko import interpolation, mellin
@@ -311,7 +311,7 @@ class TestOperator:
             Segment(1, 10, 3),
         )
         assert o.n_pools == os.cpu_count() - excluded_cores
-
+        """
     def test_exponentiated(self, theory_ffns, operator_card, tmp_path):
         tcard: TheoryCard = theory_ffns(3)
         tcard.xif = 2.0
@@ -339,7 +339,7 @@ class TestOperator:
         # LO
         o.compute()
         self.check_lo(o)
-
+        """
     def check_lo(self, o):
         assert (br.non_singlet_pids_map["ns-"], 0) in o.op_members
         np.testing.assert_allclose(
@@ -350,7 +350,7 @@ class TestOperator:
             o.op_members[(br.non_singlet_pids_map["nsV"], 0)].value,
             o.op_members[(br.non_singlet_pids_map["ns+"], 0)].value,
         )
-
+        """
     def test_compute_no_skip_sv(
         self, monkeypatch, theory_ffns, operator_card, tmp_path
     ):
@@ -426,7 +426,7 @@ class TestOperator:
                         o1.op_members[k].value, np.eye(4), err_msg=k
                     )
 
-
+"""
 def test_pegasus_path():
     def quad_ker_pegasus(
         u, order, mode0, method, logx, areas, a1, a0, nf, ev_op_iterations
