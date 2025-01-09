@@ -5,9 +5,10 @@ that API version.
 """
 
 from .paths import InternalPaths
+import numpy as np
+import yaml
 
-
-def update_metadata(_paths: InternalPaths, raw: dict) -> dict:
+def update_metadata(paths: InternalPaths, raw: dict) -> dict:
     """Modify the raw metadata to the new format.
 
     Parameters
@@ -23,8 +24,11 @@ def update_metadata(_paths: InternalPaths, raw: dict) -> dict:
         compatible raw yaml content
     """
     raw["data_version"] = 1
-    raw["xgrid"] = raw["bases"]["xgrid"]
-    del raw["bases"]
+    raw["xgrid"] = raw["rotations"]["xgrid"]
+    del raw["rotations"]
+    raw_theory = yaml.safe_load(paths.theory_card.read_text(encoding="utf-8"))
+    raw["origin"] = (np.sqrt(raw["mu20"]), raw_theory["heavy"]["num_flavs_init"])
+    del raw["mu20"]
     return raw
 
 
