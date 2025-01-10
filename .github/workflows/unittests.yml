@@ -3,7 +3,22 @@ name: Python unit tests
 on: push
 
 jobs:
+  data:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Get test data
+      id: cache-test-data
+      uses: actions/cache@v4
+      with:
+        path: test-data
+        key: test-data-v1
+    - name: Download test data
+      if: steps.cache-test-data.outputs.cache-hit != 'true'
+      run: |
+        ./test/data/assets.sh
   test:
+    needs: data
     strategy:
       matrix:
         python-version: ["3.9", "3.10", "3.11", "3.12"]
