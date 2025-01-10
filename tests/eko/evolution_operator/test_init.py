@@ -5,7 +5,6 @@ import numpy as np
 import pytest
 import scipy.integrate
 
-#import eko.runner.legacy
 import ekore.anomalous_dimensions.unpolarized.space_like as ad
 from eko import basis_rotation as br
 from eko import interpolation, mellin
@@ -17,6 +16,7 @@ from eko.kernels import non_singlet as ns
 from eko.kernels import non_singlet_qed as qed_ns
 from eko.kernels import singlet as s
 from eko.matchings import Segment
+from eko.runner.parts import _evolve_configs, _managers
 
 
 def test_quad_ker_errors():
@@ -233,6 +233,17 @@ class FakeManagers:
     couplings: FakeCoupling
 
 
+@dataclass(frozen=True)
+class FakeEKO:
+    theory_card: TheoryCard
+    operator_card: OperatorCard
+
+
+@dataclass(frozen=True)
+class MockIVP:
+    y: None
+
+
 fake_managers = FakeManagers(couplings=FakeCoupling())
 
 
@@ -311,35 +322,18 @@ class TestOperator:
             Segment(1, 10, 3),
         )
         assert o.n_pools == os.cpu_count() - excluded_cores
-        """
-    def test_exponentiated(self, theory_ffns, operator_card, tmp_path):
+
+    def test_exponentiated(self, theory_ffns, operator_card):
         tcard: TheoryCard = theory_ffns(3)
         tcard.xif = 2.0
         ocard: OperatorCard = operator_card
         ocard.configs.scvar_method = ScaleVariationsMethod.EXPONENTIATED
-        r = eko.runner.legacy.Runner(tcard, ocard, path=tmp_path / "eko.tar")
-        g = r.op_grid
+        f = FakeEKO(tcard, ocard)
         # setup objs
-        o = Operator(g.config, g.managers, Segment(2.0, 10.0, 3))
+        o = Operator(_evolve_configs(f), _managers(f), Segment(2.0, 2.0, 3))
         o.compute()
         self.check_lo(o)
 
-    def test_compute_parallel(self, monkeypatch, theory_ffns, operator_card, tmp_path):
-        tcard: TheoryCard = theory_ffns(3)
-        ocard: OperatorCard = operator_card
-        ocard.configs.n_integration_cores = 2
-        r = eko.runner.legacy.Runner(tcard, ocard, path=tmp_path / "eko.tar")
-        g = r.op_grid
-        # setup objs
-        o = Operator(g.config, g.managers, Segment(2.0, 10.0, 3))
-        # fake quad
-        monkeypatch.setattr(
-            scipy.integrate, "quad", lambda *args, **kwargs: np.random.rand(2)
-        )
-        # LO
-        o.compute()
-        self.check_lo(o)
-        """
     def check_lo(self, o):
         assert (br.non_singlet_pids_map["ns-"], 0) in o.op_members
         np.testing.assert_allclose(
@@ -350,18 +344,15 @@ class TestOperator:
             o.op_members[(br.non_singlet_pids_map["nsV"], 0)].value,
             o.op_members[(br.non_singlet_pids_map["ns+"], 0)].value,
         )
-        """
-    def test_compute_no_skip_sv(
-        self, monkeypatch, theory_ffns, operator_card, tmp_path
-    ):
+
+    def test_compute_no_skip_sv(self, monkeypatch, theory_ffns, operator_card):
         tcard: TheoryCard = theory_ffns(3)
         tcard.xif = 2.0
         ocard: OperatorCard = operator_card
         ocard.configs.scvar_method = ScaleVariationsMethod.EXPANDED
-        r = eko.runner.legacy.Runner(tcard, ocard, path=tmp_path / "eko.tar")
-        g = r.op_grid
+        f = FakeEKO(tcard, ocard)
         # setup objs
-        o = Operator(g.config, g.managers, Segment(2.0, 2.0, 3))
+        o = Operator(_evolve_configs(f), _managers(f), Segment(2.0, 2.0, 3))
         # fake quad
         v = 0.1234
         monkeypatch.setattr(
@@ -376,15 +367,18 @@ class TestOperator:
             assert k in o.op_members
             np.testing.assert_allclose(o.op_members[k].value, res, err_msg=k)
 
-    def test_compute(self, monkeypatch, theory_ffns, operator_card, tmp_path):
+    def test_compute(self, monkeypatch, theory_ffns, operator_card):
         tcard: TheoryCard = theory_ffns(3)
         ocard: OperatorCard = operator_card
-        r = eko.runner.legacy.Runner(tcard, ocard, path=tmp_path / "eko.tar")
-        g = r.op_grid
-        o = Operator(g.config, g.managers, Segment(2.0, 10.0, 3))
+        f = FakeEKO(tcard, ocard)
+        o = Operator(_evolve_configs(f), _managers(f), Segment(2.0, 10.0, 3))
         # fake quad
         monkeypatch.setattr(
             scipy.integrate, "quad", lambda *args, **kwargs: np.random.rand(2)
+        )
+
+        monkeypatch.setattr(
+            scipy.integrate, "solve_ivp", lambda *args, **kwargs: MockIVP([[0.1]])
         )
         # LO
         o.compute()
@@ -403,7 +397,7 @@ class TestOperator:
 
         # unity operators
         for n in range(1, 3 + 1):
-            o1 = Operator(g.config, g.managers, Segment(2.0, 2.0, 3))
+            o1 = Operator(_evolve_configs(f), _managers(f), Segment(2.0, 2.0, 3))
             o1.config["order"] = (n, 0)
             o1.compute()
             for k in br.non_singlet_labels:
@@ -416,8 +410,9 @@ class TestOperator:
 
         for n in range(1, 4 + 1):
             for qed in range(1, 2 + 1):
-                g.config["order"] = (n, qed)
-                o1 = Operator(g.config, g.managers, Segment(2.0, 2.0, 3))
+                tcard.order = (n, qed)
+                f = FakeEKO(tcard, ocard)
+                o1 = Operator(_evolve_configs(f), _managers(f), Segment(2.0, 2.0, 3))
                 # o1.config["order"] = (n, qed)
                 o1.compute()
                 for k in br.non_singlet_unified_labels:
@@ -426,7 +421,7 @@ class TestOperator:
                         o1.op_members[k].value, np.eye(4), err_msg=k
                     )
 
-"""
+
 def test_pegasus_path():
     def quad_ker_pegasus(
         u, order, mode0, method, logx, areas, a1, a0, nf, ev_op_iterations
