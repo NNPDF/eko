@@ -139,7 +139,6 @@ mod tests {
     use super::*;
     use crate::{assert_approx_eq_cmplx, cmplx};
     use num::complex::Complex;
-    use num::Zero;
 
     #[test]
     fn gamma_ns() {
