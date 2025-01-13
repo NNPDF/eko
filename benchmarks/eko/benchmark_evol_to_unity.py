@@ -1,4 +1,3 @@
-import pathlib
 from dataclasses import dataclass
 
 import numpy as np
@@ -47,7 +46,6 @@ class BenchmarkBackwardForward:
         self,
         theory_card: TheoryCard,
         operator_card: OperatorCard,
-        tmp_path: pathlib.Path,
     ):
         """Test that eko_forward @ eko_backward gives ID matrix or zeros."""
         update_cards(theory_card, operator_card)
