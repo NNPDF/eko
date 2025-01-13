@@ -61,12 +61,49 @@ pub fn gamma_phd(c: &mut Cache, nf: u8) -> Complex<f64> {
     ED2 * as1aem1::gamma_phq(c, nf) / CF + gamma_phq(c, nf)
 }
 
-// /// Compute the non-singlet anomalous dimension.
-// ///
-// /// Implements Eq. (2.5) of [\[deFlorian:2016gvk\]][crate::bib::deFlorian2016gvk].
-// pub fn gamma_ns(c: &mut Cache, nf: u8) -> Complex<f64> {
-//     as1::gamma_ns(c, nf) / CF
-// }
+/// Compute the non-singlet anomalous dimension.
+///
+/// Implements singlet part of Eq. (57) of [\[deFlorian:2016gvk\]][crate::bib::deFlorian2016gvk].
+fn gamma_nsq(c: &mut Cache, nf: u8) -> Complex<f64> {
+    let N = c.n();
+    let S1 = c.get(K::S1);
+    let S2 = c.get(K::S2);
+    let gamma = 2.0 * (-12.0 + 20.0 * N + 47.0 * N.powu(2) + 6.0 * N.powu(3) + 3.0 * N.powu(4))
+        / (9.0 * N.powu(2) * (1.0 + N).powu(2))
+        - 80.0 / 9.0 * S1
+        + 16.0 / 3.0 * S2;
+    let cc = ChargeCombinations { nf };
+    let eSigma2 = (NC as f64) * cc.e2avg() * (nf as f64);
+    eSigma2 * gamma
+}
+
+/// Compute the singlet-like non-singlet up anomalous dimension.
+///
+/// Implements sum of Eqs. (57-58) of [\[deFlorian:2016gvk\]][crate::bib::deFlorian2016gvk] for q=u.
+pub fn gamma_nspu(c: &mut Cache, nf: u8) -> Complex<f64> {
+    EU2 * as1aem1::gamma_nsp(c, nf) / CF / 2. + gamma_nsq(c, nf)
+}
+
+/// Compute the singlet-like non-singlet down anomalous dimension.
+///
+/// Implements sum of Eqs. (57-58) of [\[deFlorian:2016gvk\]][crate::bib::deFlorian2016gvk] for q=d.
+pub fn gamma_nspd(c: &mut Cache, nf: u8) -> Complex<f64> {
+    ED2 * as1aem1::gamma_nsp(c, nf) / CF / 2. + gamma_nsq(c, nf)
+}
+
+/// Compute the valence-like non-singlet up anomalous dimension.
+///
+/// Implements difference between Eqs. (57-58) of [\[deFlorian:2016gvk\]][crate::bib::deFlorian2016gvk] for q=u.
+pub fn gamma_nsmu(c: &mut Cache, nf: u8) -> Complex<f64> {
+    EU2 * as1aem1::gamma_nsm(c, nf) / CF / 2. + gamma_nsq(c, nf)
+}
+
+/// Compute the valence-like non-singlet down anomalous dimension.
+///
+/// Implements difference between Eqs. (57-58) of [\[deFlorian:2016gvk\]][crate::bib::deFlorian2016gvk] for q=d.
+pub fn gamma_nsmd(c: &mut Cache, nf: u8) -> Complex<f64> {
+    ED2 * as1aem1::gamma_nsm(c, nf) / CF / 2. + gamma_nsq(c, nf)
+}
 
 // /// Compute the singlet anomalous dimension matrix.
 // pub fn gamma_singlet(c: &mut Cache, nf: u8) -> [[Complex<f64>; 4]; 4] {
@@ -122,13 +159,15 @@ mod tests {
     use num::Zero;
     const NF: u8 = 5;
 
-    // #[test]
-    // fn number_conservation() {
-    //     const N: Complex<f64> = cmplx!(1., 0.);
-    //     let mut c = Cache::new(N);
-    //     let me = gamma_ns(&mut c, NF);
-    //     assert_approx_eq_cmplx!(f64, me, Complex::zero(), epsilon = 1e-12);
-    // }
+    #[test]
+    fn number_conservation() {
+        const N: Complex<f64> = cmplx!(1., 0.);
+        let mut c = Cache::new(N);
+        for nf in 2..7 {
+            assert_approx_eq_cmplx!(f64, gamma_nsmu(&mut c, nf), Complex::zero(), epsilon = 1e-5);
+            assert_approx_eq_cmplx!(f64, gamma_nsmd(&mut c, nf), Complex::zero(), epsilon = 1e-5);
+        }
+    }
 
     // #[test]
     // fn quark_momentum_conservation() {
