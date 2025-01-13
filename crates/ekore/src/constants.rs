@@ -20,14 +20,14 @@ pub const CA: f64 = NC as f64;
 /// Defaults to $C_F = \frac{N_C^2-1}{2N_C} = 4/3$.
 pub const CF: f64 = ((NC * NC - 1) as f64) / ((2 * NC) as f64);
 
-/// Up quark charge square.
+/// Up quark electric charge square.
 ///
-/// Defaults to $e_u^2 = 4./9$
+/// Defaults to $e_u^2 = 4./9$.
 pub const EU2: f64 = 4. / 9.;
 
-/// Down quark charge square.
+/// Down quark electric charge square.
 ///
-/// Defaults to $e_d^2 = 1./9$
+/// Defaults to $e_d^2 = 1./9$.
 pub const ED2: f64 = 1. / 9.;
 
 /// Riemann zeta function at z = 2.
@@ -52,16 +52,16 @@ pub const PID_NSM: u16 = 10201;
 /// non-singlet all-valence |PID|.
 pub const PID_NSV: u16 = 10200;
 
-/// singlet-like non-singlet up-sector |PID|
+/// singlet-like non-singlet up-sector |PID|.
 pub const PID_NSP_EU2: u16 = 10102;
 
-/// singlet-like non-singlet down-sector |PID|
+/// singlet-like non-singlet down-sector |PID|.
 pub const PID_NSP_ED2: u16 = 10103;
 
-/// valence-like non-singlet up-sector |PID|
+/// valence-like non-singlet up-sector |PID|.
 pub const PID_NSM_EU2: u16 = 10202;
 
-/// valence-like non-singlet down-sector |PID|
+/// valence-like non-singlet down-sector |PID|.
 pub const PID_NSM_ED2: u16 = 10203;
 
 /// |QED| electric charge combinations.
