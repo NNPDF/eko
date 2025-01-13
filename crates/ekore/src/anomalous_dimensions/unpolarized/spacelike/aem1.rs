@@ -7,14 +7,14 @@ use crate::harmonics::cache::Cache;
 
 use crate::anomalous_dimensions::unpolarized::spacelike::as1;
 
-/// Compute the leading-order photon-quark anomalous dimension.
+/// Compute the photon-quark anomalous dimension.
 ///
 /// Implements Eq. (2.5) of [\[Carrazza:2015dea\]][crate::bib::Carrazza2015dea].
 pub fn gamma_phq(c: &mut Cache, nf: u8) -> Complex<f64> {
     as1::gamma_gq(c, nf) / CF
 }
 
-/// Compute the leading-order quark-photon anomalous dimension.
+/// Compute the quark-photon anomalous dimension.
 ///
 /// Implements Eq. (2.5) of [\[Carrazza:2015dea\]][crate::bib::Carrazza2015dea].
 /// However, we are adding the $N_C$ and the $2n_f$ factors from $\theta$ inside the
@@ -23,7 +23,7 @@ pub fn gamma_qph(c: &mut Cache, nf: u8) -> Complex<f64> {
     as1::gamma_qg(c, nf) / TR * (NC as f64)
 }
 
-/// Compute the leading-order photon-photon anomalous dimension.
+/// Compute the photon-photon anomalous dimension.
 ///
 /// Implements Eq. (2.5) of [\[Carrazza:2015dea\]][crate::bib::Carrazza2015dea].
 pub fn gamma_phph(_c: &mut Cache, nf: u8) -> Complex<f64> {
@@ -31,14 +31,14 @@ pub fn gamma_phph(_c: &mut Cache, nf: u8) -> Complex<f64> {
     (4.0 / 3.0 * (NC as f64) * ((cc.nu() as f64) * EU2 + (cc.nd() as f64) * ED2)).into()
 }
 
-/// Compute the leading-order non-singlet |QED| anomalous dimension.
+/// Compute the non-singlet anomalous dimension.
 ///
 /// Implements Eq. (2.5) of [\[Carrazza:2015dea\]][crate::bib::Carrazza2015dea].
 pub fn gamma_ns(c: &mut Cache, nf: u8) -> Complex<f64> {
     as1::gamma_ns(c, nf) / CF
 }
 
-/// Compute the leading-order singlet |QED| anomalous dimension matrix.
+/// Compute the singlet anomalous dimension matrix.
 pub fn gamma_singlet(c: &mut Cache, nf: u8) -> [[Complex<f64>; 4]; 4] {
     let cc = ChargeCombinations { nf };
 
@@ -74,7 +74,7 @@ pub fn gamma_singlet(c: &mut Cache, nf: u8) -> [[Complex<f64>; 4]; 4] {
     ]
 }
 
-/// Compute the leading-order valence |QED| anomalous dimension matrix.
+/// Compute the valence anomalous dimension matrix.
 pub fn gamma_valence(c: &mut Cache, nf: u8) -> [[Complex<f64>; 2]; 2] {
     let cc = ChargeCombinations { nf };
 

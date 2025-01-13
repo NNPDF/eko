@@ -1,13 +1,13 @@
-//! The $O(a_s^1a_{em}^1)$ Altarelli-Parisi splitting kernels.
+//! |LO| |QED| x |LO| |QCD|.
 use crate::cmplx;
 use num::complex::Complex;
 
 use crate::constants::{ChargeCombinations, CA, CF, ED2, EU2, NC, TR, ZETA2, ZETA3};
 use crate::harmonics::cache::{Cache, K};
 
-/// Compute the $O(a_s^1a_{em}^1)$ photon-quark anomalous dimension.
+/// Compute the photon-quark anomalous dimension.
 ///
-/// Implements Eq. (36) of
+/// Implements Eq. (36) of [\[deFlorian:2015ujt\]][crate::bib::deFlorian2015ujt].
 pub fn gamma_phq(c: &mut Cache, _nf: u8) -> Complex<f64> {
     let N = c.n();
     let S1 = c.get(K::S1);
@@ -37,7 +37,7 @@ pub fn gamma_phq(c: &mut Cache, _nf: u8) -> Complex<f64> {
     CF * (tmp_const + tmp_S1 * S1 + tmp_S12 * S1.powu(2) + tmp_S2 * S2)
 }
 
-/// Compute the $O(a_s^1a_{em}^1)$ quark-photon anomalous dimension.
+/// Compute the quark-photon anomalous dimension.
 ///
 /// Implements Eq. (26) of
 pub fn gamma_qph(c: &mut Cache, nf: u8) -> Complex<f64> {
@@ -63,9 +63,9 @@ pub fn gamma_qph(c: &mut Cache, nf: u8) -> Complex<f64> {
     2.0 * (nf as f64) * CA * CF * (tmp_const + tmp_S1 * S1 + tmp_S12 * S1.powu(2) + tmp_S2 * S2)
 }
 
-/// Compute the $O(a_s^1a_{em}^1)$ gluon-photon anomalous dimension.
+/// Compute the gluon-photon anomalous dimension.
 ///
-/// Implements Eq. (27) of
+/// Implements Eq. (27) of [\[deFlorian:2015ujt\]][crate::bib::deFlorian2015ujt].
 pub fn gamma_gph(c: &mut Cache, _nf: u8) -> Complex<f64> {
     let N = c.n();
     CF * CA
@@ -73,30 +73,30 @@ pub fn gamma_gph(c: &mut Cache, _nf: u8) -> Complex<f64> {
         / (N.powu(3) * (1.0 + N).powu(3) * (-2.0 + N + N.powu(2)))
 }
 
-/// Compute the $O(a_s^1a_{em}^1)$ photon-gluon anomalous dimension.
+/// Compute the photon-gluon anomalous dimension.
 ///
-/// Implements Eq. (30) of
+/// Implements Eq. (30) of [\[deFlorian:2015ujt\]][crate::bib::deFlorian2015ujt].
 pub fn gamma_phg(c: &mut Cache, nf: u8) -> Complex<f64> {
     TR / CF / CA * (NC as f64) * gamma_gph(c, nf)
 }
 
-/// Compute the $O(a_s^1a_{em}^1)$ quark-gluon singlet anomalous dimension.
+/// Compute the quark-gluon singlet anomalous dimension.
 ///
-/// Implements Eq. (29) of
+/// Implements Eq. (29) of [\[deFlorian:2015ujt\]][crate::bib::deFlorian2015ujt].
 pub fn gamma_qg(c: &mut Cache, nf: u8) -> Complex<f64> {
     TR / CF / CA * (NC as f64) * gamma_qph(c, nf)
 }
 
-/// Compute the $O(a_s^1a_{em}^1)$ gluon-quark singlet anomalous dimension.
+/// Compute the gluon-quark singlet anomalous dimension.
 ///
-/// Implements Eq. (35) of
+/// Implements Eq. (35) of [\[deFlorian:2015ujt\]][crate::bib::deFlorian2015ujt].
 pub fn gamma_gq(c: &mut Cache, nf: u8) -> Complex<f64> {
     gamma_phq(c, nf)
 }
 
-/// Compute the $O(a_s^1a_{em}^1)$ photon-photon singlet anomalous dimension.
+/// Compute the photon-photon singlet anomalous dimension.
 ///
-/// Implements Eq. (28) of
+/// Implements Eq. (28) of [\[deFlorian:2015ujt\]][crate::bib::deFlorian2015ujt].
 pub fn gamma_phph(_c: &mut Cache, nf: u8) -> Complex<f64> {
     let cc = ChargeCombinations { nf };
     cmplx!(
@@ -105,16 +105,16 @@ pub fn gamma_phph(_c: &mut Cache, nf: u8) -> Complex<f64> {
     )
 }
 
-/// Compute the $O(a_s^1a_{em}^1)$ gluon-gluon singlet anomalous dimension.
+/// Compute the gluon-gluon singlet anomalous dimension.
 ///
-/// Implements Eq. (31) of
+/// Implements Eq. (31) of [\[deFlorian:2015ujt\]][crate::bib::deFlorian2015ujt].
 pub fn gamma_gg(_c: &mut Cache, _nf: u8) -> Complex<f64> {
     cmplx!(4.0 * TR * (NC as f64), 0.)
 }
 
-/// Compute the $O(a_s^1a_{em}^1)$ singlet-like non singlet anomalous dimension.
+/// Compute the singlet-like non-singlet anomalous dimension.
 ///
-/// Implements Eqs. (33-34) of
+/// Implements Eqs. (33-34) of [\[deFlorian:2015ujt\]][crate::bib::deFlorian2015ujt].
 pub fn gamma_nsp(c: &mut Cache, _nf: u8) -> Complex<f64> {
     let N = c.n();
     let S1 = c.get(K::S1);
@@ -144,9 +144,9 @@ pub fn gamma_nsp(c: &mut Cache, _nf: u8) -> Complex<f64> {
     CF * result
 }
 
-/// Compute the $O(a_s^1a_{em}^1)$ valence-like non singlet anomalous dimension.
+/// Compute the valence-like non-singlet anomalous dimension.
 ///
-/// Implements Eqs. (33-34) of
+/// Implements Eqs. (33-34) of [\[deFlorian:2015ujt\]][crate::bib::deFlorian2015ujt].
 pub fn gamma_nsm(c: &mut Cache, _nf: u8) -> Complex<f64> {
     let N = c.n();
     let S1 = c.get(K::S1);
@@ -194,7 +194,7 @@ pub fn gamma_nsm(c: &mut Cache, _nf: u8) -> Complex<f64> {
     CF * result
 }
 
-/// Compute the $O(a_s^1a_{em}^1)$ singlet sector.
+/// Compute the singlet anomalous dimension matrix.
 pub fn gamma_singlet(c: &mut Cache, nf: u8) -> [[Complex<f64>; 4]; 4] {
     let cc = ChargeCombinations { nf };
     let e2_tot = nf as f64 * cc.e2avg();
@@ -227,7 +227,7 @@ pub fn gamma_singlet(c: &mut Cache, nf: u8) -> [[Complex<f64>; 4]; 4] {
     ]
 }
 
-/// Compute the $O(a_s^1a_{em}^1)$ valence sector.
+/// Compute the valence anomalous dimension matrix.
 pub fn gamma_valence(c: &mut Cache, nf: u8) -> [[Complex<f64>; 2]; 2] {
     let cc = ChargeCombinations { nf };
     [
