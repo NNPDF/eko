@@ -24,7 +24,7 @@ _theory = dict(
     xif=1.0,
     n3lo_ad_variation=(0, 0, 0, 0, 0, 0, 0),
     matching_order=[0, 0],
-    use_fhmruvv=False,
+    use_fhmruvv=True,
 )
 
 _operator = dict(
