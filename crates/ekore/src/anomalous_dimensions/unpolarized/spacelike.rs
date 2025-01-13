@@ -1,7 +1,7 @@
 //! The unpolarized, space-like anomalous dimensions at various couplings power.
 
 use crate::constants::{
-    ED2, EU2, PID_NSM, PID_NSM_ED2, PID_NSM_EU2, PID_NSP, PID_NSP_ED2, PID_NSP_EU2, PID_NSV,
+    ED2, EU2, PID_NSM, PID_NSM_D, PID_NSM_U, PID_NSP, PID_NSP_D, PID_NSP_U, PID_NSV,
 };
 use crate::harmonics::cache::Cache;
 use num::complex::Complex;
@@ -61,7 +61,7 @@ pub fn gamma_singlet_qcd(order_qcd: usize, c: &mut Cache, nf: u8) -> Vec<[[Compl
     gamma_S
 }
 
-/// Compute the tower of the QED non-singlet anomalous dimensions.
+/// Compute the tower of the |QCD| x |QED| non-singlet anomalous dimensions.
 pub fn gamma_ns_qed(
     order_qcd: usize,
     order_qed: usize,
@@ -71,30 +71,44 @@ pub fn gamma_ns_qed(
 ) -> Vec<Vec<Complex<f64>>> {
     let col = vec![Complex::<f64>::zero(); order_qcd + 1];
     let mut gamma_ns = vec![col; order_qed + 1];
-    gamma_ns[1][0] = as1::gamma_ns(c, nf);
-    gamma_ns[0][1] = choose_ns_as_aem1(mode, c, nf);
-    gamma_ns[1][1] = choose_ns_as_as1aem1(mode, c, nf);
+
+    // QCD corrections
+    let qcd_mode = match mode {
+        PID_NSP_U | PID_NSP_D => PID_NSP,
+        PID_NSM_U | PID_NSM_D => PID_NSM,
+        _ => mode,
+    };
+    let gamma_qcd = gamma_ns_qcd(order_qcd, qcd_mode, c, nf);
+    for j in 0..order_qcd {
+        gamma_ns[1 + j][0] = gamma_qcd[j];
+    }
+    // QED corrections
+    gamma_ns[0][1] = match mode {
+        PID_NSP_U | PID_NSM_U => EU2 * aem1::gamma_ns(c, nf),
+        PID_NSP_D | PID_NSM_D => ED2 * aem1::gamma_ns(c, nf),
+        _ => panic!("Unkown non-singlet sector element"),
+    };
+    if order_qed >= 2 {
+        gamma_ns[0][2] = match mode {
+            PID_NSP_U => EU2 * aem2::gamma_nspu(c, nf),
+            PID_NSP_D => ED2 * aem2::gamma_nspd(c, nf),
+            PID_NSM_U => EU2 * aem2::gamma_nsmu(c, nf),
+            PID_NSM_D => ED2 * aem2::gamma_nsmd(c, nf),
+            _ => panic!("Unkown non-singlet sector element"),
+        };
+    }
+    // QCDxQED corrections
+    gamma_ns[1][1] = match mode {
+        PID_NSP_U => EU2 * as1aem1::gamma_nsp(c, nf),
+        PID_NSP_D => ED2 * as1aem1::gamma_nsp(c, nf),
+        PID_NSM_U => EU2 * as1aem1::gamma_nsm(c, nf),
+        PID_NSM_D => ED2 * as1aem1::gamma_nsm(c, nf),
+        _ => panic!("Unkown non-singlet sector element"),
+    };
     gamma_ns
 }
 
-pub fn choose_ns_as_aem1(mode: u16, c: &mut Cache, nf: u8) -> Complex<f64> {
-    match mode {
-        PID_NSP_EU2 | PID_NSM_EU2 => EU2 * aem1::gamma_ns(c, nf),
-        PID_NSP_ED2 | PID_NSM_ED2 => ED2 * aem1::gamma_ns(c, nf),
-        _ => panic!("Unkown non-singlet sector element"),
-    }
-}
-
-pub fn choose_ns_as_as1aem1(mode: u16, c: &mut Cache, nf: u8) -> Complex<f64> {
-    match mode {
-        PID_NSP_EU2 => EU2 * as1aem1::gamma_nsp(c, nf),
-        PID_NSP_ED2 => ED2 * as1aem1::gamma_nsp(c, nf),
-        PID_NSM_EU2 => EU2 * as1aem1::gamma_nsm(c, nf),
-        PID_NSM_ED2 => ED2 * as1aem1::gamma_nsm(c, nf),
-        _ => panic!("Unkown non-singlet sector element"),
-    }
-}
-
+/// Compute the tower of the |QCD| x |QED| singlet anomalous dimensions matrices.
 pub fn gamma_singlet_qed(
     order_qcd: usize,
     order_qed: usize,
@@ -110,7 +124,6 @@ pub fn gamma_singlet_qed(
         ]; 4];
         order_qcd + 1
     ];
-
     let mut gamma_s = vec![col; order_qed + 1];
 
     gamma_s[1][0] = as1::gamma_singlet_qed(c, nf);
@@ -119,7 +132,7 @@ pub fn gamma_singlet_qed(
     gamma_s
 }
 
-/// Compute the grid of the QED valence anomalous dimensions matrices
+/// Compute the tower of the |QCD| x |QED| valence anomalous dimensions matrices.
 pub fn gamma_valence_qed(
     order_qcd: usize,
     order_qed: usize,
@@ -127,8 +140,8 @@ pub fn gamma_valence_qed(
     nf: u8,
 ) -> Vec<Vec<[[Complex<f64>; 2]; 2]>> {
     let col = vec![[[Complex::<f64>::zero(), Complex::<f64>::zero(),]; 2]; order_qcd + 1];
-
     let mut gamma_v = vec![col; order_qed + 1];
+
     gamma_v[1][0] = as1::gamma_valence_qed(c, nf);
     gamma_v[0][1] = aem1::gamma_valence(c, nf);
     gamma_v[1][1] = as1aem1::gamma_valence(c, nf);
@@ -191,7 +204,7 @@ mod tests {
             for j in [0, 1] {
                 assert_approx_eq_cmplx!(
                     f64,
-                    gamma_ns_qed(1, 1, PID_NSM_EU2, &mut c, NF)[i][j],
+                    gamma_ns_qed(1, 1, PID_NSM_U, &mut c, NF)[i][j],
                     cmplx!(0., 0.),
                     epsilon = 1e-5
                 );
@@ -202,7 +215,7 @@ mod tests {
             for j in [0, 1] {
                 assert_approx_eq_cmplx!(
                     f64,
-                    gamma_ns_qed(1, 1, PID_NSM_ED2, &mut c, NF)[i][j],
+                    gamma_ns_qed(1, 1, PID_NSM_D, &mut c, NF)[i][j],
                     cmplx!(0., 0.),
                     epsilon = 1e-5
                 );
@@ -211,14 +224,14 @@ mod tests {
 
         assert_approx_eq_cmplx!(
             f64,
-            gamma_ns_qed(1, 1, PID_NSP_EU2, &mut c, NF)[0][1],
+            gamma_ns_qed(1, 1, PID_NSP_U, &mut c, NF)[0][1],
             cmplx!(0., 0.),
             epsilon = 1e-5
         );
 
         assert_approx_eq_cmplx!(
             f64,
-            gamma_ns_qed(1, 1, PID_NSP_ED2, &mut c, NF)[0][1],
+            gamma_ns_qed(1, 1, PID_NSP_D, &mut c, NF)[0][1],
             cmplx!(0., 0.),
             epsilon = 1e-5
         );

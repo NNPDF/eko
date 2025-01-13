@@ -53,16 +53,16 @@ pub const PID_NSM: u16 = 10201;
 pub const PID_NSV: u16 = 10200;
 
 /// singlet-like non-singlet up-sector |PID|.
-pub const PID_NSP_EU2: u16 = 10102;
+pub const PID_NSP_U: u16 = 10102;
 
 /// singlet-like non-singlet down-sector |PID|.
-pub const PID_NSP_ED2: u16 = 10103;
+pub const PID_NSP_D: u16 = 10103;
 
 /// valence-like non-singlet up-sector |PID|.
-pub const PID_NSM_EU2: u16 = 10202;
+pub const PID_NSM_U: u16 = 10202;
 
 /// valence-like non-singlet down-sector |PID|.
-pub const PID_NSM_ED2: u16 = 10203;
+pub const PID_NSM_D: u16 = 10203;
 
 /// |QED| electric charge combinations.
 pub struct ChargeCombinations {
