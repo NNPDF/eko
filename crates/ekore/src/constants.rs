@@ -80,19 +80,29 @@ impl ChargeCombinations {
         self.nf - self.nu()
     }
 
-    /// Electric charge average.
+    /// Charge average.
     pub fn e2avg(&self) -> f64 {
         (self.nu() as f64 * EU2 + self.nd() as f64 * ED2) / (self.nf as f64)
     }
 
+    /// Relative up contribution.
+    pub fn vu(&self) -> f64 {
+        self.nu() as f64 / (self.nf as f64)
+    }
+
+    /// Relative down contribution.
+    pub fn vd(&self) -> f64 {
+        self.nd() as f64 / (self.nf as f64)
+    }
+
     /// Relative up contribution to charge difference.
     pub fn vue2m(&self) -> f64 {
-        self.nu() as f64 / (self.nf as f64) * (EU2 - ED2)
+        self.vu() * (EU2 - ED2)
     }
 
     /// Relative down contribution to charge difference.
     pub fn vde2m(&self) -> f64 {
-        self.nd() as f64 / (self.nf as f64) * (EU2 - ED2)
+        self.vd() * (EU2 - ED2)
     }
 
     /// Asymmetric charge combination.

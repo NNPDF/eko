@@ -105,51 +105,75 @@ pub fn gamma_nsmd(c: &mut Cache, nf: u8) -> Complex<f64> {
     ED2 * as1aem1::gamma_nsm(c, nf) / CF / 2. + gamma_nsq(c, nf)
 }
 
-// /// Compute the singlet anomalous dimension matrix.
-// pub fn gamma_singlet(c: &mut Cache, nf: u8) -> [[Complex<f64>; 4]; 4] {
-//     let cc = ChargeCombinations { nf };
+/// Compute the pure-singlet anomalous dimension.
+///
+/// Implements Eq. (59) of [\[deFlorian:2016gvk\]][crate::bib::deFlorian2016gvk].
+pub fn gamma_ps(c: &mut Cache, nf: u8) -> Complex<f64> {
+    let N = c.n();
+    let result = -4.0 * (2.0 + N * (5.0 + N)) * (4.0 + N * (4.0 + N * (7.0 + 5.0 * N)))
+        / ((-1.0 + N) * N.powu(3) * (1.0 + N).powu(3) * (2.0 + N).powu(2));
+    2. * (nf as f64) * CA * result
+}
 
-//     let gamma_ph_q = gamma_phq(c, nf);
-//     let gamma_q_ph = gamma_qph(c, nf);
-//     let gamma_nonsinglet = gamma_ns(c, nf);
+/// Compute the singlet anomalous dimension matrix.
+pub fn gamma_singlet(c: &mut Cache, nf: u8) -> [[Complex<f64>; 4]; 4] {
+    let cc = ChargeCombinations { nf };
+    const E2M: f64 = EU2 - ED2;
 
-//     [
-//         [
-//             Complex::<f64>::zero(),
-//             Complex::<f64>::zero(),
-//             Complex::<f64>::zero(),
-//             Complex::<f64>::zero(),
-//         ],
-//         [
-//             Complex::<f64>::zero(),
-//             gamma_phph(c, nf),
-//             cc.e2avg() * gamma_ph_q,
-//             cc.vue2m() * gamma_ph_q,
-//         ],
-//         [
-//             Complex::<f64>::zero(),
-//             cc.e2avg() * gamma_q_ph,
-//             cc.e2avg() * gamma_nonsinglet,
-//             cc.vue2m() * gamma_nonsinglet,
-//         ],
-//         [
-//             Complex::<f64>::zero(),
-//             cc.vde2m() * gamma_q_ph,
-//             cc.vde2m() * gamma_nonsinglet,
-//             cc.e2delta() * gamma_nonsinglet,
-//         ],
-//     ]
-// }
+    let gamma_phu = gamma_phu(c, nf);
+    let gamma_phd = gamma_phd(c, nf);
+    let gamma_uph = gamma_uph(c, nf);
+    let gamma_dph = gamma_dph(c, nf);
+    let gamma_nspu = gamma_nspu(c, nf);
+    let gamma_nspd = gamma_nspd(c, nf);
+    let gamma_ps = gamma_ps(c, nf);
 
-// /// Compute the valence anomalous dimension matrix.
-// pub fn gamma_valence(c: &mut Cache, nf: u8) -> [[Complex<f64>; 2]; 2] {
-//     let cc = ChargeCombinations { nf };
+    [
+        [
+            Complex::<f64>::zero(),
+            Complex::<f64>::zero(),
+            Complex::<f64>::zero(),
+            Complex::<f64>::zero(),
+        ],
+        [
+            Complex::<f64>::zero(),
+            gamma_phph(c, nf),
+            cc.vu() * EU2 * gamma_phu + cc.vd() * ED2 * gamma_phd,
+            cc.vu() * (EU2 * gamma_phu - ED2 * gamma_phd),
+        ],
+        [
+            Complex::<f64>::zero(),
+            cc.vu() * EU2 * gamma_uph + cc.vd() * ED2 * gamma_dph,
+            cc.vu() * EU2 * gamma_nspu + cc.vd() * ED2 * gamma_nspd + cc.e2avg().powi(2) * gamma_ps,
+            cc.vu() * (EU2 * gamma_nspu - ED2 * gamma_nspd + E2M * cc.e2avg() * gamma_ps),
+        ],
+        [
+            Complex::<f64>::zero(),
+            cc.vd() * (EU2 * gamma_uph - ED2 * gamma_dph),
+            cc.vd() * (EU2 * gamma_nspu - ED2 * gamma_nspd + E2M * cc.e2avg() * gamma_ps),
+            cc.vd() * EU2 * gamma_nspu
+                + cc.vu() * ED2 * gamma_nspd
+                + cc.vu() * cc.vd() * E2M.powi(2) * gamma_ps,
+        ],
+    ]
+}
 
-//     [
-//         [cc.e2avg() * gamma_ns(c, nf), cc.vue2m() * gamma_ns(c, nf)],
-//         [cc.vde2m() * gamma_ns(c, nf), cc.e2delta() * gamma_ns(c, nf)],
-//     ]
-// }
+/// Compute the valence anomalous dimension matrix.
+pub fn gamma_valence(c: &mut Cache, nf: u8) -> [[Complex<f64>; 2]; 2] {
+    let cc = ChargeCombinations { nf };
+    let gamma_nsmu = gamma_nsmu(c, nf);
+    let gamma_nsmd = gamma_nsmd(c, nf);
+    [
+        [
+            cc.vu() * EU2 * gamma_nsmu + cc.vd() * ED2 * gamma_nsmd,
+            cc.vu() * (EU2 * gamma_nsmu - ED2 * gamma_nsmd),
+        ],
+        [
+            cc.vd() * (EU2 * gamma_nsmu - ED2 * gamma_nsmd),
+            cc.vd() * EU2 * gamma_nsmu + cc.vu() * ED2 * gamma_nsmd,
+        ],
+    ]
+}
 
 #[cfg(test)]
 mod tests {
@@ -157,7 +181,6 @@ mod tests {
     use crate::{assert_approx_eq_cmplx, cmplx};
     use num::complex::Complex;
     use num::Zero;
-    const NF: u8 = 5;
 
     #[test]
     fn number_conservation() {
@@ -169,13 +192,19 @@ mod tests {
         }
     }
 
-    // #[test]
-    // fn quark_momentum_conservation() {
-    //     const N: Complex<f64> = cmplx!(2., 0.);
-    //     let mut c = Cache::new(N);
-    //     let me = gamma_ns(&mut c, NF) + gamma_phq(&mut c, NF);
-    //     assert_approx_eq_cmplx!(f64, me, Complex::zero(), epsilon = 1e-12);
-    // }
+    #[test]
+    fn quark_momentum_conservation() {
+        const N: Complex<f64> = cmplx!(2., 0.);
+        let mut c = Cache::new(N);
+        for nf in 2..7 {
+            let cc = ChargeCombinations { nf };
+            let ps = EU2 * gamma_ps(&mut c, cc.nu()) + ED2 * gamma_ps(&mut c, cc.nd());
+            let me_u = gamma_nspu(&mut c, nf) + ps + gamma_phu(&mut c, nf);
+            assert_approx_eq_cmplx!(f64, me_u, Complex::zero(), epsilon = 1e-5);
+            let me_d = gamma_nspd(&mut c, nf) + ps + gamma_phd(&mut c, nf);
+            assert_approx_eq_cmplx!(f64, me_d, Complex::zero(), epsilon = 1e-5);
+        }
+    }
 
     #[test]
     fn photon_momentum_conservation() {
