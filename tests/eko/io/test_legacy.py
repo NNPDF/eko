@@ -1,19 +1,20 @@
-import pytest
+import pathlib
 
-from eko.io import legacy
+TEST = pathlib.Path(__file__).parents[2] / "data"
 
+import pathlib
+import eko
+from banana import toy
 
-def test_op5to4():
-    with pytest.raises(RuntimeError, match="not found"):
-        legacy.op5to4([], {})
+pdf = toy.mkPDF("",0)
 
-    mu2 = 1.959
-    op = 29348.2342
-    err = 54225.24
-    op4s = legacy.op5to4([mu2], {legacy.OPERATOR: [op], legacy.ERROR: [err]})
-    assert mu2 in op4s
-    assert op4s[mu2].operator == op
-    assert op4s[mu2].error == err
+from ekobox.apply import apply_pdf
 
-    op4s_noerr = legacy.op5to4([mu2], {legacy.OPERATOR: [op], legacy.ERROR: None})
-    assert op4s_noerr[mu2].error is None
+#print(evolved_pdfs.keys())
+def test_read_legacy():
+    for name in ["v0.13.tar"]:
+        with eko.EKO.read(TEST/name) as evolution_operator:           # directory of the EKO object
+            evolved_pdfs, _integration_errors = apply_pdf(evolution_operator, pdf)
+            #import pdb; pdb.set_trace()
+            #print('test')
+            assert isinstance(evolution_operator.theory_card, eko.io.runcards.TheoryCard)
