@@ -102,7 +102,7 @@ class Runner(BenchmarkRunner):
                 print(f"Operator written to {path}")
             else:
                 # load
-                print(f"Using cached eko data: {os.path.relpath(path,os.getcwd())}")
+                print(f"Using cached eko data: {os.path.relpath(path, os.getcwd())}")
 
             if self.plot_operator:
                 from ekomark.plots import (  # pylint:disable=import-error,import-outside-toplevel
