@@ -2,7 +2,7 @@
 use num::complex::Complex;
 use num::Zero;
 
-use crate::constants::{ed2, eu2, uplike_flavors, ChargeCombinations, CF, NC, TR};
+use crate::constants::{ChargeCombinations, CF, ED2, EU2, NC, TR};
 use crate::harmonics::cache::Cache;
 
 use crate::anomalous_dimensions::unpolarized::spacelike::as1;
@@ -25,9 +25,8 @@ pub fn gamma_qph(c: &mut Cache, nf: u8) -> Complex<f64> {
 ///
 /// Implements Eq. (2.5) of
 pub fn gamma_phph(_c: &mut Cache, nf: u8) -> Complex<f64> {
-    let nu = uplike_flavors(nf);
-    let nd = nf - nu;
-    (4.0 / 3.0 * (NC as f64) * ((nu as f64) * eu2 + (nd as f64) * ed2)).into()
+    let cc = ChargeCombinations { nf };
+    (4.0 / 3.0 * (NC as f64) * ((cc.nu() as f64) * EU2 + (cc.nd() as f64) * ED2)).into()
 }
 
 /// Compute the leading-order non-singlet QED anomalous dimension
@@ -117,11 +116,12 @@ mod tests {
         let mut c = Cache::new(N);
 
         for nf in 2..7 {
-            let nu = uplike_flavors(nf);
-            let nd = nf - nu;
+            let cc = ChargeCombinations { nf };
             assert_approx_eq_cmplx!(
                 f64,
-                eu2 * gamma_qph(&mut c, nu) + ed2 * gamma_qph(&mut c, nd) + gamma_phph(&mut c, nf),
+                EU2 * gamma_qph(&mut c, cc.nu())
+                    + ED2 * gamma_qph(&mut c, cc.nd())
+                    + gamma_phph(&mut c, nf),
                 cmplx!(0., 0.),
                 epsilon = 2e-6
             );

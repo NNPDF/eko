@@ -1,7 +1,7 @@
 //! The unpolarized, space-like anomalous dimensions at various couplings power.
 
 use crate::constants::{
-    ed2, eu2, PID_NSM, PID_NSM_ED2, PID_NSM_EU2, PID_NSP, PID_NSP_ED2, PID_NSP_EU2, PID_NSV,
+    ED2, EU2, PID_NSM, PID_NSM_ED2, PID_NSM_EU2, PID_NSP, PID_NSP_ED2, PID_NSP_EU2, PID_NSV,
 };
 use crate::harmonics::cache::Cache;
 use num::complex::Complex;
@@ -78,18 +78,18 @@ pub fn gamma_ns_qed(
 
 pub fn choose_ns_as_aem1(mode: u16, c: &mut Cache, nf: u8) -> Complex<f64> {
     match mode {
-        PID_NSP_EU2 | PID_NSM_EU2 => eu2 * aem1::gamma_ns(c, nf),
-        PID_NSP_ED2 | PID_NSM_ED2 => ed2 * aem1::gamma_ns(c, nf),
+        PID_NSP_EU2 | PID_NSM_EU2 => EU2 * aem1::gamma_ns(c, nf),
+        PID_NSP_ED2 | PID_NSM_ED2 => ED2 * aem1::gamma_ns(c, nf),
         _ => panic!("Unkown non-singlet sector element"),
     }
 }
 
 pub fn choose_ns_as_as1aem1(mode: u16, c: &mut Cache, nf: u8) -> Complex<f64> {
     match mode {
-        PID_NSP_EU2 => eu2 * as1aem1::gamma_nsp(c, nf),
-        PID_NSP_ED2 => ed2 * as1aem1::gamma_nsp(c, nf),
-        PID_NSM_EU2 => eu2 * as1aem1::gamma_nsm(c, nf),
-        PID_NSM_ED2 => ed2 * as1aem1::gamma_nsm(c, nf),
+        PID_NSP_EU2 => EU2 * as1aem1::gamma_nsp(c, nf),
+        PID_NSP_ED2 => ED2 * as1aem1::gamma_nsp(c, nf),
+        PID_NSM_EU2 => EU2 * as1aem1::gamma_nsm(c, nf),
+        PID_NSM_ED2 => ED2 * as1aem1::gamma_nsm(c, nf),
         _ => panic!("Unkown non-singlet sector element"),
     }
 }

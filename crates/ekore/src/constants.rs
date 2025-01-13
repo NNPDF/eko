@@ -1,5 +1,4 @@
 //! Global constants.
-use std::unimplemented;
 
 /// The number of colors.
 ///
@@ -24,12 +23,12 @@ pub const CF: f64 = ((NC * NC - 1) as f64) / ((2 * NC) as f64);
 /// Up quark charge square.
 ///
 /// Defaults to $e_u^2 = 4./9$
-pub const eu2: f64 = 4. / 9.;
+pub const EU2: f64 = 4. / 9.;
 
 /// Down quark charge square.
 ///
 /// Defaults to $e_d^2 = 1./9$
-pub const ed2: f64 = 1. / 9.;
+pub const ED2: f64 = 1. / 9.;
 
 /// Riemann zeta function at z = 2.
 ///
@@ -53,48 +52,50 @@ pub const PID_NSM: u16 = 10201;
 /// non-singlet all-valence |PID|.
 pub const PID_NSV: u16 = 10200;
 
-/// QED |PID|. Need to give sensible names
+/// singlet-like non-singlet up-sector |PID|
 pub const PID_NSP_EU2: u16 = 10102;
 
+/// singlet-like non-singlet down-sector |PID|
 pub const PID_NSP_ED2: u16 = 10103;
 
+/// valence-like non-singlet up-sector |PID|
 pub const PID_NSM_EU2: u16 = 10202;
 
+/// valence-like non-singlet down-sector |PID|
 pub const PID_NSM_ED2: u16 = 10203;
 
-/// compute the number of up flavors
-pub fn uplike_flavors(nf: u8) -> u8 {
-    if nf > 6 {
-        unimplemented!("Selected nf is not implemented")
-    }
-    nf / 2
-}
-
+/// |QED| electric charge combinations.
 pub struct ChargeCombinations {
     pub nf: u8,
 }
 
 impl ChargeCombinations {
+    /// Number of up-like flavors.
     pub fn nu(&self) -> u8 {
         self.nf / 2
     }
 
+    /// Number of down-like flavors.
     pub fn nd(&self) -> u8 {
         self.nf - self.nu()
     }
 
+    /// Electric charge average.
     pub fn e2avg(&self) -> f64 {
-        (self.nu() as f64 * eu2 + self.nd() as f64 * ed2) / (self.nf as f64)
+        (self.nu() as f64 * EU2 + self.nd() as f64 * ED2) / (self.nf as f64)
     }
 
+    /// Relative up contribution to charge difference.
     pub fn vue2m(&self) -> f64 {
-        self.nu() as f64 / (self.nf as f64) * (eu2 - ed2)
+        self.nu() as f64 / (self.nf as f64) * (EU2 - ED2)
     }
 
+    /// Relative down contribution to charge difference.
     pub fn vde2m(&self) -> f64 {
-        self.nd() as f64 / (self.nf as f64) * (eu2 - ed2)
+        self.nd() as f64 / (self.nf as f64) * (EU2 - ED2)
     }
 
+    /// Asymmetric charge combination.
     pub fn e2delta(&self) -> f64 {
         self.vde2m() - self.vue2m() + self.e2avg()
     }

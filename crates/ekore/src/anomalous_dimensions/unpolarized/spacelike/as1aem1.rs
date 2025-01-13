@@ -2,9 +2,7 @@
 use crate::cmplx;
 use num::complex::Complex;
 
-use crate::constants::{
-    ed2, eu2, uplike_flavors, ChargeCombinations, CA, CF, NC, TR, ZETA2, ZETA3,
-};
+use crate::constants::{ChargeCombinations, CA, CF, ED2, EU2, NC, TR, ZETA2, ZETA3};
 use crate::harmonics::cache::{Cache, K};
 
 /// Compute the $O(a_s^1a_{em}^1)$ photon-quark anomalous dimension.
@@ -100,9 +98,11 @@ pub fn gamma_gq(c: &mut Cache, nf: u8) -> Complex<f64> {
 ///
 /// Implements Eq. (28) of
 pub fn gamma_phph(_c: &mut Cache, nf: u8) -> Complex<f64> {
-    let nu = uplike_flavors(nf);
-    let nd = nf - nu;
-    cmplx!(4.0 * CF * CA * ((nu as f64) * eu2 + (nd as f64) * ed2), 0.)
+    let cc = ChargeCombinations { nf };
+    cmplx!(
+        4.0 * CF * CA * ((cc.nu() as f64) * EU2 + (cc.nd() as f64) * ED2),
+        0.
+    )
 }
 
 /// Compute the $O(a_s^1a_{em}^1)$ gluon-gluon singlet anomalous dimension.
@@ -261,14 +261,13 @@ mod tests {
         let mut c = Cache::new(N);
 
         for nf in 2..7 {
-            let nu = uplike_flavors(nf);
-            let nd = nf - nu;
+            let cc = ChargeCombinations { nf };
             assert_approx_eq_cmplx!(
                 f64,
-                eu2 * gamma_qg(&mut c, nu)
-                    + ed2 * gamma_qg(&mut c, nd)
-                    + (nu as f64 * eu2 + nd as f64 * ed2) * gamma_phg(&mut c, nf)
-                    + (nu as f64 * eu2 + nd as f64 * ed2) * gamma_gg(&mut c, nf),
+                EU2 * gamma_qg(&mut c, cc.nu())
+                    + ED2 * gamma_qg(&mut c, cc.nd())
+                    + (cc.nu() as f64 * EU2 + cc.nd() as f64 * ED2) * gamma_phg(&mut c, nf)
+                    + (cc.nu() as f64 * EU2 + cc.nd() as f64 * ED2) * gamma_gg(&mut c, nf),
                 cmplx!(0., 0.),
                 epsilon = 1e-14
             );
@@ -281,14 +280,13 @@ mod tests {
         let mut c = Cache::new(N);
 
         for nf in 2..7 {
-            let nu = uplike_flavors(nf);
-            let nd = nf - nu;
+            let cc = ChargeCombinations { nf };
             assert_approx_eq_cmplx!(
                 f64,
-                eu2 * gamma_qph(&mut c, nu)
-                    + ed2 * gamma_qph(&mut c, nd)
+                EU2 * gamma_qph(&mut c, cc.nu())
+                    + ED2 * gamma_qph(&mut c, cc.nd())
                     + gamma_phph(&mut c, nf)
-                    + (nu as f64 * eu2 + nd as f64 * ed2) * gamma_gph(&mut c, nf),
+                    + (cc.nu() as f64 * EU2 + cc.nd() as f64 * ED2) * gamma_gph(&mut c, nf),
                 cmplx!(0., 0.),
                 epsilon = 1e-14
             );
