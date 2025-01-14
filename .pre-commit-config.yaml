@@ -30,7 +30,7 @@ repos:
       # Run the formatter.
       - id: ruff-format
   - repo: https://github.com/PyCQA/docformatter
-    rev: v1.7.5 # TODO: wait for https://github.com/PyCQA/docformatter/issues/293
+    rev: eb1df34 # TODO: wait for https://github.com/PyCQA/docformatter/issues/293
     hooks:
       - id: docformatter
         additional_dependencies: [tomli]
