@@ -126,8 +126,44 @@ pub fn gamma_singlet_qed(
     ];
     let mut gamma_s = vec![col; order_qed + 1];
 
-    gamma_s[1][0] = as1::gamma_singlet_qed(c, nf);
+    // QCD corrections
+    let gamma_qcd_s = gamma_singlet_qcd(order_qcd, c, nf);
+    let gamma_qcd_nsp = gamma_ns_qcd(order_qcd, PID_NSP, c, nf);
+    for j in 0..order_qcd {
+        let s = gamma_qcd_s[j];
+        gamma_s[1 + j][0] = [
+            [
+                s[1][1],
+                Complex::<f64>::zero(),
+                s[1][0],
+                Complex::<f64>::zero(),
+            ],
+            [
+                Complex::<f64>::zero(),
+                Complex::<f64>::zero(),
+                Complex::<f64>::zero(),
+                Complex::<f64>::zero(),
+            ],
+            [
+                s[0][1],
+                Complex::<f64>::zero(),
+                s[0][0],
+                Complex::<f64>::zero(),
+            ],
+            [
+                Complex::<f64>::zero(),
+                Complex::<f64>::zero(),
+                Complex::<f64>::zero(),
+                gamma_qcd_nsp[j],
+            ],
+        ];
+    }
+    // QED corrections
     gamma_s[0][1] = aem1::gamma_singlet(c, nf);
+    if order_qed >= 2 {
+        gamma_s[0][2] = aem2::gamma_singlet(c, nf);
+    }
+    // QCDxQED corrections
     gamma_s[1][1] = as1aem1::gamma_singlet(c, nf);
     gamma_s
 }
@@ -142,8 +178,21 @@ pub fn gamma_valence_qed(
     let col = vec![[[Complex::<f64>::zero(), Complex::<f64>::zero(),]; 2]; order_qcd + 1];
     let mut gamma_v = vec![col; order_qed + 1];
 
-    gamma_v[1][0] = as1::gamma_valence_qed(c, nf);
+    // QCD corrections
+    let gamma_qcd_nsv = gamma_ns_qcd(order_qcd, PID_NSV, c, nf);
+    let gamma_qcd_nsm = gamma_ns_qcd(order_qcd, PID_NSM, c, nf);
+    for j in 0..order_qcd {
+        gamma_v[1 + j][0] = [
+            [gamma_qcd_nsv[j], Complex::<f64>::zero()],
+            [Complex::<f64>::zero(), gamma_qcd_nsm[j]],
+        ];
+    }
+    // QED corrections
     gamma_v[0][1] = aem1::gamma_valence(c, nf);
+    if order_qed >= 2 {
+        gamma_v[0][2] = aem2::gamma_valence(c, nf);
+    }
+    // QCDxQED corrections
     gamma_v[1][1] = as1aem1::gamma_valence(c, nf);
     gamma_v
 }
