@@ -618,7 +618,7 @@ index bd1b19d6..de87651c 100644
 +        labels = self.labels
          start_time = time.perf_counter()
 +        # start preparing C arguments
-+        cfg = ekors.lib.empty_qcd_args()
++        cfg = ekors.lib.empty_args()
 +        cfg.order_qcd = self.order[0]
 +        cfg.order_qed = self.order[1]
 +        cfg.is_polarized = self.config["polarized"]
@@ -680,7 +680,7 @@ index bd1b19d6..de87651c 100644
 +                cfg.mode1 = label[1]
 +                # construct the low level object
 +                func = LowLevelCallable(
-+                    ekors.lib.rust_quad_ker_qcd, ekors.ffi.addressof(cfg)
++                    ekors.lib.rust_quad_ker, ekors.ffi.addressof(cfg)
 +                )
                  res = integrate.quad(
 -                    self.quad_ker(
