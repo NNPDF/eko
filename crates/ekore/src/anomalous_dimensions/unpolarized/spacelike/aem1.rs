@@ -77,10 +77,10 @@ pub fn gamma_singlet(c: &mut Cache, nf: u8) -> [[Complex<f64>; 4]; 4] {
 /// Compute the valence anomalous dimension matrix.
 pub fn gamma_valence(c: &mut Cache, nf: u8) -> [[Complex<f64>; 2]; 2] {
     let cc = ChargeCombinations { nf };
-
+    let g = gamma_ns(c, nf);
     [
-        [cc.e2avg() * gamma_ns(c, nf), cc.vue2m() * gamma_ns(c, nf)],
-        [cc.vde2m() * gamma_ns(c, nf), cc.e2delta() * gamma_ns(c, nf)],
+        [cc.e2avg() * g, cc.vue2m() * g],
+        [cc.vde2m() * g, cc.e2delta() * g],
     ]
 }
 
