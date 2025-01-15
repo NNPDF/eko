@@ -257,7 +257,7 @@ def cb_quad_ker_ome(
     areas_raw,
     areas_x,
     areas_y,
-    L,
+    _L,
     backward_method,
     as1,
     _as0,
@@ -392,7 +392,7 @@ def cb_quad_ker_qed(
     areas_raw,
     areas_x,
     areas_y,
-    L,
+    _L,
     ev_method,
     as1,
     as0,
@@ -433,7 +433,7 @@ def cb_quad_ker_qed(
         # scale var exponentiated is directly applied on gamma
         if sv_mode == sv.Modes.exponentiated:
             gamma_singlet = sv.exponentiated.gamma_variation_qed(
-                gamma_singlet, order, nf, lepton_number(mu2_to), L, alphaem_running
+                gamma_singlet, order, nf, lepton_number(mu2_to), Lsv, alphaem_running
             )
 
         ker = qed_s.dispatcher(
@@ -455,7 +455,7 @@ def cb_quad_ker_qed(
                     alphaem_running,
                     order,
                     nf,
-                    L,
+                    Lsv,
                 )
             ) @ np.ascontiguousarray(ker)
         ker = select_QEDsinglet_element(ker, mode0, mode1)
@@ -468,7 +468,7 @@ def cb_quad_ker_qed(
 
         if sv_mode == sv.Modes.exponentiated:
             gamma_valence = sv.exponentiated.gamma_variation_qed(
-                gamma_valence, order, nf, lepton_number(mu2_to), L, alphaem_running
+                gamma_valence, order, nf, lepton_number(mu2_to), Lsv, alphaem_running
             )
         ker = qed_v.dispatcher(
             order,
@@ -490,7 +490,7 @@ def cb_quad_ker_qed(
                     alphaem_running,
                     order,
                     nf,
-                    L,
+                    Lsv,
                 )
             ) @ np.ascontiguousarray(ker)
         ker = select_QEDvalence_element(ker, mode0, mode1)
@@ -502,7 +502,7 @@ def cb_quad_ker_qed(
         gamma_ns = re_gamma_ns + im_gamma_ns * 1j
         if sv_mode == sv.Modes.exponentiated:
             gamma_ns = sv_exponentiated.gamma_variation_qed(
-                gamma_ns, order, nf, lepton_number(mu2_to), L, alphaem_running
+                gamma_ns, order, nf, lepton_number(mu2_to), Lsv, alphaem_running
             )
         # construct eko
         ker = qed_ns.dispatcher(
@@ -520,7 +520,13 @@ def cb_quad_ker_qed(
         if sv_mode == sv.Modes.expanded and not is_threshold:
             ker = (
                 sv_expanded.non_singlet_variation_qed(
-                    gamma_ns, as_list[-1], a_half[-1][1], alphaem_running, order, nf, L
+                    gamma_ns,
+                    as_list[-1],
+                    a_half[-1][1],
+                    alphaem_running,
+                    order,
+                    nf,
+                    Lsv,
                 )
                 * ker
             )
