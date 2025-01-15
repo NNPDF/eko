@@ -188,7 +188,6 @@ pub unsafe extern "C" fn rust_quad_ker(u: f64, rargs: *mut c_void) -> f64 {
         args.areas,
         args.areas_x,
         args.areas_y,
-        args.L,
         args.method_num,
         args.as1,
         args.as0,
@@ -210,41 +209,40 @@ pub unsafe extern "C" fn rust_quad_ker(u: f64, rargs: *mut c_void) -> f64 {
 }
 
 /// Python callback signature
-type PyQuadKerQCDT = unsafe extern "C" fn(
-    *const f64,
-    *const f64,
-    f64,
-    f64,
-    f64,
-    f64,
-    usize,
-    usize,
-    bool,
-    u16,
-    u16,
-    u8,
-    bool,
-    f64,
-    *const f64,
-    u8,
-    u8,
-    f64,
-    u8,
-    f64,
-    f64,
-    u8,
-    u8,
-    u8,
-    bool,
-    f64,
-    *const f64,
-    u8,
-    f64,
-    f64,
-    *const f64,
-    u8,
-    u8,
-    bool,
+type PyQuadKerT = unsafe extern "C" fn(
+    *const f64, // re_gamma
+    *const f64, // im_gamma
+    f64,        // re_n
+    f64,        // im_n
+    f64,        // re_jac
+    f64,        // im_jac
+    usize,      // order_qcd
+    usize,      // order_qed
+    bool,       // is_singlet
+    u16,        // mode0
+    u16,        // mode1
+    u8,         // nf
+    bool,       // is_log
+    f64,        // logx
+    *const f64, // areas
+    u8,         // areas_x
+    u8,         // areas_y
+    u8,         // method_num
+    f64,        // as1
+    f64,        // as0
+    u8,         // ev_op_iterations
+    u8,         // ev_op_max_order_qcd
+    u8,         // sv_mode_num
+    bool,       // is_threshold
+    f64,        // lsv
+    *const f64, // as_list
+    u8,         // as_list_len
+    f64,        // mu2_from
+    f64,        // mu2_to
+    *const f64, // a_half
+    u8,         // a_half_x
+    u8,         // a_half_y
+    bool,       // alphaem_running
 ) -> f64;
 
 /// Additional integration parameters
@@ -259,7 +257,7 @@ pub struct QuadArgs {
     pub is_polarized: bool,
     pub is_time_like: bool,
     pub nf: u8,
-    pub py: PyQuadKerQCDT,
+    pub py: PyQuadKerT,
     pub is_log: bool,
     pub logx: f64,
     pub areas: *const f64,
@@ -308,7 +306,6 @@ pub unsafe extern "C" fn my_py(
     _areas: *const f64,
     _areas_x: u8,
     _areas_y: u8,
-    _l: f64,
     _method_num: u8,
     _as1: f64,
     _as0: f64,

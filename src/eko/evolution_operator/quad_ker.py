@@ -61,7 +61,6 @@ CB_SIGNATURE = nb.types.double(
     nb.types.CPointer(nb.types.double),  # areas_raw
     nb.types.uintc,  # areas_x
     nb.types.uintc,  # areas_y
-    nb.types.double,  # L
     nb.types.uintc,  # method_num
     nb.types.double,  # as1
     nb.types.double,  # as0
@@ -104,7 +103,6 @@ def cb_quad_ker_qcd(
     areas_raw,
     areas_x,
     areas_y,
-    _L,
     ev_method,
     as1,
     as0,
@@ -257,7 +255,6 @@ def cb_quad_ker_ome(
     areas_raw,
     areas_x,
     areas_y,
-    _L,
     backward_method,
     as1,
     _as0,
@@ -392,7 +389,6 @@ def cb_quad_ker_qed(
     areas_raw,
     areas_x,
     areas_y,
-    _L,
     ev_method,
     as1,
     as0,
