@@ -69,8 +69,8 @@ pub fn gamma_ns_qed(
     c: &mut Cache,
     nf: u8,
 ) -> Vec<Vec<Complex<f64>>> {
-    let col = vec![Complex::<f64>::zero(); order_qcd + 1];
-    let mut gamma_ns = vec![col; order_qed + 1];
+    let col = vec![Complex::<f64>::zero(); order_qed + 1];
+    let mut gamma_ns = vec![col; order_qcd + 1];
 
     // QCD corrections
     let qcd_mode = match mode {
@@ -122,9 +122,9 @@ pub fn gamma_singlet_qed(
             Complex::<f64>::zero(),
             Complex::<f64>::zero()
         ]; 4];
-        order_qcd + 1
+        order_qed + 1
     ];
-    let mut gamma_s = vec![col; order_qed + 1];
+    let mut gamma_s = vec![col; order_qcd + 1];
 
     // QCD corrections
     let gamma_qcd_s = gamma_singlet_qcd(order_qcd, c, nf);
@@ -175,8 +175,8 @@ pub fn gamma_valence_qed(
     c: &mut Cache,
     nf: u8,
 ) -> Vec<Vec<[[Complex<f64>; 2]; 2]>> {
-    let col = vec![[[Complex::<f64>::zero(), Complex::<f64>::zero(),]; 2]; order_qcd + 1];
-    let mut gamma_v = vec![col; order_qed + 1];
+    let col = vec![[[Complex::<f64>::zero(), Complex::<f64>::zero(),]; 2]; order_qed + 1];
+    let mut gamma_v = vec![col; order_qcd + 1];
 
     // QCD corrections
     let gamma_qcd_nsv = gamma_ns_qcd(order_qcd, PID_NSV, c, nf);
