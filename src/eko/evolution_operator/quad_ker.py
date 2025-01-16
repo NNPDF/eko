@@ -422,8 +422,8 @@ def cb_quad_ker_qed(
 
     if is_singlet:
         # reconstruct singlet matrices
-        re_gamma_singlet = nb.carray(re_gamma_raw, (order_qcd, order_qed, 4, 4))
-        im_gamma_singlet = nb.carray(im_gamma_raw, (order_qcd, order_qed, 4, 4))
+        re_gamma_singlet = nb.carray(re_gamma_raw, (order_qcd + 1, order_qed + 1, 4, 4))
+        im_gamma_singlet = nb.carray(im_gamma_raw, (order_qcd + 1, order_qed + 1, 4, 4))
         gamma_singlet = re_gamma_singlet + im_gamma_singlet * 1j
 
         # scale var exponentiated is directly applied on gamma
@@ -458,8 +458,8 @@ def cb_quad_ker_qed(
 
     elif is_valence:
         # reconstruct valence matrices
-        re_gamma_valence = nb.carray(re_gamma_raw, (order_qcd, order_qed, 2, 2))
-        im_gamma_valence = nb.carray(im_gamma_raw, (order_qcd, order_qed, 2, 2))
+        re_gamma_valence = nb.carray(re_gamma_raw, (order_qcd + 1, order_qed + 1, 2, 2))
+        im_gamma_valence = nb.carray(im_gamma_raw, (order_qcd + 1, order_qed + 1, 2, 2))
         gamma_valence = re_gamma_valence + im_gamma_valence * 1j
 
         if sv_mode == sv.Modes.exponentiated:
@@ -493,8 +493,8 @@ def cb_quad_ker_qed(
 
     else:
         # construct non-singlet matrices
-        re_gamma_ns = nb.carray(re_gamma_raw, (order_qcd, order_qed))
-        im_gamma_ns = nb.carray(im_gamma_raw, (order_qcd, order_qed))
+        re_gamma_ns = nb.carray(re_gamma_raw, (order_qcd + 1, order_qed + 1))
+        im_gamma_ns = nb.carray(im_gamma_raw, (order_qcd + 1, order_qed + 1))
         gamma_ns = re_gamma_ns + im_gamma_ns * 1j
         if sv_mode == sv.Modes.exponentiated:
             gamma_ns = sv_exponentiated.gamma_variation_qed(

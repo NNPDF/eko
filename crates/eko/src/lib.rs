@@ -44,8 +44,8 @@ fn unravel_qed<const DIM: usize>(
         re: Vec::<f64>::new(),
         im: Vec::<f64>::new(),
     };
-    for obj_ in res.iter().take(order_qcd) {
-        for obj in obj_.iter().take(order_qed) {
+    for obj_ in res.iter().take(order_qcd + 1) {
+        for obj in obj_.iter().take(order_qed + 1) {
             for col in obj.iter().take(DIM) {
                 for el in col.iter().take(DIM) {
                     target.re.push(el.re);
@@ -65,8 +65,8 @@ fn unravel_qed_ns(res: Vec<Vec<Complex<f64>>>, order_qcd: usize, order_qed: usiz
         re: Vec::<f64>::new(),
         im: Vec::<f64>::new(),
     };
-    for col in res.iter().take(order_qcd) {
-        for el in col.iter().take(order_qed) {
+    for col in res.iter().take(order_qcd + 1) {
+        for el in col.iter().take(order_qed + 1) {
             target.re.push(el.re);
             target.im.push(el.im);
         }
