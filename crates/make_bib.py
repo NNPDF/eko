@@ -25,9 +25,15 @@ PUB = """Published in: {journal} {volume} ({year}), {pages}"""
 PHD = """Published as PhD thesis at {school} ({year})"""
 
 
-def clean_nl(t: str) -> str:
-    """Shrink whitespace to one."""
-    return re.sub("\n\\s+", " ", t)
+def sanitize(t: str) -> str:
+    """Reformat for HTML."""
+    # Shrink whitespace to one.
+    t = re.sub("\n\\s+", " ", t)
+    # Recover some TeX
+    t = t.replace(r"\textendash{}", "-").replace(r"\'a", "á")
+    # Remove curly brackets
+    t = re.sub(r"^\{(.+)\}$", r"\1", t)
+    return t
 
 
 # collect output
@@ -39,8 +45,8 @@ bib_str = pathlib.Path(BIBFILE).read_text("utf8")
 bib_database = bibtexparser.parse_string(bib_str)
 # iterate on all elements
 for el in bib_database.entries:
-    title = re.sub(r"^\{(.+)\}$", r"\1", clean_nl(el.fields_dict["title"].value))
-    author = el.fields_dict["author"].value
+    title = sanitize(el.fields_dict["title"].value)
+    author = sanitize(el.fields_dict["author"].value)
     if el.entry_type == "phdthesis":
         publication = PHD.format(
             school=el.fields_dict["school"].value,
