@@ -39,7 +39,7 @@ pub fn gamma_phq(c: &mut Cache, _nf: u8) -> Complex<f64> {
 
 /// Compute the quark-photon anomalous dimension.
 ///
-/// Implements Eq. (26) of
+/// Implements Eq. (26) of [\[deFlorian:2015ujt\]][crate::bib::deFlorian2015ujt].
 pub fn gamma_qph(c: &mut Cache, nf: u8) -> Complex<f64> {
     let N = c.n();
     let S1 = c.get(K::S1);
@@ -198,31 +198,35 @@ pub fn gamma_nsm(c: &mut Cache, _nf: u8) -> Complex<f64> {
 pub fn gamma_singlet(c: &mut Cache, nf: u8) -> [[Complex<f64>; 4]; 4] {
     let cc = ChargeCombinations { nf };
     let e2_tot = nf as f64 * cc.e2avg();
-
+    let gq = gamma_gq(c, nf);
+    let phq = gamma_phq(c, nf);
+    let qg = gamma_qg(c, nf);
+    let qph = gamma_qph(c, nf);
+    let nsp = gamma_nsp(c, nf);
     [
         [
             e2_tot * gamma_gg(c, nf),
             e2_tot * gamma_gph(c, nf),
-            cc.e2avg() * gamma_gq(c, nf),
-            cc.vue2m() * gamma_gq(c, nf),
+            cc.e2avg() * gq,
+            cc.vue2m() * gq,
         ],
         [
             e2_tot * gamma_phg(c, nf),
             gamma_phph(c, nf),
-            cc.e2avg() * gamma_phq(c, nf),
-            cc.vue2m() * gamma_phq(c, nf),
+            cc.e2avg() * phq,
+            cc.vue2m() * phq,
         ],
         [
-            cc.e2avg() * gamma_qg(c, nf),
-            cc.e2avg() * gamma_qph(c, nf),
-            cc.e2avg() * gamma_nsp(c, nf),
-            cc.vue2m() * gamma_nsp(c, nf),
+            cc.e2avg() * qg,
+            cc.e2avg() * qph,
+            cc.e2avg() * nsp,
+            cc.vue2m() * nsp,
         ],
         [
-            cc.vde2m() * gamma_qg(c, nf),
-            cc.vde2m() * gamma_qph(c, nf),
-            cc.vde2m() * gamma_nsp(c, nf),
-            cc.e2delta() * gamma_nsp(c, nf),
+            cc.vde2m() * qg,
+            cc.vde2m() * qph,
+            cc.vde2m() * nsp,
+            cc.e2delta() * nsp,
         ],
     ]
 }

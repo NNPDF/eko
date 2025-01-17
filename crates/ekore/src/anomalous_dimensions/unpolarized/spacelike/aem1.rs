@@ -2,6 +2,7 @@
 use num::complex::Complex;
 use num::Zero;
 
+use crate::cmplx;
 use crate::constants::{ChargeCombinations, CF, ED2, EU2, NC, TR};
 use crate::harmonics::cache::Cache;
 
@@ -28,7 +29,10 @@ pub fn gamma_qph(c: &mut Cache, nf: u8) -> Complex<f64> {
 /// Implements Eq. (2.5) of [\[Carrazza:2015dea\]][crate::bib::Carrazza2015dea].
 pub fn gamma_phph(_c: &mut Cache, nf: u8) -> Complex<f64> {
     let cc = ChargeCombinations { nf };
-    (4.0 / 3.0 * (NC as f64) * ((cc.nu() as f64) * EU2 + (cc.nd() as f64) * ED2)).into()
+    cmplx!(
+        4.0 / 3.0 * (NC as f64) * ((cc.nu() as f64) * EU2 + (cc.nd() as f64) * ED2),
+        0.
+    )
 }
 
 /// Compute the non-singlet anomalous dimension.
