@@ -19,10 +19,7 @@ The classes are nested as follows:
         PhysicalOperator [label="PhysicalOperator"];
         Operator [label="Operator" ];
         OME [label="OME" ];
-        OperatorGrid [label="OperatorGrid"];
 
-        OperatorGrid -> Operator;
-        OperatorGrid -> OME;
         Operator -> PhysicalOperator [weight=100,style=dashed];
         PhysicalOperator -> ndarray [style=dashed];
         OME -> MatchingCondition [weight=100,style=dashed];
@@ -31,16 +28,7 @@ The classes are nested as follows:
         OpMember -> PhysicalOperator [dir=back];
         OME -> OpMember;
         OpMember -> MatchingCondition [dir=back];
-
-        OperatorGrid -> OpMember -> ndarray [style=invis];
     }
-
-- :class:`~eko.evolution_operator.grid.OperatorGrid`
-
-    * is the master class which administrates all operator tasks
-    * is instantiated once for each run
-    * holds all necessary :doc:`configurations </code/IO>`
-    * holds all necessary instances of the :doc:`/code/Utilities`
 
 - :class:`~eko.evolution_operator.Operator`
 

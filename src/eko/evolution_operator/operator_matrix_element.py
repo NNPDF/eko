@@ -5,6 +5,7 @@ import copy
 import enum
 import functools
 import logging
+from typing import Optional
 
 import numba as nb
 import numpy as np
@@ -18,7 +19,7 @@ from .. import scale_variations as sv
 from ..io.types import InversionMethod
 from ..matchings import Segment
 from ..scale_variations.exponentiated import gamma_variation
-from . import Operator, QuadKerBase
+from . import Managers, Operator, QuadKerBase
 
 logger = logging.getLogger(__name__)
 
@@ -31,7 +32,7 @@ class MatchingMethods(enum.IntEnum):
     BACKWARD_EXPANDED = enum.auto()
 
 
-def matching_method(s: InversionMethod) -> MatchingMethods:
+def matching_method(s: Optional[InversionMethod]) -> MatchingMethods:
     """Return the matching method.
 
     Parameters
@@ -241,7 +242,16 @@ class OperatorMatrixElement(Operator):
     # still valid in QED since Sdelta and Vdelta matchings are diagonal
     full_labels_qed = copy.deepcopy(full_labels)
 
-    def __init__(self, config, managers, nf, q2, is_backward, L, is_msbar):
+    def __init__(
+        self,
+        config,
+        managers: Managers,
+        nf: int,
+        q2: float,
+        is_backward: bool,
+        L: float,
+        is_msbar: bool,
+    ):
         super().__init__(config, managers, Segment(q2, q2, nf))
         self.backward_method = matching_method(
             config["backward_inversion"] if is_backward else None
