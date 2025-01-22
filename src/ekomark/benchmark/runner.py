@@ -226,7 +226,7 @@ class Runner(BenchmarkRunner):
         # LHA NNLO VFNS needs a special treatment
         # Valence contains only u and d
         rotate_to_evolution = None
-        labels = None
+        labels = br.flavor_basis_pids
         qed = theory["QED"] > 0
         if self.rotate_to_evolution_basis:
             if not qed:
