@@ -147,6 +147,21 @@ class Runner(BenchmarkRunner):
                 DGLAP result
         """
         # pylint:disable=import-error,import-outside-toplevel
+        if self.external.lower() == "void":
+            xgrid = ocard["interpolation_xgrid"]
+            mugrid = ocard["mugrid"]
+            labels = (
+                br.evol_basis
+                if self.rotate_to_evolution_basis
+                else br.flavor_basis_pids
+            )
+            void = {
+                "target_xgrid": xgrid,
+                "values": {
+                    mu**2: {pid: [0.0] * len(xgrid) for pid in labels} for mu in mugrid
+                },
+            }
+            return void
         if self.external.lower() == "lha":
             from .external import LHA_utils
 
