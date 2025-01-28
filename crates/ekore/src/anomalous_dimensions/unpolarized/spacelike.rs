@@ -129,7 +129,7 @@ pub fn gamma_singlet_qed(
     // QCD corrections
     let gamma_qcd_s = gamma_singlet_qcd(order_qcd, c, nf);
     let gamma_qcd_nsp = gamma_ns_qcd(order_qcd, PID_NSP, c, nf);
-    for j in 0..order_qcd - 1 {
+    for j in 0..order_qcd {
         let s = gamma_qcd_s[j];
         gamma_s[1 + j][0] = [
             [
@@ -181,7 +181,7 @@ pub fn gamma_valence_qed(
     // QCD corrections
     let gamma_qcd_nsv = gamma_ns_qcd(order_qcd, PID_NSV, c, nf);
     let gamma_qcd_nsm = gamma_ns_qcd(order_qcd, PID_NSM, c, nf);
-    for j in 0..order_qcd - 1 {
+    for j in 0..order_qcd {
         gamma_v[1 + j][0] = [
             [gamma_qcd_nsv[j], Complex::<f64>::zero()],
             [Complex::<f64>::zero(), gamma_qcd_nsm[j]],
