@@ -144,8 +144,8 @@ def test_rotate_matching_qed():
 def test_rotate_matching_is_inv():
     def replace_names(k):
         for q in range(4, 6 + 1):
-            k = k.replace(br.quark_names[q - 1] + "+", f"T{q**2 - 1}").replace(
-                br.quark_names[q - 1] + "-", f"V{q**2 - 1}"
+            k = k.replace(br.quark_names[q - 1] + "+", f"T{q**2-1}").replace(
+                br.quark_names[q - 1] + "-", f"V{q**2-1}"
             )
         return k
 

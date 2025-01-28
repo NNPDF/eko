@@ -8,22 +8,22 @@ since in Mellin space they include harmonics sum up to weight 7, for which an
 analytical expression is not available.
 
 We provide two different types of approximations, depending on the key ``use_fhmruvv``.
-The theory card parameter ``n3lo_ad_variation=(gg, gq, qg, qq, nsp, nsm, nsv)``,
+The theory card parameter ``n3lo_ad_variation=(gg, gq, qg, qq, nsp, nsm, nsv)``, 
 which is set to ``(0,0,0,0,0,0,0)`` as default, can be varied to obtain parametrization uncertainties.
 
 In particular:
 
-* ``use_fhmruvv = True`` (default option) adopts the parametrizations as provided
-  in :cite:`Moch:2017uml,Falcioni:2023luc,Falcioni:2023vqq,Falcioni:2024xyt,Falcioni:2024qpd`.
-  For each of the 7 splitting functions, the approximation error can be obtained by varying
-  the entries of ``n3lo_ad_variation`` in the range: ``0``,
+* ``use_fhmruvv = True`` (default option) adopts the parametrizations as provided 
+  in :cite:`Moch:2017uml,Falcioni:2023luc,Falcioni:2023vqq,Falcioni:2024xyt,Falcioni:2024qpd`. 
+  For each of the 7 splitting functions, the approximation error can be obtained by varying 
+  the entries of ``n3lo_ad_variation`` in the range: ``0``, 
   cental value (default), ``1`` down variation, ``2`` up variation.
 
 * ``use_fhmruvv = False`` adopts an in-house parametrization, constructed as described below.
-  In this case only variations of the singlet sector are available. Currently one
+  In this case only variations of the singlet sector are available. Currently one 
   can vary ``n3lo_ad_variation`` in the range: ``0-19`` for ``gg``, ``0-15`` for ``gg``,
   ``0-15`` for ``qg``, ``0-6`` for ``qq``.
-  Note these approximations will be no longer updated and are now deprecated.
+  Note these approximations will be no longer updated and are now deprecated. 
 
 
 In house approximation
@@ -293,6 +293,7 @@ The other parts are approximated using some known limits:
 The difference between the known moments and the known limits is parametrized
 in Mellin space using different basis, in order to estimate the uncertainties of
 our determination.
+
 
 Uncertainties estimation
 ^^^^^^^^^^^^^^^^^^^^^^^^

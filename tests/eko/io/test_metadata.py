@@ -12,7 +12,7 @@ def test_metadata(tmp_path, caplog):
         m.update()
     assert "no file" in caplog.text
     with pytest.raises(RuntimeError):
-        _ = m.path
+        m.path
     # now modify
     m.path = tmp_path
     m.update()
@@ -22,11 +22,11 @@ def test_metadata(tmp_path, caplog):
     assert p.metadata.is_file()
     assert "version" in p.metadata.read_text()
     # change version
-    m.version = "0.0.1"
+    m.version = "0.0.0-a1~really1.0.0"
     m.update()
     # if I read back the thing should be what I set
     mn = metadata.Metadata(origin=(1.0, 3), xgrid=[0.1, 1.0])
     mm = metadata.Metadata.load(tmp_path)
     assert m.path == tmp_path
     assert mm.version != mn.version
-    assert mm.version == "0.0.1"
+    assert mm.version == "0.0.0-a1~really1.0.0"

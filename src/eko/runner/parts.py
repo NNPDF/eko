@@ -15,13 +15,14 @@ import numpy as np
 from .. import evolution_operator as evop
 from ..evolution_operator import matching_condition, physical
 from ..evolution_operator import operator_matrix_element as ome
+from ..evolution_operator.grid import Managers
 from ..io import EKO
 from ..io.items import Evolution, Matching, Operator
 from ..quantities.heavy_quarks import QuarkMassScheme
 from . import commons
 
 
-def _managers(eko: EKO) -> evop.Managers:
+def _managers(eko: EKO) -> Managers:
     """Collect managers for operator computation.
 
     .. todo::
@@ -30,7 +31,7 @@ def _managers(eko: EKO) -> evop.Managers:
     """
     tcard = eko.theory_card
     ocard = eko.operator_card
-    return evop.Managers(
+    return Managers(
         atlas=commons.atlas(tcard, ocard),
         couplings=commons.couplings(tcard, ocard),
         interpolator=commons.interpolator(ocard),

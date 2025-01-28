@@ -7,7 +7,6 @@ import functools
 import logging
 import os
 import time
-from dataclasses import dataclass
 from multiprocessing import Pool
 from typing import Dict, Tuple
 
@@ -22,8 +21,6 @@ import ekore.anomalous_dimensions.unpolarized.time_like as ad_ut
 from .. import basis_rotation as br
 from .. import interpolation, mellin
 from .. import scale_variations as sv
-from ..couplings import Couplings
-from ..interpolation import InterpolatorDispatcher
 from ..io.types import EvolutionMethod, OperatorLabel
 from ..kernels import ev_method
 from ..kernels import non_singlet as ns
@@ -31,7 +28,7 @@ from ..kernels import non_singlet_qed as qed_ns
 from ..kernels import singlet as s
 from ..kernels import singlet_qed as qed_s
 from ..kernels import valence_qed as qed_v
-from ..matchings import Atlas, Segment, lepton_number
+from ..matchings import Segment, lepton_number
 from ..member import OpMember
 from ..scale_variations import expanded as sv_expanded
 from ..scale_variations import exponentiated as sv_exponentiated
@@ -611,15 +608,6 @@ OpMembers = Dict[OperatorLabel, OpMember]
 """Map of all operators."""
 
 
-@dataclass(frozen=True)
-class Managers:
-    """Set of steering objects."""
-
-    atlas: Atlas
-    couplings: Couplings
-    interpolator: InterpolatorDispatcher
-
-
 class Operator(sv.ScaleVariationModeMixin):
     """Internal representation of a single EKO.
 
@@ -649,12 +637,7 @@ class Operator(sv.ScaleVariationModeMixin):
     full_labels_qed: Tuple[OperatorLabel, ...] = br.full_unified_labels
 
     def __init__(
-        self,
-        config,
-        managers: Managers,
-        segment: Segment,
-        mellin_cut=5e-2,
-        is_threshold=False,
+        self, config, managers, segment: Segment, mellin_cut=5e-2, is_threshold=False
     ):
         self.config = config
         self.managers = managers
@@ -686,7 +669,7 @@ class Operator(sv.ScaleVariationModeMixin):
         return self.config["xif2"]
 
     @property
-    def int_disp(self) -> InterpolatorDispatcher:
+    def int_disp(self):
         """Return the interpolation dispatcher."""
         return self.managers.interpolator
 

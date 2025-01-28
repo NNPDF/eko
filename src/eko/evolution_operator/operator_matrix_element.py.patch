@@ -1,14 +1,13 @@
 diff --git a/src/eko/evolution_operator/operator_matrix_element.py b/src/eko/evolution_operator/operator_matrix_element.py
-index e7d51df9..0f999809 100644
+index 098b52db..b56e27d1 100644
 --- a/src/eko/evolution_operator/operator_matrix_element.py
 +++ b/src/eko/evolution_operator/operator_matrix_element.py
-@@ -3,23 +3,19 @@ evolution."""
+@@ -3,22 +3,19 @@ evolution."""
 
  import copy
  import enum
 -import functools
  import logging
- from typing import Optional
 
 +import ekors
  import numba as nb
@@ -22,14 +21,14 @@ index e7d51df9..0f999809 100644
  from .. import scale_variations as sv
  from ..io.types import InversionMethod
  from ..matchings import Segment
--from ..scale_variations.exponentiated import gamma_variation
--from . import Managers, Operator, QuadKerBase
-+from . import Managers, Operator
+ from ..scale_variations.exponentiated import gamma_variation
+-from . import Operator, QuadKerBase
++from . import Operator
 +from .quad_ker import cb_quad_ker_ome
 
  logger = logging.getLogger(__name__)
 
-@@ -79,8 +75,6 @@ def build_ome(A, matching_order, a_s, backward_method):
+@@ -78,8 +75,6 @@ def build_ome(A, matching_order, a_s, backward_method):
      # Print;
      # .end
      ome = np.eye(len(A[0]), dtype=np.complex_)
@@ -38,7 +37,7 @@ index e7d51df9..0f999809 100644
      if backward_method is MatchingMethods.BACKWARD_EXPANDED:
          # expended inverse
          if matching_order[0] >= 1:
-@@ -103,105 +97,6 @@ def build_ome(A, matching_order, a_s, backward_method):
+@@ -102,105 +97,6 @@ def build_ome(A, matching_order, a_s, backward_method):
      return ome
 
 
@@ -144,7 +143,7 @@ index e7d51df9..0f999809 100644
  class OperatorMatrixElement(Operator):
      r"""Internal representation of a single |OME|.
 
-@@ -300,41 +195,15 @@ class OperatorMatrixElement(Operator):
+@@ -290,41 +186,15 @@ class OperatorMatrixElement(Operator):
              )
          return labels
 

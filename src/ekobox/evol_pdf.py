@@ -58,7 +58,7 @@ def evolve_pdfs(
         # equal points are allowed by LHAPDF
         if q2block_per_nf[nfs[j]][-1] > q2block_per_nf[nfs[j + 1]][0]:
             raise ValueError(
-                f"Last scale point for nf={nfs[j]} is bigger than first in nf={nfs[j + 1]}"
+                f"Last scale point for nf={nfs[j]} is bigger than first in nf={nfs[j+1]}"
             )
 
     # update op and th cards

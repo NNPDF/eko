@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+import pathlib
 
 import numpy as np
 import pytest
@@ -10,15 +10,9 @@ from eko.io import types
 from eko.io.runcards import OperatorCard, TheoryCard
 from eko.matchings import Segment
 from eko.quantities.couplings import CouplingsInfo
-from eko.runner.parts import _evolve_configs, _managers
+from eko.runner.legacy import Runner
 
 # from ekore.matching_conditions.operator_matrix_element import OperatorMatrixElement
-
-
-@dataclass(frozen=True)
-class FakeEKO:
-    theory_card: TheoryCard
-    operator_card: OperatorCard
 
 
 def update_cards(theory: TheoryCard, operator: OperatorCard):
@@ -46,15 +40,20 @@ class BenchmarkBackwardForward:
         self,
         theory_card: TheoryCard,
         operator_card: OperatorCard,
+        tmp_path: pathlib.Path,
     ):
         """Test that eko_forward @ eko_backward gives ID matrix or zeros."""
         update_cards(theory_card, operator_card)
-        f = FakeEKO(theory_card, operator_card)
+        g = Runner(
+            theory_card=theory_card,
+            operators_card=operator_card,
+            path=tmp_path / "eko.tar",
+        ).op_grid
 
         seg = Segment(30, 50, 4)
         seg_back = Segment(50, 30, 4)
-        o = Operator(_evolve_configs(f), _managers(f), seg)
-        o_back = Operator(_evolve_configs(f), _managers(f), seg_back)
+        o = Operator(g.config, g.managers, seg)
+        o_back = Operator(g.config, g.managers, seg_back)
         o.compute()
         o_back.compute()
 
