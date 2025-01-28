@@ -21,39 +21,16 @@ Q2 = 10000
 def test_read_legacy():
     for name in ["v0.14.tar"]:
     
-        with eko.EKO.read(TEST/name) as evolution_operator:           
-            #evolved_pdfs, _integration_errors = apply_pdf(evolution_operator, pdf)
+        with eko.EKO.read(TEST/name) as evolution_operator:
             #import pdb; pdb.set_trace()
-            #print('test')
             assert isinstance(evolution_operator.theory_card, eko.io.runcards.TheoryCard)   # Check that theory card is read as theory card
             assert isinstance(evolution_operator.operator_card, eko.io.runcards.OperatorCard)   # Check that operator card is read as operator card
         
-            # Set up the operator card for the interpolation
-            op_card = evolution_operator.operator_card
-            op_card.xgrid = x_grid
-            #op_card.mugrid = [(float(q), 5) for q in np.geomspace(5.0, 100, 5)]
-            op_card.init = evolution_operator.metadata.origin
-            
-            # Set up the theory card
-            th_card = evolution_operator.theory_card
-            
-            print(th_card.raw)
-            print(op_card.raw)
+            evolved_pdfs, _integration_errors = apply_pdf(evolution_operator, pdf, x_grid)
 
-        path = pathlib.Path(TEST/name)
-        path.unlink(missing_ok=True)
-        eko.solve(th_card,op_card,path)
-        evolve_pdfs(
-            [pdf], th_card, op_card, install=True, name="Evolved_pdf", store_path=path
-        )
-    
-        evolved_pdf = lhapdf.mkPDF("Evolved_pdf_{name}", 0)
         
         
-        #pdf_test = evolved_pdfs[10000,4][21]    # evolved gluon PDF at 10000 GeV^2
-        pdf_test = []
-        for k in range(len(x_grid)):
-            pdf_test.append(evolved_pdf.xfxQ2(21, x_grid[k], Q2))
+        pdf_test = evolved_pdfs[10000,4][21]    # evolved gluon PDF at 10000 GeV^2
 
         # Import the values of the LHA benchmark tables. This is not very nice yet, but should work
         lha_path = pathlib.Path(__file__).parents[4] / 'eko/src/ekomark/benchmark/external/LHA.yaml'
@@ -70,7 +47,7 @@ def test_read_legacy():
         for j in range(len(xpdf_benchmark)):
             pdf_benchmark.append(xpdf_benchmark[j]/x_grid[j])
 
-        #print(pdf_test, pdf_benchmark)
+        print(pdf_test, pdf_benchmark)
         
         # Test that the PDF values are the same 
         for i in range(len(pdf_test)):
@@ -79,6 +56,6 @@ def test_read_legacy():
             else:
                 print(name, True)
        
-    return evolved_pdf
+    return evolved_pdfs
 
 test_read_legacy()
