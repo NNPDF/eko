@@ -79,7 +79,7 @@ pub fn gamma_ns_qed(
         _ => mode,
     };
     let gamma_qcd = gamma_ns_qcd(order_qcd, qcd_mode, c, nf);
-    for j in 0..order_qcd - 1 {
+    for j in 0..order_qcd {
         gamma_ns[1 + j][0] = gamma_qcd[j];
     }
     // QED corrections
