@@ -200,7 +200,7 @@ pub fn gamma_valence_qed(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{assert_approx_eq_cmplx, cmplx};
+    use crate::{assert_approx_eq_cmplx, assert_approx_eq_cmplx_2d, cmplx};
     use num::complex::Complex;
 
     #[test]
@@ -292,28 +292,14 @@ mod tests {
         const N: Complex<f64> = cmplx!(2., 0.);
         let mut c = Cache::new(N);
 
-        assert_approx_eq_cmplx!(
+        assert_approx_eq_cmplx_2d!(
             f64,
-            gamma_valence_qed(3, 2, &mut c, NF)[3][0][0][0],
-            cmplx!(459.646893789751, 0.),
-            epsilon = 1e-5
-        );
-        assert_approx_eq_cmplx!(
-            f64,
-            gamma_valence_qed(3, 2, &mut c, NF)[3][0][1][1],
-            cmplx!(437.60340375, 0.),
-            epsilon = 1e-5
-        );
-        assert_approx_eq_cmplx!(
-            f64,
-            gamma_valence_qed(3, 2, &mut c, NF)[3][0][1][0],
-            cmplx!(0., 0.),
-            epsilon = 1e-5
-        );
-        assert_approx_eq_cmplx!(
-            f64,
-            gamma_valence_qed(3, 2, &mut c, NF)[3][0][0][1],
-            cmplx!(0., 0.),
+            gamma_valence_qed(3, 2, &mut c, NF)[3][0],
+            [
+                [cmplx!(459.646893789751, 0.), cmplx!(0., 0.)],
+                [cmplx!(0., 0.), cmplx!(437.60340375, 0.)]
+            ],
+            2,
             epsilon = 1e-5
         );
     }
