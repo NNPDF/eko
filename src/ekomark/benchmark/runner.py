@@ -150,11 +150,10 @@ class Runner(BenchmarkRunner):
         if self.external.lower() == "void":
             xgrid = ocard["interpolation_xgrid"]
             mugrid = ocard["mugrid"]
-            labels = (
-                br.evol_basis
-                if self.rotate_to_evolution_basis
-                else br.flavor_basis_pids
-            )
+            labels = br.flavor_basis_pids
+            if self.rotate_to_evolution_basis:
+                labels = br.unified_evol_basis if theory["QED"] > 0 else br.evol_basis
+
             void = {
                 "target_xgrid": xgrid,
                 "values": {
