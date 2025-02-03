@@ -1,5 +1,5 @@
 diff --git a/src/eko/evolution_operator/__init__.py b/src/eko/evolution_operator/__init__.py
-index bd1b19d6..f4e2f5ea 100644
+index bd1b19d6..bbc9d682 100644
 --- a/src/eko/evolution_operator/__init__.py
 +++ b/src/eko/evolution_operator/__init__.py
 @@ -3,120 +3,28 @@ r"""Contains the central operator classes.
@@ -600,7 +600,7 @@ index bd1b19d6..f4e2f5ea 100644
      def initialize_op_members(self):
          """Init all operators with the identity or zeros."""
          eye = OpMember(
-@@ -857,10 +306,32 @@ class Operator(sv.ScaleVariationModeMixin):
+@@ -857,10 +306,29 @@ class Operator(sv.ScaleVariationModeMixin):
              else:
                  self.op_members[n] = zero.copy()
 
@@ -614,16 +614,13 @@ index bd1b19d6..f4e2f5ea 100644
 +        cfg.as1 = self.as_list[1]
 +        cfg.as0 = self.as_list[0]
 +        as_list_len = self.as_list.shape[0]
-+        as_list_ffi = ekors.ffi.new(f"double[{as_list_len}]", self.as_list.tolist())
-+        cfg.as_list = as_list_ffi
++        for j, a in enumerate(self.as_list.tolist()):
++            cfg.as_list[j] = a
 +        cfg.as_list_len = as_list_len
 +        a_half_x = self.a_half_list.shape[0]
 +        a_half_y = self.a_half_list.shape[1]
-+        a_half_len = a_half_x * a_half_y
-+        a_half_ffi = ekors.ffi.new(
-+            f"double[{a_half_len}]", self.a_half_list.flatten().tolist()
-+        )
-+        cfg.a_half = a_half_ffi
++        for j, a in enumerate(self.a_half_list.flatten().tolist()):
++            cfg.a_half[j] = a
 +        cfg.a_half_x = a_half_x
 +        cfg.a_half_y = a_half_y
 +
@@ -637,7 +634,7 @@ index bd1b19d6..f4e2f5ea 100644
          """Run the integration for each grid point.
 
          Parameters
-@@ -875,18 +346,58 @@ class Operator(sv.ScaleVariationModeMixin):
+@@ -875,18 +343,62 @@ class Operator(sv.ScaleVariationModeMixin):
          """
          column = []
          k, logx = log_grid
@@ -661,6 +658,14 @@ index bd1b19d6..f4e2f5ea 100644
 +        cfg.mu2_from = self.q2_from
 +        cfg.mu2_to = self.q2_to
 +        cfg.alphaem_running = self.alphaem_running
++        a_half_ffi = ekors.ffi.new("double[]", 2 * self.config["ev_op_iterations"])
++        cfg.a_half = a_half_ffi
++        as_list_ffi = ekors.ffi.new("double[]", self.config["ev_op_iterations"] + 1)
++        cfg.as_list = as_list_ffi
++        pd = self.int_disp.polynomial_degree + 1
++        max_area_len = (2 * pd - 1) * (pd + 2)
++        areas_ffi = ekors.ffi.new("double[]", max_area_len)
++        cfg.areas = areas_ffi
 +
 +        self.update_cfg(cfg)
 +
@@ -675,12 +680,8 @@ index bd1b19d6..f4e2f5ea 100644
              temp_dict = {}
 +            # prepare areas for C
 +            curareas = bf.areas_representation
-+            areas_len = curareas.shape[0] * curareas.shape[1]
-+            # force the variable in scope
-+            areas_ffi = ekors.ffi.new(
-+                f"double[{areas_len}]", curareas.flatten().tolist()
-+            )
-+            cfg.areas = areas_ffi
++            for j, x in enumerate(curareas.flatten().tolist()):
++                cfg.areas[j] = x
 +            cfg.areas_x = curareas.shape[0]
 +            cfg.areas_y = curareas.shape[1]
              # iterate sectors
