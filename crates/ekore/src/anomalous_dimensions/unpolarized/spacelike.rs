@@ -200,11 +200,13 @@ pub fn gamma_valence_qed(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{assert_approx_eq_cmplx, assert_approx_eq_cmplx_2d, cmplx};
+    use crate::{
+        assert_approx_eq_cmplx, assert_approx_eq_cmplx_1d, assert_approx_eq_cmplx_2d, cmplx,
+    };
     use num::complex::Complex;
 
     #[test]
-    fn gamma_ns() {
+    fn test_gamma_ns_qcd() {
         const NF: u8 = 3;
         const N: Complex<f64> = cmplx!(1., 0.);
         let mut c = Cache::new(N);
@@ -215,32 +217,29 @@ mod tests {
             epsilon = 1e-14
         );
 
-        for i in [0, 1] {
-            assert_approx_eq_cmplx!(
-                f64,
-                gamma_ns_qcd(2, PID_NSM, &mut c, NF)[i],
-                cmplx!(0., 0.),
-                epsilon = 2e-6
-            );
-        }
+        assert_approx_eq_cmplx_1d!(
+            f64,
+            gamma_ns_qcd(2, PID_NSM, &mut c, NF),
+            [cmplx!(0., 0.); 2],
+            2,
+            epsilon = 2e-6
+        );
 
-        for i in 0..3 {
-            assert_approx_eq_cmplx!(
-                f64,
-                gamma_ns_qcd(3, PID_NSM, &mut c, NF)[i],
-                cmplx!(0., 0.),
-                epsilon = 2e-4
-            );
-        }
+        assert_approx_eq_cmplx_1d!(
+            f64,
+            gamma_ns_qcd(3, PID_NSM, &mut c, NF),
+            [cmplx!(0., 0.); 3],
+            3,
+            epsilon = 2e-4
+        );
 
-        for i in 0..3 {
-            assert_approx_eq_cmplx!(
-                f64,
-                gamma_ns_qcd(3, PID_NSV, &mut c, NF)[i],
-                cmplx!(0., 0.),
-                epsilon = 8e-4
-            );
-        }
+        assert_approx_eq_cmplx_1d!(
+            f64,
+            gamma_ns_qcd(3, PID_NSV, &mut c, NF),
+            [cmplx!(0., 0.); 3],
+            3,
+            epsilon = 8e-4
+        );
     }
 
     #[test]
@@ -249,41 +248,32 @@ mod tests {
         const N: Complex<f64> = cmplx!(1., 0.);
         let mut c = Cache::new(N);
 
-        for i in [0, 1] {
-            for j in [0, 1] {
-                assert_approx_eq_cmplx!(
-                    f64,
-                    gamma_ns_qed(1, 1, PID_NSM_U, &mut c, NF)[i][j],
-                    cmplx!(0., 0.),
-                    epsilon = 1e-5
-                );
-            }
+        // ns-
+        for pid in [PID_NSM_U, PID_NSM_D] {
+            assert_approx_eq_cmplx_2d!(
+                f64,
+                gamma_ns_qed(1, 1, pid, &mut c, NF),
+                [[cmplx!(0., 0.); 2]; 2],
+                2,
+                epsilon = 1e-5
+            );
         }
 
-        for i in [0, 1] {
-            for j in [0, 1] {
-                assert_approx_eq_cmplx!(
-                    f64,
-                    gamma_ns_qed(1, 1, PID_NSM_D, &mut c, NF)[i][j],
-                    cmplx!(0., 0.),
-                    epsilon = 1e-5
-                );
-            }
+        // ns+
+        for pid in [PID_NSP_U, PID_NSP_U] {
+            // as^0 a^0 must be trivial
+            assert_approx_eq_cmplx!(
+                f64,
+                gamma_ns_qed(1, 1, pid, &mut c, NF)[0][0],
+                cmplx!(0., 0.)
+            );
+            assert_approx_eq_cmplx!(
+                f64,
+                gamma_ns_qed(1, 1, pid, &mut c, NF)[0][1],
+                cmplx!(0., 0.),
+                epsilon = 1e-5
+            );
         }
-
-        assert_approx_eq_cmplx!(
-            f64,
-            gamma_ns_qed(1, 1, PID_NSP_U, &mut c, NF)[0][1],
-            cmplx!(0., 0.),
-            epsilon = 1e-5
-        );
-
-        assert_approx_eq_cmplx!(
-            f64,
-            gamma_ns_qed(1, 1, PID_NSP_D, &mut c, NF)[0][1],
-            cmplx!(0., 0.),
-            epsilon = 1e-5
-        );
     }
 
     #[test]
@@ -292,9 +282,13 @@ mod tests {
         const N: Complex<f64> = cmplx!(2., 0.);
         let mut c = Cache::new(N);
 
+        let g = gamma_valence_qed(3, 2, &mut c, NF);
+        // as^0 a^0 must be trivial
+        assert_approx_eq_cmplx_2d!(f64, g[0][0], [[cmplx!(0., 0.); 2]; 2], 2);
+        // reference from Python side
         assert_approx_eq_cmplx_2d!(
             f64,
-            gamma_valence_qed(3, 2, &mut c, NF)[3][0],
+            g[3][0],
             [
                 [cmplx!(459.646893789751, 0.), cmplx!(0., 0.)],
                 [cmplx!(0., 0.), cmplx!(437.60340375, 0.)]
@@ -309,10 +303,14 @@ mod tests {
         const NF: u8 = 3;
         const N: Complex<f64> = cmplx!(2., 0.);
         let mut c = Cache::new(N);
+        let g = gamma_singlet_qed(3, 2, &mut c, NF);
+        // as^0 a^0 must be trivial
+        assert_approx_eq_cmplx_2d!(f64, g[0][0], [[cmplx!(0., 0.); 4]; 4], 4);
 
+        // reference from Python side
         assert_approx_eq_cmplx_2d!(
             f64,
-            gamma_singlet_qed(3, 2, &mut c, NF)[3][0],
+            g[3][0],
             [
                 [
                     cmplx!(3.857918949669738, 0.),
