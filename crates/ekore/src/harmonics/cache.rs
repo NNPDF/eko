@@ -51,7 +51,6 @@ pub enum K {
     S2ph,
     S3ph,
     S1p2,
-    G3p2,
 }
 
 /// Hold all cached values.
@@ -96,7 +95,6 @@ impl Cache {
             K::S2mh => w2::S2((self.n - 1.) / 2.),
             K::S3mh => w3::S3((self.n - 1.) / 2.),
             K::G3 => g_functions::g3(self.n, self.get(K::S1)),
-            K::G3p2 => g_functions::g3(self.n + 2., self.get(K::S1p2)),
             K::Sm1e => w1::Sm1e(self.get(K::S1), self.get(K::S1h)),
             K::Sm1o => w1::Sm1o(self.get(K::S1), self.get(K::S1mh)),
             K::Sm2e => w2::Sm2e(self.get(K::S2), self.get(K::S2h)),

@@ -4,6 +4,7 @@ use num::complex::Complex;
 
 use crate::constants::{ChargeCombinations, CA, CF, ED2, EU2, NC, TR, ZETA2, ZETA3};
 use crate::harmonics::cache::{Cache, K};
+use std::f64::consts::PI;
 
 /// Compute the photon-quark anomalous dimension.
 ///
@@ -112,6 +113,16 @@ pub fn gamma_gg(_c: &mut Cache, _nf: u8) -> Complex<f64> {
     cmplx!(4.0 * TR * (NC as f64), 0.)
 }
 
+/// Shift for $g_3(N)$ by 2.
+///
+/// This is $g_3(N+2) - g_3(N)$.
+fn g3_shift(c: &mut Cache) -> Complex<f64> {
+    let n = c.n();
+    let S1 = c.get(K::S1);
+    (6. * (n + 1.) * (2. * n + 1.) * S1 + n * (-PI.powi(2) * (n + 1.).powu(2) - 6. * n))
+        / (6. * n.powu(2) * (n + 1.).powu(3))
+}
+
 /// Compute the singlet-like non-singlet anomalous dimension.
 ///
 /// Implements Eqs. (33-34) of [\[deFlorian:2015ujt\]][crate::bib::deFlorian2015ujt].
@@ -128,7 +139,7 @@ pub fn gamma_nsp(c: &mut Cache, _nf: u8) -> Complex<f64> {
     let S3p1h = c.get(K::S3ph);
 
     let g3N = c.get(K::G3);
-    let g3Np2 = c.get(K::G3p2);
+    let g3Np2 = g3N + g3_shift(c);
 
     #[rustfmt::skip]
     let result = 32.0 * ZETA2 * S1h - 32.0 * ZETA2 * S1p1h
@@ -159,7 +170,7 @@ pub fn gamma_nsm(c: &mut Cache, _nf: u8) -> Complex<f64> {
     let S2p1h = c.get(K::S2ph);
     let S3p1h = c.get(K::S3ph);
     let g3N = c.get(K::G3);
-    let g3Np2 = c.get(K::G3p2);
+    let g3Np2 = g3N + g3_shift(c);
 
     #[rustfmt::skip]
     let result =
@@ -301,5 +312,19 @@ mod tests {
         let mut c = Cache::new(N);
         let me = gamma_nsp(&mut c, NF) + gamma_gq(&mut c, NF) + gamma_phq(&mut c, NF);
         assert_approx_eq_cmplx!(f64, me, Complex::zero(), epsilon = 1e-4);
+    }
+
+    #[test]
+    fn test_g3_shift() {
+        for N in [cmplx!(1.23, 0.), cmplx!(5., 0.), cmplx!(2., 1.)] {
+            let mut c = Cache::new(N);
+            let mut c2 = Cache::new(N + 2.);
+            assert_approx_eq_cmplx!(
+                f64,
+                g3_shift(&mut c),
+                c2.get(K::G3) - c.get(K::G3),
+                epsilon = 1e-6
+            );
+        }
     }
 }
