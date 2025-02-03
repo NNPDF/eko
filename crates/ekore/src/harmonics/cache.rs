@@ -46,11 +46,6 @@ pub enum K {
     Sm21e,
     /// $S_{-2,1}(N)$ odd moments
     Sm21o,
-    /// recursive harmonics
-    S1ph,
-    S2ph,
-    S3ph,
-    S1p2,
 }
 
 /// Hold all cached values.
@@ -103,10 +98,6 @@ impl Cache {
             K::Sm3o => w3::Sm3o(self.get(K::S3), self.get(K::S3mh)),
             K::Sm21e => w3::Sm21e(self.n, self.get(K::S1), self.get(K::Sm1e)),
             K::Sm21o => w3::Sm21o(self.n, self.get(K::S1), self.get(K::Sm1o)),
-            K::S1ph => recursive_harmonic_sum(self.get(K::S1mh), (self.n - 1.) / 2., 1, 1),
-            K::S2ph => recursive_harmonic_sum(self.get(K::S2mh), (self.n - 1.) / 2., 1, 2),
-            K::S3ph => recursive_harmonic_sum(self.get(K::S3mh), (self.n - 1.) / 2., 1, 3),
-            K::S1p2 => recursive_harmonic_sum(self.get(K::S1), self.n, 2, 1),
         };
         // insert
         self.m.insert(k, val);

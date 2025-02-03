@@ -3,7 +3,7 @@ use crate::cmplx;
 use num::complex::Complex;
 
 use crate::constants::{ChargeCombinations, CA, CF, ED2, EU2, NC, TR, ZETA2, ZETA3};
-use crate::harmonics::cache::{Cache, K};
+use crate::harmonics::cache::{recursive_harmonic_sum, Cache, K};
 use std::f64::consts::PI;
 
 /// Compute the photon-quark anomalous dimension.
@@ -134,9 +134,9 @@ pub fn gamma_nsp(c: &mut Cache, _nf: u8) -> Complex<f64> {
     let S1h = c.get(K::S1h);
     let S2h = c.get(K::S2h);
     let S3h = c.get(K::S3h);
-    let S1p1h = c.get(K::S1ph);
-    let S2p1h = c.get(K::S2ph);
-    let S3p1h = c.get(K::S3ph);
+    let S1p1h = recursive_harmonic_sum(c.get(K::S1mh), (N - 1.) / 2., 1, 1);
+    let S2p1h = recursive_harmonic_sum(c.get(K::S2mh), (N - 1.) / 2., 1, 2);
+    let S3p1h = recursive_harmonic_sum(c.get(K::S3mh), (N - 1.) / 2., 1, 3);
 
     let g3N = c.get(K::G3);
     let g3Np2 = g3N + g3_shift(c);
@@ -166,9 +166,9 @@ pub fn gamma_nsm(c: &mut Cache, _nf: u8) -> Complex<f64> {
     let S1h = c.get(K::S1h);
     let S2h = c.get(K::S2h);
     let S3h = c.get(K::S3h);
-    let S1p1h = c.get(K::S1ph);
-    let S2p1h = c.get(K::S2ph);
-    let S3p1h = c.get(K::S3ph);
+    let S1p1h = recursive_harmonic_sum(c.get(K::S1mh), (N - 1.) / 2., 1, 1);
+    let S2p1h = recursive_harmonic_sum(c.get(K::S2mh), (N - 1.) / 2., 1, 2);
+    let S3p1h = recursive_harmonic_sum(c.get(K::S3mh), (N - 1.) / 2., 1, 3);
     let g3N = c.get(K::G3);
     let g3Np2 = g3N + g3_shift(c);
 
