@@ -1,8 +1,8 @@
 diff --git a/src/eko/evolution_operator/__init__.py b/src/eko/evolution_operator/__init__.py
-index bd1b19d6..de87651c 100644
+index bd1b19d6..f4e2f5ea 100644
 --- a/src/eko/evolution_operator/__init__.py
 +++ b/src/eko/evolution_operator/__init__.py
-@@ -3,16 +3,16 @@ r"""Contains the central operator classes.
+@@ -3,120 +3,28 @@ r"""Contains the central operator classes.
  See :doc:`Operator overview </code/Operators>`.
  """
 
@@ -17,16 +17,28 @@ index bd1b19d6..de87651c 100644
  import numba as nb
  import numpy as np
 -from scipy import integrate
+-
+-import ekore.anomalous_dimensions.polarized.space_like as ad_ps
+-import ekore.anomalous_dimensions.unpolarized.space_like as ad_us
+-import ekore.anomalous_dimensions.unpolarized.time_like as ad_ut
 +from scipy import LowLevelCallable, integrate
 
- import ekore.anomalous_dimensions.polarized.space_like as ad_ps
- import ekore.anomalous_dimensions.unpolarized.space_like as ad_us
-@@ -32,91 +32,11 @@ from ..matchings import Segment, lepton_number
+ from .. import basis_rotation as br
+ from .. import interpolation, mellin
+ from .. import scale_variations as sv
+ from ..io.types import EvolutionMethod, OperatorLabel
+ from ..kernels import ev_method
+-from ..kernels import non_singlet as ns
+-from ..kernels import non_singlet_qed as qed_ns
+-from ..kernels import singlet as s
+-from ..kernels import singlet_qed as qed_s
+-from ..kernels import valence_qed as qed_v
+-from ..matchings import Segment, lepton_number
++from ..matchings import Segment
  from ..member import OpMember
- from ..scale_variations import expanded as sv_expanded
- from ..scale_variations import exponentiated as sv_exponentiated
-+from .quad_ker import cb_quad_ker_qcd
-+from .quad_ker import cb_quad_ker_qed
+-from ..scale_variations import expanded as sv_expanded
+-from ..scale_variations import exponentiated as sv_exponentiated
++from .quad_ker import cb_quad_ker_qcd, cb_quad_ker_qed
 
  logger = logging.getLogger(__name__)
 
@@ -115,7 +127,7 @@ index bd1b19d6..de87651c 100644
  spec = [
      ("is_singlet", nb.boolean),
      ("is_QEDsinglet", nb.boolean),
-@@ -188,422 +108,6 @@ class QuadKerBase:
+@@ -188,422 +96,6 @@ class QuadKerBase:
          return self.path.prefactor * pj * self.path.jac
 
 
@@ -538,7 +550,7 @@ index bd1b19d6..de87651c 100644
  OpMembers = Dict[OperatorLabel, OpMember]
  """Map of all operators."""
 
-@@ -792,49 +296,6 @@ class Operator(sv.ScaleVariationModeMixin):
+@@ -792,49 +284,6 @@ class Operator(sv.ScaleVariationModeMixin):
          """Return the evolution method."""
          return ev_method(EvolutionMethod(self.config["method"]))
 
@@ -588,7 +600,7 @@ index bd1b19d6..de87651c 100644
      def initialize_op_members(self):
          """Init all operators with the identity or zeros."""
          eye = OpMember(
-@@ -857,10 +318,17 @@ class Operator(sv.ScaleVariationModeMixin):
+@@ -857,10 +306,32 @@ class Operator(sv.ScaleVariationModeMixin):
              else:
                  self.op_members[n] = zero.copy()
 
@@ -598,8 +610,23 @@ index bd1b19d6..de87651c 100644
 -    ):
 +    def update_cfg(self, cfg):
 +        """Adjust integration config."""
++        # prepare couplings for c
 +        cfg.as1 = self.as_list[1]
 +        cfg.as0 = self.as_list[0]
++        as_list_len = self.as_list.shape[0]
++        as_list_ffi = ekors.ffi.new(f"double[{as_list_len}]", self.as_list.tolist())
++        cfg.as_list = as_list_ffi
++        cfg.as_list_len = as_list_len
++        a_half_x = self.a_half_list.shape[0]
++        a_half_y = self.a_half_list.shape[1]
++        a_half_len = a_half_x * a_half_y
++        a_half_ffi = ekors.ffi.new(
++            f"double[{a_half_len}]", self.a_half_list.flatten().tolist()
++        )
++        cfg.a_half = a_half_ffi
++        cfg.a_half_x = a_half_x
++        cfg.a_half_y = a_half_y
++
 +        if self.order[1] == 0:
 +            cfg.py = ekors.ffi.cast("void *", cb_quad_ker_qcd.address)
 +        else:
@@ -610,7 +637,7 @@ index bd1b19d6..de87651c 100644
          """Run the integration for each grid point.
 
          Parameters
-@@ -875,18 +343,75 @@ class Operator(sv.ScaleVariationModeMixin):
+@@ -875,18 +346,58 @@ class Operator(sv.ScaleVariationModeMixin):
          """
          column = []
          k, logx = log_grid
@@ -633,24 +660,7 @@ index bd1b19d6..de87651c 100644
 +        cfg.is_threshold = self.is_threshold
 +        cfg.mu2_from = self.q2_from
 +        cfg.mu2_to = self.q2_to
-+        cfg.alphaem_running=self.alphaem_running
-+
-+        # prepare as_list for c
-+        as_list_len = self.as_list.shape[0]
-+        as_list_ffi = ekors.ffi.new(f"double[{as_list_len}]", self.as_list.tolist())
-+        cfg.as_list = as_list_ffi
-+        cfg.as_list_len = as_list_len
-+
-+        # prepare a_half for c
-+        a_half_x = self.a_half_list.shape[0]
-+        a_half_y = self.a_half_list.shape[1]
-+        a_half_len = a_half_x * a_half_y
-+        a_half_ffi = ekors.ffi.new(
-+            f"double[{a_half_len}]", self.a_half_list.flatten().tolist()
-+        )
-+        cfg.a_half = a_half_ffi
-+        cfg.a_half_x = a_half_x
-+        cfg.a_half_y = a_half_y
++        cfg.alphaem_running = self.alphaem_running
 +
 +        self.update_cfg(cfg)
 +
