@@ -285,4 +285,140 @@ mod tests {
             epsilon = 1e-5
         );
     }
+
+    #[test]
+    fn test_gamma_valence_qed() {
+        const NF: u8 = 3;
+        const N: Complex<f64> = cmplx!(2., 0.);
+        let mut c = Cache::new(N);
+
+        assert_approx_eq_cmplx!(
+            f64,
+            gamma_valence_qed(3, 2, &mut c, NF)[3][0][0][0],
+            cmplx!(459.646893789751, 0.),
+            epsilon = 1e-5
+        );
+        assert_approx_eq_cmplx!(
+            f64,
+            gamma_valence_qed(3, 2, &mut c, NF)[3][0][1][1],
+            cmplx!(437.60340375, 0.),
+            epsilon = 1e-5
+        );
+        assert_approx_eq_cmplx!(
+            f64,
+            gamma_valence_qed(3, 2, &mut c, NF)[3][0][1][0],
+            cmplx!(0., 0.),
+            epsilon = 1e-5
+        );
+        assert_approx_eq_cmplx!(
+            f64,
+            gamma_valence_qed(3, 2, &mut c, NF)[3][0][0][1],
+            cmplx!(0., 0.),
+            epsilon = 1e-5
+        );
+    }
+
+    #[test]
+    fn test_gamma_singlet_qed() {
+        const NF: u8 = 3;
+        const N: Complex<f64> = cmplx!(2., 0.);
+        let mut c = Cache::new(N);
+
+        assert_approx_eq_cmplx!(
+            f64,
+            gamma_singlet_qed(3, 2, &mut c, NF)[3][0][0][0],
+            cmplx!(3.857918949669738, 0.),
+            epsilon = 1e-5
+        );
+        assert_approx_eq_cmplx!(
+            f64,
+            gamma_singlet_qed(3, 2, &mut c, NF)[3][0][0][1],
+            cmplx!(0., 0.),
+            epsilon = 1e-5
+        );
+        assert_approx_eq_cmplx!(
+            f64,
+            gamma_singlet_qed(3, 2, &mut c, NF)[3][0][0][2],
+            cmplx!(-290.42193908689745, 0.),
+            epsilon = 1e-5
+        );
+        assert_approx_eq_cmplx!(
+            f64,
+            gamma_singlet_qed(3, 2, &mut c, NF)[3][0][0][3],
+            cmplx!(0., 0.),
+            epsilon = 1e-5
+        );
+        assert_approx_eq_cmplx!(
+            f64,
+            gamma_singlet_qed(3, 2, &mut c, NF)[3][0][1][0],
+            cmplx!(0., 0.),
+            epsilon = 1e-5
+        );
+        assert_approx_eq_cmplx!(
+            f64,
+            gamma_singlet_qed(3, 2, &mut c, NF)[3][0][1][1],
+            cmplx!(0., 0.),
+            epsilon = 1e-5
+        );
+        assert_approx_eq_cmplx!(
+            f64,
+            gamma_singlet_qed(3, 2, &mut c, NF)[3][0][1][2],
+            cmplx!(0., 0.),
+            epsilon = 1e-5
+        );
+        assert_approx_eq_cmplx!(
+            f64,
+            gamma_singlet_qed(3, 2, &mut c, NF)[3][0][1][3],
+            cmplx!(0., 0.),
+            epsilon = 1e-5
+        );
+        assert_approx_eq_cmplx!(
+            f64,
+            gamma_singlet_qed(3, 2, &mut c, NF)[3][0][2][0],
+            cmplx!(-3.859554320251334, 0.),
+            epsilon = 1e-5
+        );
+        assert_approx_eq_cmplx!(
+            f64,
+            gamma_singlet_qed(3, 2, &mut c, NF)[3][0][2][1],
+            cmplx!(0., 0.),
+            epsilon = 1e-5
+        );
+        assert_approx_eq_cmplx!(
+            f64,
+            gamma_singlet_qed(3, 2, &mut c, NF)[3][0][2][2],
+            cmplx!(290.4252052962147, 0.),
+            epsilon = 1e-5
+        );
+        assert_approx_eq_cmplx!(
+            f64,
+            gamma_singlet_qed(3, 2, &mut c, NF)[3][0][2][3],
+            cmplx!(0., 0.),
+            epsilon = 1e-5
+        );
+        assert_approx_eq_cmplx!(
+            f64,
+            gamma_singlet_qed(3, 2, &mut c, NF)[3][0][3][0],
+            cmplx!(0., 0.),
+            epsilon = 1e-5
+        );
+        assert_approx_eq_cmplx!(
+            f64,
+            gamma_singlet_qed(3, 2, &mut c, NF)[3][0][3][1],
+            cmplx!(0., 0.),
+            epsilon = 1e-5
+        );
+        assert_approx_eq_cmplx!(
+            f64,
+            gamma_singlet_qed(3, 2, &mut c, NF)[3][0][3][2],
+            cmplx!(0., 0.),
+            epsilon = 1e-5
+        );
+        assert_approx_eq_cmplx!(
+            f64,
+            gamma_singlet_qed(3, 2, &mut c, NF)[3][0][3][3],
+            cmplx!(448.0752570151872, 0.),
+            epsilon = 1e-5
+        );
+    }
 }
