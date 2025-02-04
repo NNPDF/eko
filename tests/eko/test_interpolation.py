@@ -133,7 +133,7 @@ class TestInterpolatorDispatcher:
         inter_x = interpolation.InterpolatorDispatcher(xg, 1, False)
         i = inter_x.get_interpolation(xg.raw)
         np.testing.assert_array_almost_equal(i, np.eye(len(xg)))
-        # .75 is exactly inbetween
+        # .75 is exactly in between
         i = inter_x.get_interpolation([0.75])
         np.testing.assert_array_almost_equal(i, [[0.5, 0.5]])
 
@@ -162,6 +162,23 @@ class TestInterpolatorDispatcher:
             check_is_interpolator(inter_x)
             inter_N = interpolation.InterpolatorDispatcher(xgrid, poly_deg, mode_N=True)
             check_correspondence_interpolators(inter_x, inter_N)
+
+    def test_max_areas_shape(self):
+        for ng in [3, 6, 7, 8, 10, 11, 14]:
+            for pd in range(1, ng // 2):
+                xgrid = interpolation.XGrid(np.linspace(0.1, 1, ng), False)
+                interp = interpolation.InterpolatorDispatcher(xgrid, pd)
+                max_shape = interp.max_areas_shape()
+                # all areas must respect the maximum
+                for bf in interp:
+                    s = bf.areas_to_const().shape
+                    assert s[0] <= max_shape[0], f"{ng=},{pd=},k={bf.poly_number}"
+                    assert s[1] <= max_shape[1], f"{ng=},{pd=},k={bf.poly_number}"
+                # the end must be the maximum, because we are leaning upwards
+                end = ng - pd - 1
+                ms = interp[end].areas_to_const().shape
+                assert ms[0] == max_shape[0], f"{ng=},{pd=},{end=}"
+                assert ms[1] == max_shape[1], f"{ng=},{pd=},{end=}"
 
 
 class TestBasisFunction:
