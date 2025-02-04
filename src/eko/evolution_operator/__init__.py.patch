@@ -1,5 +1,5 @@
 diff --git a/src/eko/evolution_operator/__init__.py b/src/eko/evolution_operator/__init__.py
-index bd1b19d6..bbc9d682 100644
+index bd1b19d6..3fa63a70 100644
 --- a/src/eko/evolution_operator/__init__.py
 +++ b/src/eko/evolution_operator/__init__.py
 @@ -3,120 +3,28 @@ r"""Contains the central operator classes.
@@ -662,8 +662,8 @@ index bd1b19d6..bbc9d682 100644
 +        cfg.a_half = a_half_ffi
 +        as_list_ffi = ekors.ffi.new("double[]", self.config["ev_op_iterations"] + 1)
 +        cfg.as_list = as_list_ffi
-+        pd = self.int_disp.polynomial_degree + 1
-+        max_area_len = (2 * pd - 1) * (pd + 2)
++        max_areas_shape = self.int_disp.max_areas_shape
++        max_area_len = max_areas_shape[0] * max_areas_shape[1]
 +        areas_ffi = ekors.ffi.new("double[]", max_area_len)
 +        cfg.areas = areas_ffi
 +
