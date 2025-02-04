@@ -9,7 +9,7 @@ jobs:
         python-version: ["3.9", "3.10", "3.11", "3.12"]
       fail-fast: false
 
-    uses: EKO/workflows/.github/workflows/python-poetry-tests-with-data.yml@read-legacy
+    uses: ./.github/workflows/python-poetry-tests-with-data.yml
     with:
       python-version: ${{ matrix.python-version }}
       poetry-extras: "-E mark -E box"
