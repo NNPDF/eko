@@ -9,7 +9,9 @@ jobs:
         python-version: ["3.9", "3.10", "3.11", "3.12"]
       fail-fast: false
 
-    uses: NNPDF/workflows/.github/workflows/python-poetry-tests.yml@v2
+    uses: EKO/workflows/.github/workflows/python-poetry-tests.yml@read-legacy
     with:
       python-version: ${{ matrix.python-version }}
       poetry-extras: "-E mark -E box"
+      data-version: "v1"
+      data-download: "./tests/data/assets.sh"
