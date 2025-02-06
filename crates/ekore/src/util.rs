@@ -22,3 +22,27 @@ macro_rules! assert_approx_eq_cmplx {
         float_cmp::assert_approx_eq!($size, $ref.im, $target.im $(, $set = $val)*);
     };
 }
+
+/// Shorthand complex list comparators.
+#[cfg(test)]
+#[macro_export]
+macro_rules! assert_approx_eq_cmplx_1d {
+    ($size:ty, $ref:expr, $target:expr, $d:expr $(, $set:ident = $val:expr)*) => {
+        for j in 0..$d {
+            assert_approx_eq_cmplx!($size, $ref[j], $target[j] $(, $set = $val)*);
+        }
+    }
+}
+
+/// Shorthand complex matrix comparators.
+#[cfg(test)]
+#[macro_export]
+macro_rules! assert_approx_eq_cmplx_2d {
+    ($size:ty, $ref:expr, $target:expr, $d:expr $(, $set:ident = $val:expr)*) => {
+        for j in 0..$d {
+            for k in 0..$d {
+                assert_approx_eq_cmplx!($size, $ref[j][k], $target[j][k] $(, $set = $val)*);
+            }
+        }
+    }
+}

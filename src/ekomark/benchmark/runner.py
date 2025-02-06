@@ -147,6 +147,20 @@ class Runner(BenchmarkRunner):
                 DGLAP result
         """
         # pylint:disable=import-error,import-outside-toplevel
+        if self.external.lower() == "void":
+            xgrid = ocard["interpolation_xgrid"]
+            mugrid = ocard["mugrid"]
+            labels = br.flavor_basis_pids
+            if self.rotate_to_evolution_basis:
+                labels = br.unified_evol_basis if theory["QED"] > 0 else br.evol_basis
+
+            void = {
+                "target_xgrid": xgrid,
+                "values": {
+                    mu**2: {pid: [0.0] * len(xgrid) for pid in labels} for mu in mugrid
+                },
+            }
+            return void
         if self.external.lower() == "lha":
             from .external import LHA_utils
 
@@ -211,7 +225,7 @@ class Runner(BenchmarkRunner):
         # LHA NNLO VFNS needs a special treatment
         # Valence contains only u and d
         rotate_to_evolution = None
-        labels = None
+        labels = br.flavor_basis_pids
         qed = theory["QED"] > 0
         if self.rotate_to_evolution_basis:
             if not qed:
