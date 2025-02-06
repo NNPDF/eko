@@ -286,6 +286,8 @@ class BenchmarkVFNS_qed(ApfelBenchmark):
         "kbThr": 1.0,
         "ktThr": 1.0,
         "Q0": 1.25,
+        "nf0": 3,
+        "nfref": 5,
         "alphas": 0.118000,
         "alphaqed": 0.007496,
     }
