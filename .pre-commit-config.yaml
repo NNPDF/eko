@@ -29,12 +29,12 @@ repos:
         args: [ --select, I, --fix ]
       # Run the formatter.
       - id: ruff-format
-  - repo: https://github.com/PyCQA/docformatter
-    rev: v1.7.5 # TODO: wait for https://github.com/PyCQA/docformatter/issues/293
-    hooks:
-      - id: docformatter
-        additional_dependencies: [tomli]
-        args: [--in-place, --config, ./pyproject.toml]
+#  - repo: https://github.com/PyCQA/docformatter
+#    rev: v1.7.5 # TODO: wait for https://github.com/PyCQA/docformatter/issues/293
+#    hooks:
+#      - id: docformatter
+#        additional_dependencies: [tomli]
+#        args: [--in-place, --config, ./pyproject.toml]
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.15.0
     hooks:
