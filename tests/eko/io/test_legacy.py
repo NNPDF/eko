@@ -1,12 +1,23 @@
 import pathlib
-
+from math import nan
 import yaml
 from banana import toy
 
 import eko
+
+import numpy as np
+from eko.interpolation import make_grid
+from ekobox.evol_pdf import evolve_pdfs
+import lhapdf
 from ekobox.apply import apply_pdf
+import numpy.testing
+from numpy.testing import assert_almost_equal
+
+TEST_DATA_DIR = pathlib.Path(__file__).parents[2] / "data"   # directory of the EKO object
+pdf = toy.mkPDF("",0)
 
 TEST = pathlib.Path(__file__).parents[2] / "data"  # directory of the EKO object
+
 
 pdf = toy.mkPDF("", 0)
 
@@ -31,6 +42,7 @@ def test_read_legacy():
 
         pdf_test = evolved_pdfs[10000, 4][21]  # evolved gluon PDF at 10000 GeV^2
 
+
         # Import the values of the LHA benchmark tables. This is not very nice yet, but should work
         lha_path = (
             pathlib.Path(__file__).parents[4]
@@ -43,13 +55,13 @@ def test_read_legacy():
 
         pdf_benchmark = []  # gluon PDF at 10000 GeV^2 from the LHA benchmark tables
         """
-        --> have to divide by x values to compare or not
-        Was the LHAPDF output xf(x,q2) or f(x,q2) again?
+        --> have to divide by x values to compare
         """
         for j in range(len(xpdf_benchmark)):
             pdf_benchmark.append(xpdf_benchmark[j] / x_grid[j])
 
         print(pdf_test, pdf_benchmark)
+
 
         # Test that the PDF values are the same
         for i in range(len(pdf_test)):
@@ -57,6 +69,13 @@ def test_read_legacy():
                 print(name, False)
             else:
                 print(name, True)
+
+
+        
+        # Test that the PDF values are the same 
+        
+        np.testing.assert_allclose(pdf_test, pdf_benchmark)
+       
 
     return evolved_pdfs
 
