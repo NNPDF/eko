@@ -44,20 +44,20 @@ class Sandbox(Runner):
     sandbox = True
 
     # select here the external program between LHA, LHAPDF, apfel, pegasus
-    external = "apfel"
+    external = "void"
     # external = "pegasus"
 
     # select to plot operators
-    plot_operator = True
+    # plot_operator = True
 
-    rotate_to_evolution_basis = True
+    # rotate_to_evolution_basis = True
 
     @staticmethod
     def generate_operators():
         ops = {
             "ev_op_iterations": [1],
             # "ev_op_max_order": [20],
-            "mugrid": [[10]],
+            "mugrid": [[10.0]],
             # "debug_skip_singlet": [True],
         }
         return ops
@@ -118,12 +118,12 @@ class Sandbox(Runner):
             "FNS": "FFNS",
             "NfFF": 4,
             "ModEv": "EXA",
-            "XIF": np.sqrt(2),
-            "Q0": np.sqrt(2),
+            "XIF": float(np.sqrt(2)),
+            "Q0": float(np.sqrt(2)),
             "kcThr": 0.0,
             "kbThr": np.inf,
             "ktThr": np.inf,
-            "Qref": np.sqrt(2.0),
+            "Qref": float(np.sqrt(2.0)),
             "alphas": 0.35,
         }
         self.skip_pdfs = lambda _theory: [
@@ -139,11 +139,11 @@ class Sandbox(Runner):
         ]
         self.run(
             [theory_updates],
-            [{"mugrid": [100], "debug_skip_singlet": True}],
+            [{"mugrid": [100.0], "debug_skip_singlet": True}],
             ["ToyLH"],
         )
 
 
 if __name__ == "__main__":
     sand = Sandbox()
-    sand.doit()
+    sand.lha()

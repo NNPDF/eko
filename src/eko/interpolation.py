@@ -569,6 +569,11 @@ class InterpolatorDispatcher:
         # return iter(self.basis)
         yield from self.basis
 
+    def max_areas_shape(self) -> tuple[int, int]:
+        """Maximum dimensions of the polynomial areas."""
+        # 2. dim: xmin, xmax, 1+degree coefficients
+        return (max(len(bf.areas) for bf in self), 2 + 1 + self.polynomial_degree)
+
     def __getitem__(self, item):
         return self.basis[item]
 
