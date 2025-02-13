@@ -1,8 +1,8 @@
 diff --git a/src/eko/evolution_operator/__init__.py b/src/eko/evolution_operator/__init__.py
-index bd1b19d6..93830ea0 100644
+index bd1b19d6..375db5af 100644
 --- a/src/eko/evolution_operator/__init__.py
 +++ b/src/eko/evolution_operator/__init__.py
-@@ -7,114 +7,30 @@ import functools
+@@ -7,116 +7,29 @@ import functools
  import logging
  import os
  import time
@@ -33,7 +33,7 @@ index bd1b19d6..93830ea0 100644
 -from ..kernels import singlet_qed as qed_s
 -from ..kernels import valence_qed as qed_v
 -from ..matchings import Segment, lepton_number
-+from ..matchings import Segment
++from ..matchings import Atlas, Segment
  from ..member import OpMember
 -from ..scale_variations import expanded as sv_expanded
 -from ..scale_variations import exponentiated as sv_exponentiated
@@ -41,7 +41,7 @@ index bd1b19d6..93830ea0 100644
 
  logger = logging.getLogger(__name__)
 
-
+-
 -@nb.njit(cache=True)
 -def select_singlet_element(ker, mode0, mode1):
 -    """Select element of the singlet matrix.
@@ -121,10 +121,12 @@ index bd1b19d6..93830ea0 100644
 -    index1 = 0 if mode0 == 10200 else 1
 -    index2 = 0 if mode1 == 10200 else 1
 -    return ker[index1, index2]
-
-
+-
+-
  spec = [
-@@ -188,424 +104,17 @@ class QuadKerBase:
+     ("is_singlet", nb.boolean),
+     ("is_QEDsinglet", nb.boolean),
+@@ -188,424 +101,26 @@ class QuadKerBase:
          return self.path.prefactor * pj * self.path.jac
 
 
@@ -454,7 +456,10 @@ index bd1b19d6..93830ea0 100644
 -        |N3LO| anomalous dimension variation ``(gg, gq, qg, qq, nsp, nsm, nsv)``
 -    use_fhmruvv : bool
 -        if True use the |FHMRUVV| |N3LO| anomalous dimensions
--
++    atlas: Atlas
++    couplings: Couplings
++    interpolator: InterpolatorDispatcher
+
 -    Returns
 -    -------
 -    float
@@ -547,8 +552,11 @@ index bd1b19d6..93830ea0 100644
 -                * ker
 -            )
 -    return ker
--
--
+
++@dataclass(frozen=True)
++class Managers:
++    """Set of steering objects."""
+
 -OpMembers = Dict[OperatorLabel, OpMember]
 -"""Map of all operators."""
 +    atlas: Atlas
@@ -557,7 +565,7 @@ index bd1b19d6..93830ea0 100644
 
 
  class Operator(sv.ScaleVariationModeMixin):
-@@ -637,7 +146,12 @@ class Operator(sv.ScaleVariationModeMixin):
+@@ -637,7 +152,12 @@ class Operator(sv.ScaleVariationModeMixin):
      full_labels_qed: Tuple[OperatorLabel, ...] = br.full_unified_labels
 
      def __init__(
@@ -571,7 +579,7 @@ index bd1b19d6..93830ea0 100644
      ):
          self.config = config
          self.managers = managers
-@@ -669,7 +183,7 @@ class Operator(sv.ScaleVariationModeMixin):
+@@ -669,7 +189,7 @@ class Operator(sv.ScaleVariationModeMixin):
          return self.config["xif2"]
 
      @property
@@ -580,7 +588,7 @@ index bd1b19d6..93830ea0 100644
          """Return the interpolation dispatcher."""
          return self.managers.interpolator
 
-@@ -792,49 +306,6 @@ class Operator(sv.ScaleVariationModeMixin):
+@@ -792,49 +312,6 @@ class Operator(sv.ScaleVariationModeMixin):
          """Return the evolution method."""
          return ev_method(EvolutionMethod(self.config["method"]))
 
@@ -630,7 +638,7 @@ index bd1b19d6..93830ea0 100644
      def initialize_op_members(self):
          """Init all operators with the identity or zeros."""
          eye = OpMember(
-@@ -857,10 +328,29 @@ class Operator(sv.ScaleVariationModeMixin):
+@@ -857,10 +334,29 @@ class Operator(sv.ScaleVariationModeMixin):
              else:
                  self.op_members[n] = zero.copy()
 
@@ -664,7 +672,7 @@ index bd1b19d6..93830ea0 100644
          """Run the integration for each grid point.
 
          Parameters
-@@ -875,18 +365,62 @@ class Operator(sv.ScaleVariationModeMixin):
+@@ -875,18 +371,62 @@ class Operator(sv.ScaleVariationModeMixin):
          """
          column = []
          k, logx = log_grid
