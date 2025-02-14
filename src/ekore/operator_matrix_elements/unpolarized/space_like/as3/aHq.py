@@ -11,8 +11,7 @@ from .....harmonics import cache as c
 def A_Hq(n, cache, nf, L):  # pylint: disable=too-many-locals
     r"""Compute the |N3LO| singlet |OME| :math:`A_{Hq}^{S,(3)}(N)`.
 
-    The expression is presented in :cite:`Ablinger_2015` :eqref:`5.1`
-    and :cite:`Blumlein:2017wxd` :eqref:`3.1`.
+    The expression is presented in :cite:`Ablinger_2015` :eqref:`5.1`.
 
     When using the code, please cite the complete list of references
     available in :mod:`~ekore.operator_matrix_elements.unpolarized.space_like.as3`.
