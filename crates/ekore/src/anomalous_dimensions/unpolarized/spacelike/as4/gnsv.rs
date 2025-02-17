@@ -104,7 +104,7 @@ mod tests {
     }
 
     #[test]
-    fn test_non_singlet_reference_moments() {
+    fn test_reference_moments() {
         let NF = 4;
         let nss_nf4_refs: [f64; 8] = [
             50.10532524,

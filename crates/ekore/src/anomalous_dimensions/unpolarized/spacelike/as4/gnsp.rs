@@ -206,7 +206,7 @@ mod tests {
     use num::complex::Complex;
 
     #[test]
-    fn test_singlet_reference_moments() {
+    fn test_reference_moments() {
         let NF = 4;
         let nsp_nf4_refs: [f64; 8] = [
             3679.6690577439995,

@@ -44,7 +44,7 @@ pub const ZETA3: f64 = 1.2020569031595942;
 pub const ZETA4: f64 = 1.082323233711138;
 
 /// Riemann zeta function at z = 5.
-pub const ZETA5: f64 = 1.036927755143370;
+pub const ZETA5: f64 = 1.03692775514337;
 
 /// singlet-like non-singlet |PID|.
 pub const PID_NSP: u16 = 10101;
