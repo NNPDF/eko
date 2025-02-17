@@ -5,7 +5,7 @@ use super::gnsm;
 use crate::harmonics::cache::{Cache, K};
 use crate::harmonics::log_functions::{lm11m1, lm12m1, lm13m1};
 
-// The routine is taken from [\[`Moch:2017uml\]][crate::bib:Moch:2017uml].
+// The routine is taken from [\[Moch:2017uml\]][crate::bib:Moch:2017uml].
 
 // The nf^2 part is a high-accuracy (0.1% or better) parametrization
 // of the exact expression obtained in :cite:`Davies:2016jie`, see xpns3m.f
@@ -70,7 +70,7 @@ pub fn gamma_nss(c: &mut Cache, nf: u8, variation: u8) -> Complex<f64> {
         2 => (nf as f64) * P3NSA12 + (nf as f64).pow(2) * P3NSSA2,
         _ => 0.5 * (nf as f64) * (P3NSA11 + P3NSA12) + (nf as f64).pow(2) * P3NSSA2,
     });
-    return -P3NSSA;
+    -P3NSSA
 }
 
 // Compute the valence-like non-singlet anomalous dimension.
@@ -89,9 +89,14 @@ mod tests {
     #[test]
     fn test_quark_number_conservation() {
         let NF = 4;
-        // TODO: why these numbers are different from python, 
-        // while the higher moments matches ?        let mut c = Cache::new(cmplx!(1., 0.));
-        let refs: [f64; 3] = [-0.0067224391535315176, -0.00415827248990297, -0.009286605817160065];
+        // TODO: why these numbers are different from python,
+        // while the higher moments matches ?
+        let mut c = Cache::new(cmplx!(1., 0.));
+        let refs: [f64; 3] = [
+            -0.0067224391535315176,
+            -0.00415827248990297,
+            -0.009286605817160065,
+        ];
         for var in [0, 1, 2] {
             let test_value = gamma_nss(&mut c, NF, var);
             assert_approx_eq_cmplx!(f64, test_value, cmplx!(refs[var as usize], 0.));

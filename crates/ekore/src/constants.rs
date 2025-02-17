@@ -43,6 +43,9 @@ pub const ZETA3: f64 = 1.2020569031595942;
 /// $\zeta(4) = \pi^4 / 90$.
 pub const ZETA4: f64 = 1.082323233711138;
 
+/// Riemann zeta function at z = 5.
+pub const ZETA5: f64 = 1.036927755143370;
+
 /// singlet-like non-singlet |PID|.
 pub const PID_NSP: u16 = 10101;
 

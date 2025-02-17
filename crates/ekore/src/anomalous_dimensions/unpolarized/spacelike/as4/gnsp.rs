@@ -7,7 +7,7 @@ use crate::constants::{CF, ZETA3};
 use crate::harmonics::cache::{Cache, K};
 use crate::harmonics::log_functions::{lm11, lm11m1, lm12m1, lm13m1};
 
-// The routine is taken from [\[`Moch:2017uml\]][crate::bib:Moch:2017uml].
+// The routine is taken from [\[Moch:2017uml\]][crate::bib:Moch:2017uml].
 
 // The nf^{0,1} leading large-nc contributions and the nf^2 part
 // are high-accuracy (0.1% or better) parametrizations of the exact
