@@ -3,7 +3,7 @@
 use num::{complex::Complex, Zero};
 use std::collections::HashMap;
 
-use crate::harmonics::{g_functions, w1, w2, w3, w4};
+use crate::harmonics::{g_functions, w1, w2, w3, w4, w5};
 
 /// List of available elements.
 #[derive(Debug, PartialEq, Eq, Hash)]
@@ -16,6 +16,8 @@ pub enum K {
     S3,
     /// $S_4(N)$
     S4,
+    /// $S_5(N)$
+    S5,
     /// $S_1(N/2)$
     S1h,
     /// $S_2(N/2)$
@@ -83,6 +85,7 @@ impl Cache {
             K::S2 => w2::S2(self.n),
             K::S3 => w3::S3(self.n),
             K::S4 => w4::S4(self.n),
+            K::S5 => w5::S5(self.n),
             K::S1h => w1::S1(self.n / 2.),
             K::S2h => w2::S2(self.n / 2.),
             K::S3h => w3::S3(self.n / 2.),
@@ -140,7 +143,7 @@ mod tests {
 
     #[test]
     fn test_recursive_harmonic_sum() {
-        const SX: [fn(Complex<f64>) -> Complex<f64>; 4] = [w1::S1, w2::S2, w3::S3, w4::S4];
+        const SX: [fn(Complex<f64>) -> Complex<f64>; 5] = [w1::S1, w2::S2, w3::S3, w4::S4, w5::S5];
         const NS: [Complex<f64>; 2] = [cmplx!(1.0, 0.0), cmplx!(2.34, 3.45)];
         const ITERS: [usize; 2] = [1, 2];
         for sit in SX.iter().enumerate() {
