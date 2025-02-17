@@ -157,16 +157,19 @@ mod tests {
             ];
             mom_list[(N - 2) / 2]
         }
-        let NF = 4;
-        for N in [2.0, 4.0, 6.0, 8.0, 10.0, 12.0, 14.0, 16.0, 18.0, 20.0] {
-            let mut c = Cache::new(cmplx!(N, 0.));
-            let test_value = gamma_ps(&mut c, NF, 0);
-            assert_approx_eq_cmplx!(
-                f64,
-                test_value,
-                cmplx!(qq3ps_moment(N as usize, NF as f64), 0.),
-                rel = 4e-4
-            );
+        for variation in [0, 1, 2] {
+            for NF in [3, 4, 5] {
+                for N in [2.0, 4.0, 6.0, 8.0, 10.0, 12.0, 14.0, 16.0, 18.0, 20.0] {
+                    let mut c = Cache::new(cmplx!(N, 0.));
+                    let test_value = gamma_ps(&mut c, NF, variation);
+                    assert_approx_eq_cmplx!(
+                        f64,
+                        test_value,
+                        cmplx!(qq3ps_moment(N as usize, NF as f64), 0.),
+                        rel = 4e-4
+                    );
+                }
+            }
         }
     }
 }

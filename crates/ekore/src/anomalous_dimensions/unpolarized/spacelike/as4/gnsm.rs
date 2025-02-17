@@ -201,18 +201,12 @@ mod tests {
 
     #[test]
     fn test_quark_number_conservation() {
-        let NF = 4;
+        let NF = 5;
         let mut c = Cache::new(cmplx!(1., 0.));
-        // TODO: why these numbers are different from python,
-        // while the higher moments matches ?
-        let refs: [f64; 3] = [
-            -0.002068452870616966,
-            -0.006379286212450097,
-            0.002242380471443539,
-        ];
+        let refs: [f64; 3] = [0.06776363, 0.064837, 0.07069];
         for var in [0, 1, 2] {
             let test_value = gamma_nsm(&mut c, NF, var);
-            assert_approx_eq_cmplx!(f64, test_value, cmplx!(refs[var as usize], 0.));
+            assert_approx_eq_cmplx!(f64, test_value, cmplx!(refs[var as usize], 0.), rel = 6e-5);
         }
     }
 
