@@ -128,8 +128,7 @@ pub fn lm15(
     -(S1.powu(5)
         + 10. * S1.powu(3) * S2
         + 20. * S1.powu(2) * S3
-        + 15. * S1 * S2.powu(2)
-        + 2. * S4
+        + 15. * S1 * (S2.powu(2) + 2. * S4)
         + 4. * 5. * S2 * S3
         + 6. * S5)
         / n
@@ -219,7 +218,7 @@ mod tests {
             let S4 = h::w4::S4(n);
             let S5 = h::w5::S5(n);
 
-            let ref_values = vec![
+            let ref_values = [
                 h::log_functions::lm11m1(n, S1),
                 h::log_functions::lm12m1(n, S1, S2),
                 h::log_functions::lm13m1(n, S1, S2, S3),
@@ -260,7 +259,7 @@ mod tests {
             let S3 = h::w3::S3(n);
             let S4 = h::w4::S4(n);
 
-            let ref_values = vec![
+            let ref_values = [
                 h::log_functions::lm11m2(n, S1),
                 h::log_functions::lm12m2(n, S1, S2),
                 h::log_functions::lm13m2(n, S1, S2, S3),
