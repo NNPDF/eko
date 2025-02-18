@@ -16,7 +16,7 @@ pub fn gamma_gq(c: &mut Cache, nf: u8, variation: u8) -> Complex<f64> {
     let S5 = c.get(K::S5);
     let nf2 = nf.pow(2) as f64;
 
-    //Known large-x coefficients
+    // Known large-x coefficients
     let x1L5cff = 1.3443073 * 10. - 5.4869684 * 0.1 * nf as f64;
     let x1L4cff =
         3.7539831 * f64::pow(10., 2) - 3.4494742 * 10. * nf as f64 + 8.7791495 * 0.1 * nf2;
@@ -24,18 +24,18 @@ pub fn gamma_gq(c: &mut Cache, nf: u8, variation: u8) -> Complex<f64> {
     let y1L4cff =
         6.6242163 * f64::pow(10., 2) - 4.7992684 * 10. * nf as f64 + 8.7791495 * 0.1 * nf2;
 
-    //Small-x, Casimir scaled from P_gg (approx. for bfkl1)
+    // Small-x, Casimir scaled from P_gg (approx. for bfkl1)
     let bfkl0 = -8.3086173 * f64::pow(10., 3) / 2.25;
     let bfkl1 = (-1.0691199 * f64::pow(10., 5) - nf as f64 * 9.9638304 * f64::pow(10., 2)) / 2.25;
 
-    //Small-x double-logs with x^0
+    // Small-x double-logs with x^0
     let x0L6cff = 5.2235940 * 10. - 7.3744856 * nf as f64;
     let x0L5cff = -2.9221399 * f64::pow(10., 2) + 1.8436214 * nf as f64;
     let x0L4cff = 7.3106077 * f64::pow(10., 3)
         - 3.7887135 * f64::pow(10., 2) * nf as f64
         - 3.2438957 * 10. * nf2;
 
-    //The resulting part of the function
+    // The resulting part of the function
     let P3GQ01 = bfkl0 * (-(6. / (-1. + n).powu(4)))
         + bfkl1 * 2. / (-1. + n).powu(3)
         + x0L6cff * 720. / n.powu(7)
@@ -46,7 +46,7 @@ pub fn gamma_gq(c: &mut Cache, nf: u8, variation: u8) -> Complex<f64> {
         + y1L4cff * lm14m1(n, S1, S2, S3, S4)
         + y1L5cff * lm15m1(n, S1, S2, S3, S4, S5);
 
-    //The selected approximations for nf = 3, 4, 5
+    // The selected approximations for nf = 3, 4, 5
     let P3gqApp1;
     let P3gqApp2;
     if nf == 3 {

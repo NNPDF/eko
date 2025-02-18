@@ -18,13 +18,13 @@ pub fn gamma_gg(c: &mut Cache, nf: u8, variation: u8) -> Complex<f64> {
     let nf2 = nf.pow(2) as f64;
     let nf3 = nf.pow(3) as f64;
 
-    //The known large-x coefficients [except delta(1-x)]
+    // The known large-x coefficients [except delta(1-x)]
     let A4gluon = 40880.330 - 11714.246 * nf as f64 + 440.04876 * nf2 + 7.3627750 * nf3;
     let mut B4gluon = 68587.64 - 18143.983 * nf as f64 + 423.81135 * nf2 + 9.0672154 * 0.1 * nf3;
 
-    //The coefficient of delta(1-x), also called the virtual anomalous
-    //dimension. nf^0 and nf^1 are still approximate, but the error at
-    //nf^1 is far too small to be relevant in this context.
+    // The coefficient of delta(1-x), also called the virtual anomalous
+    // dimension. nf^0 and nf^1 are still approximate, but the error at
+    // nf^1 is far too small to be relevant in this context.
     if variation == 1 {
         B4gluon -= 0.2;
     } else if variation == 2 {
@@ -41,7 +41,7 @@ pub fn gamma_gg(c: &mut Cache, nf: u8, variation: u8) -> Complex<f64> {
     let x1L3cff =
         2.4755054 * f64::pow(10., 2) * nf as f64 - 4.0559671 * 10. * nf2 + 1.5802469 * nf3;
 
-    //The known coefficients of 1/x*ln^a x terms, a = 3,2
+    // The known coefficients of 1/x*ln^a x terms, a = 3,2
     let bfkl0 = -8.3086173 * f64::pow(10., 3);
     let bfkl1 = -1.0691199 * f64::pow(10., 5) - 9.9638304 * f64::pow(10., 2) * nf as f64;
 
@@ -65,7 +65,7 @@ pub fn gamma_gg(c: &mut Cache, nf: u8, variation: u8) -> Complex<f64> {
         + x1L4cff * lm14m1(n, S1, S2, S3, S4)
         + x1L3cff * lm13m1(n, S1, S2, S3);
 
-    //The selected approximations for nf = 3, 4, 5
+    // The selected approximations for nf = 3, 4, 5
     let P3ggApp1;
     let P3ggApp2;
     if nf == 3 {
@@ -146,8 +146,8 @@ pub fn gamma_gg(c: &mut Cache, nf: u8, variation: u8) -> Complex<f64> {
         panic!("nf=6 is not available at N3LO");
     }
 
-    //We return (for now) one of the two error-band representatives
-    //or the present best estimate, their average
+    // We return (for now) one of the two error-band representatives
+    // or the present best estimate, their average
     let P3GGA = Complex::from(match variation {
         1 => P3ggApp1,
         2 => P3ggApp2,
