@@ -6,13 +6,6 @@ use crate::harmonics::cache::{Cache, K};
 use crate::harmonics::log_functions::{lm11m1, lm12m1, lm13m1};
 
 // The routine is taken from [\[Moch:2017uml\]][crate::bib:Moch:2017uml].
-
-// The nf^2 part is a high-accuracy (0.1% or better) parametrization
-// of the exact expression obtained in :cite:`Davies:2016jie`, see xpns3m.f
-
-// The nf^1 part is an approximation based on the first 9 odd moments.
-// The two sets spanning the error estimate are called via  IMOD = 1
-// and  IMOD = 2.  Any other value of IMOD invokes their average.
 pub fn gamma_nss(c: &mut Cache, nf: u8, variation: u8) -> Complex<f64> {
     let n = c.n();
     let S1 = c.get(K::S1);

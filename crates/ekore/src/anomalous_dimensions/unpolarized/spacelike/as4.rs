@@ -15,7 +15,21 @@ pub use ggg::gamma_gg;
 pub use ggq::gamma_gq;
 pub use gnsm::gamma_nsm;
 pub use gnsp::gamma_nsp;
+
+/// Compute the valence-like non-singlet anomalous dimension.
+///
+/// The routine is taken from [\[Moch:2017uml\]][crate::bib::Moch2017uml].
+///
+/// The $n_f^{0,1}$ leading large-$N_c$ contributions and the $n_f^2$ part
+/// are high-accuracy (0.1% or better) parametrizations of the exact
+/// results. The $n_f^3$ expression is exact up to numerical truncations.
+///
+/// The remaining $n_f^{0,1}$ terms are approximations based on the first
+/// eight even moments together with small-x and large-x constraints.
+/// The two sets spanning the error estimate are called via `variation = 1`
+/// and  `variation = 2`. Any other value of `variation` invokes their average.
 pub use gnsv::gamma_nsv;
+
 pub use gps::gamma_ps;
 pub use gqg::gamma_qg;
 
