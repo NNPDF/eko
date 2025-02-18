@@ -88,8 +88,8 @@ pub fn gamma_nsp(c: &mut Cache, nf: u8, variation: u8) -> Complex<f64> {
         - 19188.9 / (2. + n)
         + 10490.5 / (3. + n);
     #[rustfmt::skip]
-    let P3NPA11 = -33.5802 / n.powu(6) 
-        + 111.802 / n.powu(5) 
+    let P3NPA11 = -33.5802 / n.powu(6)
+        + 111.802 / n.powu(5)
         + 50.772 / n.powu(4)
         - 118.608 / n.powu(3)
         + 337.931 * lm11(n, S1)
@@ -115,8 +115,8 @@ pub fn gamma_nsp(c: &mut Cache, nf: u8, variation: u8) -> Complex<f64> {
     // nf^2 (parametrized) and nf^3 (exact)
     #[rustfmt::skip]
     let P3NSPA2 = -(
-        -193.85906555742952 
-        - 18.962964 / n.powu(5) 
+        -193.85906555742952
+        - 18.962964 / n.powu(5)
         + 99.1605 / n.powu(4)
         - 225.141 / n.powu(3)
         + 393.0056000000001 / n.powu(2)
@@ -161,11 +161,11 @@ pub fn gamma_nsp(c: &mut Cache, nf: u8, variation: u8) -> Complex<f64> {
     // Assembly regular piece.
     let NF = nf as f64;
     let P3NSPAI = P3NSA0 + NF * P3NSA1 + NF.pow(2) * P3NSPA2 + NF.pow(3) * P3NSA3;
-    result += Complex::from(match variation {
+    result += match variation {
         1 => P3NSPAI + P3NPA01 + NF * P3NPA11,
         2 => P3NSPAI + P3NPA02 + NF * P3NPA12,
         _ => P3NSPAI + 0.5 * ((P3NPA01 + P3NPA02) + NF * (P3NPA11 + P3NPA12)),
-    });
+    };
 
     // The singular piece.
     let A4qI = 2.120902 * f64::pow(10., 4) - 5.179372 * f64::pow(10., 3) * NF
@@ -175,11 +175,11 @@ pub fn gamma_nsp(c: &mut Cache, nf: u8, variation: u8) -> Complex<f64> {
     let A4ap1 = -507.152 + 7.33927 * NF;
     let A4ap2 = -505.209 + 7.53662 * NF;
     let D1 = 1. / n - S1;
-    result += Complex::from(match variation {
+    result += match variation {
         1 => (A4qI + A4ap1) * D1,
         2 => (A4qI + A4ap2) * D1,
         _ => (A4qI + 0.5 * (A4ap1 + A4ap2)) * D1,
-    });
+    };
 
     // ..The local piece.
     let B4qI = 2.579609 * f64::pow(10., 4) + 0.08 - (5.818637 * f64::pow(10., 3) + 0.97) * NF
@@ -188,11 +188,11 @@ pub fn gamma_nsp(c: &mut Cache, nf: u8, variation: u8) -> Complex<f64> {
     ;
     let B4ap1 = -2405.03 + 267.965 * NF;
     let B4ap2 = -2394.47 + 269.028 * NF;
-    result += Complex::from(match variation {
+    result += match variation {
         1 => B4qI + B4ap1,
         2 => B4qI + B4ap2,
         _ => B4qI + 0.5 * (B4ap1 + B4ap2),
-    });
+    };
 
     -result
 }

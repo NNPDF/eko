@@ -66,8 +66,8 @@ pub fn gamma_gg(c: &mut Cache, nf: u8, variation: u8) -> Complex<f64> {
         + x1L3cff * lm13m1(n, S1, S2, S3);
 
     // The selected approximations for nf = 3, 4, 5
-    let P3ggApp1;
-    let P3ggApp2;
+    let P3ggApp1: Complex<f64>;
+    let P3ggApp2: Complex<f64>;
     if nf == 3 {
         P3ggApp1 = P3gg01
             - 421311.0 * (-(1. / (-1. + n).powu(2)) + 1. / n.powu(2))
@@ -148,11 +148,11 @@ pub fn gamma_gg(c: &mut Cache, nf: u8, variation: u8) -> Complex<f64> {
 
     // We return (for now) one of the two error-band representatives
     // or the present best estimate, their average
-    let P3GGA = Complex::from(match variation {
+    let P3GGA = match variation {
         1 => P3ggApp1,
         2 => P3ggApp2,
         _ => 0.5 * (P3ggApp1 + P3ggApp2),
-    });
+    };
     -P3GGA
 }
 

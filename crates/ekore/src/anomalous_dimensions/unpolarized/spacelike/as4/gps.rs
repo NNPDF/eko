@@ -41,8 +41,8 @@ pub fn gamma_ps(c: &mut Cache, nf: u8, variation: u8) -> Complex<f64> {
         + y1L4cff * lm14m2(n, S1, S2, S3, S4);
 
     // The selected approximations for nf = 3, 4, 5
-    let P3psApp1;
-    let P3psApp2;
+    let P3psApp1: Complex<f64>;
+    let P3psApp2: Complex<f64>;
     if nf == 3 {
         P3psApp1 = P3ps01 + 67731.0 * xm1lm1 + 274100.0 * 1. / ((-1. + n) * n)
             - 104493.0 * (1. / n - n / (2. + 3. * n + n.powu(2)))
@@ -106,11 +106,11 @@ pub fn gamma_ps(c: &mut Cache, nf: u8, variation: u8) -> Complex<f64> {
     // We return (for now) one of the two error-band boundaries
     // or the present best estimate, their average
 
-    let P3psA = Complex::from(match variation {
+    let P3psA = match variation {
         1 => P3psApp1,
         2 => P3psApp2,
         _ => 0.5 * (P3psApp1 + P3psApp2),
-    });
+    };
     -P3psA
 }
 
@@ -143,7 +143,7 @@ mod tests {
         fn qq3ps_moment(N: usize, nf: f64) -> f64 {
             let nf2 = nf * nf;
             let nf3 = nf2 * nf;
-            let mom_list = vec![
+            let mom_list = [
                 -691.5937093082381 * nf + 84.77398149891167 * nf2 + 4.4669568492355864 * nf3,
                 -109.33023358432462 * nf + 8.77688525974872 * nf2 + 0.3060771365698822 * nf3,
                 -46.030613749542226 * nf + 4.744075766957513 * nf2 + 0.042548957282380874 * nf3,

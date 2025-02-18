@@ -47,8 +47,8 @@ pub fn gamma_gq(c: &mut Cache, nf: u8, variation: u8) -> Complex<f64> {
         + y1L5cff * lm15m1(n, S1, S2, S3, S4, S5);
 
     // The selected approximations for nf = 3, 4, 5
-    let P3gqApp1;
-    let P3gqApp2;
+    let P3gqApp1: Complex<f64>;
+    let P3gqApp2: Complex<f64>;
     if nf == 3 {
         P3gqApp1 = P3GQ01 + 6.0 * bfkl1 * (-(1. / (-1. + n).powu(2)))
             - 744384.0 * 1. / ((-1. + n) * n)
@@ -124,11 +124,11 @@ pub fn gamma_gq(c: &mut Cache, nf: u8, variation: u8) -> Complex<f64> {
 
     // We return (for now) one of the two error-band boundaries
     // or the present best estimate, their average
-    let P3GQA = Complex::from(match variation {
+    let P3GQA = match variation {
         1 => P3gqApp1,
         2 => P3gqApp2,
         _ => 0.5 * (P3gqApp1 + P3gqApp2),
-    });
+    };
     -P3GQA
 }
 
