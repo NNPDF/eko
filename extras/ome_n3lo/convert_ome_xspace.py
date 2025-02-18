@@ -1,0 +1,91 @@
+
+import numpy as np
+from click import progressbar
+from eko.mellin import Path
+from ekore.harmonics import cache as c
+from ekore.operator_matrix_elements.unpolarized.space_like import as3
+from scipy import integrate
+
+XGRID = np.geomspace(1e-6, 1, 500)  # 500
+"""X-grid."""
+
+LOG = 0
+"""Matching threshold displaced ?"""
+
+MAP_ENTRIES = {
+    "gg": (0, 0),
+    "gq": (0, 1),
+    "qg": (1, 0),
+    "qq": (1, 1),
+    "Hg": (2, 0),
+    "Hq": (2, 1),
+    "gH": (0, 2),
+    "HH": (2, 2),
+    "qq_ns": (0, 0),
+}
+
+
+def compute_ome(nf, n, is_singlet):
+    """Get the correct ome from eko."""
+    cache = c.reset()
+    if is_singlet:
+        return as3.A_singlet(n, cache, nf, L=0)
+    else:
+        return as3.A_ns(n, cache, nf, L=0)
+
+
+def compute_xspace_ome(entry, nf, x_grid=XGRID):
+    """Compute the x-space transition matrix element, returns A^3(x)."""
+    mellin_cut = 5e-2
+    is_singlet = "ns" not in entry
+
+    def integrand(u, x):
+        """Mellin inversion integrand."""
+        path = Path(u, np.log(x), is_singlet)
+        integrand = path.prefactor * x ** (-path.n) * path.jac
+        if integrand == 0.0:
+            return 0.0
+
+        ome_n = compute_ome(nf, path.n, is_singlet)
+        idx1, idx2 = MAP_ENTRIES[entry]
+        ome_n = ome_n[idx1, idx2]
+
+        # recombine everything
+        return np.real(ome_n * integrand)
+
+    ome_x = []
+    print(f"Computing operator matrix element {entry} @ pto: 3")
+    # loop on xgrid
+    with progressbar(x_grid) as bar:
+        for x in bar:
+            if x == 1:
+                ome_x.append(0)
+                continue
+            res = integrate.quad(
+                lambda u: integrand(u, x),
+                0.5,
+                1.0 - mellin_cut,
+                epsabs=1e-12,
+                epsrel=1e-6,
+                limit=200,
+                full_output=1,
+            )[0]
+            ome_x.append(res)
+
+    return np.array(ome_x)
+
+
+def save_files(entry, nf, ome_x, xgrid=XGRID):
+    """Write the space reuslt in a txt file."""
+    with open(f"x_space/A_{entry}_nf{nf}.txt", "w") as file:
+        for x, a in zip(xgrid, ome_x):
+            file.write(f"{x}\t{a}\n")
+
+
+if __name__ == "__main__":
+    nf = 3 # nf = 3,4,5.
+    # non diagonal temrms
+    for k in ["gq", "qg", "Hg", "Hq"]:
+        result = compute_xspace_ome(k, nf)
+        save_files(k, nf, result)
+    # ["ns", "gg", "qq",]:
