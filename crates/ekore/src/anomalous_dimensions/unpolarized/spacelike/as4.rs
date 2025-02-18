@@ -1,15 +1,23 @@
 //! |N3LO| |QCD|.
 
-pub mod ggg;
-pub mod ggq;
-pub mod gnsm;
-pub mod gnsp;
-pub mod gnsv;
-pub mod gps;
-pub mod gqg;
+mod ggg;
+mod ggq;
+mod gnsm;
+mod gnsp;
+mod gnsv;
+mod gps;
+mod gqg;
 
 use crate::harmonics::cache::Cache;
 use num::complex::Complex;
+
+pub use ggg::gamma_gg;
+pub use ggq::gamma_gq;
+pub use gnsm::gamma_nsm;
+pub use gnsp::gamma_nsp;
+pub use gnsv::gamma_nsv;
+pub use gps::gamma_ps;
+pub use gqg::gamma_qg;
 
 // Compute the singlet anomalous dimension matrix.
 pub fn gamma_singlet(c: &mut Cache, nf: u8, variation: [u8; 4]) -> [[Complex<f64>; 2]; 2] {
