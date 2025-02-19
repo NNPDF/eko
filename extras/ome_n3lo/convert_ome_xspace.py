@@ -11,7 +11,7 @@ from scipy import integrate
 
 from large_n_limit import Agg_asymptotic, Aqq_asymptotic
 
-XGRID = np.geomspace(1e-6, 1, 100)  # 500
+XGRID = np.geomspace(1e-6, 1, 500)
 """X-grid."""
 
 LOG = 0
