@@ -7,11 +7,12 @@ from click import progressbar
 from eko.mellin import Path
 from ekore.harmonics import cache as c
 from ekore.operator_matrix_elements.unpolarized.space_like import as3
+from eko.interpolation import lambertgrid
 from scipy import integrate
 
 from large_n_limit import Agg_asymptotic, Aqq_asymptotic
 
-XGRID = np.geomspace(1e-6, 1, 500)
+XGRID = lambertgrid(500, 1e-6)
 """X-grid."""
 
 LOG = 0
