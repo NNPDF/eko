@@ -1,3 +1,7 @@
+"""Dump a fast  x-space grid of the N3LO transition matrix elements.
+The output file have the structure: x_grid, nf=3, nf=4, nf=5.
+"""
+
 import numpy as np
 from click import progressbar
 from eko.mellin import Path
@@ -91,6 +95,5 @@ def save_files(entry, ome_x, xgrid=XGRID):
 if __name__ == "__main__":
     # non diagonal temrms
     for k in ["qq_ns", "gg", "gq", "qg", "qq", "Hg", "Hq"]:
-        # TODO: here we should use the lower patch nf, correct ??
         result = [compute_xspace_ome(k, nf) for nf in [3, 4, 5]]
         save_files(k, result)

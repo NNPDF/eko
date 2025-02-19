@@ -1,6 +1,6 @@
-"""This file contains the large-N limit of the diagonal Matrix elements. 
+"""This file contains the large-N limit of the diagonal Matrix elements.
 
-The expansions are obtained using the notebook Agg_Aqq_largex_expansion.nb. 
+The expansions are obtained using the notebook Agg_Aqq_largex_expansion.nb.
 
 We note that:
     * the limit og :math:`A_{qq}` is the same for non-singlet like and singlet-like expansions.
