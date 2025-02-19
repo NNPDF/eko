@@ -5,6 +5,8 @@ from ekore.harmonics import cache as c
 from ekore.operator_matrix_elements.unpolarized.space_like import as3
 from scipy import integrate
 
+from large_n_limit import Agg_asymptotic, Aqq_asymptotic
+
 XGRID = np.geomspace(1e-6, 1, 100)  # 500
 """X-grid."""
 
@@ -45,9 +47,15 @@ def compute_xspace_ome(entry, nf, x_grid=XGRID):
         if integrand == 0.0:
             return 0.0
 
+        # compute the N space ome
         ome_n = compute_ome(nf, path.n, is_singlet)
         idx1, idx2 = MAP_ENTRIES[entry]
         ome_n = ome_n[idx1, idx2]
+        # subtract the large-N limit for diagonal terms (ie local and singular bits)
+        if entry in ["qq_ns", "qq"]:
+            ome_n -= Aqq_asymptotic(path.n, nf)
+        elif entry == "gg":
+            ome_n -= Agg_asymptotic(path.n, nf)
 
         # recombine everything
         return np.real(ome_n * integrand)
@@ -82,8 +90,7 @@ def save_files(entry, ome_x, xgrid=XGRID):
 
 if __name__ == "__main__":
     # non diagonal temrms
-    for k in ["gq", "qg", "Hg", "Hq"]:
+    for k in ["qq_ns", "gg", "gq", "qg", "qq", "Hg", "Hq"]:
         # TODO: here we should use the lower patch nf, correct ??
         result = [compute_xspace_ome(k, nf) for nf in [3, 4, 5]]
         save_files(k, result)
-    # ["ns", "gg", "qq",]:
