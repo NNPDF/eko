@@ -13,9 +13,9 @@ from ekore.harmonics import S1
 def Aqq_asymptotic(n, nf):
     """The N3LO quark-to-quark transition matrix element large-N limit."""
     return (
-        (20.36251906478134 - 3.4050138869326796 * nf) * S1(n)
-        - 72.36717694258661
-        + 3.11448410587291 * nf
+        (20.362519064781296 - 3.4050138869326796 * nf) * S1(n)
+        - 51.033843609253296
+        + 3.1144841058729096 * nf
     )
 
 
