@@ -1,4 +1,3 @@
-
 import numpy as np
 from click import progressbar
 from eko.mellin import Path
@@ -6,7 +5,7 @@ from ekore.harmonics import cache as c
 from ekore.operator_matrix_elements.unpolarized.space_like import as3
 from scipy import integrate
 
-XGRID = np.geomspace(1e-6, 1, 500)  # 500
+XGRID = np.geomspace(1e-6, 1, 100)  # 500
 """X-grid."""
 
 LOG = 0
@@ -54,7 +53,7 @@ def compute_xspace_ome(entry, nf, x_grid=XGRID):
         return np.real(ome_n * integrand)
 
     ome_x = []
-    print(f"Computing operator matrix element {entry} @ pto: 3")
+    print(f"Computing operator matrix element {entry} @ pto: 3, nf: {nf}")
     # loop on xgrid
     with progressbar(x_grid) as bar:
         for x in bar:
@@ -75,17 +74,16 @@ def compute_xspace_ome(entry, nf, x_grid=XGRID):
     return np.array(ome_x)
 
 
-def save_files(entry, nf, ome_x, xgrid=XGRID):
+def save_files(entry, ome_x, xgrid=XGRID):
     """Write the space reuslt in a txt file."""
-    with open(f"x_space/A_{entry}_nf{nf}.txt", "w") as file:
-        for x, a in zip(xgrid, ome_x):
-            file.write(f"{x}\t{a}\n")
+    fname = f"x_space/A_{entry}.txt"
+    np.savetxt(fname, np.concatenate(([xgrid], np.array(ome_x))).T)
 
 
 if __name__ == "__main__":
-    nf = 3 # nf = 3,4,5.
     # non diagonal temrms
     for k in ["gq", "qg", "Hg", "Hq"]:
-        result = compute_xspace_ome(k, nf)
-        save_files(k, nf, result)
+        # TODO: here we should use the lower patch nf, correct ??
+        result = [compute_xspace_ome(k, nf) for nf in [3, 4, 5]]
+        save_files(k, result)
     # ["ns", "gg", "qq",]:
