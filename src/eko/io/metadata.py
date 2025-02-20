@@ -11,7 +11,7 @@ from packaging.version import parse
 
 from .. import version as vmod
 from ..interpolation import XGrid
-from . import v1, v2
+from . import v1, v2, v3
 from .dictlike import DictLike
 from .paths import InternalPaths
 from .types import EvolutionPoint as EPoint
@@ -70,6 +70,8 @@ class Metadata(DictLike):
             raw = v1.update_metadata(paths, raw)
         elif version.major == 0 and version.minor == 14:
             raw = v2.update_metadata(paths, raw)
+        elif version.major == 0 and version.minor ==0:
+            raw = v3.update_metadata(paths, raw)
         # now we are ready
         content = cls.from_dict(raw)
         content._path = path
