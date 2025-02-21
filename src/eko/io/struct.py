@@ -20,7 +20,7 @@ from .inventory import Inventory
 from .items import Evolution, Matching, Operator, Recipe, Target
 from .metadata import Metadata
 from .paths import InternalPaths
-from .runcards import OperatorCard, TheoryCard, Legacy
+from .runcards import OperatorCard, TheoryCard
 from .types import EvolutionPoint as EPoint
 from .types import SquaredScale
 
@@ -422,7 +422,7 @@ class EKO:
         Parameters
         ----------
         archive: Path or None
-            path to archive, in ghttps://data.nnpdf.science/eko/test-data/general you should keep the default, that will
+            path to archive, in general you should keep the default, that will
             make use of the registered path (default: ``None``)
 
         Raises
@@ -529,8 +529,6 @@ class Builder:
         # tell the static analyzer as well
         assert self.theory is not None
         assert self.operator is not None
-
-        #operator = new_operator(operator)
 
         self.access.open = True
         metadata = Metadata(
