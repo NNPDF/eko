@@ -5,7 +5,12 @@ use num::traits::Pow;
 use crate::harmonics::cache::{Cache, K};
 use crate::harmonics::log_functions::{lm11m1, lm12m1, lm12m2, lm13m1, lm13m2, lm14m1, lm14m2};
 
-// The routine is taken from [\[Falcioni:2023luc\]][crate::bib:Falcioni:2023luc].
+/// The routine is taken from [\[Falcioni:2023luc\]][crate::bib:Falcioni:2023luc].
+///
+/// These are approximations for fixed nf = 3, 4 and 5 based on the
+/// first ten even moments together with small-x/large-x constraints.
+/// The two sets spanning the error estimate are called via `variation = 1`
+/// and `variation = 2`.  Any other value of `variation` invokes their average.
 pub fn gamma_ps(c: &mut Cache, nf: u8, variation: u8) -> Complex<f64> {
     let n = c.n();
     let S1 = c.get(K::S1);
@@ -143,6 +148,7 @@ mod tests {
         fn qq3ps_moment(N: usize, nf: f64) -> f64 {
             let nf2 = nf * nf;
             let nf3 = nf2 * nf;
+            // From Eq. 14 of [\[Falcioni:2023luc\]][crate::bib:Falcioni:2023luc].
             let mom_list = [
                 -691.5937093082381 * nf + 84.77398149891167 * nf2 + 4.4669568492355864 * nf3,
                 -109.33023358432462 * nf + 8.77688525974872 * nf2 + 0.3060771365698822 * nf3,

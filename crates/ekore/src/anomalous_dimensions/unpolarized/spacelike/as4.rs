@@ -15,25 +15,15 @@ pub use ggg::gamma_gg;
 pub use ggq::gamma_gq;
 pub use gnsm::gamma_nsm;
 pub use gnsp::gamma_nsp;
-
-/// Compute the valence-like non-singlet anomalous dimension.
-///
-/// The routine is taken from [\[Moch:2017uml\]][crate::bib::Moch2017uml].
-///
-/// The $n_f^{0,1}$ leading large-$N_c$ contributions and the $n_f^2$ part
-/// are high-accuracy (0.1% or better) parametrizations of the exact
-/// results. The $n_f^3$ expression is exact up to numerical truncations.
-///
-/// The remaining $n_f^{0,1}$ terms are approximations based on the first
-/// eight even moments together with small-x and large-x constraints.
-/// The two sets spanning the error estimate are called via `variation = 1`
-/// and  `variation = 2`. Any other value of `variation` invokes their average.
 pub use gnsv::gamma_nsv;
-
 pub use gps::gamma_ps;
 pub use gqg::gamma_qg;
 
-// Compute the singlet anomalous dimension matrix.
+/// Compute the singlet anomalous dimension matrix.
+///
+/// `variation = (gg, gq, qg, qq)` is a list indicating which variation should
+/// be used. `variation = 1,2` is the upper/lower bound, while any other value
+/// returns the central (averaged) value.
 pub fn gamma_singlet(c: &mut Cache, nf: u8, variation: [u8; 4]) -> [[Complex<f64>; 2]; 2] {
     let gamma_qq = gnsp::gamma_nsp(c, nf, variation[3]) + gps::gamma_ps(c, nf, variation[3]);
     [
@@ -57,6 +47,7 @@ mod tests {
     fn test_momentum_conservation() {
         let NF = 5;
         let mut c = Cache::new(cmplx!(2., 0.));
+        // Numbers are coming from the python implementation.
         let quark_refs: [f64; 3] = [0.053441, 0.225674, -0.118792];
         let gluon_refs: [f64; 3] = [-0.0300842, 0.283004, -0.343172];
         for imod in [[0, 0, 0, 0], [1, 1, 1, 1], [2, 2, 2, 2]] {

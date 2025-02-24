@@ -6,7 +6,12 @@ use crate::constants::ZETA2;
 use crate::harmonics::cache::{Cache, K};
 use crate::harmonics::log_functions::{lm11, lm12, lm12m1, lm13, lm14, lm14m1, lm15, lm15m1};
 
-// The routine is taken from [\[Falcioni:2024xyt\]][crate::bib:Falcioni:2024xyt].
+/// The routine is taken from [\[Falcioni:2024xyt\]][crate::bib:Falcioni:2024xyt].
+///
+/// These are approximations for fixed nf = 3, 4 and 5 based on the
+/// first 10 even moments together with small-x/large-x constraints.
+/// The two sets providing the error estimate are called via `variation = 1`
+/// and `variation = 2`.  Any other value of `variation` invokes their average.
 pub fn gamma_gq(c: &mut Cache, nf: u8, variation: u8) -> Complex<f64> {
     let n = c.n();
     let S1 = c.get(K::S1);
@@ -145,6 +150,7 @@ mod tests {
         fn gq3_moment(N: usize, nf: f64) -> f64 {
             let nf2 = nf * nf;
             let nf3 = nf2 * nf;
+            // From Eq. 9 of [\[Falcioni:2024xyt\]][crate::bib:Falcioni:2024xyt].
             let mom_list = [
                 -16663.225488 + 4439.143749608238 * nf
                     - 202.55547919891168 * nf2
@@ -159,12 +165,18 @@ mod tests {
                     + 436.39305738710254 * nf
                     + 1.8149462465491055 * nf2
                     + 0.07358858022119033 * nf3,
+                -2179.48761 + 310.063163 * nf + 2.65636842 * nf2 + 0.15719522 * nf3,
+                -1786.31231 + 234.383019 * nf + 2.82817592 * nf2 + 0.19211953 * nf3,
+                -1516.59810 + 184.745296 * nf + 2.78076831 * nf2 + 0.20536518 * nf3,
+                -1320.36106 + 150.076970 * nf + 2.66194730 * nf2 + 0.20798493 * nf3,
+                -1171.29329 + 124.717778 * nf + 2.52563073 * nf2 + 0.20512226 * nf3,
+                -1054.26140 + 105.497994 * nf + 2.39223358 * nf2 + 0.19938504 * nf3,
             ];
             mom_list[(N - 2) / 2]
         }
         for variation in [0, 1, 2] {
             for NF in [3, 4, 5] {
-                for N in [2.0, 4.0, 6.0, 8.0] {
+                for N in [2.0, 4.0, 6.0, 8.0, 10., 12., 14., 16., 18., 20.] {
                     let mut c = Cache::new(cmplx!(N, 0.));
                     let test_value = gamma_gq(&mut c, NF, variation);
                     assert_approx_eq_cmplx!(
