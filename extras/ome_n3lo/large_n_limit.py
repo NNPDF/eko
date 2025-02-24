@@ -3,9 +3,9 @@
 The expansions are obtained using the notebook Agg_Aqq_largex_expansion.nb.
 
 We note that:
-    * the limit og :math:`A_{qq}` is the same for non-singlet like and singlet-like expansions.
-    I.e. the local and singular part are the same
-    * the :math:`A_{qq,ps}` temr is vanishing in the large-x limit, i.e. it's only regular.
+    * the limit of :math:`A_{qq}` is the same for valence-like and singlet-like expansions,
+       i.e. the local and singular parts are the same
+    * the :math:`A_{qq,ps}` term is vanishing in the large-x limit, i.e. it's only regular.
 """
 from ekore.harmonics import S1
 
