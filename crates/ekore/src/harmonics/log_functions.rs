@@ -1,27 +1,25 @@
-/* Implementation of Mellin transformation of logarithms.
-
-We provide transforms of:
-
-- :math:`(1-x)\ln^k(1-x), \quad k = 1,2,3`
-- :math:`\ln^k(1-x), \quad k = 1,3,4,5`
- */
-
+/// Implementation of Mellin transformation of logarithms.
+///
+/// We provide transforms of:
+///
+///  * $(1-x)\ln^k(1-x), \quad k = 1,2,3$
+///  * $\ln^k(1-x), \quad k = 1,3,4,5$
 use num::complex::Complex;
 use num::pow;
 
-/// Mellin transform of :math:`(1-x)\ln(1-x)`.
+/// Mellin transform of $(1-x)\ln(1-x)$.
 pub fn lm11m1(n: Complex<f64>, S1: Complex<f64>) -> Complex<f64> {
     1. / (1. + n).powu(2) - S1 / (1. + n).powu(2) - S1 / (n * (1. + n).powu(2))
 }
 
-/// Mellin transform of :math:`(1-x)\ln^2(1-x)`.
+/// Mellin transform of $(1-x)\ln^2(1-x)$.
 pub fn lm12m1(n: Complex<f64>, S1: Complex<f64>, S2: Complex<f64>) -> Complex<f64> {
     -2. / (1. + n).powu(3) - (2. * S1) / (1. + n).powu(2) + S1.powu(2) / n - S1.powu(2) / (1. + n)
         + S2 / n
         - S2 / (1. + n)
 }
 
-/// Mellin transform of :math:`(1-x)\ln^3(1-x)`.
+/// Mellin transform of $(1-x)\ln^3(1-x)$.
 pub fn lm13m1(
     n: Complex<f64>,
     S1: Complex<f64>,
@@ -35,7 +33,7 @@ pub fn lm13m1(
         / (n * (1. + n).powu(4))
 }
 
-/// Mellin transform of :math:`(1-x)\ln^4(1-x)`.
+/// Mellin transform of $(1-x)\ln^4(1-x)$.
 pub fn lm14m1(
     n: Complex<f64>,
     S1: Complex<f64>,
@@ -62,7 +60,7 @@ pub fn lm14m1(
         / (n * (1. + n).powu(5))
 }
 
-/// Mellin transform of :math:`(1-x)\ln^5(1-x)`.
+/// Mellin transform of $(1-x)\ln^5(1-x)$.
 pub fn lm15m1(
     n: Complex<f64>,
     S1: Complex<f64>,
@@ -90,22 +88,22 @@ pub fn lm15m1(
             - 24. * (-5. * n + (1. + n).powu(5) * S5))
 }
 
-/// Mellin transform of :math:`\ln(1-x)`.
+/// Mellin transform of $\ln(1-x)$.
 pub fn lm11(n: Complex<f64>, S1: Complex<f64>) -> Complex<f64> {
     -S1 / n
 }
 
-/// Mellin transform of :math:`\ln^2(1-x)`.
+/// Mellin transform of $\ln^2(1-x)$.
 pub fn lm12(n: Complex<f64>, S1: Complex<f64>, S2: Complex<f64>) -> Complex<f64> {
     (S1.powu(2) + S2) / n
 }
 
-/// Mellin transform of :math:`\ln^3(1-x)`.
+/// Mellin transform of $\ln^3(1-x)$.
 pub fn lm13(n: Complex<f64>, S1: Complex<f64>, S2: Complex<f64>, S3: Complex<f64>) -> Complex<f64> {
     -((S1.powu(3) + (3. * S1) * S2 + 2. * S3) / n)
 }
 
-/// Mellin transform of :math:`\ln^4(1-x)`.
+/// Mellin transform of $\ln^4(1-x)$.
 pub fn lm14(
     n: Complex<f64>,
     S1: Complex<f64>,
@@ -116,7 +114,7 @@ pub fn lm14(
     (S1.powu(4) + 6. * S1.powu(2) * S2 + 3. * S2.powu(2) + 8. * S1 * S3 + 6. * S4) / n
 }
 
-/// Mellin transform of :math:`\ln^5(1-x)`.
+/// Mellin transform of $\ln^5(1-x)$.
 pub fn lm15(
     n: Complex<f64>,
     S1: Complex<f64>,
@@ -133,12 +131,12 @@ pub fn lm15(
         / n
 }
 
-/// Mellin transform of :math:`(1-x)^2\ln(1-x)`.
+/// Mellin transform of $(1-x)^2\ln(1-x)$.
 pub fn lm11m2(n: Complex<f64>, S1: Complex<f64>) -> Complex<f64> {
     (5. + 3. * n - (2. * (1. + n) * (2. + n) * S1) / n) / ((1. + n).powu(2) * (2. + n).powu(2))
 }
 
-/// Mellin transform of :math:`(1-x)^2\ln^2(1-x)`.
+/// Mellin transform of $(1-x)^2\ln^2(1-x)$.
 pub fn lm12m2(n: Complex<f64>, S1: Complex<f64>, S2: Complex<f64>) -> Complex<f64> {
     (2. * (n * (-9. - 8. * n + n.powu(3))
         - n * (10. + 21. * n + 14. * n.powu(2) + 3. * n.powu(3)) * S1
@@ -147,7 +145,7 @@ pub fn lm12m2(n: Complex<f64>, S1: Complex<f64>, S2: Complex<f64>) -> Complex<f6
         / (n * (1. + n).powu(3) * (2. + n).powu(3))
 }
 
-/// Mellin transform of :math:`(1-x)^2\ln^3(1-x)`.
+/// Mellin transform of $(1-x)^2\ln^3(1-x)$.
 pub fn lm13m2(
     n: Complex<f64>,
     S1: Complex<f64>,
@@ -165,7 +163,7 @@ pub fn lm13m2(
         / (n * (1. + n).powu(4) * (2. + n).powu(4))
 }
 
-/// Mellin transform of :math:`(1-x)^2\ln^4(1-x)`.
+/// Mellin transform of $(1-x)^2\ln^4(1-x)$.
 pub fn lm14m2(
     n: Complex<f64>,
     S1: Complex<f64>,
