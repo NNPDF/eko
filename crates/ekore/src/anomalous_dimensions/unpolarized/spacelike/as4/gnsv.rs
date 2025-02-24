@@ -6,8 +6,8 @@ use super::gnsm;
 use crate::harmonics::cache::{Cache, K};
 use crate::harmonics::log_functions::{lm11m1, lm12m1, lm13m1};
 
-/// The routine is taken from [\[Moch:2017uml\]][crate::bib:Moch:2017uml].
-pub fn gamma_nss(c: &mut Cache, nf: u8, variation: u8) -> Complex<f64> {
+/// Compute the sea-like non-singlet anomalous dimension.
+fn gamma_nss(c: &mut Cache, nf: u8, variation: u8) -> Complex<f64> {
     let n = c.n();
     let S1 = c.get(K::S1);
     let S2 = c.get(K::S2);
@@ -67,18 +67,9 @@ pub fn gamma_nss(c: &mut Cache, nf: u8, variation: u8) -> Complex<f64> {
     -P3NSSA
 }
 
-/// Compute the valence-like non-singlet anomalous dimension.
+/// Compute the valence non-singlet anomalous dimension.
 ///
-/// The routine is taken from [\[Moch:2017uml\]][crate::bib::Moch2017uml].
-///
-/// The $n_f^{0,1}$ leading large-$N_c$ contributions and the $n_f^2$ part
-/// are high-accuracy (0.1% or better) parametrizations of the exact
-/// results. The $n_f^3$ expression is exact up to numerical truncations.
-///
-/// The remaining $n_f^{0,1}$ terms are approximations based on the first
-/// eight even moments together with small-x and large-x constraints.
-/// The two sets spanning the error estimate are called via `variation = 1`
-/// and  ``variation = 2``. Any other value of `variation` invokes their average.
+/// See [gamma_nsm][super::gamma_nsm] for implementation details.
 pub fn gamma_nsv(c: &mut Cache, nf: u8, variation: u8) -> Complex<f64> {
     gnsm::gamma_nsm(c, nf, variation) + gamma_nss(c, nf, variation)
 }
