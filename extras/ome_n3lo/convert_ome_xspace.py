@@ -35,22 +35,20 @@ def compute_ome(nf, n, is_singlet):
     """Get the correct ome from eko."""
     cache = c.reset()
     if is_singlet:
-        return as3.A_singlet(n, cache, nf, L=0)
+        return as3.A_singlet(n, cache, nf, L=LOG)
     else:
-        return as3.A_ns(n, cache, nf, L=0)
+        return as3.A_ns(n, cache, nf, L=LOG)
 
 
 def compute_xspace_ome(entry, nf, x_grid=XGRID):
     """Compute the x-space transition matrix element, returns A^3(x)."""
-    mellin_cut = 5e-2
+    mellin_cut = 5e-3
     is_singlet = "ns" not in entry
 
     def integrand(u, x):
         """Mellin inversion integrand."""
         path = Path(u, np.log(x), is_singlet)
         integrand = path.prefactor * x ** (-path.n) * path.jac
-        if integrand == 0.0:
-            return 0.0
 
         # compute the N space ome
         ome_n = compute_ome(nf, path.n, is_singlet)
@@ -70,9 +68,6 @@ def compute_xspace_ome(entry, nf, x_grid=XGRID):
     # loop on xgrid
     with progressbar(x_grid) as bar:
         for x in bar:
-            if x == 1:
-                ome_x.append(0)
-                continue
             res = integrate.quad(
                 lambda u: integrand(u, x),
                 0.5,
