@@ -6,6 +6,9 @@ We note that:
     * the limit of :math:`A_{qq}` is the same for valence-like and singlet-like expansions,
        i.e. the local and singular parts are the same
     * the :math:`A_{qq,ps}` term is vanishing in the large-x limit, i.e. it's only regular.
+
+In the following we make use of a small trick, which is available due to complex continuation. Although we are interested in the large-N limit, we can obtain that by observing the small-N limit. It is :math:`S_1(0)=0` (by continuation), :math:`S_1(1)=1` and :math:`S_1(N\to\infty) = \ln(N) - \gamma_E`.
+
 """
 from ekore.harmonics import S1
 
