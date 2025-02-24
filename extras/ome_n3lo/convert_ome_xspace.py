@@ -80,7 +80,6 @@ def compute_xspace_ome(entry, nf, x_grid=XGRID):
                 epsabs=1e-12,
                 epsrel=1e-6,
                 limit=200,
-                full_output=1,
             )[0]
             ome_x.append(res)
 
