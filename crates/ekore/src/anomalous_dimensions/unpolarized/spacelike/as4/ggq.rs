@@ -6,9 +6,11 @@ use crate::constants::ZETA2;
 use crate::harmonics::cache::{Cache, K};
 use crate::harmonics::log_functions::{lm11, lm12, lm12m1, lm13, lm14, lm14m1, lm15, lm15m1};
 
-/// The routine is taken from [\[Falcioni:2024xyt\]][crate::bib:Falcioni:2024xyt].
+/// Compute the singlet quark-to-gluon anomalous dimension.
 ///
-/// These are approximations for fixed nf = 3, 4 and 5 based on the
+/// The routine is taken from [\[Falcioni:2024xyt\]][crate::bib::Falcioni2024xyt].
+///
+/// These are approximations for fixed `nf` = 3, 4 and 5 based on the
 /// first 10 even moments together with small-x/large-x constraints.
 /// The two sets providing the error estimate are called via `variation = 1`
 /// and `variation = 2`.  Any other value of `variation` invokes their average.

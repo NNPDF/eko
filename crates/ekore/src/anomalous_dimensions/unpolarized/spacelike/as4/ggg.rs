@@ -8,9 +8,11 @@ use crate::harmonics::log_functions::{
     lm11, lm11m1, lm11m2, lm12m1, lm12m2, lm13m1, lm13m2, lm14m1,
 };
 
-/// The routine is taken from [\[Falcioni:2024qpd\]][crate::bib:Falcioni:2024qpd].
+/// Compute the singlet gluon-to-gluon anomalous dimension.
 ///
-/// These are approximations for fixed nf = 3, 4 and 5 based on the
+/// The routine is taken from [\[Falcioni:2024qpd\]][crate::bib::Falcioni2024qpd].
+///
+/// These are approximations for fixed `nf` = 3, 4 and 5 based on the
 /// first 10 even moments together with small-x/large-x constraints.
 /// The two sets providing the error estimate are called via `variation = 1`
 /// and `variation = 2`.  Any other value of `variation` invokes their average.
@@ -174,7 +176,7 @@ mod tests {
         fn gg3_moment(N: usize, nf: f64) -> f64 {
             let nf2 = nf * nf;
             let nf3 = nf2 * nf;
-            // From Eq. 5 of [\[Falcioni:2024qpd\]][crate::bib:Falcioni:2024qpd]
+            // From Eq. 5 of [Falcioni:2024qpd]
             let mom_list = [
                 654.4627782205557 * nf - 245.6106197887179 * nf2 + 0.9249909688301847 * nf3,
                 39876.123276008046 - 10103.4511350227 * nf

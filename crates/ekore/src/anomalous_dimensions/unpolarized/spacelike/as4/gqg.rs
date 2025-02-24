@@ -6,9 +6,11 @@ use crate::constants::ZETA2;
 use crate::harmonics::cache::{Cache, K};
 use crate::harmonics::log_functions::{lm11, lm12, lm13, lm14, lm14m1, lm15, lm15m1};
 
-/// The routine is taken from [\[Falcioni:2023vqq\]][crate::bib:Falcioni:2023vqq].
+/// Compute the singlet gluon-to-quark anomalous dimension.
 ///
-/// These are approximations for fixed nf = 3, 4 and 5 based on the
+/// The routine is taken from [\[Falcioni:2023vqq\]][crate::bib::Falcioni2023vqq].
+///
+/// These are approximations for fixed `nf` = 3, 4 and 5 based on the
 /// first 10 even moments together with small-x/large-x constraints.
 /// The two sets indicating the error estimate are called via `variation = 1`
 /// and `variation = 2`.  Any other value of `variation` invokes their average.
@@ -139,7 +141,7 @@ mod tests {
         fn qg3_moment(N: usize, nf: f64) -> f64 {
             let nf2 = nf * nf;
             let nf3 = nf2 * nf;
-            // From Eq. 4 of [\[Falcioni:2023vqq\]][crate::bib:Falcioni:2023vqq].
+            // From Eq. 4 of [Falcioni:2023vqq].
             let mom_list = [
                 -654.4627782205557 * nf + 245.61061978871788 * nf2 - 0.9249909688301847 * nf3,
                 290.31106867034487 * nf - 76.51672403736478 * nf2 - 4.911625629947491 * nf3,
