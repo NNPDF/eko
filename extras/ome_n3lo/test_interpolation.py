@@ -5,7 +5,7 @@ import pandas as pd
 from scipy.integrate import quad
 from scipy.interpolate import CubicSpline
 
-from convert_ome_xspace import LOG, MAP_ENTRIES, compute_ome
+from convert_ome_xspace import MAP_ENTRIES, compute_ome
 from large_n_limit import Agg_asymptotic, Aqq_asymptotic
 
 

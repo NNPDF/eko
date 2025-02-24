@@ -42,7 +42,7 @@ def compute_ome(nf, n, is_singlet):
 
 def compute_xspace_ome(entry, nf, x_grid=XGRID):
     """Compute the x-space transition matrix element, returns A^3(x)."""
-    mellin_cut = 5e-3
+    mellin_cut = 5e-2
     is_singlet = "ns" not in entry
 
     def integrand(u, x):
