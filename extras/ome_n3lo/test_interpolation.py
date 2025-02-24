@@ -16,9 +16,9 @@ def ome_regular(entry, nf):
 
 def ome_local(entry, nf):
     if entry == "gg":
-        return Agg_asymptotic(0, nf)
+        return Agg_asymptotic(0, nf).real
     elif entry in ["qq_ns", "qq"]:
-        return Aqq_asymptotic(0, nf)
+        return Aqq_asymptotic(0, nf).real
     return 0
 
 
@@ -55,17 +55,17 @@ def test_moments(entry, N, nf):
 
     # TODO: some entries are passing other no...
     # np.testing.assert_allclose(ome_n, ome_x, rtol=4e-2, err_msg=f"{entry}, {nf}")
-    return ome_n, ome_x
+    return ome_n.real, ome_x
 
 
 if __name__ == "__main__":
-    N = 4
+    N = 5.6788
     entries =  ["gg", "qq", "qq_ns", "gq", "qg", "Hg", "Hq"]
     for nf in [3, 4, 5]:
         results = []
         for k in entries:
             results.append(test_moments(k, N, nf))
-        df = pd.DataFrame(results, columns=["EKO", "Interpol"], index = entries, dtype=float)
+        df = pd.DataFrame(results, columns=["EKO", "Interpol"], index = entries)
         df["rel_diff"] = ((df.EKO - df.Interpol) / df.EKO)
         print("************************************")
         print(df)
