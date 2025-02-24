@@ -1,4 +1,4 @@
-"""Dump a fast  x-space grid of the N3LO transition matrix elements.
+"""Dump a fast x-space grid of the N3LO transition matrix elements.
 The output file have the structure: x_grid, nf=3, nf=4, nf=5.
 """
 
