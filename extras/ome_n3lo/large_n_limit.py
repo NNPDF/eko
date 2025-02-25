@@ -7,8 +7,8 @@ We note that:
        i.e. the local and singular parts are the same
     * the :math:`A_{qq,ps}` term is vanishing in the large-x limit, i.e. it's only regular.
 
-In the following we make use of a small trick, which is available due to complex continuation. 
-Although we are interested in the large-N limit, we can obtain that by observing the small-N limit. 
+In the following we make use of a small trick, which is available due to complex continuation.
+Although we are interested in the large-N limit, we can obtain that by observing the small-N limit.
 It is :math:`S_1(0)=0` (by continuation), :math:`S_1(1)=1` and :math:`S_1(N\to\infty) = \ln(N) - \gamma_E`.
 
 """
@@ -36,7 +36,7 @@ def Agg_asymptotic(n, nf):
         + 28.65462637880661 * nf
     )
     agg_asy = (
-        - 49.5041510989361 * (-14.442649813264895 + nf) * S1(n)
+        -49.5041510989361 * (-14.442649813264895 + nf) * S1(n)
         + 619.2420126046355
         - 17.52475977636971 * nf
     )
