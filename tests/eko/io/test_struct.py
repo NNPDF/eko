@@ -119,7 +119,7 @@ class TestEKO:
         mugrid = [(mu, nf)]
         eko_factory.operator.mugrid = mugrid
         eko1 = eko_factory.get()
-        v = np.random.rand(2, 2)
+        v = np.random.rand(2, 2, 2, 2)
         opv = struct.Operator(operator=v)
         eko1[ep] = opv
         np.testing.assert_allclose(eko1[ep].operator, v)
@@ -128,7 +128,7 @@ class TestEKO:
         with EKO.edit(p) as eko2:
             np.testing.assert_allclose(eko1[ep].operator, v)
             np.testing.assert_allclose(eko2[ep].operator, v)
-            vv = np.random.rand(2, 2)
+            vv = np.random.rand(2, 2, 2, 2)
             opvv = struct.Operator(operator=vv)
             eko2[ep] = opvv
             np.testing.assert_allclose(eko1[ep].operator, v)

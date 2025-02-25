@@ -68,11 +68,6 @@ def operator_card():
     return card
 
 
-@pytest.fixture
-def out_v0():
-    return pathlib.Path(__file__).parent / "data" / "v0.8.5-obf24af_t8e1305.tar"
-
-
 class EKOFactory:
     def __init__(self, theory: TheoryCard, operator: OperatorCard, path: os.PathLike):
         self.path = path
