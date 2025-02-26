@@ -22,7 +22,7 @@ Q2 = 10000
 
 
 def test_read_legacy_cards():
-    for name in ["v0.13.5.tar"]:
+    for name in ["v0.13.5.tar", "v0.14.tar", "v0.0.tar"]:
         with eko.EKO.read(TEST_DATA_DIR / name) as evolution_operator:
             # import pdb; pdb.set_trace()
             assert isinstance(
@@ -33,7 +33,7 @@ def test_read_legacy_cards():
             )  # Check that operator card is read as operator card
 
 def test_read_legacy_pdf():
-    for name in ["v0.13.5.tar"]:
+    for name in ["v0.13.5.tar", "v0.14.tar", "v0.0.tar"]:
         with eko.EKO.read(TEST_DATA_DIR / name) as evolution_operator:
             
             # Check if the operator has the correct dimensions
