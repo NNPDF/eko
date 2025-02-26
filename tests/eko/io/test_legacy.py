@@ -46,9 +46,19 @@ def test_read_legacy_pdf():
                 evolution_operator, pdf, x_grid
             )
 
-        print("Evolution grid", evolution_operator.evolgrid)
-        pdf_test = evolved_pdfs[(Q2,4)][21]  # evolved gluon PDF at 10000 GeV^2
-        print("Gluon pdf:", pdf_test)
+        # evolved PDFs at 10000 GeV^2 in the basis as in the lha benchmark
+        pdf_test = {}
+        for flav in [-6,-5,-4,-3,-2,-1,21,1,2,3,4,5,6]:
+            pdf_test[flav] = evolved_pdfs[(Q2,4)][flav]
+
+        pdfs = {}
+        pdfs["u_v"] = pdf_test[2] - pdf_test[-2]
+        pdfs["d_v"] = pdf_test[1] - pdf_test[-1]
+        pdfs["L_p"] = 2*(pdf_test[-2] + pdf_test[-1])
+        pdfs["L_m"] = pdf_test[-1] - pdf_test[-2]
+        pdfs["s_p"] = pdf_test[3] + pdf_test[-3]
+        pdfs["c_p"] = pdf_test[4] + pdf_test[-4]
+        pdfs["g"] = pdf_test[21] 
 
         # Import the values of the LHA benchmark tables. This is not very nice yet, but should work
         lha_path = (
@@ -58,20 +68,20 @@ def test_read_legacy_pdf():
         with open(lha_path, "r") as file:
             lha_benchmark = yaml.safe_load(file)
 
-        xpdf_benchmark = lha_benchmark["table2"]["part2"]["g"]
+        pdf_benchmark = {}
+        for key in ["u_v", "d_v", "L_p", "L_m", "s_p", "c_p", "g"]:
+            globals()[f"pdf_benchmark_{key}"] = []
+            globals()[f"xpdf_benchmark_{key}"] = lha_benchmark["table2"]["part2"][key]
+            for i in range(len(x_grid)):
+                globals()[f"pdf_benchmark_{key}"].append(globals()[f"xpdf_benchmark_{key}"][i] / x_grid[i])
+            #globals()[f"pdf_benchmark_{key}"] = globals()[f"pdf_benchmark_{key}"][:-1]
+            pdf_benchmark[key] = globals()[f"pdf_benchmark_{key}"]
+            for j in range(len(pdfs[key])-5):
+                np.testing.assert_allclose(pdfs[key][j], pdf_benchmark[key][j], rtol=0.0005) 
+            for k in [6, 7, 8, 9, 10]:
+                np.testing.assert_allclose(pdfs[key][k], pdf_benchmark[key][k], atol=1e-3)
 
-        pdf_benchmark = []  # gluon PDF at 10000 GeV^2 from the LHA benchmark tables
-        
-        for j in range(len(xpdf_benchmark)):
-            pdf_benchmark.append(xpdf_benchmark[j] / x_grid[j]) # have to divide by x values to compare
 
-        
-        # Test that the PDF values are the same, taking a relative tolerance of 0.09
-        
-        np.testing.assert_allclose(pdf_test, pdf_benchmark, rtol=0.09, atol=172050)
-        
-
-    return evolved_pdfs
 
 test_read_legacy_cards()
 test_read_legacy_pdf()
