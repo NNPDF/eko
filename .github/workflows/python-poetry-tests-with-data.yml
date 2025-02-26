@@ -1,0 +1,104 @@
+name: unit tests
+
+on:
+  workflow_call:
+    inputs:
+      python-version:
+        type: string
+        required: true
+        description: >
+          Python version used to test the package
+      data-version:
+        type: string
+        required: true
+        description: >
+          Data version used for caching
+      data-download:
+        type: string
+        required: true
+        description: >
+          Data download command
+      poetry-extras:
+        type: string
+        required: false
+        description: >
+          Extras to be installed, in poetry format (e.g. "-E extra1 extra2")
+      container-image:
+        type: string
+        required: false
+        description: >
+          Docker container image to be used
+    secrets:
+      codecov-token:
+        required: false
+        description: >
+          Codecov repository token as a Github secrets
+
+jobs:
+  test:
+    name: 🔬 Test (🐍 ${{ inputs.python-version }})
+    runs-on: ubuntu-latest
+    container: ${{ inputs.container-image }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # tags needed for dynamic versioning
+          fetch-depth: 0
+      - name: Set up Python ${{ inputs.python-version }} 🐍
+        id: setup-python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ inputs.python-version }}
+      - name: Install and configure Poetry
+        uses: snok/install-poetry@v1
+        with:
+          virtualenvs-path: ~/.virtualenvs
+          installer-parallel: true
+      - name: Cache Poetry virtualenv
+        uses: actions/cache@v4
+        id: cache
+        with:
+          path: ~/.virtualenvs
+          key: ${{ runner.os }}-py-${{ steps.setup-python.outputs.python-version }}-poetry-${{ hashFiles('poetry.lock') }}
+      - name: Install version management tool
+        run: |
+          # same poetry env
+          PIP="$(head -n1 $(which poetry) | cut -c 3-) -m pip"
+          ${PIP} install poetry-dynamic-versioning
+      - name: Install dependencies
+        run: poetry install --no-interaction --no-root --with test ${{ inputs.poetry-extras }}
+        if: steps.cache.outputs.cache-hit != 'true'
+      - name: Install project
+        # it is required to repeat extras, otherwise they will be removed from
+        # the environment
+        run: poetry install --no-interaction ${{ inputs.poetry-extras }}
+      - name: Install task runner
+        run: pip install poethepoet
+      - name: Get test data
+        id: cache-test-data
+        uses: actions/cache@v4
+        with:
+          path: test-data
+          key: test-data-${{inputs.data-version}}
+      - name: Download test data
+        if: steps.cache-test-data.outputs.cache-hit != 'true'
+        run: |
+          ${{ inputs.data-download }}
+      - name: Lint with pylint
+        run: |
+          # Search for actual errors
+          poe lint
+          # For warnings instead return always zero
+          poe lint-warnings
+      - name: Test with pytest
+        run: |
+          poe test
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./coverage.xml
+          flags: unittests
+          name: codecov-umbrella
+          fail_ci_if_error: false
+          token: ${{ secrets.codecov-token }}
