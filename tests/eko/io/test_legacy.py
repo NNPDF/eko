@@ -22,7 +22,7 @@ Q2 = 10000
 
 
 def test_read_legacy_cards():
-    for name in ["v0.13.tar"]:
+    for name in ["v0.13.5.tar"]:
         with eko.EKO.read(TEST_DATA_DIR / name) as evolution_operator:
             # import pdb; pdb.set_trace()
             assert isinstance(
@@ -33,7 +33,7 @@ def test_read_legacy_cards():
             )  # Check that operator card is read as operator card
 
 def test_read_legacy_pdf():
-    for name in ["v0.13.tar"]:
+    for name in ["v0.13.5.tar"]:
         with eko.EKO.read(TEST_DATA_DIR / name) as evolution_operator:
             
             # Check if the operator has the correct dimensions
@@ -48,7 +48,7 @@ def test_read_legacy_pdf():
 
         print("Evolution grid", evolution_operator.evolgrid)
         pdf_test = evolved_pdfs[(Q2,4)][21]  # evolved gluon PDF at 10000 GeV^2
-        print(pdf_test)
+        print("Gluon pdf:", pdf_test)
 
         # Import the values of the LHA benchmark tables. This is not very nice yet, but should work
         lha_path = (
@@ -72,37 +72,7 @@ def test_read_legacy_pdf():
         
 
     return evolved_pdfs
-"""
-def test_read_v013():
-    evolution_operator = eko.EKO.read(TEST_DATA_DIR/"v0.13-test.tar")
-    evolved_pdfs = apply_pdf(evolution_operator, pdf, x_grid)
-    
-    print(evolved_pdfs[10000]["pdfs"][21])
 
-    pdf_test = evolved_pdfs[10000]["pdfs"][21]  # evolved gluon PDF at 10000 GeV^2
-
-    # Import the values of the LHA benchmark tables. This is not very nice yet, but should work
-    lha_path = (
-        pathlib.Path(__file__).parents[4]
-        / "eko/src/ekomark/benchmark/external/LHA.yaml"
-    )
-    with open(lha_path, "r") as file:
-        lha_benchmark = yaml.safe_load(file)
-
-    xpdf_benchmark = lha_benchmark["table2"]["part2"]["g"]
-
-    pdf_benchmark = []  # gluon PDF at 10000 GeV^2 from the LHA benchmark tables
-        
-    for j in range(len(xpdf_benchmark)):
-        pdf_benchmark.append(xpdf_benchmark[j] / x_grid[j]) # have to divide by x values to compare
-
-        
-    # Test that the PDF values are the same, taking a relative tolerance of 0.09
-        
-    np.testing.assert_allclose(pdf_test, pdf_benchmark, rtol=0.09, atol=172050)
-
-    return evolved_pdfs
-"""
 test_read_legacy_cards()
 test_read_legacy_pdf()
-#test_read_v013()
+

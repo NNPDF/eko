@@ -147,7 +147,6 @@ class EKO:
             # here we need to read also the theory card
             raw_th = yaml.safe_load(self.paths.theory_card.read_text(encoding="utf-8"))
             raw_op = v1.update_operator(raw_op, raw_th)
-            v1.update_eko(self.paths.operators,raw_op)
         if self.metadata.data_version in [2]:
             # here we need to read also the theory card
             raw_th = yaml.safe_load(self.paths.theory_card.read_text(encoding="utf-8"))

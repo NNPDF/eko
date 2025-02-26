@@ -33,7 +33,6 @@ class Metadata(DictLike):
     in their attributes, so a call to :meth:`update` has to be performed
     manually.
     """
-
     origin: EPoint
     """Inital scale."""
     xgrid: XGrid
