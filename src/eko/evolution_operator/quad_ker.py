@@ -77,7 +77,7 @@ CB_SIGNATURE = nb.types.double(
     nb.types.uintc,  # a_half_x
     nb.types.uintc,  # a_half_y
     nb.types.bool_,  # alphaem_running
-    nb.types.CPointer(nb.types.int),  # n3lo_ad_variation
+    nb.types.CPointer(nb.types.int8),  # n3lo_ad_variation
 )
 
 
