@@ -317,6 +317,7 @@ pub struct QuadArgs {
     pub a_half_x: u8,
     pub a_half_y: u8,
     pub alphaem_running: bool,
+    // additional param required for N3LO
     pub n3lo_ad_variation: *const u8,
 }
 
