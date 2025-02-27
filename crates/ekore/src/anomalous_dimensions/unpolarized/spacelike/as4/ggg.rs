@@ -21,7 +21,6 @@ pub fn gamma_gg(c: &mut Cache, nf: u8, variation: u8) -> Complex<f64> {
     let S1 = c.get(K::S1);
     let S2 = c.get(K::S2);
     let S3 = c.get(K::S3);
-    let S4 = c.get(K::S4);
     let nf_ = nf as f64;
     let nf2 = nf_.pow(2);
     let nf3 = nf_.pow(3);
@@ -66,10 +65,10 @@ pub fn gamma_gg(c: &mut Cache, nf: u8, variation: u8) -> Complex<f64> {
         + x0L4cff * 24. / n.powu(5)
         + A4gluon * (-S1)
         + B4gluon
-        + Ccoeff * lm11(n, S1)
+        + Ccoeff * lm11(c)
         + Dcoeff * 1. / n
-        + x1L4cff * lm14m1(n, S1, S2, S3, S4)
-        + x1L3cff * lm13m1(n, S1, S2, S3);
+        + x1L4cff * lm14m1(c)
+        + x1L3cff * lm13m1(c);
 
     // The selected approximations for nf = 3, 4, 5
     let P3ggApp1: Complex<f64>;
@@ -83,9 +82,9 @@ pub fn gamma_gg(c: &mut Cache, nf: u8, variation: u8) -> Complex<f64> {
             + 3246307.0 * (-(1. / n.powu(2)) + 1. / (1. + n).powu(2))
             + 2026324.0 * 2. / n.powu(3)
             + 549188.0 * (-(6. / n.powu(4)))
-            + 8337.0 * lm11m1(n, S1)
-            + 26718.0 * lm12m1(n, S1, S2)
-            - 27049.0 * lm13m2(n, S1, S2, S3);
+            + 8337.0 * lm11m1(c)
+            + 26718.0 * lm12m1(c)
+            - 27049.0 * lm13m2(c);
         P3ggApp2 = P3gg01
             - 700113.0 * (-(1. / (-1. + n).powu(2)) + 1. / n.powu(2))
             - 2300581.0 * 1. / ((-1. + n) * n)
@@ -94,8 +93,8 @@ pub fn gamma_gg(c: &mut Cache, nf: u8, variation: u8) -> Complex<f64> {
             - 2661862.0 * (-(1. / n.powu(2)) + 1. / (1. + n).powu(2))
             + 196759.0 * 2. / n.powu(3)
             - 260607.0 * (-(6. / n.powu(4)))
-            + 84068.0 * lm11m1(n, S1)
-            + 346318.0 * lm12m1(n, S1, S2)
+            + 84068.0 * lm11m1(c)
+            + 346318.0 * lm12m1(c)
             + 315725.0
                 * (-3. * S1.powu(2) + 6. * n * S1 * (ZETA2 - S2)
                     - 3. * (S2 + 2. * n * (S3 - ZETA3)))
@@ -109,9 +108,9 @@ pub fn gamma_gg(c: &mut Cache, nf: u8, variation: u8) -> Complex<f64> {
             + 3195104.0 * (-(1. / n.powu(2)) + 1. / (1. + n).powu(2))
             + 2009021.0 * 2. / n.powu(3)
             + 544380.0 * (-(6. / n.powu(4)))
-            + 9938.0 * lm11m1(n, S1)
-            + 24376.0 * lm12m1(n, S1, S2)
-            - 22143.0 * lm13m2(n, S1, S2, S3);
+            + 9938.0 * lm11m1(c)
+            + 24376.0 * lm12m1(c)
+            - 22143.0 * lm13m2(c);
         P3ggApp2 = P3gg01
             - 706649.0 * (-(1. / (-1. + n).powu(2)) + 1. / n.powu(2))
             - 2274637.0 * 1. / ((-1. + n) * n)
@@ -120,9 +119,9 @@ pub fn gamma_gg(c: &mut Cache, nf: u8, variation: u8) -> Complex<f64> {
             - 2683760.0 * (-(1. / n.powu(2)) + 1. / (1. + n).powu(2))
             + 168802.0 * 2. / n.powu(3)
             - 250799.0 * (-(6. / n.powu(4)))
-            + 36967.0 * lm11m1(n, S1)
-            + 24530.0 * lm12m1(n, S1, S2)
-            - 71470.0 * lm12m2(n, S1, S2);
+            + 36967.0 * lm11m1(c)
+            + 24530.0 * lm12m1(c)
+            - 71470.0 * lm12m2(c);
     } else if nf == 5 {
         P3ggApp1 = P3gg01
             - 439426.0 * (-(1. / (-1. + n).powu(2)) + 1. / n.powu(2))
@@ -132,9 +131,9 @@ pub fn gamma_gg(c: &mut Cache, nf: u8, variation: u8) -> Complex<f64> {
             + 3648786.0 * (-(1. / n.powu(2)) + 1. / (1. + n).powu(2))
             + 2166231.0 * 2. / n.powu(3)
             + 594588.0 * (-(6. / n.powu(4)))
-            + 50406.0 * lm11m1(n, S1)
-            + 24692.0 * lm12m1(n, S1, S2)
-            + 174067.0 * lm11m2(n, S1);
+            + 50406.0 * lm11m1(c)
+            + 24692.0 * lm12m1(c)
+            + 174067.0 * lm11m2(c);
         P3ggApp2 = P3gg01
             - 705978.0 * (-(1. / (-1. + n).powu(2)) + 1. / n.powu(2))
             - 2192234.0 * 1. / ((-1. + n) * n)
@@ -145,9 +144,9 @@ pub fn gamma_gg(c: &mut Cache, nf: u8, variation: u8) -> Complex<f64> {
             - 2602682.0 * (-(1. / n.powu(2)) + 1. / (1. + n).powu(2))
             + 178960.0 * 2. / n.powu(3)
             - 218133.0 * (-(6. / n.powu(4)))
-            + 2285.0 * lm11m1(n, S1)
-            + 19295.0 * lm12m1(n, S1, S2)
-            - 13719.0 * lm12m2(n, S1, S2);
+            + 2285.0 * lm11m1(c)
+            + 19295.0 * lm12m1(c)
+            - 13719.0 * lm12m2(c);
     } else {
         panic!("nf=6 is not available at N3LO");
     }

@@ -11,7 +11,6 @@ fn gamma_nss(c: &mut Cache, nf: u8, variation: u8) -> Complex<f64> {
     let n = c.n();
     let S1 = c.get(K::S1);
     let S2 = c.get(K::S2);
-    let S3 = c.get(K::S3);
 
     // nf^1: two approximations
     #[rustfmt::skip]
@@ -24,8 +23,8 @@ fn gamma_nss(c: &mut Cache, nf: u8, variation: u8) -> Complex<f64> {
         + 4989.2 / (1. + n)
         - 6596.93 / (2. + n)
         + 1607.73 / (3. + n)
-        + 60.4 * lm12m1(n, S1, S2)
-        + 4.685 * lm13m1(n, S1, S2, S3);
+        + 60.4 * lm12m1(c)
+        + 4.685 * lm13m1(c);
     #[rustfmt::skip]
     let P3NSA12 = -2880. / n.powu(7)
         + 4066.32 / n.powu(6)
@@ -37,8 +36,8 @@ fn gamma_nss(c: &mut Cache, nf: u8, variation: u8) -> Complex<f64> {
         - 1502.75 / (1. + n)
         - 2297.56 / (2. + n)
         + 1266.77 / (3. + n)
-        - 254.63 * lm11m1(n, S1)
-        - 0.28953 * lm13m1(n, S1, S2, S3);
+        - 254.63 * lm11m1(c)
+        - 0.28953 * lm13m1(c);
 
     // nf^2 (parametrized)
     #[rustfmt::skip]
@@ -47,8 +46,8 @@ fn gamma_nss(c: &mut Cache, nf: u8, variation: u8) -> Complex<f64> {
         + 32.1201 / n.powu(4)
         - 132.824 / n.powu(3)
         + 647.397 / n.powu(2)
-        + 19.7 * lm11m1(n, S1)
-        - 3.43547 * lm12m1(n, S1, S2)
+        + 19.7 * lm11m1(c)
+        - 3.43547 * lm12m1(c)
         - 1262.0951538579698 / n
         - 187.17000000000002 / (1. + n).powu(4)
         + 453.885 / (1. + n).powu(3)
