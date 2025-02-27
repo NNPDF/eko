@@ -2,7 +2,7 @@
 use num::complex::Complex;
 use num::traits::Pow;
 
-use crate::harmonics::cache::{Cache, K};
+use crate::harmonics::cache::Cache;
 use crate::harmonics::log_functions::{lm11m1, lm12m1, lm12m2, lm13m1, lm13m2, lm14m1, lm14m2};
 
 /// Compute the pure-singlet quark-to-quark anomalous dimension.
@@ -15,10 +15,6 @@ use crate::harmonics::log_functions::{lm11m1, lm12m1, lm12m2, lm13m1, lm13m2, lm
 /// and `variation = 2`.  Any other value of `variation` invokes their average.
 pub fn gamma_ps(c: &mut Cache, nf: u8, variation: u8) -> Complex<f64> {
     let n = c.n();
-    let S1 = c.get(K::S1);
-    let S2 = c.get(K::S2);
-    let S3 = c.get(K::S3);
-    let S4 = c.get(K::S4);
     let nf_ = nf as f64;
     let nf2 = nf_.pow(2);
     let nf3 = nf_.pow(3);
@@ -42,10 +38,10 @@ pub fn gamma_ps(c: &mut Cache, nf: u8, variation: u8) -> Complex<f64> {
         + x0L6cff * 720. / n.powu(7)
         + x0L5cff * -120. / n.powu(6)
         + x0L4cff * 24. / n.powu(5)
-        + x1L3cff * lm13m1(n, S1, S2, S3)
-        + x1L4cff * lm14m1(n, S1, S2, S3, S4)
-        + y1L3cff * lm13m2(n, S1, S2, S3)
-        + y1L4cff * lm14m2(n, S1, S2, S3, S4);
+        + x1L3cff * lm13m1(c)
+        + x1L4cff * lm14m1(c)
+        + y1L3cff * lm13m2(c)
+        + y1L4cff * lm14m2(c);
 
     // The selected approximations for nf = 3, 4, 5
     let P3psApp1: Complex<f64>;
@@ -57,18 +53,18 @@ pub fn gamma_ps(c: &mut Cache, nf: u8, variation: u8) -> Complex<f64> {
             + 353656.0 * (-(1. / n.powu(2)) + 1. / (1. + n).powu(2))
             + 10620.0 * 2. / n.powu(3)
             + 40006.0 * -6. / n.powu(4)
-            - 7412.1 * lm11m1(n, S1)
-            - 2365.1 * lm12m1(n, S1, S2)
-            + 1533.0 * lm12m2(n, S1, S2);
+            - 7412.1 * lm11m1(c)
+            - 2365.1 * lm12m1(c)
+            + 1533.0 * lm12m2(c);
         P3psApp2 = P3ps01 + 54593.0 * xm1lm1 + 179748.0 * 1. / ((-1. + n) * n)
             - 195263.0 * 1. / (n + n.powu(2))
             + 12789.0 * 2. / (3. + 4. * n + n.powu(2))
             + 4700.0 * (-(1. / n.powu(2)) + 1. / (1. + n).powu(2))
             - 103604.0 * 2. / n.powu(3)
             - 2758.3 * -6. / n.powu(4)
-            - 2801.2 * lm11m1(n, S1)
-            - 1986.9 * lm12m1(n, S1, S2)
-            - 6005.9 * lm12m2(n, S1, S2);
+            - 2801.2 * lm11m1(c)
+            - 1986.9 * lm12m1(c)
+            - 6005.9 * lm12m2(c);
     } else if nf == 4 {
         P3psApp1 = P3ps01 + 90154.0 * xm1lm1 + 359084.0 * 1. / ((-1. + n) * n)
             - 136319.0 * (1. / n - n / (2. + 3. * n + n.powu(2)))
@@ -76,18 +72,18 @@ pub fn gamma_ps(c: &mut Cache, nf: u8, variation: u8) -> Complex<f64> {
             + 461167.0 * (-(1. / n.powu(2)) + 1. / (1. + n).powu(2))
             + 13869.0 * 2. / n.powu(3)
             + 52525.0 * -6. / n.powu(4)
-            - 7498.2 * lm11m1(n, S1)
-            - 2491.5 * lm12m1(n, S1, S2)
-            + 1727.2 * lm12m2(n, S1, S2);
+            - 7498.2 * lm11m1(c)
+            - 2491.5 * lm12m1(c)
+            + 1727.2 * lm12m2(c);
         P3psApp2 = P3ps01 + 72987.0 * xm1lm1 + 235802.0 * 1. / ((-1. + n) * n)
             - 254921.0 * 1. / (n + n.powu(2))
             + 17138.0 * 2. / (3. + 4. * n + n.powu(2))
             + 5212.9 * (-(1. / n.powu(2)) + 1. / (1. + n).powu(2))
             - 135378.0 * 2. / n.powu(3)
             - 3350.9 * -6. / n.powu(4)
-            - 1472.7 * lm11m1(n, S1)
-            - 1997.2 * lm12m1(n, S1, S2)
-            - 8123.3 * lm12m2(n, S1, S2);
+            - 1472.7 * lm11m1(c)
+            - 1997.2 * lm12m1(c)
+            - 8123.3 * lm12m2(c);
     } else if nf == 5 {
         P3psApp1 = P3ps01 + 112481.0 * xm1lm1 + 440555.0 * 1. / ((-1. + n) * n)
             - 166581.0 * (1. / n - n / (2. + 3. * n + n.powu(2)))
@@ -95,18 +91,18 @@ pub fn gamma_ps(c: &mut Cache, nf: u8, variation: u8) -> Complex<f64> {
             + 562992.0 * (-(1. / n.powu(2)) + 1. / (1. + n).powu(2))
             + 16882.0 * 2. / n.powu(3)
             + 64577.0 * -6. / n.powu(4)
-            - 6570.1 * lm11m1(n, S1)
-            - 2365.7 * lm12m1(n, S1, S2)
-            + 1761.7 * lm12m2(n, S1, S2);
+            - 6570.1 * lm11m1(c)
+            - 2365.7 * lm12m1(c)
+            + 1761.7 * lm12m2(c);
         P3psApp2 = P3ps01 + 91468.0 * xm1lm1 + 289658.0 * 1. / ((-1. + n) * n)
             - 311749.0 * 1. / (n + n.powu(2))
             + 21521.0 * 2. / (3. + 4. * n + n.powu(2))
             + 4908.9 * (-(1. / n.powu(2)) + 1. / (1. + n).powu(2))
             - 165795.0 * 2. / n.powu(3)
             - 3814.9 * -6. / n.powu(4)
-            + 804.5 * lm11m1(n, S1)
-            - 1760.8 * lm12m1(n, S1, S2)
-            - 10295.0 * lm12m2(n, S1, S2);
+            + 804.5 * lm11m1(c)
+            - 1760.8 * lm12m1(c)
+            - 10295.0 * lm12m2(c);
     } else {
         panic!("nf=6 is not available at N3LO");
     }

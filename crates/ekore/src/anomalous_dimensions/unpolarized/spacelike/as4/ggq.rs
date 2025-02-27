@@ -18,9 +18,6 @@ pub fn gamma_gq(c: &mut Cache, nf: u8, variation: u8) -> Complex<f64> {
     let n = c.n();
     let S1 = c.get(K::S1);
     let S2 = c.get(K::S2);
-    let S3 = c.get(K::S3);
-    let S4 = c.get(K::S4);
-    let S5 = c.get(K::S5);
     let nf_ = nf as f64;
     let nf2 = nf_.pow(2);
 
@@ -46,10 +43,10 @@ pub fn gamma_gq(c: &mut Cache, nf: u8, variation: u8) -> Complex<f64> {
         + x0L6cff * 720. / n.powu(7)
         + x0L5cff * -120. / n.powu(6)
         + x0L4cff * 24. / n.powu(5)
-        + x1L4cff * lm14(n, S1, S2, S3, S4)
-        + x1L5cff * lm15(n, S1, S2, S3, S4, S5)
-        + y1L4cff * lm14m1(n, S1, S2, S3, S4)
-        + y1L5cff * lm15m1(n, S1, S2, S3, S4, S5);
+        + x1L4cff * lm14(c)
+        + x1L5cff * lm15(c)
+        + y1L4cff * lm14m1(c)
+        + y1L5cff * lm15m1(c);
 
     // The selected approximations for nf = 3, 4, 5
     let P3gqApp1: Complex<f64>;
@@ -62,10 +59,10 @@ pub fn gamma_gq(c: &mut Cache, nf: u8, variation: u8) -> Complex<f64> {
             + 1933026.0 * -1. / n.powu(2)
             + 1142069.0 * 2. / n.powu(3)
             + 162196.0 * -6. / n.powu(4)
-            - 2172.1 * lm13(n, S1, S2, S3)
-            - 93264.1 * lm12(n, S1, S2)
-            - 786973.0 * lm11(n, S1)
-            + 875383.0 * lm12m1(n, S1, S2);
+            - 2172.1 * lm13(c)
+            - 93264.1 * lm12(c)
+            - 786973.0 * lm11(c)
+            + 875383.0 * lm12m1(c);
         P3gqApp2 =
             P3GQ01 + 3.0 * bfkl1 * (-(1. / (-1. + n).powu(2))) + 142414.0 * 1. / ((-1. + n) * n)
                 - 326525.0 * 1. / n
@@ -73,9 +70,9 @@ pub fn gamma_gq(c: &mut Cache, nf: u8, variation: u8) -> Complex<f64> {
                 - 289064.0 * -1. / n.powu(2)
                 - 176358.0 * 2. / n.powu(3)
                 + 156541.0 * -6. / n.powu(4)
-                + 9016.5 * lm13(n, S1, S2, S3)
-                + 136063.0 * lm12(n, S1, S2)
-                + 829482.0 * lm11(n, S1)
+                + 9016.5 * lm13(c)
+                + 136063.0 * lm12(c)
+                + 829482.0 * lm11(c)
                 - 2359050.0 * (S1 - n * (ZETA2 - S2)) / n.powu(2);
     } else if nf == 4 {
         P3gqApp1 = P3GQ01 + 6.0 * bfkl1 * (-(1. / (-1. + n).powu(2)))
@@ -85,10 +82,10 @@ pub fn gamma_gq(c: &mut Cache, nf: u8, variation: u8) -> Complex<f64> {
             + 1631173.0 * -1. / n.powu(2)
             + 1015255.0 * 2. / n.powu(3)
             + 142612.0 * -6. / n.powu(4)
-            - 1910.4 * lm13(n, S1, S2, S3)
-            - 80851.0 * lm12(n, S1, S2)
-            - 680219.0 * lm11(n, S1)
-            + 752733.0 * lm12m1(n, S1, S2);
+            - 1910.4 * lm13(c)
+            - 80851.0 * lm12(c)
+            - 680219.0 * lm11(c)
+            + 752733.0 * lm12m1(c);
         P3gqApp2 =
             P3GQ01 + 3.0 * bfkl1 * (-(1. / (-1. + n).powu(2))) + 160568.0 * 1. / ((-1. + n) * n)
                 - 361207.0 * 1. / n
@@ -96,9 +93,9 @@ pub fn gamma_gq(c: &mut Cache, nf: u8, variation: u8) -> Complex<f64> {
                 - 245963.0 * -1. / n.powu(2)
                 - 171312.0 * 2. / n.powu(3)
                 + 163099.0 * -6. / n.powu(4)
-                + 8132.2 * lm13(n, S1, S2, S3)
-                + 124425.0 * lm12(n, S1, S2)
-                + 762435.0 * lm11(n, S1)
+                + 8132.2 * lm13(c)
+                + 124425.0 * lm12(c)
+                + 762435.0 * lm11(c)
                 - 2193335.0 * (S1 - n * (ZETA2 - S2)) / n.powu(2);
     } else if nf == 5 {
         P3gqApp1 = P3GQ01 + 6.0 * bfkl1 * (-(1. / (-1. + n).powu(2)))
@@ -108,10 +105,10 @@ pub fn gamma_gq(c: &mut Cache, nf: u8, variation: u8) -> Complex<f64> {
             - 162840.0 * -1. / n.powu(2)
             + 321220.0 * 2. / n.powu(3)
             + 12688.0 * -6. / n.powu(4)
-            + 1423.4 * lm13(n, S1, S2, S3)
-            + 1278.9 * lm12(n, S1, S2)
-            - 30919.9 * lm11(n, S1)
-            + 47588.0 * lm12m1(n, S1, S2);
+            + 1423.4 * lm13(c)
+            + 1278.9 * lm12(c)
+            - 30919.9 * lm11(c)
+            + 47588.0 * lm12m1(c);
         P3gqApp2 =
             P3GQ01 + 3.0 * bfkl1 * (-(1. / (-1. + n).powu(2))) + 177094.0 * 1. / ((-1. + n) * n)
                 - 470694.0 * 1. / n
@@ -119,9 +116,9 @@ pub fn gamma_gq(c: &mut Cache, nf: u8, variation: u8) -> Complex<f64> {
                 - 52985.0 * -1. / n.powu(2)
                 - 87354.0 * 2. / n.powu(3)
                 + 176885.0 * -6. / n.powu(4)
-                + 4748.8 * lm13(n, S1, S2, S3)
-                + 65811.9 * lm12(n, S1, S2)
-                + 396390.0 * lm11(n, S1)
+                + 4748.8 * lm13(c)
+                + 65811.9 * lm12(c)
+                + 396390.0 * lm11(c)
                 - 1190212.0 * (S1 - n * (ZETA2 - S2)) / n.powu(2);
     } else {
         panic!("nf=6 is not available at N3LO");
