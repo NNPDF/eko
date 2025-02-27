@@ -155,21 +155,21 @@ pub fn gamma_nsm(c: &mut Cache, nf: u8, variation: u8) -> Complex<f64> {
     let mut result = cmplx!(0., 0.);
 
     // Assembly regular piece.
-    let NF = nf as f64;
-    let P3NSMAI = P3NSA0 + NF * P3NSA1 + NF.pow(3) * P3NSA3 + NF.pow(2) * P3NSMA2;
+    let nf = nf as f64;
+    let P3NSMAI = P3NSA0 + nf * P3NSA1 + nf.pow(3) * P3NSA3 + nf.pow(2) * P3NSMA2;
     result += match variation {
-        1 => P3NSMAI + P3NMA01 + NF * P3NMA11,
-        2 => P3NSMAI + P3NMA02 + NF * P3NMA12,
-        _ => P3NSMAI + 0.5 * ((P3NMA01 + P3NMA02) + NF * (P3NMA11 + P3NMA12)),
+        1 => P3NSMAI + P3NMA01 + nf * P3NMA11,
+        2 => P3NSMAI + P3NMA02 + nf * P3NMA12,
+        _ => P3NSMAI + 0.5 * ((P3NMA01 + P3NMA02) + nf * (P3NMA11 + P3NMA12)),
     };
 
     // The singular piece.
-    let A4qI = 2.120902 * f64::pow(10., 4) - 5.179372 * f64::pow(10., 3) * NF
-        // + 1.955772 * f64::pow(10.,2) * NF.pow(2)
-        // + 3.272344 * NF.pow(3)
+    let A4qI = 2.120902 * f64::pow(10., 4) - 5.179372 * f64::pow(10., 3) * nf
+        // + 1.955772 * f64::pow(10.,2) * nf.pow(2)
+        // + 3.272344 * nf.pow(3)
     ;
-    let A4ap1 = -511.228 + 7.08645 * NF;
-    let A4ap2 = -502.481 + 7.82077 * NF;
+    let A4ap1 = -511.228 + 7.08645 * nf;
+    let A4ap2 = -502.481 + 7.82077 * nf;
     let D1 = 1. / n - S1;
     result += match variation {
         1 => (A4qI + A4ap1) * D1,
@@ -178,12 +178,12 @@ pub fn gamma_nsm(c: &mut Cache, nf: u8, variation: u8) -> Complex<f64> {
     };
 
     // ..The local piece.
-    let B4qI = 2.579609 * f64::pow(10., 4) + 0.08 - (5.818637 * f64::pow(10., 3) + 0.97) * NF
-        // + (1.938554 * f64::pow(10.,2) + 0.0037) * NF.pow(2)
-        // + 3.014982 * NF.pow(3)
+    let B4qI = 2.579609 * f64::pow(10., 4) + 0.08 - (5.818637 * f64::pow(10., 3) + 0.97) * nf
+        // + (1.938554 * f64::pow(10.,2) + 0.0037) * nf.pow(2)
+        // + 3.014982 * nf.pow(3)
     ;
-    let B4ap1 = -2426.05 + 266.674 * NF - 0.05 * NF;
-    let B4ap2 = -2380.255 + 270.518 * NF - 0.05 * NF;
+    let B4ap1 = -2426.05 + 266.674 * nf - 0.05 * nf;
+    let B4ap2 = -2380.255 + 270.518 * nf - 0.05 * nf;
     result += match variation {
         1 => B4qI + B4ap1,
         2 => B4qI + B4ap2,

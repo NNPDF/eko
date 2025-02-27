@@ -59,10 +59,11 @@ fn gamma_nss(c: &mut Cache, nf: u8, variation: u8) -> Complex<f64> {
         + (42.977500000000006 * S2) / n
         + (0.0900000000000047 * (477.52777777775293 + n) * S1) / (n.powu(2) * (1. + n));
 
+    let nf = nf as f64;
     let P3NSSA: Complex<f64> = match variation {
-        1 => (nf as f64) * P3NSA11 + (nf as f64).pow(2) * P3NSSA2,
-        2 => (nf as f64) * P3NSA12 + (nf as f64).pow(2) * P3NSSA2,
-        _ => 0.5 * (nf as f64) * (P3NSA11 + P3NSA12) + (nf as f64).pow(2) * P3NSSA2,
+        1 => nf * P3NSA11 + nf.pow(2) * P3NSSA2,
+        2 => nf * P3NSA12 + nf.pow(2) * P3NSSA2,
+        _ => 0.5 * nf * (P3NSA11 + P3NSA12) + nf.pow(2) * P3NSSA2,
     };
     -P3NSSA
 }

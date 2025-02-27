@@ -28,7 +28,7 @@ jobs:
         run: |
           poe clippy
       - name: Install gsl
-        run: apt-get install libgsl0-dev
+        run: sudo apt-get install libgsl0-dev
       - name: Run Rust unit tests
         run: |
           poe rtest

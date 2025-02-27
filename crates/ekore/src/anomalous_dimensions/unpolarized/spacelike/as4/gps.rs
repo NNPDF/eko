@@ -19,23 +19,23 @@ pub fn gamma_ps(c: &mut Cache, nf: u8, variation: u8) -> Complex<f64> {
     let S2 = c.get(K::S2);
     let S3 = c.get(K::S3);
     let S4 = c.get(K::S4);
-    let nf2 = nf.pow(2) as f64;
-    let nf3 = nf.pow(3) as f64;
+    let nf = nf as f64;
+    let nf2 = nf.pow(2);
+    let nf3 = nf.pow(3);
     let xm1lm1 = -(1. / (-1. + n).powu(2)) + 1. / n.powu(2);
 
     // Known large-x coefficients
-    let x1L4cff = -5.6460905 * 10. * nf as f64 + 3.6213992 * nf2;
-    let x1L3cff =
-        -2.4755054 * f64::pow(10., 2) * nf as f64 + 4.0559671 * 10. * nf2 - 1.5802469 * nf3;
-    let y1L4cff = -1.3168724 * 10. * nf as f64;
-    let y1L3cff = -1.9911111 * f64::pow(10., 2) * nf as f64 + 1.3695473 * 10. * nf2;
+    let x1L4cff = -5.6460905 * 10. * nf + 3.6213992 * nf2;
+    let x1L3cff = -2.4755054 * f64::pow(10., 2) * nf + 4.0559671 * 10. * nf2 - 1.5802469 * nf3;
+    let y1L4cff = -1.3168724 * 10. * nf;
+    let y1L3cff = -1.9911111 * f64::pow(10., 2) * nf + 1.3695473 * 10. * nf2;
 
     // Known small-x coefficients
-    let bfkl1 = 1.7492273 * f64::pow(10., 3) * nf as f64;
-    let x0L6cff = -7.5061728 * nf as f64 + 7.9012346 * 0.1 * nf2;
-    let x0L5cff = 2.8549794 * 10. * nf as f64 + 3.7925926 * nf2;
+    let bfkl1 = 1.7492273 * f64::pow(10., 3) * nf;
+    let x0L6cff = -7.5061728 * nf + 7.9012346 * 0.1 * nf2;
+    let x0L5cff = 2.8549794 * 10. * nf + 3.7925926 * nf2;
     let x0L4cff =
-        -8.5480010 * f64::pow(10., 2) * nf as f64 + 7.7366255 * 10. * nf2 - 1.9753086 * 0.1 * nf3;
+        -8.5480010 * f64::pow(10., 2) * nf + 7.7366255 * 10. * nf2 - 1.9753086 * 0.1 * nf3;
 
     // The resulting part of the function
     let P3ps01 = bfkl1 * 2. / (-1. + n).powu(3)
@@ -50,7 +50,7 @@ pub fn gamma_ps(c: &mut Cache, nf: u8, variation: u8) -> Complex<f64> {
     // The selected approximations for nf = 3, 4, 5
     let P3psApp1: Complex<f64>;
     let P3psApp2: Complex<f64>;
-    if nf == 3 {
+    if nf == 3. {
         P3psApp1 = P3ps01 + 67731.0 * xm1lm1 + 274100.0 * 1. / ((-1. + n) * n)
             - 104493.0 * (1. / n - n / (2. + 3. * n + n.powu(2)))
             + 34403.0 * 1. / (6. + 5. * n + n.powu(2))
@@ -69,7 +69,7 @@ pub fn gamma_ps(c: &mut Cache, nf: u8, variation: u8) -> Complex<f64> {
             - 2801.2 * lm11m1(n, S1)
             - 1986.9 * lm12m1(n, S1, S2)
             - 6005.9 * lm12m2(n, S1, S2);
-    } else if nf == 4 {
+    } else if nf == 4. {
         P3psApp1 = P3ps01 + 90154.0 * xm1lm1 + 359084.0 * 1. / ((-1. + n) * n)
             - 136319.0 * (1. / n - n / (2. + 3. * n + n.powu(2)))
             + 45379.0 * 1. / (6. + 5. * n + n.powu(2))
@@ -88,7 +88,7 @@ pub fn gamma_ps(c: &mut Cache, nf: u8, variation: u8) -> Complex<f64> {
             - 1472.7 * lm11m1(n, S1)
             - 1997.2 * lm12m1(n, S1, S2)
             - 8123.3 * lm12m2(n, S1, S2);
-    } else if nf == 5 {
+    } else if nf == 5. {
         P3psApp1 = P3ps01 + 112481.0 * xm1lm1 + 440555.0 * 1. / ((-1. + n) * n)
             - 166581.0 * (1. / n - n / (2. + 3. * n + n.powu(2)))
             + 56087.0 * 1. / (6. + 5. * n + n.powu(2))
