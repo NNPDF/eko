@@ -21,24 +21,24 @@ pub fn gamma_gq(c: &mut Cache, nf: u8, variation: u8) -> Complex<f64> {
     let S3 = c.get(K::S3);
     let S4 = c.get(K::S4);
     let S5 = c.get(K::S5);
-    let nf = nf as f64;
-    let nf2 = nf.pow(2);
+    let nf_ = nf as f64;
+    let nf2 = nf_.pow(2);
 
     // Known large-x coefficients
-    let x1L5cff = 1.3443073 * 10. - 5.4869684 * 0.1 * nf;
-    let x1L4cff = 3.7539831 * f64::pow(10., 2) - 3.4494742 * 10. * nf + 8.7791495 * 0.1 * nf2;
-    let y1L5cff = 2.2222222 * 10. - 5.4869684 * 0.1 * nf;
-    let y1L4cff = 6.6242163 * f64::pow(10., 2) - 4.7992684 * 10. * nf + 8.7791495 * 0.1 * nf2;
+    let x1L5cff = 1.3443073 * 10. - 5.4869684 * 0.1 * nf_;
+    let x1L4cff = 3.7539831 * f64::pow(10., 2) - 3.4494742 * 10. * nf_ + 8.7791495 * 0.1 * nf2;
+    let y1L5cff = 2.2222222 * 10. - 5.4869684 * 0.1 * nf_;
+    let y1L4cff = 6.6242163 * f64::pow(10., 2) - 4.7992684 * 10. * nf_ + 8.7791495 * 0.1 * nf2;
 
     // Small-x, Casimir scaled from P_gg (approx. for bfkl1)
     let bfkl0 = -8.3086173 * f64::pow(10., 3) / 2.25;
-    let bfkl1 = (-1.0691199 * f64::pow(10., 5) - nf * 9.9638304 * f64::pow(10., 2)) / 2.25;
+    let bfkl1 = (-1.0691199 * f64::pow(10., 5) - nf_ * 9.9638304 * f64::pow(10., 2)) / 2.25;
 
     // Small-x double-logs with x^0
-    let x0L6cff = 5.2235940 * 10. - 7.3744856 * nf;
-    let x0L5cff = -2.9221399 * f64::pow(10., 2) + 1.8436214 * nf;
+    let x0L6cff = 5.2235940 * 10. - 7.3744856 * nf_;
+    let x0L5cff = -2.9221399 * f64::pow(10., 2) + 1.8436214 * nf_;
     let x0L4cff =
-        7.3106077 * f64::pow(10., 3) - 3.7887135 * f64::pow(10., 2) * nf - 3.2438957 * 10. * nf2;
+        7.3106077 * f64::pow(10., 3) - 3.7887135 * f64::pow(10., 2) * nf_ - 3.2438957 * 10. * nf2;
 
     // The resulting part of the function
     let P3GQ01 = bfkl0 * (-(6. / (-1. + n).powu(4)))
@@ -54,7 +54,7 @@ pub fn gamma_gq(c: &mut Cache, nf: u8, variation: u8) -> Complex<f64> {
     // The selected approximations for nf = 3, 4, 5
     let P3gqApp1: Complex<f64>;
     let P3gqApp2: Complex<f64>;
-    if nf == 3. {
+    if nf == 3 {
         P3gqApp1 = P3GQ01 + 6.0 * bfkl1 * (-(1. / (-1. + n).powu(2)))
             - 744384.0 * 1. / ((-1. + n) * n)
             + 2453640.0 * 1. / n
@@ -77,7 +77,7 @@ pub fn gamma_gq(c: &mut Cache, nf: u8, variation: u8) -> Complex<f64> {
                 + 136063.0 * lm12(n, S1, S2)
                 + 829482.0 * lm11(n, S1)
                 - 2359050.0 * (S1 - n * (ZETA2 - S2)) / n.powu(2);
-    } else if nf == 4. {
+    } else if nf == 4 {
         P3gqApp1 = P3GQ01 + 6.0 * bfkl1 * (-(1. / (-1. + n).powu(2)))
             - 743535.0 * 1. / ((-1. + n) * n)
             + 2125286.0 * 1. / n
@@ -100,7 +100,7 @@ pub fn gamma_gq(c: &mut Cache, nf: u8, variation: u8) -> Complex<f64> {
                 + 124425.0 * lm12(n, S1, S2)
                 + 762435.0 * lm11(n, S1)
                 - 2193335.0 * (S1 - n * (ZETA2 - S2)) / n.powu(2);
-    } else if nf == 5. {
+    } else if nf == 5 {
         P3gqApp1 = P3GQ01 + 6.0 * bfkl1 * (-(1. / (-1. + n).powu(2)))
             - 785864.0 * 1. / ((-1. + n) * n)
             + 285034.0 * 1. / n

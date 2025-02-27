@@ -22,13 +22,13 @@ pub fn gamma_gg(c: &mut Cache, nf: u8, variation: u8) -> Complex<f64> {
     let S2 = c.get(K::S2);
     let S3 = c.get(K::S3);
     let S4 = c.get(K::S4);
-    let nf = nf as f64;
-    let nf2 = nf.pow(2);
-    let nf3 = nf.pow(3);
+    let nf_ = nf as f64;
+    let nf2 = nf_.pow(2);
+    let nf3 = nf_.pow(3);
 
     // The known large-x coefficients [except delta(1-x)]
-    let A4gluon = 40880.330 - 11714.246 * nf + 440.04876 * nf2 + 7.3627750 * nf3;
-    let mut B4gluon = 68587.64 - 18143.983 * nf + 423.81135 * nf2 + 9.0672154 * 0.1 * nf3;
+    let A4gluon = 40880.330 - 11714.246 * nf_ + 440.04876 * nf2 + 7.3627750 * nf3;
+    let mut B4gluon = 68587.64 - 18143.983 * nf_ + 423.81135 * nf2 + 9.0672154 * 0.1 * nf3;
 
     // The coefficient of delta(1-x), also called the virtual anomalous
     // dimension. nf^0 and nf^1 are still approximate, but the error at
@@ -39,22 +39,22 @@ pub fn gamma_gg(c: &mut Cache, nf: u8, variation: u8) -> Complex<f64> {
         B4gluon += 0.2;
     }
 
-    let Ccoeff = 8.5814120 * f64::pow(10., 4) - 1.3880515 * f64::pow(10., 4) * nf
+    let Ccoeff = 8.5814120 * f64::pow(10., 4) - 1.3880515 * f64::pow(10., 4) * nf_
         + 1.3511111 * f64::pow(10., 2) * nf2;
     let Dcoeff =
-        5.4482808 * f64::pow(10., 4) - 4.3411337 * f64::pow(10., 3) * nf - 2.1333333 * 10. * nf2;
+        5.4482808 * f64::pow(10., 4) - 4.3411337 * f64::pow(10., 3) * nf_ - 2.1333333 * 10. * nf2;
 
-    let x1L4cff = 5.6460905 * 10. * nf - 3.6213992 * nf2;
-    let x1L3cff = 2.4755054 * f64::pow(10., 2) * nf - 4.0559671 * 10. * nf2 + 1.5802469 * nf3;
+    let x1L4cff = 5.6460905 * 10. * nf_ - 3.6213992 * nf2;
+    let x1L3cff = 2.4755054 * f64::pow(10., 2) * nf_ - 4.0559671 * 10. * nf2 + 1.5802469 * nf3;
 
     // The known coefficients of 1/x*ln^a x terms, a = 3,2
     let bfkl0 = -8.3086173 * f64::pow(10., 3);
-    let bfkl1 = -1.0691199 * f64::pow(10., 5) - 9.9638304 * f64::pow(10., 2) * nf;
+    let bfkl1 = -1.0691199 * f64::pow(10., 5) - 9.9638304 * f64::pow(10., 2) * nf_;
 
-    let x0L6cff = 1.44 * f64::pow(10., 2) - 2.7786008 * 10. * nf + 7.9012346 * 0.1 * nf2;
+    let x0L6cff = 1.44 * f64::pow(10., 2) - 2.7786008 * 10. * nf_ + 7.9012346 * 0.1 * nf2;
     let x0L5cff =
-        -1.44 * f64::pow(10., 2) - 1.6208066 * f64::pow(10., 2) * nf + 1.4380247 * 10. * nf2;
-    let x0L4cff = 2.6165784 * f64::pow(10., 4) - 3.3447551 * f64::pow(10., 3) * nf
+        -1.44 * f64::pow(10., 2) - 1.6208066 * f64::pow(10., 2) * nf_ + 1.4380247 * 10. * nf2;
+    let x0L4cff = 2.6165784 * f64::pow(10., 4) - 3.3447551 * f64::pow(10., 3) * nf_
         + 9.1522635 * 10. * nf2
         - 1.9753086 * 0.1 * nf3;
 
@@ -74,7 +74,7 @@ pub fn gamma_gg(c: &mut Cache, nf: u8, variation: u8) -> Complex<f64> {
     // The selected approximations for nf = 3, 4, 5
     let P3ggApp1: Complex<f64>;
     let P3ggApp2: Complex<f64>;
-    if nf == 3. {
+    if nf == 3 {
         P3ggApp1 = P3gg01
             - 421311.0 * (-(1. / (-1. + n).powu(2)) + 1. / n.powu(2))
             - 325557.0 * 1. / ((-1. + n) * n)
@@ -100,7 +100,7 @@ pub fn gamma_gg(c: &mut Cache, nf: u8, variation: u8) -> Complex<f64> {
                 * (-3. * S1.powu(2) + 6. * n * S1 * (ZETA2 - S2)
                     - 3. * (S2 + 2. * n * (S3 - ZETA3)))
                 / (3. * n.powu(2));
-    } else if nf == 4. {
+    } else if nf == 4 {
         P3ggApp1 = P3gg01
             - 437084.0 * (-(1. / (-1. + n).powu(2)) + 1. / n.powu(2))
             - 361570.0 * 1. / ((-1. + n) * n)
@@ -123,7 +123,7 @@ pub fn gamma_gg(c: &mut Cache, nf: u8, variation: u8) -> Complex<f64> {
             + 36967.0 * lm11m1(n, S1)
             + 24530.0 * lm12m1(n, S1, S2)
             - 71470.0 * lm12m2(n, S1, S2);
-    } else if nf == 5. {
+    } else if nf == 5 {
         P3ggApp1 = P3gg01
             - 439426.0 * (-(1. / (-1. + n).powu(2)) + 1. / n.powu(2))
             - 293679.0 * 1. / ((-1. + n) * n)
