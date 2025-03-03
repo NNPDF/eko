@@ -238,7 +238,6 @@ pub unsafe extern "C" fn rust_quad_ker(u: f64, rargs: *mut c_void) -> f64 {
         args.a_half_x,
         args.a_half_y,
         args.alphaem_running,
-        args.n3lo_ad_variation,
     )
 }
 
@@ -277,7 +276,6 @@ type PyQuadKerT = unsafe extern "C" fn(
     u8,         // a_half_x
     u8,         // a_half_y
     bool,       // alphaem_running
-    *const u8,  // n3lo_ad_variation
 ) -> f64;
 
 /// Additional integration parameters
@@ -359,7 +357,6 @@ pub unsafe extern "C" fn my_py(
     _a_half_x: u8,
     _a_half_y: u8,
     _alphaem_running: bool,
-    _n3lo_ad_variation: *const u8,
 ) -> f64 {
     0.
 }

@@ -77,7 +77,6 @@ CB_SIGNATURE = nb.types.double(
     nb.types.uintc,  # a_half_x
     nb.types.uintc,  # a_half_y
     nb.types.bool_,  # alphaem_running
-    nb.types.CPointer(nb.types.int8),  # n3lo_ad_variation
 )
 
 
@@ -120,7 +119,6 @@ def cb_quad_ker_qcd(
     _a_half_x,
     _a_half_y,
     _alphaem_running,
-    _n3lo_ad_variation,
 ):
     """C Callback inside integration kernel."""
     # recover complex variables
@@ -273,7 +271,6 @@ def cb_quad_ker_ome(
     _a_half_x,
     _a_half_y,
     _alphaem_running,
-    _n3lo_ad_variation,
 ):
     """C Callback inside integration kernel."""
     # recover complex variables
@@ -408,7 +405,6 @@ def cb_quad_ker_qed(
     a_half_x,
     a_half_y,
     alphaem_running,
-    _n3lo_ad_variation,
 ):
     """C Callback inside integration kernel."""
     # recover complex variables

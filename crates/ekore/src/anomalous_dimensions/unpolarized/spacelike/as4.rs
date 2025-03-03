@@ -20,10 +20,6 @@ pub use gps::gamma_ps;
 pub use gqg::gamma_qg;
 
 /// Compute the singlet anomalous dimension matrix.
-///
-/// `variation = (gg, gq, qg, qq)` is a list indicating which variation should
-/// be used. `variation = 1,2` is the upper/lower bound, while any other value
-/// returns the central (averaged) value.
 pub fn gamma_singlet(c: &mut Cache, nf: u8, variation: [u8; 4]) -> [[Complex<f64>; 2]; 2] {
     let gamma_qq = gnsp::gamma_nsp(c, nf, variation[3]) + gps::gamma_ps(c, nf, variation[3]);
     [

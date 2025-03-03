@@ -15,6 +15,10 @@ pub mod as3;
 pub mod as4;
 
 /// Compute the tower of the non-singlet anomalous dimensions.
+///
+/// `n3lo_variation = (ns_p, ns_m, ns_v)` is a list indicating which variation should
+/// be used. `variation = 1,2` is the upper/lower bound, while any other value
+/// returns the central (averaged) value.
 pub fn gamma_ns_qcd(
     order_qcd: usize,
     mode: u16,
@@ -58,6 +62,10 @@ pub fn gamma_ns_qcd(
 }
 
 /// Compute the tower of the singlet anomalous dimension matrices.
+///
+/// `n3lo_variation = (gg, gq, qg, qq)` is a list indicating which variation should
+/// be used. `variation = 1,2` is the upper/lower bound, while any other value
+/// returns the central (averaged) value.
 pub fn gamma_singlet_qcd(
     order_qcd: usize,
     c: &mut Cache,
