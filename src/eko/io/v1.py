@@ -5,10 +5,7 @@ that API version.
 """
 
 from .paths import InternalPaths
-import numpy as np
-import yaml
-import os
-from pathlib import Path
+
 
 def update_metadata(paths: InternalPaths, raw: dict) -> dict:
     """Modify the raw metadata to the new format.
@@ -28,7 +25,7 @@ def update_metadata(paths: InternalPaths, raw: dict) -> dict:
     raw["data_version"] = 1
     raw["xgrid"] = raw["bases"]["xgrid"]
     del raw["bases"]
-    
+
     return raw
 
 
@@ -49,7 +46,7 @@ def update_theory(raw: dict) -> dict:
         raw["couplings"]["scale"],
         raw["couplings"]["num_flavs_ref"],
     )
-    raw['matching_order'] = [0,0]
+    raw["matching_order"] = [0, 0]
     # adjust couplings
     for key in ["num_flavs_ref", "max_num_flavs", "scale"]:
         del raw["couplings"][key]
@@ -79,12 +76,8 @@ def update_operator(raw_op: dict, raw_th) -> dict:
     dict
         compatible raw yaml content
     """
-    raw_op['configs']['n_integration_cores'] = 1
+    raw_op["configs"]["n_integration_cores"] = 1
     raw_op["init"] = (raw_op["mu0"], raw_th["heavy"]["num_flavs_init"])
     del raw_op["mu0"]
-    
+
     return raw_op
-
-
-
-

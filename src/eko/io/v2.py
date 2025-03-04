@@ -27,6 +27,7 @@ def update_metadata(paths: InternalPaths, raw: dict) -> dict:
     del raw["bases"]
     return raw
 
+
 def update_theory(raw: dict) -> dict:
     raw["couplings"]["ref"] = (
         raw["couplings"]["scale"],
@@ -41,6 +42,7 @@ def update_theory(raw: dict) -> dict:
         del raw["heavy"][key]
 
     return raw
+
 
 def update_operator(raw_op: dict, raw_th) -> dict:
     raw_op["init"] = (raw_op["mu0"], raw_th["heavy"]["num_flavs_init"])

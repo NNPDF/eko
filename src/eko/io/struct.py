@@ -152,7 +152,6 @@ class EKO:
             raw_th = yaml.safe_load(self.paths.theory_card.read_text(encoding="utf-8"))
             raw_op = v2.update_operator(raw_op, raw_th)
         return OperatorCard.from_dict(raw_op)
-        
 
     # persistency control
     # -------------------
