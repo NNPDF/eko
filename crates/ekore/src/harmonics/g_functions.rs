@@ -2,6 +2,7 @@
 
 use crate::constants::ZETA2;
 use crate::harmonics::cache::recursive_harmonic_sum as s;
+use crate::harmonics::cache::{Cache, K};
 use num::{complex::Complex, Zero};
 
 /// Compute the Mellin transform of $\text{Li}_2(x)/(1+x)$.
@@ -11,7 +12,9 @@ use num::{complex::Complex, Zero};
 ///
 /// We use the name from [\[MuselliPhD\]](crate::bib::MuselliPhD), but not his implementation - rather we use the
 /// Pegasus [\[Vogt:2004ns\]](crate::bib::Vogt2004ns) implementation.
-pub fn g3(N: Complex<f64>, S1: Complex<f64>) -> Complex<f64> {
+pub fn g3(c: &mut Cache) -> Complex<f64> {
+    let N = c.n();
+    let S1 = c.get(K::S1);
     const CS: [f64; 7] = [
         1.0000e0, -0.9992e0, 0.9851e0, -0.9005e0, 0.6621e0, -0.3174e0, 0.0699e0,
     ];
@@ -25,8 +28,8 @@ pub fn g3(N: Complex<f64>, S1: Complex<f64>) -> Complex<f64> {
 
 #[cfg(test)]
 mod tests {
+    use crate::harmonics::cache::Cache;
     use crate::harmonics::g_functions::g3;
-    use crate::harmonics::w1;
     use crate::{assert_approx_eq_cmplx, cmplx};
     use num::complex::Complex;
 
@@ -41,9 +44,9 @@ mod tests {
         ];
         for it in NS.iter().enumerate() {
             let n = *it.1;
-            let s1 = w1::S1(n);
+            let mut c = Cache::new(n);
             let refval = REFVALS[it.0];
-            let g3 = g3(n, s1);
+            let g3 = g3(&mut c);
             assert_approx_eq_cmplx!(f64, g3, refval, epsilon = 1e-6);
         }
     }
