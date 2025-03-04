@@ -47,7 +47,7 @@ def test_read_legacy():
         # Import the values of the LHA benchmark tables
         lha_benchmark = LHA_utils.compute_LHA_data(
             {"FNS": "FFNS", "PTO": 0, "XIF": 1},
-            {"polarized": 0, "mugrid": 100}
+            {"polarized": False, "mugrid": 100.}
         )
         
         # Make the test
