@@ -1,4 +1,4 @@
-"""Launch EKO calculations, with legacy mu2grid mode."""
+"""Launch EKO calculations."""
 
 import pathlib
 from typing import Sequence
@@ -30,8 +30,9 @@ def subcommand(paths: Sequence[pathlib.Path]):
         3. three arguments: same as two, but the third argument is used as
         output path
 
-    \b
+
     Default names are:
+
     - theory card: "theory.yaml"
     - operator card: "operator.yaml"
     - output: "eko.tar".
