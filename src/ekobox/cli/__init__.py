@@ -1,6 +1,6 @@
 """EKO CLI definition."""
 
-from . import convert, inspect, run, runcards
+from . import inspect, run, runcards
 from .base import command
 
-__all__ = ["convert", "inspect", "run", "runcards", "command"]
+__all__ = ["inspect", "run", "runcards", "command"]
