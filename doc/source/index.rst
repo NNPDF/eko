@@ -63,4 +63,3 @@ EKO is ...
 
     development/Benchmarks.rst
     development/ekomark.rst
-    development/code_todos
