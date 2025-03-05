@@ -1,10 +1,10 @@
-Matching Conditions on Crossing Thresholds
-==========================================
+Crossing Thresholds
+===================
 
-In a |VFNS| one considers several matching scales (as provided by the :class:`~eko.thresholds.ThresholdsAtlas`)
+In a |VFNS| one considers several matching scales
 where the number of active, light flavors that are participating in the :doc:`DGLAP equation <DGLAP>` changes
 by one unit: :math:`n_f \to n_f +1`. This means the distributions do not behave in the same matter above and below
-the threshold: in esp. the new quark distributions :math:`q_{n_f+1}(x,\mu_F^2) = h(x,\mu_F^2)` and
+the threshold: especially the new quark distributions :math:`q_{n_f+1}(x,\mu_F^2) = h(x,\mu_F^2)` and
 :math:`\overline h(x,\mu_F^2)` did not take part in the evolution below the threshold, but above they do.
 This mismatch in the evolution is accounted for by the *matching conditions*.
 
@@ -29,6 +29,26 @@ We can then denote the solution as
     \tilde{\mathbf{f}}^{(n_f+1)}(Q^2_1)= \tilde{\mathbf{E}}^{(n_f+1)}(Q^2_1\leftarrow \mu_{h}^2) {\mathbf{R}^{(n_f)}} \tilde{\mathbf{A}}^{(n_f)}(\mu_{h}^2) \tilde{\mathbf{E}}^{(n_f)}(\mu_{h}^2\leftarrow Q^2_0) \tilde{\mathbf{f}}^{(n_f)}(Q^2_0)
 
 In the case of more than one threshold being present, the matching procedure is iterated on all matching scales starting from the lowest one.
+
+
+Evolution Points
+----------------
+
+The matching procedure implies that any target scale :math:`Q` at the associated number of active flavors :math:`n_f` are two
+*independent* variables, which, however, are both required to uniquely identify where the evolution is happening.
+We thus define the concept of an **Evolution Point**, which is a tuple of a scale and a number of flavors, e.g.
+
+.. math::
+    e_1 = (Q_1, n_{f,1})
+
+The concept of evolution points applies to all perturbative |QCD| objects and specifically also for |PDF| .
+A more detailed explanation can be found in :cite:`Barontini:2024xgu`.
+
+Often an *implicit definition* for the number of flavors :math:`n_f` is assumed: often it is assumed,
+that the number of flavors is given by the number of crossed heavy flavor threshold.
+For example if a scale is between the charm and bottom threshold, :math:`\mu_c < Q < \mu_b`,
+:math:`n_f=3` is implied (and similar for other cases).
+EKO does not make this assumptions, but expects an explicit definition.
 
 
 Operator Matrix Elements
