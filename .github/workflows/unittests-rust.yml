@@ -12,7 +12,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: test-data
-          key: test-data-v1
+          key: test-data-v2
       - name: Download test data
         if: steps.cache-test-data.outputs.cache-hit != 'true'
         run: |
