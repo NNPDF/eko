@@ -1,6 +1,3 @@
-# Test ekore.matching_conditions.OperatorMatrixElement
-import pathlib
-
 import numpy as np
 import pytest
 
@@ -15,11 +12,13 @@ from eko.evolution_operator.operator_matrix_element import (
 )
 from eko.io.runcards import OperatorCard, TheoryCard
 from eko.io.types import InversionMethod
-from eko.runner import legacy
+from eko.runner.parts import _managers, _matching_configs
 from ekore.operator_matrix_elements.unpolarized.space_like import (
     A_non_singlet,
     A_singlet,
 )
+
+from .test_init import FakeEKO
 
 
 def test_build_ome_as():
@@ -266,87 +265,17 @@ def test_quad_ker(monkeypatch):
     np.testing.assert_allclose(res_ns, 0.0)
 
 
-# def test_run_integration():
-#     # setup objs
-#     theory_card = {
-#         "alphas": 0.35,
-#         "PTO": 2,
-#         "ModEv": "TRN",
-#         "XIF": 1.0,
-#         "Qref": np.sqrt(2),
-#         "nfref": None,
-#         "Q0": np.sqrt(2),
-#         "nf0": 4,
-#         "NfFF": 3,
-#         "IC": 1,
-#         "IB": 0,
-#         "mc": 1.0,
-#         "mb": 4.75,
-#         "mt": 173.0,
-#         "kcThr": 0.0,
-#         "kbThr": np.inf,
-#         "ktThr": np.inf,
-#         "MaxNfPdf": 6,
-#         "MaxNfAs": 6,
-#         "HQ": "POLE",
-#         "ModSV": None,
-#     }
-
-#     operators_card = {
-#         "mugrid": [(1, 3), (10, 5)],
-#         "interpolation_xgrid": [0.1, 1.0],
-#         "interpolation_polynomial_degree": 1,
-#         "interpolation_is_log": True,
-#         "debug_skip_singlet": True,
-#         "debug_skip_non_singlet": False,
-#         "ev_op_max_order": 1,
-#         "ev_op_iterations": 1,
-#         "backward_inversion": None,
-#     }
-#     g = OperatorGrid.from_dict(
-#         theory_card,
-#         operators_card,
-#         ThresholdsAtlas.from_dict(theory_card),
-#         StrongCoupling.from_dict(theory_card),
-#         InterpolatorDispatcher.from_dict(operators_card),
-#     )
-#     o = OperatorMatrixElement(g.config, g.managers, is_backward=False)
-#     log_grid = np.log(o.int_disp.xgrid_raw)
-#     res = run_op_integration(
-#         log_grid=(len(log_grid) - 1, log_grid[-1]),
-#         int_disp=o.int_disp,
-#         labels=[(200, 200)],
-#         is_log=True,
-#         grid_size=len(log_grid),
-#         a_s=0.333,
-#         order=theory_card["PTO"],
-#         L=0,
-#         nf=4,
-#         backward_method=None,
-#         is_msbar=False,
-#     )
-
-#     # here the last point is a zero, by default
-#     np.testing.assert_allclose(res[0][(200, 200)], (0.0, 0.0))
-
-#     # test that copy ome does not change anything
-#     o.copy_ome()
-#     np.testing.assert_allclose(0.0, o.op_members[(100, 100)].value)
-
-
 class TestOperatorMatrixElement:
-    def test_labels(self, theory_ffns, operator_card, tmp_path: pathlib.Path):
-        path = tmp_path / "eko.tar"
+    def test_labels(self, theory_ffns, operator_card):
         for skip_singlet in [True, False]:
             for skip_ns in [True, False]:
                 operator_card.configs.inversion_method = InversionMethod.EXACT
                 operator_card.debug.skip_singlet = skip_singlet
                 operator_card.debug.skip_non_singlet = skip_ns
-                path.unlink(missing_ok=True)
-                g = legacy.Runner(theory_ffns(3), operator_card, path=path).op_grid
+                f = FakeEKO(theory_ffns(3), operator_card)
                 o = OperatorMatrixElement(
-                    g.config,
-                    g.managers,
+                    _matching_configs(f),
+                    _managers(f),
                     is_backward=True,
                     q2=None,
                     nf=None,
@@ -380,16 +309,16 @@ class TestOperatorMatrixElement:
                     else:
                         assert lab in labels
 
-    def test_compute_n3lo(self, theory_ffns, operator_card, tmp_path):
+    def test_compute_n3lo(self, theory_ffns, operator_card):
         theory_card: TheoryCard = theory_ffns(5)
         theory_card.heavy.matching_ratios.c = 1.0
         theory_card.heavy.matching_ratios.b = 1.0
         theory_card.order = (4, 0)
         operator_card.debug.skip_singlet = True
-        g = legacy.Runner(theory_card, operator_card, path=tmp_path / "eko.tar").op_grid
+        f = FakeEKO(theory_card, operator_card)
         o = OperatorMatrixElement(
-            g.config,
-            g.managers,
+            _matching_configs(f),
+            _managers(f),
             is_backward=True,
             q2=theory_card.heavy.masses.b.value**2,
             nf=4,
@@ -418,10 +347,10 @@ class TestOperatorMatrixElement:
         theory_card.order = (1, 0)
         operator_card.debug.skip_singlet = False
         operator_card.debug.skip_non_singlet = False
-        g = legacy.Runner(theory_card, operator_card, path=tmp_path / "eko.tar").op_grid
+        f = FakeEKO(theory_card, operator_card)
         o = OperatorMatrixElement(
-            g.config,
-            g.managers,
+            _matching_configs(f),
+            _managers(f),
             is_backward=False,
             q2=theory_card.heavy.masses.b.value**2,
             nf=4,
@@ -470,10 +399,10 @@ class TestOperatorMatrixElement:
         operator_card.configs.n_integration_cores = 1
         operator_card.debug.skip_singlet = True
         operator_card.debug.skip_non_singlet = False
-        g = legacy.Runner(theory_card, operator_card, path=tmp_path / "eko.tar").op_grid
+        f = FakeEKO(theory_card, operator_card)
         o = OperatorMatrixElement(
-            g.config,
-            g.managers,
+            _matching_configs(f),
+            _managers(f),
             is_backward=False,
             q2=theory_card.heavy.masses.b.value**2,
             nf=4,

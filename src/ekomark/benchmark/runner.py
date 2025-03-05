@@ -14,6 +14,7 @@ from banana.data import dfdict
 import eko
 from eko import EKO
 from eko import basis_rotation as br
+from eko.io.runcards import Legacy
 from ekobox import apply
 
 from .. import pdfname
@@ -55,15 +56,15 @@ class Runner(BenchmarkRunner):
         """Specify PDFs to skip."""
         return []
 
-    def run_me(self, theory, ocard, _pdf):
+    def run_me(self, raw_theory, raw_ocard, _pdf):
         """Run eko.
 
         Parameters
         ----------
-        theory : dict
-            theory card
-        ocard : dict
-            operator card
+        raw_theory : dict
+            raw theory card
+        raw_ocard : dict
+            raw operator card
         pdf : lhapdf_type
             pdf
 
@@ -81,9 +82,14 @@ class Runner(BenchmarkRunner):
             logging.getLogger("eko").addHandler(logStdout)
             logging.getLogger("eko").setLevel(logging.INFO)
 
-        ops_id = f"o{ocard['hash'][:6]}_t{theory['hash'][:6]}"
+        ops_id = f"o{raw_ocard['hash'][:6]}_t{raw_theory['hash'][:6]}"
         root = banana_cfg.cfg["paths"]["database"].parents[0]
         path = root / f"{ops_id}.tar"
+
+        # convert cards
+        conv = Legacy(raw_theory, raw_ocard)
+        theory = conv.new_theory
+        ocard = conv.new_operator
 
         # if sandbox check for cache, dump eko to yaml
         # and plot the operators
@@ -102,7 +108,7 @@ class Runner(BenchmarkRunner):
                 print(f"Operator written to {path}")
             else:
                 # load
-                print(f"Using cached eko data: {os.path.relpath(path,os.getcwd())}")
+                print(f"Using cached eko data: {os.path.relpath(path, os.getcwd())}")
 
             if self.plot_operator:
                 from ekomark.plots import (  # pylint:disable=import-error,import-outside-toplevel
@@ -116,12 +122,12 @@ class Runner(BenchmarkRunner):
                 with EKO.edit(path) as out_copy:
                     save_operators_to_pdf(
                         output_path,
-                        theory,
-                        ocard,
+                        raw_theory,
+                        raw_ocard,
                         out_copy,
-                        self.skip_pdfs(theory),
+                        self.skip_pdfs(raw_theory),
                         self.rotate_to_evolution_basis,
-                        theory["QED"] > 0,
+                        raw_theory["QED"] > 0,
                     )
         else:
             # else we always rerun
@@ -147,6 +153,20 @@ class Runner(BenchmarkRunner):
                 DGLAP result
         """
         # pylint:disable=import-error,import-outside-toplevel
+        if self.external.lower() == "void":
+            xgrid = ocard["interpolation_xgrid"]
+            mugrid = ocard["mugrid"]
+            labels = br.flavor_basis_pids
+            if self.rotate_to_evolution_basis:
+                labels = br.unified_evol_basis if theory["QED"] > 0 else br.evol_basis
+
+            void = {
+                "target_xgrid": xgrid,
+                "values": {
+                    mu**2: {pid: [0.0] * len(xgrid) for pid in labels} for mu in mugrid
+                },
+            }
+            return void
         if self.external.lower() == "lha":
             from .external import LHA_utils
 
@@ -211,7 +231,7 @@ class Runner(BenchmarkRunner):
         # LHA NNLO VFNS needs a special treatment
         # Valence contains only u and d
         rotate_to_evolution = None
-        labels = None
+        labels = br.flavor_basis_pids
         qed = theory["QED"] > 0
         if self.rotate_to_evolution_basis:
             if not qed:

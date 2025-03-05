@@ -254,7 +254,7 @@ def gamma_nsmu(N, nf, cache):
     nd = nf - nu
     eSigma2 = constants.NC * (nu * constants.eu2 + nd * constants.ed2)
     tmp = (
-        2
+        2.0
         * (-12.0 + 20.0 * N + 47.0 * N**2 + 6.0 * N**3 + 3.0 * N**4)
         / (9.0 * N**2 * (1.0 + N) ** 2)
         - 80.0 / 9.0 * S1

@@ -51,7 +51,6 @@ can be specified at ``scale_ref`` along with ``nf_ref`` and, the computed result
 depend on the number of flavors at the target scale, see :meth:`eko.couplings.Couplings.a_s`
 An example how the evolution path is determined is given :doc:`here</code/Utilities/>`.
 
-
 QCD Splitting Functions
 -----------------------
 
@@ -86,8 +85,8 @@ At |NLO|, the singlet entry of the quark-quark anomalous dimension can be decomp
     \gamma^{(1)}_{qq} =\gamma^{(1)}_{ps} + \gamma^{(1)}_{ns,+}
 
 The non-singlet sector in the polarized case swaps the plus and minus non-singlet relative to the unpolarized case.
-This is because the polarized non-singlet splitting functions are defined as the difference between the probability of the polarized parton splitting 
-into daughter partons of the same flavour and same helicity and daughters of a different flavours and opposite helicity. 
+This is because the polarized non-singlet splitting functions are defined as the difference between the probability of the polarized parton splitting
+into daughter partons of the same flavour and same helicity and daughters of a different flavours and opposite helicity.
 The first moments of the anomalous dimensions are:
 
 .. math ::
@@ -103,7 +102,7 @@ At |NNLO| the non-singlet is further decomposed into the helicity difference qua
 where :math:`\gamma^{(2)}_{ns,-}` is the minus flavour asymmetry non-singlet and :math:`\gamma^{(2)}_{ns,s}` the sea-like polarized non-singlet.
 The singlet entry :math:`\gamma^{(2)}_{qq}` is defined as above in the |NLO| case.
 
-Finally the violation of the axial current conservation :math:`\bar{\psi} \gamma_\mu \gamma_5 \bar{\psi}` only through 
+Finally the violation of the axial current conservation :math:`\bar{\psi} \gamma_\mu \gamma_5 \bar{\psi}` only through
 loop corrections impose the following relations to the singlet splittings at all orders :cite:`Moch:2014sna` :
 
 .. math ::
