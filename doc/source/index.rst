@@ -55,7 +55,6 @@ EKO is ...
     Math <modules/ekore/ekore>
     code/Operators
     code/Utilities
-    code/Dependency
 
 .. toctree::
     :maxdepth: 1
