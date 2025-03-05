@@ -13,16 +13,22 @@ CouplingRef = ReferenceRunning[Coupling]
 
 @dataclasses.dataclass
 class CouplingsInfo(DictLike):
-    """Reference values for coupling constants.
-
-    Also includes further information, defining the run of the
-    couplings.
-    """
+    """Reference values for coupling constants."""
 
     alphas: Coupling
+    r"""Reference |QCD| coupling :math:`\alpha_s(\mu_R^0)^{(n_f^0)}`.
+
+    Note
+    ----
+    We refer to :math:`\alpha_s` here instead
+    of :math:`a_s = \alpha_s/(4\pi)` as we do otherwise.
+    """
     alphaem: Coupling
+    r"""Reference |QED| coupling :math:`\alpha_{em}(\mu_R^0)^{(n_f^0)}`."""
     ref: EPoint
+    r"""Reference evolution point :math:`(\mu_R^0,n_f^0)`"""
     em_running: bool = False
+    r"""If set, activates the |QED| running."""
 
     @property
     def values(self):
