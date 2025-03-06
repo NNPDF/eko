@@ -18,7 +18,7 @@ The classes are nested as follows:
         MatchingCondition [label="MatchingCondition" ];
         PhysicalOperator [label="PhysicalOperator"];
         Operator [label="Operator" ];
-        OME [label="OME" ];
+        OME [label="OperatorMatrixElement" ];
 
         Operator -> PhysicalOperator [weight=100,style=dashed];
         PhysicalOperator -> ndarray [style=dashed];
@@ -30,15 +30,15 @@ The classes are nested as follows:
         OpMember -> MatchingCondition [dir=back];
     }
 
-- :class:`~eko.evolution_operator.Operator`
+- :class:`~eko.evolution_operator.Operator` / :class:`~eko.evolution_operator.operator_matrix_element.OperatorMatrixElement`
 
-    * represents a configuration for a fixed final scale :math:`Q_1^2`
+    * represents a configuration for a fixed final evolution point :math:`(Q^2,n_f)`
     * performs the actual :doc:`computation </theory/DGLAP>`
     * uses the 3-dimensional :ref:`theory/FlavorSpace:Operator Anomalous Dimension Basis`
     * its :class:`~eko.member.OpMember` are only valid in the current
       threshold area
 
-- :class:`~eko.evolution_operator.physical.PhysicalOperator`
+- :class:`~eko.evolution_operator.physical.PhysicalOperator` / :class:`~eko.evolution_operator.matching_condition.MatchingCondition`
 
     * is the connection of the :class:`~eko.evolution_operator.Operator`
       between the different flavor bases
@@ -50,5 +50,7 @@ The classes are nested as follows:
 - :class:`~eko.member.OpMember`
 
     * represents a single operator in Mellin space for a given element of the :ref:`theory/FlavorSpace:Operator Bases`
-    * inside :class:`~eko.evolution_operator.Operator` they are in :ref:`theory/FlavorSpace:Operator Anomalous Dimension Basis`
-    * inside :class:`~eko.evolution_operator.physical.PhysicalOperator` they are in :ref:`theory/FlavorSpace:Operator Intrinsic QCD Evolution Basis`
+    * inside :class:`~eko.evolution_operator.Operator` / :class:`~eko.evolution_operator.operator_matrix_element.OperatorMatrixElement`
+      they are in :ref:`theory/FlavorSpace:Operator Anomalous Dimension Basis`
+    * inside :class:`~eko.evolution_operator.physical.PhysicalOperator` / :class:`~eko.evolution_operator.matching_condition.MatchingCondition`
+      they are in :ref:`theory/FlavorSpace:Operator Intrinsic QCD Evolution Basis`

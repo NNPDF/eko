@@ -24,7 +24,7 @@ here = pathlib.Path(__file__).absolute().parent
 # -- Project information -----------------------------------------------------
 
 project = "EKO"
-copyright = "2019-2024, the NNPDF team"  # pylint: disable=redefined-builtin
+copyright = "2019-2025, the NNPDF team"  # pylint: disable=redefined-builtin
 author = "NNPDF team"
 
 # The short X.Y version

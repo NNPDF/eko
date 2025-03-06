@@ -23,7 +23,7 @@ Order = Tuple[int, int]
 FlavorsNumber = int
 FlavorIndex = int
 IntrinsicFlavors = List[FlavorIndex]
-N3LOAdVariation = Tuple[int, int, int, int]
+N3LOAdVariation = Tuple[int, int, int, int, int, int, int]
 OperatorLabel = Tuple[int, int]
 
 # Evolution coordinates
