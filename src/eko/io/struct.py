@@ -386,6 +386,8 @@ class EKO:
         format. Otherwise, the `path` is interpreted as the location of an
         already extracted folder.
         """
+        # Take the absolute path in case we need to modify the eko in-place
+        path = path.resolve()
         if extract:
             dir_ = Path(tempfile.mkdtemp(prefix=TEMP_PREFIX)) if dest is None else dest
             with tarfile.open(path) as tar:
