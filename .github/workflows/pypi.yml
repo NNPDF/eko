@@ -7,8 +7,10 @@ on:
 
 jobs:
   publish:
-    uses: NNPDF/workflows/.github/workflows/python-poetry-pypi.yml@v2
+    uses: ./.github/workflows/python-poetry-pypi-with-data.yml
     secrets:
       PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
     with:
       poetry-extras: "-E mark -E box"
+      data-version: "v2"
+      data-download: "./tests/data/assets.sh"
