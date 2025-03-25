@@ -19,7 +19,7 @@ repos:
       - id: pycln
         args: [--config=pyproject.toml]
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.11.0
+    rev: v0.11.2
     hooks:
       # Run the linter.
       - id: ruff
@@ -59,6 +59,6 @@ repos:
       types: [file, rust]
       language: system
   - repo: https://github.com/pre-commit/pre-commit
-    rev: v4.1.0
+    rev: v4.2.0
     hooks:
       - id: validate_manifest
