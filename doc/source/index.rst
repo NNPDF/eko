@@ -55,7 +55,6 @@ EKO is ...
     Math <modules/ekore/ekore>
     code/Operators
     code/Utilities
-    code/Dependency
 
 .. toctree::
     :maxdepth: 1
@@ -64,4 +63,3 @@ EKO is ...
 
     development/Benchmarks.rst
     development/ekomark.rst
-    development/code_todos

@@ -39,7 +39,7 @@ _operator = dict(
         interpolation_is_log=True,
         scvar_method=None,
         inversion_method=None,
-        n_integration_cores=0,
+        n_integration_cores=1,
         polarized=False,
         time_like=False,
     ),

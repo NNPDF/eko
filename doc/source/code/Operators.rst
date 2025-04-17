@@ -18,11 +18,8 @@ The classes are nested as follows:
         MatchingCondition [label="MatchingCondition" ];
         PhysicalOperator [label="PhysicalOperator"];
         Operator [label="Operator" ];
-        OME [label="OME" ];
-        OperatorGrid [label="OperatorGrid"];
+        OME [label="OperatorMatrixElement" ];
 
-        OperatorGrid -> Operator;
-        OperatorGrid -> OME;
         Operator -> PhysicalOperator [weight=100,style=dashed];
         PhysicalOperator -> ndarray [style=dashed];
         OME -> MatchingCondition [weight=100,style=dashed];
@@ -31,26 +28,17 @@ The classes are nested as follows:
         OpMember -> PhysicalOperator [dir=back];
         OME -> OpMember;
         OpMember -> MatchingCondition [dir=back];
-
-        OperatorGrid -> OpMember -> ndarray [style=invis];
     }
 
-- :class:`~eko.evolution_operator.grid.OperatorGrid`
+- :class:`~eko.evolution_operator.Operator` / :class:`~eko.evolution_operator.operator_matrix_element.OperatorMatrixElement`
 
-    * is the master class which administrates all operator tasks
-    * is instantiated once for each run
-    * holds all necessary :doc:`configurations </code/IO>`
-    * holds all necessary instances of the :doc:`/code/Utilities`
-
-- :class:`~eko.evolution_operator.Operator`
-
-    * represents a configuration for a fixed final scale :math:`Q_1^2`
+    * represents a configuration for a fixed final evolution point :math:`(Q^2,n_f)`
     * performs the actual :doc:`computation </theory/DGLAP>`
     * uses the 3-dimensional :ref:`theory/FlavorSpace:Operator Anomalous Dimension Basis`
     * its :class:`~eko.member.OpMember` are only valid in the current
       threshold area
 
-- :class:`~eko.evolution_operator.physical.PhysicalOperator`
+- :class:`~eko.evolution_operator.physical.PhysicalOperator` / :class:`~eko.evolution_operator.matching_condition.MatchingCondition`
 
     * is the connection of the :class:`~eko.evolution_operator.Operator`
       between the different flavor bases
@@ -62,5 +50,7 @@ The classes are nested as follows:
 - :class:`~eko.member.OpMember`
 
     * represents a single operator in Mellin space for a given element of the :ref:`theory/FlavorSpace:Operator Bases`
-    * inside :class:`~eko.evolution_operator.Operator` they are in :ref:`theory/FlavorSpace:Operator Anomalous Dimension Basis`
-    * inside :class:`~eko.evolution_operator.physical.PhysicalOperator` they are in :ref:`theory/FlavorSpace:Operator Intrinsic QCD Evolution Basis`
+    * inside :class:`~eko.evolution_operator.Operator` / :class:`~eko.evolution_operator.operator_matrix_element.OperatorMatrixElement`
+      they are in :ref:`theory/FlavorSpace:Operator Anomalous Dimension Basis`
+    * inside :class:`~eko.evolution_operator.physical.PhysicalOperator` / :class:`~eko.evolution_operator.matching_condition.MatchingCondition`
+      they are in :ref:`theory/FlavorSpace:Operator Intrinsic QCD Evolution Basis`

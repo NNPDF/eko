@@ -14,7 +14,7 @@ import numpy as np
 import yaml
 
 from .. import interpolation
-from . import exceptions, raw
+from . import exceptions, raw, v1, v2
 from .access import AccessConfigs
 from .inventory import Inventory
 from .items import Evolution, Matching, Operator, Recipe, Target
@@ -132,16 +132,26 @@ class EKO:
     @property
     def theory_card(self):
         """Provide theory card, retrieving from the dump."""
-        return TheoryCard.from_dict(
-            yaml.safe_load(self.paths.theory_card.read_text(encoding="utf-8"))
-        )
+        raw_th = yaml.safe_load(self.paths.theory_card.read_text(encoding="utf-8"))
+        if self.metadata.data_version in [1]:
+            raw_th = v1.update_theory(raw_th)
+        if self.metadata.data_version in [2]:
+            raw_th = v2.update_theory(raw_th)
+        return TheoryCard.from_dict(raw_th)
 
     @property
     def operator_card(self):
         """Provide operator card, retrieving from the dump."""
-        return OperatorCard.from_dict(
-            yaml.safe_load(self.paths.operator_card.read_text(encoding="utf-8"))
-        )
+        raw_op = yaml.safe_load(self.paths.operator_card.read_text(encoding="utf-8"))
+        if self.metadata.data_version in [1]:
+            # here we need to read also the theory card
+            raw_th = yaml.safe_load(self.paths.theory_card.read_text(encoding="utf-8"))
+            raw_op = v1.update_operator(raw_op, raw_th)
+        if self.metadata.data_version in [2]:
+            # here we need to read also the theory card
+            raw_th = yaml.safe_load(self.paths.theory_card.read_text(encoding="utf-8"))
+            raw_op = v2.update_operator(raw_op, raw_th)
+        return OperatorCard.from_dict(raw_op)
 
     # persistency control
     # -------------------
@@ -350,6 +360,16 @@ class EKO:
         )
         loaded.operators.sync()
 
+        # check operator shape is still compatible
+        for _, op in loaded.items():
+            try:
+                assert op.operator.shape[1] == op.operator.shape[3]
+                assert op.operator.shape[0] == op.operator.shape[2]
+            except AssertionError as exc:
+                raise ValueError(
+                    "Loading not squared EKOs is no longer possible."
+                ) from exc
+
         return loaded
 
     @classmethod
@@ -366,6 +386,8 @@ class EKO:
         format. Otherwise, the `path` is interpreted as the location of an
         already extracted folder.
         """
+        # Take the absolute path in case we need to modify the eko in-place
+        path = path.resolve()
         if extract:
             dir_ = Path(tempfile.mkdtemp(prefix=TEMP_PREFIX)) if dest is None else dest
             with tarfile.open(path) as tar:

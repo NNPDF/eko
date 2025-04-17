@@ -1,7 +1,7 @@
 """Structures to hold runcards information.
 
 All energy scales in the runcards should be saved linearly, not the
-squared value, for consistency. Squares are consistenly taken inside.
+squared value, for consistency. Squares are consistently taken inside.
 """
 
 from dataclasses import dataclass
@@ -36,10 +36,21 @@ from .types import EvolutionPoint as EPoint
 # TODO: add frozen
 @dataclass
 class TheoryCard(DictLike):
-    """Represent theory card content."""
+    """Represents general theory settings.
+
+    This describes the general settings, which define the parameters for the general
+    framework rather than a specific operator.
+    Important settings are e.g. perturbative order, quark masses, or
+    the reference value of the couplings.
+    """
 
     order: Order
-    """Perturbative order tuple, ``(QCD, QED)``."""
+    r"""Perturbative order tuple, ``(QCD, QED)``.
+
+    The entries correspond to the power of the respective couplings,
+    e.g. ``(1,0)`` refers to :math:`a_s^1 a_{em}^0`,
+    i.e. |LO| |QCD| evolution.
+    """
     couplings: CouplingsInfo
     """Couplings configuration."""
     heavy: HeavyInfo
@@ -52,7 +63,15 @@ class TheoryCard(DictLike):
     use_fhmruvv: Optional[bool] = True
     """If True use the |FHMRUVV| |N3LO| anomalous dimensions."""
     matching_order: Optional[Order] = None
-    """Matching conditions perturbative order tuple, ``(QCD, QED)``."""
+    """Matching conditions perturbative order tuple, ``(QCD, QED)``.
+
+    Similar, to order the entries refer to the powers of the respective couplings.
+    |QED| |OME| are currently not available.
+    Note that for |LO| |QCD| evolution one needs ``(0,0)`` as ``matching_order``,
+    because the matching conditions are shifted by one order
+    (since they are related to processes).
+    If not provided it will use this assumption as default.
+    """
 
     def __post_init__(self):
         """Enforce defaults."""
@@ -65,9 +84,9 @@ class Debug(DictLike):
     """Debug configurations."""
 
     skip_singlet: bool = False
-    """Whether to skip QCD singlet computation."""
+    """Whether to skip singlet computation."""
     skip_non_singlet: bool = False
-    """Whether to skip QCD non-singlet computation."""
+    """Whether to skip non-singlet computation."""
 
 
 @dataclass
@@ -82,13 +101,13 @@ class Configs(DictLike):
     Used only in ``perturbative`` solutions.
     """
     ev_op_iterations: int
-    """Number of intervals in which to break the global path."""
+    """Number of intervals in which to break the evolution integral."""
     scvar_method: Optional[ScaleVariationsMethod]
     """Scale variation method."""
     inversion_method: Optional[InversionMethod]
     """Which method to use for backward matching conditions."""
     interpolation_polynomial_degree: int
-    """Degree of elements of the intepolation polynomial basis."""
+    """Degree of elements of the interpolation polynomial basis."""
     interpolation_is_log: bool
     r"""Whether to use polynomials in :math:`\log(x)`.
 
@@ -104,13 +123,20 @@ class Configs(DictLike):
 
 @dataclass
 class OperatorCard(DictLike):
-    """Operator Card info."""
+    """Represents specific operator settings.
+
+    This describes the specific settings for a given set of operator,
+    rather than the general theory settings.
+    Important settings are e.g. the initial and final evolution points,
+    or the solution method.
+    """
 
     init: EPoint
-    """Initial scale."""
+    """Initial evolution point."""
     mugrid: List[EPoint]
+    """Final list of evolution points."""
     xgrid: interpolation.XGrid
-    """Momentum fraction internal grid."""
+    """Momentum fraction interpolation grid."""
 
     # collections
     configs: Configs
@@ -121,7 +147,7 @@ class OperatorCard(DictLike):
 
     # optional
     eko_version: str = vmod.__version__
-    """Version of EKO package first used for generation."""
+    """Version of EKO package used for generation."""
 
     # a few properties, for ease of use and compatibility
     @property
@@ -136,7 +162,7 @@ class OperatorCard(DictLike):
 
     @property
     def evolgrid(self) -> List[EPoint]:
-        """Grid of squared final scales."""
+        """Grid of squared final evolution points."""
         return [(mu**2, nf) for mu, nf in self.mugrid]
 
     @property
@@ -271,13 +297,13 @@ class Legacy:
 
 
 def default_atlas(masses: list, matching_ratios: list):
-    r"""Create default landscape.
+    r"""Create default threshold landscape.
 
     This method should not be used to write new runcards, but rather to
     have a consistent default for comparison with other softwares and
-    existing PDF sets. There is no one-to-one relation between number of
+    existing |PDF| sets. There is no one-to-one relation between number of
     running flavors and final scales, unless matchings are all applied.
-    But this is a custom choice, since it is possible to have PDFs in
+    But this is a custom choice, since it is possible to have |PDF| in
     different |FNS| at the same scales.
     """
     matchings = (np.array(masses) * np.array(matching_ratios)) ** 2
@@ -287,14 +313,14 @@ def default_atlas(masses: list, matching_ratios: list):
 def flavored_mugrid(mugrid: list, masses: list, matching_ratios: list):
     r"""Upgrade :math:`\mu^2` grid to contain also target number flavors.
 
-    It determines the number of flavors for the PDF set at the target
+    It determines the number of flavors for the |PDF| set at the target
     scale, inferring it according to the specified scales.
 
     This method should not be used to write new runcards, but rather to
     have a consistent default for comparison with other softwares and
-    existing PDF sets. There is no one-to-one relation between number of
+    existing |PDF| sets. There is no one-to-one relation between number of
     running flavors and final scales, unless matchings are all applied.
-    But this is a custom choice, since it is possible to have PDFs in
+    But this is a custom choice, since it is possible to have |PDF| in
     different |FNS| at the same scales.
     """
     atlas = default_atlas(masses, matching_ratios)
