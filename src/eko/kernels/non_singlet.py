@@ -254,7 +254,7 @@ def n3lo_exact(gamma_ns, a1, a0, beta):
 
 
 @nb.njit(cache=True)
-def eko_ordered_truncated(gamma_ns, a1, a0, beta, order, ev_op_iterations):
+def eko_ordered_truncated(gamma_ns, a1, a0, beta, order):
     """|NLO|, |NNLO| or |N3LO| non-singlet ordered truncated EKO.
 
     Parameters
@@ -269,31 +269,25 @@ def eko_ordered_truncated(gamma_ns, a1, a0, beta, order, ev_op_iterations):
         list of the values of the beta functions
     order : tuple(int,int)
         perturbative order
-    ev_op_iterations : int
-        number of evolution steps
 
     Returns
     -------
     complex
         non-singlet ordered truncated EKO
     """
-    a_steps = np.geomspace(a0, a1, 1 + ev_op_iterations)
     U = U_vec(gamma_ns, beta, order)
     e = 1.0
-    al = a_steps[0]
-    for ah in a_steps[1:]:
-        e0 = lo_exact(gamma_ns, ah, al, beta)
-        num, den = 0, 0
-        for i in range(order[0]):
-            num += U[i] * ah**i
-            den += U[i] * al**i
-        e *= e0 * num / den
-        al = ah
+    e0 = lo_exact(gamma_ns, a1, a0, beta)
+    num, den = 0, 0
+    for i in range(order[0]):
+        num += U[i] * a1**i
+        den += U[i] * a0**i
+    e *= e0 * num / den
     return e
 
 
 @nb.njit(cache=True)
-def eko_truncated(gamma_ns, a1, a0, beta, order, ev_op_iterations):
+def eko_truncated(gamma_ns, a1, a0, beta, order):
     """|NLO|, |NNLO| or |N3LO| non-singlet truncated EKO.
 
     Parameters
@@ -308,39 +302,33 @@ def eko_truncated(gamma_ns, a1, a0, beta, order, ev_op_iterations):
         list of the values of the beta functions
     order : tuple(int,int)
         perturbative order
-    ev_op_iterations : int
-        number of evolution steps
 
     Returns
     -------
     complex
         non-singlet truncated EKO
     """
-    a_steps = np.geomspace(a0, a1, 1 + ev_op_iterations)
     U = U_vec(gamma_ns, beta, order)
     e = 1.0
-    al = a_steps[0]
     fact = U[0]
-    for ah in a_steps[1:]:
-        e0 = lo_exact(gamma_ns, ah, al, beta)
-        if order[0] >= 2:
-            fact += U[1] * (ah - al)
-        if order[0] >= 3:
-            fact += +U[2] * ah**2 - ah * al * U[1] ** 2 + al**2 * (U[1] ** 2 - U[2])
-        if order[0] >= 4:
-            fact += (
-                +(ah**3) * U[3]
-                - ah**2 * al * U[2] * U[1]
-                + ah * al**2 * U[1] * (U[1] ** 2 - U[2])
-                - al**3 * (U[1] ** 3 - 2 * U[1] * U[2] + U[3])
-            )
-        e *= e0 * fact
-        al = ah
+    e0 = lo_exact(gamma_ns, a1, a0, beta)
+    if order[0] >= 2:
+        fact += U[1] * (a1 - a0)
+    if order[0] >= 3:
+        fact += +U[2] * a1**2 - a1 * a0 * U[1] ** 2 + a0**2 * (U[1] ** 2 - U[2])
+    if order[0] >= 4:
+        fact += (
+            +(a1**3) * U[3]
+            - a1**2 * a0 * U[2] * U[1]
+            + a1 * a0**2 * U[1] * (U[1] ** 2 - U[2])
+            - a0**3 * (U[1] ** 3 - 2 * U[1] * U[2] + U[3])
+        )
+    e *= e0 * fact
     return e
 
 
 @nb.njit(cache=True)
-def dispatcher(order, method, gamma_ns, a1, a0, nf, ev_op_iterations):  # pylint: disable=too-many-return-statements
+def dispatcher(order, method, gamma_ns, a1, a0, nf):  # pylint: disable=too-many-return-statements
     """Determine used kernel and call it.
 
     In LO we always use the exact solution.
@@ -359,8 +347,6 @@ def dispatcher(order, method, gamma_ns, a1, a0, nf, ev_op_iterations):  # pylint
         initial coupling value
     nf : int
         number of active flavors
-    ev_op_iterations : int
-        number of evolution steps
 
     Returns
     -------
@@ -372,11 +358,9 @@ def dispatcher(order, method, gamma_ns, a1, a0, nf, ev_op_iterations):  # pylint
     if order[0] == 1:
         return lo_exact(gamma_ns, a1, a0, betalist)
     if method is EvoMethods.ORDERED_TRUNCATED:
-        return eko_ordered_truncated(
-            gamma_ns, a1, a0, betalist, order, ev_op_iterations
-        )
+        return eko_ordered_truncated(gamma_ns, a1, a0, betalist, order)
     if method == EvoMethods.TRUNCATED:
-        return eko_truncated(gamma_ns, a1, a0, betalist, order, ev_op_iterations)
+        return eko_truncated(gamma_ns, a1, a0, betalist, order)
 
     # NLO
     if order[0] == 2:

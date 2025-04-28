@@ -442,7 +442,6 @@ def quad_ker_qcd(
             as1,
             as0,
             nf,
-            ev_op_iterations,
         )
         if sv_mode == sv.Modes.expanded and not is_threshold:
             ker = sv_expanded.non_singlet_variation(gamma_ns, as1, order, nf, L) * ker

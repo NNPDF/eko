@@ -515,7 +515,7 @@ def eko_perturbative(
 
 
 @nb.njit(cache=True)
-def eko_truncated(gamma_singlet, a1, a0, beta, order, ev_op_iterations):
+def eko_truncated(gamma_singlet, a1, a0, beta, order):
     """Singlet |NLO|, |NNLO| or |N3LO| truncated EKO.
 
     Parameters
@@ -530,8 +530,6 @@ def eko_truncated(gamma_singlet, a1, a0, beta, order, ev_op_iterations):
         list of the values of the beta functions
     order : tuple(int,int)
         perturbative order
-    ev_op_iterations : int
-        number of evolution steps
 
     Returns
     -------
@@ -543,29 +541,21 @@ def eko_truncated(gamma_singlet, a1, a0, beta, order, ev_op_iterations):
     u1 = np.ascontiguousarray(u[1])
     e = np.identity(2, np.complex_)
     # iterate elements
-    a_steps = np.geomspace(a0, a1, 1 + ev_op_iterations)
-    al = a_steps[0]
-    for ah in a_steps[1:]:
-        e0 = np.ascontiguousarray(lo_exact(gamma_singlet, ah, al, beta))
-        if order[0] >= 2:
-            ek = e0 + ah * u1 @ e0 - al * e0 @ u1
-        if order[0] >= 3:
-            u2 = np.ascontiguousarray(u[2])
-            ek += (
-                +(ah**2) * u2 @ e0
-                - ah * al * u1 @ e0 @ u1
-                + al**2 * e0 @ (u1 @ u1 - u2)
-            )
-        if order[0] >= 4:
-            u3 = np.ascontiguousarray(u[3])
-            ek += (
-                +(ah**3) * u3 @ e0
-                - ah**2 * al * u2 @ e0 @ u1
-                + ah * al**2 * u1 @ e0 @ (u1 @ u1 - u2)
-                - al**3 * e0 @ (u1 @ u1 @ u1 - u1 @ u2 - u2 @ u1 + u3)
-            )
-        e = ek @ e
-        al = ah
+    e0 = np.ascontiguousarray(lo_exact(gamma_singlet, a1, a0, beta))
+    if order[0] >= 2:
+        ek = e0 + a1 * u1 @ e0 - a0 * e0 @ u1
+    if order[0] >= 3:
+        u2 = np.ascontiguousarray(u[2])
+        ek += +(a1**2) * u2 @ e0 - a1 * a0 * u1 @ e0 @ u1 + a0**2 * e0 @ (u1 @ u1 - u2)
+    if order[0] >= 4:
+        u3 = np.ascontiguousarray(u[3])
+        ek += (
+            +(a1**3) * u3 @ e0
+            - a1**2 * a0 * u2 @ e0 @ u1
+            + a1 * a0**2 * u1 @ e0 @ (u1 @ u1 - u2)
+            - a0**3 * e0 @ (u1 @ u1 @ u1 - u1 @ u2 - u2 @ u1 + u3)
+        )
+    e = ek @ e
     return e
 
 
@@ -636,7 +626,7 @@ def dispatcher(  # pylint: disable=too-many-return-statements
             False,
         )
     if method in [EvoMethods.TRUNCATED, EvoMethods.ORDERED_TRUNCATED]:
-        return eko_truncated(gamma_singlet, a1, a0, betalist, order, ev_op_iterations)
+        return eko_truncated(gamma_singlet, a1, a0, betalist, order)
     # These methods are scattered for nlo and nnlo
     if method == EvoMethods.DECOMPOSE_EXACT:
         if order[0] == 2:
