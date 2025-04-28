@@ -276,14 +276,12 @@ def eko_ordered_truncated(gamma_ns, a1, a0, beta, order):
         non-singlet ordered truncated EKO
     """
     U = U_vec(gamma_ns, beta, order)
-    e = 1.0
     e0 = lo_exact(gamma_ns, a1, a0, beta)
     num, den = 0, 0
     for i in range(order[0]):
         num += U[i] * a1**i
         den += U[i] * a0**i
-    e *= e0 * num / den
-    return e
+    return e0 * num / den
 
 
 @nb.njit(cache=True)
@@ -309,7 +307,6 @@ def eko_truncated(gamma_ns, a1, a0, beta, order):
         non-singlet truncated EKO
     """
     U = U_vec(gamma_ns, beta, order)
-    e = 1.0
     fact = U[0]
     e0 = lo_exact(gamma_ns, a1, a0, beta)
     if order[0] >= 2:
@@ -323,8 +320,7 @@ def eko_truncated(gamma_ns, a1, a0, beta, order):
             + a1 * a0**2 * U[1] * (U[1] ** 2 - U[2])
             - a0**3 * (U[1] ** 3 - 2 * U[1] * U[2] + U[3])
         )
-    e *= e0 * fact
-    return e
+    return e0 * fact
 
 
 @nb.njit(cache=True)

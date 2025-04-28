@@ -539,23 +539,21 @@ def eko_truncated(gamma_singlet, a1, a0, beta, order):
     r = r_vec(gamma_singlet, beta, order, order, False)
     u = u_vec(r, order)
     u1 = np.ascontiguousarray(u[1])
-    e = np.identity(2, np.complex_)
-    # iterate elements
     e0 = np.ascontiguousarray(lo_exact(gamma_singlet, a1, a0, beta))
+    e = e0
     if order[0] >= 2:
-        ek = e0 + a1 * u1 @ e0 - a0 * e0 @ u1
+        e += a1 * u1 @ e0 - a0 * e0 @ u1
     if order[0] >= 3:
         u2 = np.ascontiguousarray(u[2])
-        ek += +(a1**2) * u2 @ e0 - a1 * a0 * u1 @ e0 @ u1 + a0**2 * e0 @ (u1 @ u1 - u2)
+        e += +(a1**2) * u2 @ e0 - a1 * a0 * u1 @ e0 @ u1 + a0**2 * e0 @ (u1 @ u1 - u2)
     if order[0] >= 4:
         u3 = np.ascontiguousarray(u[3])
-        ek += (
+        e += (
             +(a1**3) * u3 @ e0
             - a1**2 * a0 * u2 @ e0 @ u1
             + a1 * a0**2 * u1 @ e0 @ (u1 @ u1 - u2)
             - a0**3 * e0 @ (u1 @ u1 @ u1 - u1 @ u2 - u2 @ u1 + u3)
         )
-    e = ek @ e
     return e
 
 
