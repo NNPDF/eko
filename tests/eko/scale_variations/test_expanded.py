@@ -136,12 +136,8 @@ def test_expanded_is_linear():
                 )
 
                 # build scheme B solution
-                ker_b = non_singlet.dispatcher(
-                    order, EV_METHOD, gns, a1, a0, NF, ev_op_iterations=1
-                )
-                sv_b = non_singlet.dispatcher(
-                    order, EV_METHOD, gns, a1_b, a0, NF, ev_op_iterations=1
-                )
+                ker_b = non_singlet.dispatcher(order, EV_METHOD, gns, a1, a0, NF)
+                sv_b = non_singlet.dispatcher(order, EV_METHOD, gns, a1_b, a0, NF)
                 sv_b = sv_b * expanded.non_singlet_variation(gns, a1_b, order, NF, L)
 
                 rel_err_ns.append(sv_b / ker_b)
