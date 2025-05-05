@@ -76,20 +76,18 @@ class Metadata(DictLike):
             if version.major == 0 and version.minor == 15:
                 raw = v3.update_metadata(paths, raw)
             elif (
-                version.major == 0
-                and version.minor == 0
-                and version.patch == 0
-                and version.commit != 0
+                version.major == 0 and version.minor == 0 and "post" in raw["version"]
+                # and version.patch == 0
+                # and version.commit != 0
             ):
                 raise NotImplementedError(
                     "Unsupported version; use a published eko vesion!"
                 )
         else:
             if (
-                version.major == 0
-                and version.minor == 0
-                and version.patch == 0
-                and version.commit != 0
+                version.major == 0 and version.minor == 0 and "post" in raw["version"]
+                # and version.patch == 0
+                # and version.commit != 0
             ):
                 raise NotImplementedError(
                     "Unsupported version; use a published eko vesion!"
