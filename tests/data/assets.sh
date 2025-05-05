@@ -29,7 +29,7 @@ RUSTDATADIR="crates/dekoder/tests/data/"
 # download from the server
 curl -s -C - -o "./${PYDATADIR}v0.13.tar" "${URL}v0.13.tar"
 curl -s -C - -o "./${PYDATADIR}v0.14.tar" "${URL}v0.14.tar"
-curl -s -C - -o "./${PYDATADIR}v0.0.tar" "${URL}v0.0.tar"
+curl -s -C - -o "./${PYDATADIR}v0.15.tar" "${URL}v0.15.tar"
 # expose to Rust
 if [ ! -f "./${RUSTDATADIR}v0.0.tar" ]; then
     ln -s "./../../../../${PYDATADIR}v0.0.tar" "./${RUSTDATADIR}"
