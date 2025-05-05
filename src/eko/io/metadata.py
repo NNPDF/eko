@@ -11,7 +11,7 @@ from packaging.version import parse
 
 from .. import version as vmod
 from ..interpolation import XGrid
-from . import v1, v2
+from . import v1, v2, v3
 from .dictlike import DictLike
 from .paths import InternalPaths
 from .types import EvolutionPoint as EPoint
@@ -65,11 +65,36 @@ class Metadata(DictLike):
         # read raw file first to catch version
         raw = yaml.safe_load(paths.metadata.read_text(encoding="utf-8"))
         version = parse(raw["version"])
+        data_version = raw["data_version"]
         # patch if necessary
-        if version.major == 0 and version.minor == 13:
-            raw = v1.update_metadata(paths, raw)
-        elif version.major == 0 and version.minor == 14:
-            raw = v2.update_metadata(paths, raw)
+        if data_version == 1:
+            if version.major == 0 and version.minor == 13:
+                raw = v1.update_metadata(paths, raw)
+            elif version.major == 0 and version.minor == 14:
+                raw = v2.update_metadata(paths, raw)
+        elif data_version == 3:
+            if version.major == 0 and version.minor == 15:
+                raw = v3.update_metadata(paths, raw)
+            elif (
+                version.major == 0
+                and version.minor == 0
+                and version.patch == 0
+                and version.commit != 0
+            ):
+                raise NotImplementedError(
+                    "Unsupported version; use a published eko vesion!"
+                )
+        else:
+            if (
+                version.major == 0
+                and version.minor == 0
+                and version.patch == 0
+                and version.commit != 0
+            ):
+                raise NotImplementedError(
+                    "Unsupported version; use a published eko vesion!"
+                )
+
         # now we are ready
         content = cls.from_dict(raw)
         content._path = path
