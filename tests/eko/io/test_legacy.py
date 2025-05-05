@@ -19,7 +19,7 @@ EP = (10000.0, 4)
 
 
 def test_read_legacy():
-    for name in ["v0.13.tar", "v0.14.tar", "v0.0.tar"]:
+    for name in ["v0.13.tar", "v0.14.tar", "v0.15.tar"]:
         with eko.EKO.read(TEST_DATA_DIR / name) as evolution_operator:
             # Check the cards
             assert isinstance(
