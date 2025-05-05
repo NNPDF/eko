@@ -123,16 +123,12 @@ def test_scale_variation_a_vs_b():
                 )
 
                 # build scheme B solution
-                ker_b = non_singlet.dispatcher(
-                    order, EV_METHOD, gns, a1_b, a0_b, NF, ev_op_iterations=1
-                )
+                ker_b = non_singlet.dispatcher(order, EV_METHOD, gns, a1_b, a0_b, NF)
                 ker_b = ker_b * expanded.non_singlet_variation(gns, a1_b, order, NF, L)
 
                 # build scheme A solution
                 gns_a = exponentiated.gamma_variation(gns.copy(), order, NF, L)
-                ker_a = non_singlet.dispatcher(
-                    order, EV_METHOD, gns_a, a1_a, a0_a, NF, ev_op_iterations=1
-                )
+                ker_a = non_singlet.dispatcher(order, EV_METHOD, gns_a, a1_a, a0_a, NF)
 
                 ns_diff = scheme_diff_ns(gns, a0, a1, L, order)
                 np.testing.assert_allclose(

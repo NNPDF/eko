@@ -440,7 +440,6 @@ def test_pegasus_path():
             a1,
             a0,
             nf,
-            ev_op_iterations,
         )
         pj = interpolation.log_evaluate_Nx(n, logx, areas)
         return np.imag(np.exp(1j * phi) / np.pi * pj * ker)
