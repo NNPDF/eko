@@ -5,7 +5,7 @@ computations.
 
 The primitives used here to compute the various pieces are part of the
 public interface, and should be directly used to manage a more complex
-run for a considebaly large operator.
+run for a considerably large operator.
 
 Thus, parallelization and multi-node execution is possible using EKO
 primitives, but not automatically performed.
