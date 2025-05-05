@@ -92,6 +92,7 @@ enable = true
 vcs = "git"
 style = "semver"
 dirty = true
+format_jinja = "{% if distance == 0 %}{{ base }}{% else %} 0.0.0.{{ commit }}{% endif %}"
 
 [tool.poetry-dynamic-versioning.substitution]
 files = ["src/eko/version.py"]
