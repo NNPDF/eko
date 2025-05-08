@@ -65,19 +65,27 @@ class Metadata(DictLike):
         # read raw file first to catch version
         raw = yaml.safe_load(paths.metadata.read_text(encoding="utf-8"))
         version = parse(raw["version"])
-        data_version = raw["data_version"]
+        data_version = int(raw["data_version"])
         # patch if necessary
         if data_version == 1:
             if version.major == 0 and version.minor == 13:
                 raw = v1.update_metadata(paths, raw)
             elif version.major == 0 and version.minor == 14:
                 raw = v2.update_metadata(paths, raw)
-            elif version.major == 0 and version.minor == 0 and "post" in raw["version"]:
+            elif version.major == 0 and version.minor == 0 and version.micro == 0:
+                raise NotImplementedError(
+                    "Unsupported version; use an eko from a published eko version!"
+                )
+            elif "post" in str(version):
                 raise NotImplementedError(
                     "Unsupported version; use an eko from a published eko version!"
                 )
         else:
-            if version.major == 0 and version.minor == 0 and "post" in raw["version"]:
+            if version.major == 0 and version.minor == 0 and version.micro == 0:
+                raise NotImplementedError(
+                    "Unsupported version; use an eko from a published eko version!"
+                )
+            elif "post" in str(version):
                 raise NotImplementedError(
                     "Unsupported version; use an eko from a published eko version!"
                 )
