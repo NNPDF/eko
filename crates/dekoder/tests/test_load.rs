@@ -44,7 +44,7 @@ fn save_as_other() {
     // open
     let eko = EKO::extract(src.to_owned(), dst.to_owned()).unwrap();
     // write to somewhere else
-    let tarb = assert_fs::NamedTempFile::new("v0.15b.tar").unwrap();
+    let tarb = assert_fs::NamedTempFile::new("write_test.tar").unwrap();
     eko.write(tarb.to_owned()).unwrap();
     tarb.assert(predicate::path::exists());
 }
