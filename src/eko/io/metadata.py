@@ -76,7 +76,7 @@ class Metadata(DictLike):
                 version.major == 0
                 and version.minor == 0
                 and version.micro == 0
-                and version.post is not None
+                and version.is_postrelease is True
             ):
                 raise NotImplementedError(
                     "Unsupported version; use an eko from a published eko version!"
@@ -86,7 +86,7 @@ class Metadata(DictLike):
                 version.major == 0
                 and version.minor == 0
                 and version.micro == 0
-                and version.post is not None
+                and version.is_postrelease is True
             ):
                 raise NotImplementedError(
                     "Unsupported version; use an eko from a published eko version!"
