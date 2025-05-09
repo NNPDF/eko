@@ -46,6 +46,4 @@ To generate a new file, proceed as follows:
 4. **Update the data version in the workflows**
    Update both Rust and Python workflows by incrementing the data version, so the new files are also triggered in the CI.
 
----
-
-You can test the compatibility of your eko version and the test assets with `pytest`, specifically with the `test_legacy.py` script.
+Finally, you can test the compatibility of your eko version and the test assets in the usual way with `pytest`, specifically with the `test_legacy.py` script.
