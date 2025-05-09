@@ -4,11 +4,11 @@
 
 ### a) Instructions on what to do when we break the data format:
 
-When we break the data format (i.e. if a new data version of eko creates EKO's with a different format of theory and operator cards), the new eko version will read these cards in a different way, and we need to make some changes.
+When we break the data format, we need to ensure backward compatibility and thus we need to make some changes.
 
-1. Create a file `vX.py` with X the data version (analogous to `v1.py` and `v2.py`).
-2. Make the corresponding changes to `metadata.py` and `struct.py`.
-3. Modify `versions.py` to the new data version.
+1. Create a file `vX.py` with X the data version (analogous to `v1.py` and `v2.py`) in `src/eko/io`.
+2. Make the corresponding changes to `metadata.py` and `struct.py` (also in `src/eko/io`).
+3. Modify `src/eko/version.py` to the new data version.
 4. During the development of this new data version (i.e. until the moment the data version breaks again and we move to version X+1), fill up `vX.py` with all breaking changes.
 5. Also implement these changes in the old `vX.py` scripts (at the moment these are `v1.py` and `v2.py`).
 
@@ -33,12 +33,12 @@ To generate a new file, proceed as follows:
    ```
 
 2. **Move the generated object locally**
-   The above command will create a file in `benchmarks/data/`. Move the file to `tests/data` and include it into the unit tests (consider both Rust and Python).
+   The above command will create a file in `benchmarks/data/`. Move the file to `tests/data`, call it `vX.tar`, and include it into the unit tests (consider both Rust and Python).
 
 3. **Upload the new file to the server**
    This can be done, e.g., with `scp`:
    ```bash
-   scp v0.0.tar nnpdf@data.nnpdf.science:WEB/eko/test-data
+   scp vX.tar nnpdf@data.nnpdf.science:WEB/eko/test-data
    ```
    > Note that this may overwrite an existing file, so be sure about what you're doing!
    > If necessary, add the file to the list in this script.
