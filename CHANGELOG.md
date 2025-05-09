@@ -9,10 +9,14 @@ We may prefix the items to signal the scope:
 
 - py: Python library
 - rust: Rust library
+- data: Data related changes
 
 Items without prefix refer to a global change.
 
 ## [Unreleased](https://github.com/NNPDF/eko/compare/v0.15.1...HEAD)
+
+### Changed
+- data: Changed version naming for unreleased eko versions from `0.0.0` to `0.0.0-sha` ([#448](https://github.com/NNPDF/eko/pull/448))
 
 ### Fixed
 - py: Remove usage of `ev_op_iterations` from truncated evolution as this is an inconsistent choice ([#459](https://github.com/NNPDF/eko/pull/459))
