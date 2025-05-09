@@ -1,10 +1,14 @@
 # INSTRUCTIONS REGARDING (DATA) VERSIONS
 
-## Instructions for eko maintainers on how to deal with breaking data versions
+## API versions
 
-### a) Instructions on what to do when we break the data format:
+- Remember to update the `Changelog.md`
 
-When we break the data format, we need to ensure backward compatibility and thus we need to make some changes.
+## Data versions
+
+### Instructions on what to do when we break the data format:
+
+We need to ensure backward compatibility and thus we need to make some changes.
 
 1. Create a file `vX.py` with X the data version (analogous to `v1.py` and `v2.py`) in `src/eko/io`.
 2. Make the corresponding changes to `metadata.py` and `struct.py` (also in `src/eko/io`).
@@ -15,9 +19,7 @@ When we break the data format, we need to ensure backward compatibility and thus
 > **Note**: We call the unreleased eko version `v0.0`. EKO's created with unpublished versions (`0.0.0` versions) are not part of this backward compatibility system.
 > They have version `0.0.0-{commit}`, and they cannot necessarily be read by newer eko versions.
 
----
-
-### b) Instructions on how to use the test assets:
+### Instructions on how to update the test assets:
 
 Using unit tests we check if eko handles legacy EKO's in the correct way. When we move to a new eko version, it is important to keep these test assets up to date.
 
