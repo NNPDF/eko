@@ -19,7 +19,7 @@ When we break the data format (i.e. if a new data version of eko creates EKO's w
 
 ### b) Instructions on how to use the test assets:
 
-Using `pytest`, we also test if eko handles legacy EKO's in the correct way. When we move to a new eko version, it is important to keep these test assets up to date.
+Using unit tests we check if eko handles legacy EKO's in the correct way. When we move to a new eko version, it is important to keep these test assets up to date.
 
 In the directory `tests/data`, you will find the script `assets.sh` that downloads the currently existing test assets. The script is to be executed in the root directory of the repository. Currently, these assets are only older and current eko objects, which we test for readability. The number of versions here determines how backward compatible we are. The eko objects must all correspond to the LO FFNS Les Houches benchmark.
 
