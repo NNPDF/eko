@@ -4,7 +4,7 @@
 
 ### a) Instructions on what to do when we break the data format:
 
-When we break the data format (i.e. if a new data version of eko creates EKO's with a different format of theory/operator cards), the new eko version will read these cards in a different way, and we need to make some changes.
+When we break the data format (i.e. if a new data version of eko creates EKO's with a different format of theory and operator cards), the new eko version will read these cards in a different way, and we need to make some changes.
 
 1. Create a file `vX.py` with X the data version (analogous to `v1.py` and `v2.py`).
 2. Make the corresponding changes to `metadata.py` and `struct.py`.
