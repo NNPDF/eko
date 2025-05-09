@@ -33,7 +33,7 @@ To generate a new file, proceed as follows:
    ```
 
 2. **Move the generated object locally**
-   The above command will create a file in `benchmarks/data/`. Move the file here and include it into the unit tests (consider both Rust and Python).
+   The above command will create a file in `benchmarks/data/`. Move the file to `tests/data` and include it into the unit tests (consider both Rust and Python).
 
 3. **Upload the new file to the server**
    This can be done, e.g., with `scp`:
