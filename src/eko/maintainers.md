@@ -17,7 +17,7 @@ When we break the data format (i.e. if a new data version of eko creates EKO's w
 
 ---
 
-### b) Instructions on how to use the test assets used by pytest:
+### b) Instructions on how to use the test assets:
 
 Using `pytest`, we also test if eko handles legacy EKO's in the correct way. When we move to a new eko version, it is important to keep these test assets up to date.
 
