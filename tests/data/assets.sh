@@ -1,3 +1,4 @@
+#!/usr/bin/bash
 # This script downloads the test assets to run both Rust and Python unit tests.
 # The script is to be executed in the root directory of the repository.
 
