@@ -8,16 +8,16 @@ use dekoder::eko::{EvolutionPoint, EKO};
 // so for the most part we don't need worry about that.
 
 /// Get v0.15 test object.
-fn v00tar() -> PathBuf {
+fn v3tar() -> PathBuf {
     let base: PathBuf = [env!("CARGO_MANIFEST_DIR"), "tests"].iter().collect();
-    let src = base.join("data").join("v0.0.tar");
+    let src = base.join("data").join("v3.tar");
     assert!(predicate::path::exists().eval(&src));
     src
 }
 
 #[test]
 fn open() {
-    let src = v00tar();
+    let src = v3tar();
     let dst = assert_fs::TempDir::new().unwrap();
     // open
     let _eko = EKO::extract(src.to_owned(), dst.to_owned()).unwrap();
@@ -27,7 +27,7 @@ fn open() {
 
 #[test]
 fn destroy() {
-    let src = v00tar();
+    let src = v3tar();
     let dst = assert_fs::TempDir::new().unwrap();
     {
         // extract + destroy
@@ -39,19 +39,19 @@ fn destroy() {
 
 #[test]
 fn save_as_other() {
-    let src = v00tar();
+    let src = v3tar();
     let dst = assert_fs::TempDir::new().unwrap();
     // open
     let eko = EKO::extract(src.to_owned(), dst.to_owned()).unwrap();
     // write to somewhere else
-    let tarb = assert_fs::NamedTempFile::new("v0.0b.tar").unwrap();
+    let tarb = assert_fs::NamedTempFile::new("write_test.tar").unwrap();
     eko.write(tarb.to_owned()).unwrap();
     tarb.assert(predicate::path::exists());
 }
 
 #[test]
 fn has_operator() {
-    let src = v00tar();
+    let src = v3tar();
     let dst = assert_fs::TempDir::new().unwrap();
     // open
     let eko = EKO::extract(src.to_owned(), dst.to_owned()).unwrap();
@@ -69,7 +69,7 @@ fn has_operator() {
 
 #[test]
 fn load_operator() {
-    let src = v00tar();
+    let src = v3tar();
     let dst = assert_fs::TempDir::new().unwrap();
     // open
     let eko = EKO::extract(src.to_owned(), dst.to_owned()).unwrap();
