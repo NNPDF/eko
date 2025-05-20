@@ -24,6 +24,7 @@ classifiers = [
 ]
 repository = "https://github.com/NNPDF/eko"
 include = [
+  "src/eko/version.py",
   "doc/source/img/Logo.png",
   "src/ekobox/genpdf/templatePDF.info",
   "src/ekobox/genpdf/Toy.info",
@@ -92,7 +93,7 @@ enable = true
 vcs = "git"
 style = "semver"
 dirty = true
-format_jinja = "{% if distance == 0 %}{{ base }}{% else %} 0.0.0.{{ commit }}{% endif %}"
+format-jinja = "{% if distance == 0 %}{{ base }}{% else %}0.0.0-post.{{ distance }}+{{ commit }}{% endif %}"
 
 [tool.poetry-dynamic-versioning.substitution]
 files = ["src/eko/version.py"]
