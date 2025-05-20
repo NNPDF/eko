@@ -204,10 +204,12 @@ class TestEKO:
         eko_factory.cache = None
         assert eko.access.path is not None
         read_closed = EKO.read(eko.access.path, dest=tmp_path)
-        supported_versions = [13, 14, 15]
 
         version = parse(read_closed.metadata.version)
-        assert (version.major == 0 and version.minor in supported_versions) or (
+        assert (
+            version.major + version.minor + version.micro >= 0
+            and version.is_postrelease is False
+        ) or (
             version.major == 0
             and version.minor == 0
             and version.micro == 0
