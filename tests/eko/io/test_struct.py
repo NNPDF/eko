@@ -5,6 +5,7 @@ import tarfile
 import numpy as np
 import pytest
 import yaml
+from packaging.version import parse
 
 from eko import EKO, interpolation
 from eko.io import struct
@@ -195,3 +196,20 @@ class TestEKO:
         read_opened = EKO.read(tmp_path, extract=False)
 
         assert read_closed.metadata == read_opened.metadata
+
+    def test_version(self, tmp_path: pathlib.Path, eko_factory: EKOFactory):
+        """Test asserted version. Should either be supported version, or have a postrelease addition"""
+        eko = eko_factory.get()
+        eko.close()
+        eko_factory.cache = None
+        assert eko.access.path is not None
+        read_closed = EKO.read(eko.access.path, dest=tmp_path)
+        supported_versions = [13, 14, 15]
+
+        version = parse(read_closed.metadata.version)
+        assert (version.major == 0 and version.minor in supported_versions) or (
+            version.major == 0
+            and version.minor == 0
+            and version.micro == 0
+            and version.is_postrelease
+        )
