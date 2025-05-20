@@ -72,7 +72,7 @@ pytest-env = "^0.6.2"
 pylint = "^3.1.0"
 
 [tool.poetry.group.dev.dependencies]
-pdbpp = "^0.10.3"
+pdbpp = "^0.11.6"
 ipython = "^8.0"
 # benchmark
 asv = "^0.4.2"
