@@ -73,20 +73,14 @@ class Metadata(DictLike):
             elif version.major == 0 and version.minor == 14:
                 raw = v2.update_metadata(paths, raw)
             elif (
-                version.major == 0
-                and version.minor == 0
-                and version.micro == 0
-                and not version.is_postrelease
+                 version.base_version == str(version) == '0.0.0'
             ):
                 raise NotImplementedError(
                     "Unsupported version; use an eko from a published eko version!"
                 )
         else:
             if (
-                version.major == 0
-                and version.minor == 0
-                and version.micro == 0
-                and not version.is_postrelease
+                 version.base_version == str(version) == '0.0.0'
             ):
                 raise NotImplementedError(
                      "Unsupported version; use an eko from a published eko version!"
