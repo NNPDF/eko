@@ -76,9 +76,7 @@ class Metadata(DictLike):
                 version.major == 0
                 and version.minor == 0
                 and version.micro == 0
-                and version.is_postrelease
-                and vmod.__version__
-                != f"{version.base_version}-post.{version.post}+{version.local}"
+                and not version.is_postrelease
             ):
                 raise NotImplementedError(
                     "Unsupported version; use an eko from a published eko version!"
@@ -88,12 +86,10 @@ class Metadata(DictLike):
                 version.major == 0
                 and version.minor == 0
                 and version.micro == 0
-                and version.is_postrelease
-                and vmod.__version__
-                != f"{version.base_version}-post.{version.post}+{version.local}"
+                and not version.is_postrelease
             ):
                 raise NotImplementedError(
-                    "Unsupported version; use an eko from a published eko version!"
+                     "Unsupported version; use an eko from a published eko version!"
                 )
 
         # now we are ready
