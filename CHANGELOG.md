@@ -16,7 +16,7 @@ Items without prefix refer to a global change.
 ## [Unreleased](https://github.com/NNPDF/eko/compare/v0.15.1...HEAD)
 
 ### Changed
-- data: Changed version naming for unreleased eko versions from `0.0.0` to `0.0.0-sha` ([#448](https://github.com/NNPDF/eko/pull/448))
+- data: Change version naming for unreleased eko versions from `0.0.0` to `0.0.0-post.{distance}+{commit hash}` ([#448](https://github.com/NNPDF/eko/pull/448)) ([#465](https://github.com/NNPDF/eko/pull/465))
 
 ### Fixed
 - py: Remove usage of `ev_op_iterations` from truncated evolution as this is an inconsistent choice ([#459](https://github.com/NNPDF/eko/pull/459))

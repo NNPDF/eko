@@ -17,7 +17,7 @@ We need to ensure backward compatibility and thus we need to make some changes.
 5. Also implement these changes in the old `vX.py` scripts (at the moment these are `v1.py` and `v2.py`).
 
 > **Note**: We call the unreleased eko version `v0.0`. EKO's created with unpublished versions (`0.0.0` versions) are not part of this backward compatibility system.
-> They have version `0.0.0-{commit}`, and they cannot necessarily be read by newer eko versions.
+> They have version `0.0.0-{commit}` and they cannot necessarily be read by newer eko versions.
 
 ### Instructions on how to update the test assets:
 
