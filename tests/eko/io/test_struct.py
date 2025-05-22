@@ -207,7 +207,7 @@ class TestEKO:
 
         version = parse(read_closed.metadata.version)
         assert (
-            version.major + version.minor + version.micro >= 0
+            version.major + version.minor + version.micro > 0
             and not version.is_postrelease
         ) or (
             version.major == 0
