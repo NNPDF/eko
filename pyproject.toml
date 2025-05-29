@@ -103,7 +103,7 @@ folders = [{path = "src/eko"}]
 persistent-substitution = true
 initial-content = """
   __version__ = "0.0.0"
-  __data_version__ = 3 
+  __data_version__ = 3
 """
 
 [tool.poetry.scripts]
