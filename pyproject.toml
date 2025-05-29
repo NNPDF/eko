@@ -97,6 +97,14 @@ format-jinja = "{% if distance == 0 %}{{ base }}{% else %}0.0.0-post.{{ distance
 
 [tool.poetry-dynamic-versioning.substitution]
 files = ["src/eko/version.py"]
+folders = [{path = "src/eko"}]
+
+[tool.poetry-dynamic-versioning.files."src/eko/version.py"]
+persistent-substitution = true
+initial-content = """
+  __version__ = "0.0.0"
+  __data_version__ = 3 
+"""
 
 [tool.poetry.scripts]
 ekonav = "ekomark.navigator:launch_navigator"
