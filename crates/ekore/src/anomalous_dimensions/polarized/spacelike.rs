@@ -9,7 +9,13 @@ pub mod as2;
 // pub mod as3;
 
 /// Compute the tower of the non-singlet anomalous dimensions.
-pub fn gamma_ns_qcd(order_qcd: usize, mode: u16, c: &mut Cache, nf: u8) -> Vec<Complex<f64>> {
+pub fn gamma_ns_qcd(
+    order_qcd: usize,
+    mode: u16,
+    c: &mut Cache,
+    nf: u8,
+    _n3lo_variation: [u8; 3],
+) -> Vec<Complex<f64>> {
     let mut gamma_ns = vec![Complex::<f64>::zero(); order_qcd];
     gamma_ns[0] = as1::gamma_ns(c, nf);
     // NLO and beyond
@@ -36,7 +42,12 @@ pub fn gamma_ns_qcd(order_qcd: usize, mode: u16, c: &mut Cache, nf: u8) -> Vec<C
 }
 
 /// Compute the tower of the singlet anomalous dimension matrices.
-pub fn gamma_singlet_qcd(order_qcd: usize, c: &mut Cache, nf: u8) -> Vec<[[Complex<f64>; 2]; 2]> {
+pub fn gamma_singlet_qcd(
+    order_qcd: usize,
+    c: &mut Cache,
+    nf: u8,
+    _n3lo_variation: [u8; 4],
+) -> Vec<[[Complex<f64>; 2]; 2]> {
     let mut gamma_S = vec![
         [
             [Complex::<f64>::zero(), Complex::<f64>::zero()],
