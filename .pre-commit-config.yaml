@@ -2,6 +2,7 @@
 # See https://pre-commit.com/hooks.html for more hooks
 ci:
   autofix_prs: false
+  autoupdate_schedule: monthly
   skip: [fmt, clippy] # will be run by a separate CI
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
@@ -29,12 +30,6 @@ repos:
         args: [ --select, I, --fix ]
       # Run the formatter.
       - id: ruff-format
-#  - repo: https://github.com/PyCQA/docformatter
-#    rev: v1.7.5 # TODO: wait for https://github.com/PyCQA/docformatter/issues/293
-#    hooks:
-#      - id: docformatter
-#        additional_dependencies: [tomli]
-#        args: [--in-place, --config, ./pyproject.toml]
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.16.0
     hooks:
