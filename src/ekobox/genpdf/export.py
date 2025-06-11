@@ -67,7 +67,7 @@ def dump_blocks(
         pathlib.Path : target file
     """
     path_name = pathlib.Path(name)
-    if path_name.is_file() and path_name.suffix == ".dat":
+    if path_name.suffix == ".dat":
         target = path_name
     else:
         target = path_name / f"{path_name.stem}_{member:04d}.dat"
@@ -109,7 +109,7 @@ def dump_info(name: str, info) -> pathlib.Path:
         pathlib.Path : target file
     """
     path_name = pathlib.Path(name)
-    if path_name.is_file() and path_name.suffix == ".info":
+    if path_name.suffix == ".info":
         target = path_name
     else:
         target = path_name / f"{path_name.stem}.info"
