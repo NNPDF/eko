@@ -47,7 +47,7 @@ def array_to_str(ar):
 
 
 def dump_blocks(
-    name: str, member: int, blocks, pdf_type: Optional[str] = None
+    name: str, member: int, blocks: list[dict], pdf_type: Optional[str] = None
 ) -> pathlib.Path:
     """Write LHAPDF data file.
 
@@ -71,7 +71,7 @@ def dump_blocks(
         target = path_name
     else:
         target = path_name / f"{path_name.stem}_{member:04d}.dat"
-        target.parent.mkdir(exist_ok=True)
+    target.parent.mkdir(exist_ok=True)
     with open(target, "w", encoding="utf-8") as o:
         if pdf_type is None:
             if member == 0:
@@ -90,7 +90,7 @@ def dump_blocks(
     return target
 
 
-def dump_info(name: str, info) -> pathlib.Path:
+def dump_info(name: str, info: dict) -> pathlib.Path:
     """Write LHAPDF info file.
 
     NOTE: Since LHAPDF info files are not truly yaml files,
@@ -113,7 +113,7 @@ def dump_info(name: str, info) -> pathlib.Path:
         target = path_name
     else:
         target = path_name / f"{path_name.stem}.info"
-        target.parent.mkdir(exist_ok=True)
+    target.parent.mkdir(exist_ok=True)
     # write on string stream to capture output
     stream = io.StringIO()
     yaml.safe_dump(info, stream, default_flow_style=True, width=100000, line_break="\n")
