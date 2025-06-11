@@ -56,12 +56,15 @@ def dump_blocks(name, member, blocks, pdf_type=None):
         PDF member
     blocks : list(dict)
         pdf blocks of data
-    inherit : str
-        str to be copied in the head of member files
+    pdf_type : str
+        PdfType to be copied in the head of member files
     """
     path_name = pathlib.Path(name)
-    target = path_name / f"{path_name.stem}_{member:04d}.dat"
-    target.parent.mkdir(exist_ok=True)
+    if path_name.is_dir():
+        target = path_name / f"{path_name.stem}_{member:04d}.dat"
+        target.parent.mkdir(exist_ok=True)
+    else:
+        target = path_name
     with open(target, "w", encoding="utf-8") as o:
         if pdf_type is None:
             if member == 0:
@@ -82,7 +85,7 @@ def dump_blocks(name, member, blocks, pdf_type=None):
 def dump_info(name, info):
     """Write LHAPDF info file.
 
-    NOTE: Since LHAPDF info files are not truely yaml files,
+    NOTE: Since LHAPDF info files are not truly yaml files,
     we have to use a slightly more complicated function to
     dump the info file.
 
@@ -94,8 +97,11 @@ def dump_info(name, info):
         info dictionary
     """
     path_name = pathlib.Path(name)
-    target = path_name / f"{path_name.stem}.info"
-    target.parent.mkdir(exist_ok=True)
+    if path_name.is_dir():
+        target = path_name / f"{path_name.stem}.info"
+        target.parent.mkdir(exist_ok=True)
+    else:
+        target = path_name
     # write on string stream to capture output
     stream = io.StringIO()
     yaml.safe_dump(info, stream, default_flow_style=True, width=100000, line_break="\n")
