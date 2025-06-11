@@ -3,6 +3,7 @@
 import io
 import pathlib
 import re
+from typing import Optional
 
 import numpy as np
 import yaml
@@ -45,7 +46,9 @@ def array_to_str(ar):
     return table
 
 
-def dump_blocks(name, member, blocks, pdf_type=None):
+def dump_blocks(
+    name: str, member: int, blocks, pdf_type: Optional[str] = None
+) -> pathlib.Path:
     """Write LHAPDF data file.
 
     Parameters
@@ -58,6 +61,10 @@ def dump_blocks(name, member, blocks, pdf_type=None):
         pdf blocks of data
     pdf_type : str
         PdfType to be copied in the head of member files
+
+    Returns
+    -------
+        pathlib.Path : target file
     """
     path_name = pathlib.Path(name)
     if path_name.is_dir():
@@ -80,9 +87,10 @@ def dump_blocks(name, member, blocks, pdf_type=None):
             o.write(list_to_str(b["pids"], "%d") + "\n")
             o.write(array_to_str(b["data"]))
             o.write("---\n")
+    return target
 
 
-def dump_info(name, info):
+def dump_info(name: str, info) -> pathlib.Path:
     """Write LHAPDF info file.
 
     NOTE: Since LHAPDF info files are not truly yaml files,
@@ -95,6 +103,10 @@ def dump_info(name, info):
         target name or path
     info : dict
         info dictionary
+
+    Returns
+    -------
+        pathlib.Path : target file
     """
     path_name = pathlib.Path(name)
     if path_name.is_dir():
@@ -110,6 +122,7 @@ def dump_info(name, info):
     new_cnt = re.sub(r", ([A-Za-z_]+\d?):", r"\n\1:", cnt.strip()[1:-1])
     with open(target, "w", encoding="utf-8") as o:
         o.write(new_cnt)
+    return target
 
 
 def dump_set(name, info, member_blocks, pdf_type_list=None):
