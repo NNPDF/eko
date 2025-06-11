@@ -67,11 +67,11 @@ def dump_blocks(
         pathlib.Path : target file
     """
     path_name = pathlib.Path(name)
-    if path_name.is_dir():
+    if path_name.is_file() and path_name.suffix == ".dat":
+        target = path_name
+    else:
         target = path_name / f"{path_name.stem}_{member:04d}.dat"
         target.parent.mkdir(exist_ok=True)
-    else:
-        target = path_name
     with open(target, "w", encoding="utf-8") as o:
         if pdf_type is None:
             if member == 0:
@@ -109,11 +109,11 @@ def dump_info(name: str, info) -> pathlib.Path:
         pathlib.Path : target file
     """
     path_name = pathlib.Path(name)
-    if path_name.is_dir():
+    if path_name.is_file() and path_name.suffix == ".info":
+        target = path_name
+    else:
         target = path_name / f"{path_name.stem}.info"
         target.parent.mkdir(exist_ok=True)
-    else:
-        target = path_name
     # write on string stream to capture output
     stream = io.StringIO()
     yaml.safe_dump(info, stream, default_flow_style=True, width=100000, line_break="\n")
