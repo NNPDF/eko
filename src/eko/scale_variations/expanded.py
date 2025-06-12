@@ -153,7 +153,7 @@ def singlet_variation(gamma, a_s, order, nf, L, dim):
     numpy.ndarray
         scale variation kernel
     """
-    sv_ker = np.eye(dim, dtype=np.complex_)
+    sv_ker = np.eye(dim, dtype=np.complex128)
     gamma = np.ascontiguousarray(gamma)
     if order[0] >= 2:
         sv_ker += a_s * variation_as1(gamma, L)

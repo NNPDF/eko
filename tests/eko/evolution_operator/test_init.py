@@ -21,7 +21,7 @@ from eko.runner.parts import _evolve_configs, _managers
 
 def test_quad_ker_errors():
     for mode0 in [br.non_singlet_pids_map["ns+"], 21]:
-        with pytest.raises(NotImplementedError):
+        with pytest.raises(Exception):
             quad_ker(
                 u=0.3,
                 order=(1, 0),

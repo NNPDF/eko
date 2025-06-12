@@ -50,7 +50,7 @@ def gamma_ns(order, mode, n, nf, n3lo_ad_variation, use_fhmruvv=True):
     """
     cache = c.reset()
     # now combine
-    gamma_ns = np.zeros(order[0], np.complex_)
+    gamma_ns = np.zeros(order[0], np.complex128)
     gamma_ns[0] = as1.gamma_ns(n, cache)
     # NLO and beyond
     if order[0] >= 2:
@@ -122,7 +122,7 @@ def gamma_singlet(order, n, nf, n3lo_ad_variation, use_fhmruvv=True):
         singlet anomalous dimensions matrices
     """
     cache = c.reset()
-    gamma_s = np.zeros((order[0], 2, 2), np.complex_)
+    gamma_s = np.zeros((order[0], 2, 2), np.complex128)
     gamma_s[0] = as1.gamma_singlet(n, cache, nf)
     if order[0] >= 2:
         gamma_s[1] = as2.gamma_singlet(n, nf, cache)
@@ -162,7 +162,7 @@ def gamma_ns_qed(order, mode, n, nf, n3lo_ad_variation, use_fhmruvv=True):
     """
     cache = c.reset()
     # now combine
-    gamma_ns = np.zeros((order[0] + 1, order[1] + 1), np.complex_)
+    gamma_ns = np.zeros((order[0] + 1, order[1] + 1), np.complex128)
     gamma_ns[1, 0] = as1.gamma_ns(n, cache)
     gamma_ns[0, 1] = choose_ns_ad_aem1(mode, n, cache)
     gamma_ns[1, 1] = choose_ns_ad_as1aem1(mode, n, cache)
@@ -310,7 +310,7 @@ def gamma_singlet_qed(order, n, nf, n3lo_ad_variation, use_fhmruvv=True):
         singlet anomalous dimensions matrices
     """
     cache = c.reset()
-    gamma_s = np.zeros((order[0] + 1, order[1] + 1, 4, 4), np.complex_)
+    gamma_s = np.zeros((order[0] + 1, order[1] + 1, 4, 4), np.complex128)
     gamma_s[1, 0] = as1.gamma_singlet_qed(n, cache, nf)
     gamma_s[0, 1] = aem1.gamma_singlet(n, nf, cache)
     gamma_s[1, 1] = as1aem1.gamma_singlet(n, nf, cache)
@@ -354,7 +354,7 @@ def gamma_valence_qed(order, n, nf, n3lo_ad_variation, use_fhmruvv=True):
         valence anomalous dimensions matrices
     """
     cache = c.reset()
-    gamma_v = np.zeros((order[0] + 1, order[1] + 1, 2, 2), np.complex_)
+    gamma_v = np.zeros((order[0] + 1, order[1] + 1, 2, 2), np.complex128)
     gamma_v[1, 0] = as1.gamma_valence_qed(n, cache)
     gamma_v[0, 1] = aem1.gamma_valence(n, nf, cache)
     gamma_v[1, 1] = as1aem1.gamma_valence(n, nf, cache)

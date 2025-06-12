@@ -35,7 +35,7 @@ def eko_iterate(gamma_singlet, as_list, a_half, nf, order, ev_op_iterations, dim
     e_s^{order} : numpy.ndarray
         singlet QEDxQCD iterated (exact) EKO
     """
-    e = np.identity(dim, np.complex_)
+    e = np.identity(dim, np.complex128)
     betaQCD = np.zeros((order[0] + 1, order[1] + 1))
     for i in range(1, order[0] + 1):
         betaQCD[i, 0] = beta.beta_qcd((i + 1, 0), nf)
@@ -46,7 +46,7 @@ def eko_iterate(gamma_singlet, as_list, a_half, nf, order, ev_op_iterations, dim
         as_half = a_half[step - 1, 0]
         aem = a_half[step - 1, 1]
         delta_a = ah - al
-        gamma = np.zeros((dim, dim), np.complex_)
+        gamma = np.zeros((dim, dim), np.complex128)
         betatot = 0
         for i in range(0, order[0] + 1):
             for j in range(0, order[1] + 1):
