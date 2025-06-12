@@ -3,6 +3,7 @@
 import io
 import pathlib
 import re
+from typing import Optional
 
 import numpy as np
 import yaml
@@ -45,7 +46,9 @@ def array_to_str(ar):
     return table
 
 
-def dump_blocks(name, member, blocks, pdf_type=None):
+def dump_blocks(
+    name: str, member: int, blocks: list[dict], pdf_type: Optional[str] = None
+) -> pathlib.Path:
     """Write LHAPDF data file.
 
     Parameters
@@ -56,11 +59,18 @@ def dump_blocks(name, member, blocks, pdf_type=None):
         PDF member
     blocks : list(dict)
         pdf blocks of data
-    inherit : str
-        str to be copied in the head of member files
+    pdf_type : str
+        PdfType to be copied in the head of member files
+
+    Returns
+    -------
+        pathlib.Path : target file
     """
     path_name = pathlib.Path(name)
-    target = path_name / f"{path_name.stem}_{member:04d}.dat"
+    if path_name.suffix == ".dat":
+        target = path_name
+    else:
+        target = path_name / f"{path_name.stem}_{member:04d}.dat"
     target.parent.mkdir(exist_ok=True)
     with open(target, "w", encoding="utf-8") as o:
         if pdf_type is None:
@@ -77,12 +87,13 @@ def dump_blocks(name, member, blocks, pdf_type=None):
             o.write(list_to_str(b["pids"], "%d") + "\n")
             o.write(array_to_str(b["data"]))
             o.write("---\n")
+    return target
 
 
-def dump_info(name, info):
+def dump_info(name: str, info: dict) -> pathlib.Path:
     """Write LHAPDF info file.
 
-    NOTE: Since LHAPDF info files are not truely yaml files,
+    NOTE: Since LHAPDF info files are not truly yaml files,
     we have to use a slightly more complicated function to
     dump the info file.
 
@@ -92,9 +103,16 @@ def dump_info(name, info):
         target name or path
     info : dict
         info dictionary
+
+    Returns
+    -------
+        pathlib.Path : target file
     """
     path_name = pathlib.Path(name)
-    target = path_name / f"{path_name.stem}.info"
+    if path_name.suffix == ".info":
+        target = path_name
+    else:
+        target = path_name / f"{path_name.stem}.info"
     target.parent.mkdir(exist_ok=True)
     # write on string stream to capture output
     stream = io.StringIO()
@@ -104,6 +122,7 @@ def dump_info(name, info):
     new_cnt = re.sub(r", ([A-Za-z_]+\d?):", r"\n\1:", cnt.strip()[1:-1])
     with open(target, "w", encoding="utf-8") as o:
         o.write(new_cnt)
+    return target
 
 
 def dump_set(name, info, member_blocks, pdf_type_list=None):
