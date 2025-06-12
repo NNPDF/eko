@@ -6,7 +6,7 @@ jobs:
   test:
     strategy:
       matrix:
-        python-version: ["3.9", "3.10", "3.11", "3.12"]
+        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
       fail-fast: false
 
     uses: ./.github/workflows/python-poetry-tests-with-data.yml
