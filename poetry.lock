@@ -126,32 +126,28 @@ dev = ["backports.zoneinfo ; python_version < \"3.9\"", "freezegun (>=1.0,<2.0)"
 
 [[package]]
 name = "banana-hep"
-version = "0.6.15-post.15+dbf3185"
+version = "0.6.16"
 description = "Benchmark QCD physics"
 optional = true
-python-versions = "^3.9"
+python-versions = "<4.0,>=3.9"
 groups = ["main"]
 markers = "extra == \"mark\""
-files = []
-develop = false
+files = [
+    {file = "banana_hep-0.6.16-py3-none-any.whl", hash = "sha256:cf809dd579f791aa5562a8ea6d274ecbcc5dad0423a253dd3b19d2512ad5b1d5"},
+    {file = "banana_hep-0.6.16.tar.gz", hash = "sha256:dc26cb644a43ba297d40d99eb321746388b91b327ebc3ed8a357a3cb669314c9"},
+]
 
 [package.dependencies]
-appdirs = "^1.4.4"
-click = "^8.0.3"
-ipython = "^8.1.0"
-matplotlib = "^3.5.1"
+appdirs = ">=1.4.4,<2.0.0"
+click = ">=8.0.3,<9.0.0"
+ipython = ">=8.1.0,<9.0.0"
+matplotlib = ">=3.5.1,<4.0.0"
 numpy = ">=1.26"
-pandas = "^2.1.4"
-pendulum = "^3.0.0"
-PyYAML = "^6.0"
-rich = "^12.4.4"
-SQLAlchemy = "^1.4.29"
-
-[package.source]
-type = "git"
-url = "https://github.com/NNPDF/banana"
-reference = "relax_restrictions"
-resolved_reference = "dbf3185b036b005715b0a8d865a4f0ff6c201cb8"
+pandas = ">=2.1.4,<3.0.0"
+pendulum = ">=3.0.0,<4.0.0"
+PyYAML = ">=6.0,<7.0"
+rich = ">=12.4.4,<13.0.0"
+SQLAlchemy = ">=1.4.29,<2.0.0"
 
 [[package]]
 name = "beautifulsoup4"
@@ -3755,4 +3751,4 @@ mark = ["banana-hep", "matplotlib", "pandas", "sqlalchemy"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.9,<3.14"
-content-hash = "a3765e41c89b941b28fec3b9ff92813449019480d05544f7232c98fc194802fd"
+content-hash = "8fa1a3cba3787a2c9b80876aca2fed40507f5e45d3038bde60ec21733793a77c"
