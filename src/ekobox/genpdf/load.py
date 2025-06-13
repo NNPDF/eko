@@ -66,8 +66,8 @@ def load_blocks_from_file(pdfset_name, member):
         # section head
         next_head_section = cnt.index("---\n", head_section + 1)
         # determine participating pids
-        xgrid = np.array(cnt[head_section + 1].strip().split(" "), dtype=np.float_)
-        Qgrid = np.array(cnt[head_section + 2].strip().split(" "), dtype=np.float_)
+        xgrid = np.array(cnt[head_section + 1].strip().split(" "), dtype=np.float64)
+        Qgrid = np.array(cnt[head_section + 2].strip().split(" "), dtype=np.float64)
         pids = np.array(cnt[head_section + 3].strip().split(" "), dtype=np.int_)
         # data
         data = []

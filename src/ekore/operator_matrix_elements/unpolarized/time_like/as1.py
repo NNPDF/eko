@@ -78,7 +78,7 @@ def A_singlet(N, L):
         :math:`A^{S,(1)}`
     """
     result = np.array(
-        [[A_gg(L), 0 + 0j, 0], [0 + 0j, 0, 0], [A_hg(N, L), 0, 0]], np.complex_
+        [[A_gg(L), 0 + 0j, 0], [0 + 0j, 0, 0], [A_hg(N, L), 0, 0]], np.complex128
     )
     return result
 
@@ -93,5 +93,5 @@ def A_ns():
         |NLO| non-singlet |OME|
         :math:`A^{S,(1)}`
     """
-    result = np.array([[0, 0], [0, 0]], np.complex_)
+    result = np.array([[0, 0], [0, 0]], np.complex128)
     return result

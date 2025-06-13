@@ -97,7 +97,7 @@ def benchmark_genpdf_dict(tmp_path, cd):
 @pytest.mark.isolated
 def benchmark_genpdf_custom(tmp_path, cd):
     with cd(tmp_path):
-        c = np.zeros_like(br.flavor_basis_pids, dtype=np.float_)
+        c = np.zeros_like(br.flavor_basis_pids, dtype=np.float64)
         c[br.flavor_basis_pids.index(1)] = 1.0
         c[br.flavor_basis_pids.index(2)] = 0.5
         genpdf.generate_pdf(

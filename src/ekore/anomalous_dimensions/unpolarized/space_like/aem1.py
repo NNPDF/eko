@@ -144,7 +144,7 @@ def gamma_singlet(N, nf, cache):
                 e2delta * gamma_nonsinglet,
             ],
         ],
-        np.complex_,
+        np.complex128,
     )
     return gamma_S_01
 
@@ -179,6 +179,6 @@ def gamma_valence(N, nf, cache):
             [e2avg, vue2m],
             [vde2m, e2delta],
         ],
-        np.complex_,
+        np.complex128,
     )
     return gamma_V_01 * gamma_ns(N, cache)

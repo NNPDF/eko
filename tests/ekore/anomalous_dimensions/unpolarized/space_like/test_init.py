@@ -53,13 +53,13 @@ def test_exp_matrix():
     assert_almost_equal(res1, res2)
     diag = np.diag([1, 2, 3, 4])
     assert_allclose(np.diag(np.exp([1, 2, 3, 4])), ad.exp_matrix(diag)[0])
-    id_ = np.identity(4, np.complex_)
-    zero = np.zeros((4, 4), np.complex_)
+    id_ = np.identity(4, np.complex128)
+    zero = np.zeros((4, 4), np.complex128)
     assert_allclose(id_, ad.exp_matrix(zero)[0])
     sigma2 = np.array([[0.0, -1.0j], [1.0j, 0.0]])
     exp = ad.exp_matrix(sigma2)[0]
     exp_m = ad.exp_matrix(-sigma2)[0]
-    assert_almost_equal(np.identity(2, np.complex_), exp @ exp_m)
+    assert_almost_equal(np.identity(2, np.complex128), exp @ exp_m)
 
 
 def test_eigensystem_gamma_singlet_projectors_EV():

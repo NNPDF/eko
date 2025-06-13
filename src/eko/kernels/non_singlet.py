@@ -27,7 +27,7 @@ def U_vec(gamma_ns, beta, order):
     np.ndarray
         U vector
     """
-    U = np.zeros(order[0], dtype=np.complex_)
+    U = np.zeros(order[0], dtype=np.complex128)
     beta0 = beta[0]
     R0 = gamma_ns[0] / beta0
     U[0] = 1.0

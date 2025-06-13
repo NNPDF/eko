@@ -20,7 +20,7 @@ def A_non_singlet(matching_order, _N, _L):
     numpy.ndarray
         non-singlet |OME|
     """
-    A_ns = np.zeros((matching_order[0], 2, 2), np.complex_)
+    A_ns = np.zeros((matching_order[0], 2, 2), np.complex128)
     A_ns[0] = as1.A_ns()
     return A_ns
 
@@ -43,6 +43,6 @@ def A_singlet(matching_order, N, L):
     numpy.ndarray
         singlet |OME|
     """
-    A_s = np.zeros((matching_order[0], 3, 3), np.complex_)
+    A_s = np.zeros((matching_order[0], 3, 3), np.complex128)
     A_s[0] = as1.A_singlet(N, L)
     return A_s

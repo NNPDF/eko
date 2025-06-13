@@ -130,7 +130,7 @@ def gamma_singlet(N, cache, nf):
     gamma_qq = gamma_ns(N, cache)
     gamma_S_0 = np.array(
         [[gamma_qq, gamma_qg(N, nf)], [gamma_gq(N), gamma_gg(N, cache, nf)]],
-        np.complex_,
+        np.complex128,
     )
     return gamma_S_0
 
@@ -170,7 +170,7 @@ def gamma_singlet_qed(N, cache, nf):
             [gamma_qg(N, nf), 0.0 + 0.0j, gamma_qq, 0.0 + 0.0j],
             [0.0 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j, gamma_qq],
         ],
-        np.complex_,
+        np.complex128,
     )
     return gamma_S
 
@@ -203,6 +203,6 @@ def gamma_valence_qed(N, cache):
             [1.0, 0.0],
             [0.0, 1.0],
         ],
-        np.complex_,
+        np.complex128,
     )
     return gamma_V * gamma_ns(N, cache)

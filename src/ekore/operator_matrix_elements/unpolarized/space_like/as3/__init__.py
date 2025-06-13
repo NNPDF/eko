@@ -123,7 +123,7 @@ def A_singlet(n, cache, nf, L):
             [A_qg_3, A_qq_ps_3 + A_qq_ns_3, 0.0],
             [A_hg_3, A_hq_3, 0.0],
         ],
-        np.complex_,
+        np.complex128,
     )
     return A_S
 
@@ -157,4 +157,6 @@ def A_ns(n, cache, nf, L):
     A_NS : numpy.ndarray
         |N3LO| non-singlet |OME| :math:`A^{NS,(3)}`
     """
-    return np.array([[A_qqNS(n, cache, nf, L, -1), 0.0], [0 + 0j, 0 + 0j]], np.complex_)
+    return np.array(
+        [[A_qqNS(n, cache, nf, L, -1), 0.0], [0 + 0j, 0 + 0j]], np.complex128
+    )

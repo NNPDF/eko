@@ -30,7 +30,7 @@ def A_singlet(matching_order, n, nf, L, is_msbar):
         singlet |OME|
     """
     cache = c.reset()
-    A_s = np.zeros((matching_order[0], 3, 3), np.complex_)
+    A_s = np.zeros((matching_order[0], 3, 3), np.complex128)
     if matching_order[0] >= 1:
         A_s[0] = as1.A_singlet(n, cache, L)
     if matching_order[0] >= 2:
@@ -61,7 +61,7 @@ def A_non_singlet(matching_order, n, nf, L):
         non-singlet |OME|
     """
     cache = c.reset()
-    A_ns = np.zeros((matching_order[0], 2, 2), np.complex_)
+    A_ns = np.zeros((matching_order[0], 2, 2), np.complex128)
     if matching_order[0] >= 1:
         A_ns[0] = as1.A_ns(n, cache, L)
     if matching_order[0] >= 2:

@@ -28,7 +28,7 @@ def gamma_ns(order, mode, n, nf):
         non-singlet anomalous dimensions
     """
     cache = c.reset()
-    gamma_ns = np.zeros(order[0], np.complex_)
+    gamma_ns = np.zeros(order[0], np.complex128)
     gamma_ns[0] = as1.gamma_ns(n, cache)
     if order[0] >= 2:
         gamma_ns_1 = 0.0
@@ -68,7 +68,7 @@ def gamma_singlet(order, n, nf):
         singlet anomalous dimensions matrices
     """
     cache = c.reset()
-    gamma_s = np.zeros((order[0], 2, 2), np.complex_)
+    gamma_s = np.zeros((order[0], 2, 2), np.complex128)
     gamma_s[0] = as1.gamma_singlet(n, nf, cache)
     if order[0] >= 2:
         gamma_s[1] = as2.gamma_singlet(n, nf, cache)

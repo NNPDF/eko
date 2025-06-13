@@ -24,7 +24,7 @@ def contract_gammas(gamma_ns, aem):
         non-singlet anomalous dimensions
     """
     vec_alphaem = np.array(
-        [aem**i for i in range(gamma_ns.shape[1])], dtype=np.complex_
+        [aem**i for i in range(gamma_ns.shape[1])], dtype=np.complex128
     )
     return gamma_ns @ vec_alphaem
 

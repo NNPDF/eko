@@ -141,7 +141,7 @@ def A_singlet(n, cache, L):
             [0 + 0j, 0 + 0j, 0 + 0j],
             [A_hg(n, L), 0.0, A_hh(n, cache, L)],
         ],
-        np.complex_,
+        np.complex128,
     )
     return A_S
 
@@ -170,4 +170,4 @@ def A_ns(n, cache, L):
     numpy.ndarray
         |NLO| non-singlet |OME| :math:`A^{S,(1)}`
     """
-    return np.array([[0 + 0j, 0 + 0j], [0 + 0j, A_hh(n, cache, L)]], np.complex_)
+    return np.array([[0 + 0j, 0 + 0j], [0 + 0j, A_hh(n, cache, L)]], np.complex128)
