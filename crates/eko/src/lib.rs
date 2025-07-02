@@ -74,7 +74,7 @@ fn unravel_qed_ns(res: Vec<Vec<Complex<f64>>>, order_qcd: usize, order_qed: usiz
     target
 }
 
-/// Intergration kernel inside quad.
+/// Integration kernel inside quad.
 ///
 /// # Safety
 /// This is the connection from Python, so we don't know what is on the other side.
@@ -97,6 +97,9 @@ pub unsafe extern "C" fn rust_quad_ker(u: f64, rargs: *mut c_void) -> f64 {
         re: Vec::<f64>::new(),
         im: Vec::<f64>::new(),
     };
+    let n3lo_ad_variation = std::slice::from_raw_parts(args.n3lo_ad_variation, 7)
+        .try_into()
+        .unwrap();
 
     if args.is_ome {
         if is_singlet {
@@ -125,7 +128,13 @@ pub unsafe extern "C" fn rust_quad_ker(u: f64, rargs: *mut c_void) -> f64 {
             let gamma_singlet_qed =
                 ekore::anomalous_dimensions::unpolarized::spacelike::gamma_singlet_qed;
             raw = unravel_qed(
-                gamma_singlet_qed(args.order_qcd, args.order_qed, &mut c, args.nf),
+                gamma_singlet_qed(
+                    args.order_qcd,
+                    args.order_qed,
+                    &mut c,
+                    args.nf,
+                    n3lo_ad_variation,
+                ),
                 args.order_qcd,
                 args.order_qed,
             );
@@ -135,7 +144,12 @@ pub unsafe extern "C" fn rust_quad_ker(u: f64, rargs: *mut c_void) -> f64 {
                 false => ekore::anomalous_dimensions::unpolarized::spacelike::gamma_singlet_qcd,
             };
             raw = unravel(
-                gamma_singlet_qcd(args.order_qcd, &mut c, args.nf),
+                gamma_singlet_qcd(
+                    args.order_qcd,
+                    &mut c,
+                    args.nf,
+                    n3lo_ad_variation[0..4].try_into().unwrap(),
+                ),
                 args.order_qcd,
             );
         }
@@ -144,14 +158,27 @@ pub unsafe extern "C" fn rust_quad_ker(u: f64, rargs: *mut c_void) -> f64 {
             let gamma_valence_qed =
                 ekore::anomalous_dimensions::unpolarized::spacelike::gamma_valence_qed;
             raw = unravel_qed(
-                gamma_valence_qed(args.order_qcd, args.order_qed, &mut c, args.nf),
+                gamma_valence_qed(
+                    args.order_qcd,
+                    args.order_qed,
+                    &mut c,
+                    args.nf,
+                    n3lo_ad_variation[4..7].try_into().unwrap(),
+                ),
                 args.order_qcd,
                 args.order_qed,
             );
         } else {
             let gamma_ns_qed = ekore::anomalous_dimensions::unpolarized::spacelike::gamma_ns_qed;
             raw = unravel_qed_ns(
-                gamma_ns_qed(args.order_qcd, args.order_qed, args.mode0, &mut c, args.nf),
+                gamma_ns_qed(
+                    args.order_qcd,
+                    args.order_qed,
+                    args.mode0,
+                    &mut c,
+                    args.nf,
+                    n3lo_ad_variation[4..7].try_into().unwrap(),
+                ),
                 args.order_qcd,
                 args.order_qed,
             );
@@ -162,7 +189,13 @@ pub unsafe extern "C" fn rust_quad_ker(u: f64, rargs: *mut c_void) -> f64 {
             true => ekore::anomalous_dimensions::polarized::spacelike::gamma_ns_qcd,
             false => ekore::anomalous_dimensions::unpolarized::spacelike::gamma_ns_qcd,
         };
-        let res = gamma_ns_qcd(args.order_qcd, args.mode0, &mut c, args.nf);
+        let res = gamma_ns_qcd(
+            args.order_qcd,
+            args.mode0,
+            &mut c,
+            args.nf,
+            n3lo_ad_variation[4..7].try_into().unwrap(),
+        );
         for el in res.iter().take(args.order_qcd) {
             raw.re.push(el.re);
             raw.im.push(el.im);
@@ -282,6 +315,8 @@ pub struct QuadArgs {
     pub a_half_x: u8,
     pub a_half_y: u8,
     pub alphaem_running: bool,
+    // additional param required for N3LO
+    pub n3lo_ad_variation: *const u8,
 }
 
 /// Empty placeholder function for python callback.
@@ -367,5 +402,6 @@ pub unsafe extern "C" fn empty_args() -> QuadArgs {
         a_half_x: 0,
         a_half_y: 0,
         alphaem_running: false,
+        n3lo_ad_variation: [0, 0, 0, 0, 0, 0, 0].as_ptr(),
     }
 }
