@@ -1,10 +1,15 @@
-# INSTRUCTIONS REGARDING (DATA) VERSIONS
+# Instructions for maintainers
 
-## API versions
+## API
 
-- Remember to update the `Changelog.md`
+- Remember to always update the `Changelog.md`
 
-## Data versions
+### Release workflow
+
+- Adjust the `Changelog.md` to the new version
+- Commit this change and make that commit the new version (using `git tag`)
+
+## Data format
 
 ### Instructions on what to do when we break the data format:
 
@@ -17,7 +22,7 @@ We need to ensure backward compatibility and thus we need to make some changes.
 5. Also implement these changes in the old `vX.py` scripts (at the moment these are `v1.py` and `v2.py`).
 
 > **Note**: We call the unreleased eko version `v0.0`. EKO's created with unpublished versions (`0.0.0` versions) are not part of this backward compatibility system.
-> They have version `0.0.0-{commit}` and they cannot necessarily be read by newer eko versions.
+> They have version `0.0.0-post.{distance}+{commit hash}` and they cannot necessarily be read by newer eko versions.
 
 ### Instructions on how to update the test assets:
 
