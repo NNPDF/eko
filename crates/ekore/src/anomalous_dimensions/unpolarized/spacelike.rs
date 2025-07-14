@@ -96,6 +96,10 @@ pub fn gamma_singlet_qcd(
 }
 
 /// Compute the tower of the |QCD| x |QED| non-singlet anomalous dimensions.
+///
+/// `n3lo_variation = (ns_p, ns_m, ns_v)` is a list indicating which variation should
+/// be used. `variation = 1,2` is the upper/lower bound, while any other value
+/// returns the central (averaged) value.
 pub fn gamma_ns_qed(
     order_qcd: usize,
     order_qed: usize,
@@ -144,6 +148,10 @@ pub fn gamma_ns_qed(
 }
 
 /// Compute the tower of the |QCD| x |QED| singlet anomalous dimensions matrices.
+///
+/// `n3lo_variation = (gg, gq, qg, qq, ns_p, ns_m, ns_v)` is a list indicating which variation should
+/// be used. `variation = 1,2` is the upper/lower bound, while any other value
+/// returns the central (averaged) value.
 pub fn gamma_singlet_qed(
     order_qcd: usize,
     order_qed: usize,
@@ -211,6 +219,10 @@ pub fn gamma_singlet_qed(
 }
 
 /// Compute the tower of the |QCD| x |QED| valence anomalous dimensions matrices.
+///
+/// `n3lo_variation = (ns_p, ns_m, ns_v)` is a list indicating which variation should
+/// be used. `variation = 1,2` is the upper/lower bound, while any other value
+/// returns the central (averaged) value.
 pub fn gamma_valence_qed(
     order_qcd: usize,
     order_qed: usize,
