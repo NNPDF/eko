@@ -65,11 +65,14 @@ class Metadata(DictLike):
         # read raw file first to catch version
         raw = yaml.safe_load(paths.metadata.read_text(encoding="utf-8"))
         version = parse(raw["version"])
+        data_version = int(raw["data_version"])
         # patch if necessary
-        if version.major == 0 and version.minor == 13:
-            raw = v1.update_metadata(paths, raw)
-        elif version.major == 0 and version.minor == 14:
-            raw = v2.update_metadata(paths, raw)
+        if data_version == 1:
+            if version.major == 0 and version.minor == 13:
+                raw = v1.update_metadata(paths, raw)
+            elif version.major == 0 and version.minor == 14:
+                raw = v2.update_metadata(paths, raw)
+
         # now we are ready
         content = cls.from_dict(raw)
         content._path = path

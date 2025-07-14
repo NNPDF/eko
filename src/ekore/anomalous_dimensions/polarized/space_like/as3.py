@@ -437,6 +437,6 @@ def gamma_singlet(N, nf, cache):
             [gamma_qq, gamma_qg(N, nf, cache)],
             [gamma_gq(N, nf, cache), gamma_gg(N, nf, cache)],
         ],
-        np.complex_,
+        np.complex128,
     )
     return gamma_S_0

@@ -38,6 +38,14 @@ def test_dump_info(tmp_path):
         assert ii[k] == v
 
 
+def test_dump_info_to_file(tmp_path):
+    f = tmp_path / "blub.info"
+    i = {"a": "b", "c": 2}
+    g = genpdf.export.dump_info(f, i)
+    assert f.exists()
+    assert f == g
+
+
 def fake_blocks(n_blocks, n_x, n_q2, n_pids):
     bs = []
     for _ in range(n_blocks):
@@ -60,9 +68,10 @@ def test_dump_blocks(tmp_path):
         f = p / f"{n}_{m:04d}.dat"
         is_my_type = m > 1
         pdf_type = "Bla: blub" if is_my_type else None
-        genpdf.export.dump_blocks(p, m, fake_blocks(nb, 2, 2, 2), pdf_type=pdf_type)
+        g = genpdf.export.dump_blocks(p, m, fake_blocks(nb, 2, 2, 2), pdf_type=pdf_type)
         assert p.exists()
         assert f.exists()
+        assert f == g
         cnt = f.read_text()
         if is_my_type:
             assert "Bla: blub" in cnt
@@ -70,6 +79,13 @@ def test_dump_blocks(tmp_path):
             assert ("central" in cnt) == (m == 0)
         assert "Format" in cnt
         assert cnt.count("---") == nb + 1
+
+
+def test_dump_blocks_to_file(tmp_path):
+    f = tmp_path / "mem.dat"
+    g = genpdf.export.dump_blocks(f, 0, fake_blocks(2, 2, 2, 2))
+    assert f.exists()
+    assert f == g
 
 
 def test_dump_set(tmp_path):

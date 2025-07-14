@@ -87,6 +87,6 @@ def A_singlet(n, L):
             [0 + 0j, 0 + 0j, 0 + 0j],
             [A_hg(n, L), 0.0 + 0j, 0.0 + 0j],
         ],
-        np.complex_,
+        np.complex128,
     )
     return A_S

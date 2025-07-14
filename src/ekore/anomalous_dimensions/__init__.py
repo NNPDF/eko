@@ -53,7 +53,7 @@ def exp_matrix_2D(gamma_S):
     lambda_p = 1.0 / 2.0 * (gamma_S[0, 0] + gamma_S[1, 1] + det)
     lambda_m = 1.0 / 2.0 * (gamma_S[0, 0] + gamma_S[1, 1] - det)
     # compute projectors
-    identity = np.identity(2, np.complex_)
+    identity = np.identity(2, np.complex128)
     c = 1.0 / det
     e_p = +c * (gamma_S - lambda_m * identity)
     e_m = -c * (gamma_S - lambda_p * identity)
@@ -80,7 +80,7 @@ def exp_matrix(gamma):
         projectors on the eigenspaces of the matrix gamma :math:`\gamma(N)`
     """
     dim = gamma.shape[0]
-    e = np.zeros((dim, dim, dim), np.complex_)
+    e = np.zeros((dim, dim, dim), np.complex128)
     # if dim == 2:
     #     exp, lambda_p, lambda_m, e_p, e_m = exp_matrix_2D(gamma)
     #     e[0] = e_p
@@ -88,7 +88,7 @@ def exp_matrix(gamma):
     #     return exp, np.array([lambda_p, lambda_m]), e
     w, v = np.linalg.eig(gamma)
     v_inv = np.linalg.inv(v)
-    exp = np.zeros((dim, dim), np.complex_)
+    exp = np.zeros((dim, dim), np.complex128)
     for i in range(dim):
         e[i] = np.outer(v[:, i], v_inv[i])
         exp += e[i] * np.exp(w[i])

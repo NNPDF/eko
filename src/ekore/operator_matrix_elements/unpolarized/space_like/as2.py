@@ -429,7 +429,8 @@ def A_singlet(n, cache, L, is_msbar=False):
         A_hg_2 -= 2.0 * 4.0 * constants.CF * A_hg_1(n, L=1.0)
         A_gg_2 -= 2.0 * 4.0 * constants.CF * A_gg_1(L=1.0)
     A_S = np.array(
-        [[A_gg_2, A_gq_2, 0.0], [0.0, A_qq_2, 0.0], [A_hg_2, A_hq_2, 0.0]], np.complex_
+        [[A_gg_2, A_gq_2, 0.0], [0.0, A_qq_2, 0.0], [A_hg_2, A_hq_2, 0.0]],
+        np.complex128,
     )
     return A_S
 
@@ -458,4 +459,4 @@ def A_ns(n, cache, L):
     numpy.ndarray
         |NNLO| non-singlet |OME| :math:`A^{NS,(2)}`
     """
-    return np.array([[A_qq_ns(n, cache, L), 0.0], [0 + 0j, 0 + 0j]], np.complex_)
+    return np.array([[A_qq_ns(n, cache, L), 0.0], [0 + 0j, 0 + 0j]], np.complex128)

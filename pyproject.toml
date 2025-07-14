@@ -1,6 +1,6 @@
 [build-system]
 requires = ["poetry-core>=1.0.0", "poetry-dynamic-versioning"]
-build-backend = "poetry.core.masonry.api"
+build-backend = "poetry_dynamic_versioning.backend"
 
 [tool.poetry]
 name = "eko"
@@ -24,10 +24,13 @@ classifiers = [
 ]
 repository = "https://github.com/NNPDF/eko"
 include = [
+  "src/eko/version.py",
   "doc/source/img/Logo.png",
   "src/ekobox/genpdf/templatePDF.info",
   "src/ekobox/genpdf/Toy.info",
   "src/ekomark/benchmark/external/LHA.yaml",
+  "src/ekomark/version.py",
+  "src/ekobox/version.py",
 ]
 packages = [
   { include = "eko", from = "src" },
@@ -37,15 +40,16 @@ packages = [
 ]
 
 [tool.poetry.dependencies]
-python = "^3.9,<3.13"
-numpy = "^1.24"
+python = "^3.9,<3.14"
+numpy = "^2"
 scipy = "^1.10.1"
 PyYAML = "^6.0"
 lz4 = "^4.0.2"
-numba = "^0.59.0"
+# 0.60.0 is the last version compatible with 3.9 and 0.61 the first with 3.13
+numba = "~0.60.0 || ~0.61.0"
 packaging = "^24.1"
 # ekomark
-banana-hep = { version = "^0.6.12", optional = true }
+banana-hep = { version = "^0.6.16", optional = true }
 sqlalchemy = { version = "^1.4.21", optional = true }
 pandas = { version = "^2.1.4", optional = true }
 matplotlib = { version = "^3.5.1", optional = true }
@@ -73,13 +77,12 @@ pytest-env = "^0.6.2"
 pylint = "^3.1.0"
 
 [tool.poetry.group.dev.dependencies]
-pdbpp = "^0.10.3"
+pdbpp = "^0.11.6"
 ipython = "^8.0"
 # benchmark
 asv = "^0.4.2"
 virtualenv = "^20.13.2"
 devtools = "^0.10.0"
-
 
 [tool.poetry.group.version.dependencies]
 tomlkit = "^0.12.5"
@@ -93,9 +96,30 @@ enable = true
 vcs = "git"
 style = "semver"
 dirty = true
+format-jinja = "{% if distance == 0 %}{{ base }}{% else %}0.0.0-post.{{ distance }}+{{ commit }}{% endif %}"
 
 [tool.poetry-dynamic-versioning.substitution]
-files = ["src/eko/version.py"]
+files = ["src/eko/version.py", "src/ekomark/version.py", "src/ekobox/version.py"]
+folders = [{path = "src/eko"}, {path = "src/ekomark"}, {path = "src/ekobox"}]
+
+[tool.poetry-dynamic-versioning.files."src/eko/version.py"]
+persistent-substitution = true
+initial-content = """
+  __version__ = "0.0.0"
+  __data_version__ = 3
+"""
+
+[tool.poetry-dynamic-versioning.files."src/ekobox/version.py"]
+persistent-substitution = true
+initial-content = """
+  __version__ = "0.0.0"
+"""
+
+[tool.poetry-dynamic-versioning.files."src/ekomark/version.py"]
+persistent-substitution = true
+initial-content = """
+  __version__ = "0.0.0"
+"""
 
 [tool.poetry.scripts]
 ekonav = "ekomark.navigator:launch_navigator"

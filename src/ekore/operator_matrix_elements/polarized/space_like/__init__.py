@@ -27,7 +27,7 @@ def A_singlet(matching_order, n, nf, L):
     numpy.ndarray
         singlet |OME|
     """
-    A_s = np.zeros((matching_order[0], 3, 3), np.complex_)
+    A_s = np.zeros((matching_order[0], 3, 3), np.complex128)
     if matching_order[0] >= 1:
         A_s[0] = as1.A_singlet(n, L)
     cache = c.reset()
@@ -58,7 +58,7 @@ def A_non_singlet(matching_order, n, L):
     numpy.ndarray
         non-singlet |OME|
     """
-    A_ns = np.zeros((matching_order[0], 2, 2), np.complex_)
+    A_ns = np.zeros((matching_order[0], 2, 2), np.complex128)
     cache = c.reset()
     if matching_order[0] == 2:
         A_ns[1] = as2.A_ns(n, cache, L)

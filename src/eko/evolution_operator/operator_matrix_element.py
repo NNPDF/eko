@@ -78,7 +78,7 @@ def build_ome(A, matching_order, a_s, backward_method):
     # Local bi = 1+x+x**2+x**3;
     # Print;
     # .end
-    ome = np.eye(len(A[0]), dtype=np.complex_)
+    ome = np.eye(len(A[0]), dtype=np.complex128)
     A = A[:, :, :]
     A = np.ascontiguousarray(A)
     if backward_method is MatchingMethods.BACKWARD_EXPANDED:

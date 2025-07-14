@@ -413,7 +413,7 @@ class XGrid:
     """
 
     def __init__(self, xgrid: Union[Sequence, npt.NDArray], log: bool = True):
-        ugrid = np.array(np.unique(xgrid), np.float_)
+        ugrid = np.array(np.unique(xgrid), np.float64)
         if len(xgrid) != len(ugrid):
             raise ValueError(f"xgrid is not unique: {xgrid}")
         if len(xgrid) < 2:

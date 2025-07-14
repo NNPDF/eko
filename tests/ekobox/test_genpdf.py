@@ -171,7 +171,7 @@ def test_generate_pdf_toy_antiqed(fake_lhapdf, cd):
     xg = np.linspace(1e-5, 1.0, 5)
     mu2s = np.geomspace(1.0, 1e3, 7)
     evolgrid = flavored_mugrid(mu2s.tolist(), MASSES, [1.0, 1.0, 1.0])
-    anti_qed_singlet = np.zeros_like(br.flavor_basis_pids, dtype=np.float_)
+    anti_qed_singlet = np.zeros_like(br.flavor_basis_pids, dtype=np.float64)
     anti_qed_singlet[br.flavor_basis_pids.index(1)] = -4
     anti_qed_singlet[br.flavor_basis_pids.index(-1)] = -4
     anti_qed_singlet[br.flavor_basis_pids.index(2)] = 1

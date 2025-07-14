@@ -49,7 +49,7 @@ g3p2 = next(_index)
 @nb.njit(cache=True)
 def reset():
     """Return the cache placeholder array."""
-    return np.full(CACHE_SIZE, np.nan, np.complex_)
+    return np.full(CACHE_SIZE, np.nan, np.complex128)
 
 
 @nb.njit(cache=True)

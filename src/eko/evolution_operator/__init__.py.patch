@@ -1,5 +1,5 @@
 diff --git a/src/eko/evolution_operator/__init__.py b/src/eko/evolution_operator/__init__.py
-index 366f934c..5ea8fcd6 100644
+index e5314438..925d1877 100644
 --- a/src/eko/evolution_operator/__init__.py
 +++ b/src/eko/evolution_operator/__init__.py
 @@ -11,13 +11,11 @@ from dataclasses import dataclass
@@ -121,7 +121,7 @@ index 366f934c..5ea8fcd6 100644
  spec = [
      ("is_singlet", nb.boolean),
      ("is_QEDsinglet", nb.boolean),
-@@ -191,422 +102,6 @@ class QuadKerBase:
+@@ -191,420 +102,6 @@ class QuadKerBase:
          return self.path.prefactor * pj * self.path.jac
 
 
@@ -376,7 +376,6 @@ index 366f934c..5ea8fcd6 100644
 -            as1,
 -            as0,
 -            nf,
--            ev_op_iterations,
 -        )
 -        if sv_mode == sv.Modes.expanded and not is_threshold:
 -            ker = sv_expanded.non_singlet_variation(gamma_ns, as1, order, nf, L) * ker
@@ -540,11 +539,10 @@ index 366f934c..5ea8fcd6 100644
 -            )
 -    return ker
 -
--
+
  OpMembers = Dict[OperatorLabel, OpMember]
  """Map of all operators."""
-
-@@ -809,49 +304,6 @@ class Operator(sv.ScaleVariationModeMixin):
+@@ -808,49 +305,6 @@ class Operator(sv.ScaleVariationModeMixin):
          """Return the evolution method."""
          return ev_method(EvolutionMethod(self.config["method"]))
 
@@ -594,7 +592,7 @@ index 366f934c..5ea8fcd6 100644
      def initialize_op_members(self):
          """Init all operators with the identity or zeros."""
          eye = OpMember(
-@@ -874,10 +326,29 @@ class Operator(sv.ScaleVariationModeMixin):
+@@ -873,10 +327,29 @@ class Operator(sv.ScaleVariationModeMixin):
              else:
                  self.op_members[n] = zero.copy()
 
@@ -628,7 +626,7 @@ index 366f934c..5ea8fcd6 100644
          """Run the integration for each grid point.
 
          Parameters
-@@ -892,18 +363,62 @@ class Operator(sv.ScaleVariationModeMixin):
+@@ -891,18 +364,62 @@ class Operator(sv.ScaleVariationModeMixin):
          """
          column = []
          k, logx = log_grid
