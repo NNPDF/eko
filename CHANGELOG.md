@@ -15,6 +15,9 @@ Items without prefix refer to a global change.
 
 ## [Unreleased](https://github.com/NNPDF/eko/compare/v0.15.2...HEAD)
 
+### Added
+- rust: N3LO unpolarized, space-like anomalous dimensions from FHMRUVV translated ([#443](https://github.com/NNPDF/eko/pull/443))
+
 ## [0.15.2](https://github.com/NNPDF/eko/compare/v0.15.1...v0.15.2) - 2025-07-14
 
 ### Changed
