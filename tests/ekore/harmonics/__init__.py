@@ -39,7 +39,7 @@ def sx(n, max_weight=5):
     np.ndarray
         list of harmonics sums (:math:`S_{1,..,w}`)
     """
-    sx = np.zeros(max_weight, dtype=np.complex_)
+    sx = np.zeros(max_weight, dtype=np.complex128)
     if max_weight >= 1:
         sx[0] = h.S1(n)
     if max_weight >= 2:
@@ -72,7 +72,7 @@ def smx(n, sx, is_singlet):
         list of harmonics sums (:math:`S_{-1,..,-w}`)
     """
     max_weight = sx.size
-    smx = np.zeros(max_weight, dtype=np.complex_)
+    smx = np.zeros(max_weight, dtype=np.complex128)
     if max_weight >= 1:
         smx[0] = h.Sm1(n, sx[0], is_singlet)
     if max_weight >= 2:

@@ -106,6 +106,6 @@ def gamma_singlet(N, cache, nf):
     gamma_qq = gamma_ns(N, cache)
     gamma_S_0 = np.array(
         [[gamma_qq, gamma_qg(N, nf)], [gamma_gq(N), gamma_gg(N, cache, nf)]],
-        np.complex_,
+        np.complex128,
     )
     return gamma_S_0

@@ -324,12 +324,12 @@ def eko_iterate(gamma_singlet, a1, a0, beta_vec, order, ev_op_iterations):
         singlet iterated (exact) EKO
     """
     a_steps = np.geomspace(a0, a1, 1 + ev_op_iterations)
-    e = np.identity(2, np.complex_)
+    e = np.identity(2, np.complex128)
     al = a_steps[0]
     for ah in a_steps[1:]:
         a_half = (ah + al) / 2.0
         delta_a = ah - al
-        gamma_summed = np.zeros((2, 2), dtype=np.complex_)
+        gamma_summed = np.zeros((2, 2), dtype=np.complex128)
         beta_summed = 0
         for i in range(order[0]):
             gamma_summed += gamma_singlet[i] * a_half**i
@@ -368,7 +368,7 @@ def r_vec(gamma_singlet, beta, ev_op_max_order, order, is_exact):
         R vector
     """
     r = np.zeros(
-        (ev_op_max_order[0] + 1, 2, 2), dtype=np.complex_
+        (ev_op_max_order[0] + 1, 2, 2), dtype=np.complex128
     )  # k = 0 .. max_order
     beta0 = beta[0]
     # fill explicit elements
@@ -416,15 +416,15 @@ def u_vec(r, ev_op_max_order):
     numpy.ndarray
         U vector
     """
-    u = np.zeros((ev_op_max_order[0], 2, 2), np.complex_)  # k = 0 .. max_order
+    u = np.zeros((ev_op_max_order[0], 2, 2), np.complex128)  # k = 0 .. max_order
     # init
-    u[0] = np.identity(2, np.complex_)
+    u[0] = np.identity(2, np.complex128)
     _, r_p, r_m, e_p, e_m = ad.exp_matrix_2D(r[0])
     e_p = np.ascontiguousarray(e_p)
     e_m = np.ascontiguousarray(e_m)
     for kk in range(1, ev_op_max_order[0]):
         # compute R'
-        rp = np.zeros((2, 2), dtype=np.complex_)
+        rp = np.zeros((2, 2), dtype=np.complex128)
         for jj in range(kk):
             rp += np.ascontiguousarray(r[kk - jj]) @ u[jj]
         # now compose U
@@ -456,7 +456,7 @@ def sum_u(uvec, a):
         sum
     """
     p = 1.0
-    res = np.zeros((2, 2), dtype=np.complex_)
+    res = np.zeros((2, 2), dtype=np.complex128)
     for uk in uvec:
         res += p * uk
         p *= a
@@ -499,7 +499,7 @@ def eko_perturbative(
     """
     r = r_vec(gamma_singlet, beta, ev_op_max_order, order, is_exact)
     uk = u_vec(r, ev_op_max_order)
-    e = np.identity(2, np.complex_)
+    e = np.identity(2, np.complex128)
     # iterate elements
     a_steps = np.geomspace(a0, a1, 1 + ev_op_iterations)
     al = a_steps[0]
@@ -592,7 +592,7 @@ def dispatcher(  # pylint: disable=too-many-return-statements
     betalist = [beta.beta_qcd((2 + i, 0), nf) for i in range(order[0])]
     # for SV expanded we still fall in here, but we don't need to do anything
     if a1 == a0:
-        return np.eye(len(gamma_singlet[0]), dtype=np.complex_)
+        return np.eye(len(gamma_singlet[0]), dtype=np.complex128)
 
     # use always exact in LO
     if order[0] == 1:
