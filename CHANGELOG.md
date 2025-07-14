@@ -13,7 +13,9 @@ We may prefix the items to signal the scope:
 
 Items without prefix refer to a global change.
 
-## [Unreleased](https://github.com/NNPDF/eko/compare/v0.15.1...HEAD)
+## [Unreleased](https://github.com/NNPDF/eko/compare/v0.15.2...HEAD)
+
+## [0.15.2](https://github.com/NNPDF/eko/compare/v0.15.1...v0.15.2) - 2025-07-14
 
 ### Changed
 - data: Change version naming for unreleased eko versions from `0.0.0` to `0.0.0-post.{distance}+{commit hash}` ([#448](https://github.com/NNPDF/eko/pull/448)) ([#465](https://github.com/NNPDF/eko/pull/465))
