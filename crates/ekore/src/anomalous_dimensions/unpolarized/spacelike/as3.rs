@@ -1,6 +1,6 @@
 //! |NNLO| |QCD|.
 
-use ::num::complex::Complex;
+use num::complex::Complex;
 use num::traits::Pow;
 
 use crate::cmplx;

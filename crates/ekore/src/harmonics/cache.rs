@@ -3,7 +3,7 @@
 use num::{complex::Complex, Zero};
 use std::collections::HashMap;
 
-use crate::harmonics::{g_functions, w1, w2, w3, w4};
+use crate::harmonics::{g_functions, w1, w2, w3, w4, w5};
 
 /// List of available elements.
 #[derive(Debug, PartialEq, Eq, Hash)]
@@ -16,6 +16,8 @@ pub enum K {
     S3,
     /// $S_4(N)$
     S4,
+    /// $S_5(N)$
+    S5,
     /// $S_1(N/2)$
     S1h,
     /// $S_2(N/2)$
@@ -83,21 +85,22 @@ impl Cache {
             K::S2 => w2::S2(self.n),
             K::S3 => w3::S3(self.n),
             K::S4 => w4::S4(self.n),
+            K::S5 => w5::S5(self.n),
             K::S1h => w1::S1(self.n / 2.),
             K::S2h => w2::S2(self.n / 2.),
             K::S3h => w3::S3(self.n / 2.),
             K::S1mh => w1::S1((self.n - 1.) / 2.),
             K::S2mh => w2::S2((self.n - 1.) / 2.),
             K::S3mh => w3::S3((self.n - 1.) / 2.),
-            K::G3 => g_functions::g3(self.n, self.get(K::S1)),
-            K::Sm1e => w1::Sm1e(self.get(K::S1), self.get(K::S1h)),
-            K::Sm1o => w1::Sm1o(self.get(K::S1), self.get(K::S1mh)),
-            K::Sm2e => w2::Sm2e(self.get(K::S2), self.get(K::S2h)),
-            K::Sm2o => w2::Sm2o(self.get(K::S2), self.get(K::S2mh)),
-            K::Sm3e => w3::Sm3e(self.get(K::S3), self.get(K::S3h)),
-            K::Sm3o => w3::Sm3o(self.get(K::S3), self.get(K::S3mh)),
-            K::Sm21e => w3::Sm21e(self.n, self.get(K::S1), self.get(K::Sm1e)),
-            K::Sm21o => w3::Sm21o(self.n, self.get(K::S1), self.get(K::Sm1o)),
+            K::G3 => g_functions::g3(self),
+            K::Sm1e => w1::Sm1e(self),
+            K::Sm1o => w1::Sm1o(self),
+            K::Sm2e => w2::Sm2e(self),
+            K::Sm2o => w2::Sm2o(self),
+            K::Sm3e => w3::Sm3e(self),
+            K::Sm3o => w3::Sm3o(self),
+            K::Sm21e => w3::Sm21e(self),
+            K::Sm21o => w3::Sm21o(self),
         };
         // insert
         self.m.insert(k, val);
@@ -140,7 +143,7 @@ mod tests {
 
     #[test]
     fn test_recursive_harmonic_sum() {
-        const SX: [fn(Complex<f64>) -> Complex<f64>; 4] = [w1::S1, w2::S2, w3::S3, w4::S4];
+        const SX: [fn(Complex<f64>) -> Complex<f64>; 5] = [w1::S1, w2::S2, w3::S3, w4::S4, w5::S5];
         const NS: [Complex<f64>; 2] = [cmplx!(1.0, 0.0), cmplx!(2.34, 3.45)];
         const ITERS: [usize; 2] = [1, 2];
         for sit in SX.iter().enumerate() {

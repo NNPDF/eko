@@ -42,7 +42,7 @@ repos:
     - id: fmt
       name: cargo fmt
       description: Format Rust files with cargo fmt.
-      entry: cargo fmt --
+      entry: cargo fmt --all --
       language: system
       files: ^crates/.*\.rs$
       args: []

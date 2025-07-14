@@ -269,4 +269,4 @@ def test_gamma_ps_extrapolation():
     my_res = []
     for nf in [3, 4, 5]:
         my_res.append(gps.gamma_ps(N, nf, sx_cache, 0))
-    np.testing.assert_allclose(n22_ref, n22_ref)
+    np.testing.assert_allclose(my_res, n22_ref, rtol=3e-5)
