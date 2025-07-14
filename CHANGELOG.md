@@ -18,6 +18,7 @@ Items without prefix refer to a global change.
 ### Changed
 - data: Change version naming for unreleased eko versions from `0.0.0` to `0.0.0-post.{distance}+{commit hash}` ([#448](https://github.com/NNPDF/eko/pull/448)) ([#465](https://github.com/NNPDF/eko/pull/465))
 - py: `dump_blocks` and `dump_info` in `ekobox.genpdf.export` now accept paths pointing to the actual output file. The actual output path is now also returned from these functions (soft breaking change) ([#469](https://github.com/NNPDF/eko/pull/469))
+- py: Add support for Python 3.13, lift minimum NumPy version to 2
 
 ### Fixed
 - py: Remove usage of `ev_op_iterations` from truncated evolution as this is an inconsistent choice ([#459](https://github.com/NNPDF/eko/pull/459))
