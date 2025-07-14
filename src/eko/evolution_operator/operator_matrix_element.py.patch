@@ -1,5 +1,5 @@
 diff --git a/src/eko/evolution_operator/operator_matrix_element.py b/src/eko/evolution_operator/operator_matrix_element.py
-index e7d51df9..0f999809 100644
+index 839e05a1..13ad879e 100644
 --- a/src/eko/evolution_operator/operator_matrix_element.py
 +++ b/src/eko/evolution_operator/operator_matrix_element.py
 @@ -3,23 +3,19 @@ evolution."""
@@ -32,7 +32,7 @@ index e7d51df9..0f999809 100644
 @@ -79,8 +75,6 @@ def build_ome(A, matching_order, a_s, backward_method):
      # Print;
      # .end
-     ome = np.eye(len(A[0]), dtype=np.complex_)
+     ome = np.eye(len(A[0]), dtype=np.complex128)
 -    A = A[:, :, :]
 -    A = np.ascontiguousarray(A)
      if backward_method is MatchingMethods.BACKWARD_EXPANDED:

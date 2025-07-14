@@ -1,11 +1,11 @@
 diff --git a/pyproject.toml b/pyproject.toml
-index 088cab32..0d486637 100644
+index 3a96cffe..c9026452 100644
 --- a/pyproject.toml
 +++ b/pyproject.toml
 @@ -1,6 +1,20 @@
  [build-system]
 -requires = ["poetry-core>=1.0.0", "poetry-dynamic-versioning"]
--build-backend = "poetry.core.masonry.api"
+-build-backend = "poetry_dynamic_versioning.backend"
 +requires = ["maturin>=0.14.8,<0.15", "poetry-dynamic-versioning"]
 +build-backend = "maturin"
 +
