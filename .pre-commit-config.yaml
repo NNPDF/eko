@@ -15,12 +15,12 @@ repos:
       - id: check-merge-conflict
       - id: debug-statements
   - repo: https://github.com/hadialqattan/pycln
-    rev: v2.5.0
+    rev: v2.6.0
     hooks:
       - id: pycln
         args: [--config=pyproject.toml]
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.13.3
+    rev: v0.14.3
     hooks:
       # Run the linter.
       - id: ruff
