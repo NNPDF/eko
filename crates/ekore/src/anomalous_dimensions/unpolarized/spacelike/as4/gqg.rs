@@ -8,9 +8,10 @@ use crate::harmonics::log_functions::{lm11, lm12, lm13, lm14, lm14m1, lm15, lm15
 
 /// Compute the singlet gluon-to-quark anomalous dimension.
 ///
-/// The routine is taken from [\[Falcioni:2023vqq\]][crate::bib::Falcioni2023vqq].
+/// The routine is taken from [\[Falcioni:2023vqq\]][crate::bib::Falcioni2023vqq],
+/// with the update for :math:`n_f=6` from [\[Falcioni:2025hfz\]][crate::bib::Falcioni:2025hfz].
 ///
-/// These are approximations for fixed `nf` = 3, 4 and 5 based on the
+/// These are approximations for fixed `nf` = 3, 4, 5 and 6 based on the
 /// first 10 even moments together with small-x/large-x constraints.
 /// The two sets indicating the error estimate are called via `variation = 1`
 /// and `variation = 2`.  Any other value of `variation` invokes their average.
@@ -45,7 +46,7 @@ pub fn gamma_qg(c: &mut Cache, nf: u8, variation: u8) -> Complex<f64> {
         + y1L4cff * lm14m1(c)
         + y1L5cff * lm15m1(c);
 
-    // The selected approximations for nf = 3, 4, 5
+    // The selected approximations for nf = 3, 4, 5, 6
     let P3qgApp1: Complex<f64>;
     let P3qgApp2: Complex<f64>;
     if nf == 3 {
@@ -111,8 +112,31 @@ pub fn gamma_qg(c: &mut Cache, nf: u8, variation: u8) -> Complex<f64> {
             - 15553.0 * lm12(c)
             - 126212.0 * lm11(c)
             + 385995.0 * (S1 - n * (ZETA2 - S2)) / n.powu(2);
+    } else if nf == 6 {
+        P3qgApp1 =
+            P3QG01 + 375000.0 * -(1. / (-1. + n).powu(2)) + 1595330.0 * -(1. / (-1. + n).powu(2))
+                - 477729.0 * 1. / n
+                + 637552.0 * (3. + n) / (2. + 3. * n + n.powu(2))
+                + 931556.0 * -1. / n.powu(2)
+                - 387017.0 * 2. / n.powu(3)
+                + 187509.0 * -6. / n.powu(4)
+                + 715.5 * lm13(c)
+                + 20710.0 * lm12(c)
+                + 91373.0 * lm11(c)
+                - 346374.0 * (S1 - n * (ZETA2 - S2)) / n.powu(2);
+        P3qgApp2 =
+            P3QG01 + 270000.0 * -(1. / (-1. + n).powu(2)) + 912695.0 * -(1. / (-1. + n).powu(2))
+                - 200034.0 * 1. / n
+                - 189918.0 * (3. + n) / (2. + 3. * n + n.powu(2))
+                + 603114.0 * -1. / n.powu(2)
+                - 190521.0 * 2. / n.powu(3)
+                + 56661.0 * -6. / n.powu(4)
+                - 1224.3 * lm13(c)
+                - 16453.0 * lm12(c)
+                - 150856.0 * lm11(c)
+                + 410661.0 * (S1 - n * (ZETA2 - S2)) / n.powu(2);
     } else {
-        panic!("nf=6 is not available at N3LO");
+        panic!("Select nf=3,..,6 for N3LO evolution");
     }
 
     // We return (for now) one of the two error-band boundaries
@@ -154,7 +178,7 @@ mod tests {
             mom_list[(N - 2) / 2]
         }
         for variation in [0, 1, 2] {
-            for NF in [3, 4, 5] {
+            for NF in [3, 4, 5, 6] {
                 for N in [2.0, 4.0, 6.0, 8.0, 10.0, 12.0, 14.0, 16.0, 18.0, 20.0] {
                     let mut c = Cache::new(cmplx!(N, 0.));
                     let test_value = gamma_qg(&mut c, NF, variation);
