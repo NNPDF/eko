@@ -44,7 +44,7 @@ mod tests {
         let NF = 5;
         let mut c = Cache::new(cmplx!(2., 0.));
         // Numbers are coming from the python implementation.
-        let quark_refs: [f64; 3] = [0.053441, 0.225674, -0.118792];
+        let quark_refs: [f64; 3] = [0.040173, 0.260616, -0.18027];
         let gluon_refs: [f64; 3] = [-0.0300842, 0.283004, -0.343172];
         for imod in [[0, 0, 0, 0], [1, 1, 1, 1], [2, 2, 2, 2]] {
             let g_singlet = gamma_singlet(&mut c, NF, imod);

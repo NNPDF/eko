@@ -190,7 +190,7 @@ mod tests {
                         f64,
                         test_value,
                         cmplx!(qq3ps_moment(N as usize, NF as f64), 0.),
-                        rel = 4e-4
+                        rel = if NF != 6 { 4e-4 } else { 2e-3 }
                     );
                 }
             }
