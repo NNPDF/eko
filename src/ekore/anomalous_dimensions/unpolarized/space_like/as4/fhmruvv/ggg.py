@@ -100,7 +100,7 @@ def gamma_gg(n, nf, cache, variation):
         + x1L3cff * lm13m1(n, S1, S2, S3)
     )
 
-    # The selected approximations for nf = 3, 4, 5
+    # The selected approximations for nf = 3, 4, 5, 6
     if nf == 3:
         P3ggApp1 = (
             P3gg01

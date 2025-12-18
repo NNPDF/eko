@@ -71,7 +71,7 @@ def gamma_ps(n, nf, cache, variation):
         + y1L4cff * lm14m2(n, S1, S2, S3, S4)
     )
 
-    # The selected approximations for nf = 3, 4, 5
+    # The selected approximations for nf = 3, 4, 5, 6
     if nf == 3:
         P3psApp1 = (
             P3ps01

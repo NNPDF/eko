@@ -79,7 +79,7 @@ def gamma_gq(n, nf, cache, variation):
         + y1L5cff * lm15m1(n, S1, S2, S3, S4, S5)
     )
 
-    # The selected approximations for nf = 3, 4, 5
+    # The selected approximations for nf = 3, 4, 5, 6
     if nf == 3:
         P3gqApp1 = (
             P3GQ01
