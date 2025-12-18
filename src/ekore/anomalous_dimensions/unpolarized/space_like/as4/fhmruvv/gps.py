@@ -19,7 +19,8 @@ from ......harmonics.log_functions import (
 def gamma_ps(n, nf, cache, variation):
     r"""Compute the |N3LO| pure singlet quark-quark anomalous dimension.
 
-    The routine is taken from :cite:`Falcioni:2023luc`.
+    The routine is taken from :cite:`Falcioni:2023luc`,
+    with the update for :math:`n_f=6` from :cite:`Falcioni:2025hfz`.
 
     Parameters
     ----------
@@ -152,8 +153,35 @@ def gamma_ps(n, nf, cache, variation):
             - 1760.8 * lm12m1(n, S1, S2)
             - 10295.0 * lm12m2(n, S1, S2)
         )
+    elif nf == 6:
+        P3psApp1 = (
+            P3ps01
+            + 134701.0 * xm1lm1
+            + 518318.0 * 1 / ((-1 + n) * n)
+            - 195241.0 * (1 / n - n / (2 + 3 * n + n**2))
+            + 66517.0 * 1 / (6 + 5 * n + n**2)
+            + 658832.0 * (-(1 / n**2) + 1 / (1 + n) ** 2)
+            + 19605.0 * 2 / n**3
+            + 76125.0 * -6 / n**4
+            - 4734.5 * lm11m1(n, S1)
+            - 2035.2 * lm12m1(n, S1, S2)
+            + 1633.1 * lm12m2(n, S1, S2)
+        )
+        P3psApp2 = (
+            P3ps01
+            + 110032.0 * xm1lm1
+            + 341158.0 * 1 / ((-1 + n) * n)
+            - 365676.0 * 1 / (n + n**2)
+            + 25934.0 * 2 / (3 + 4 * n + n**2)
+            + 3614.4 * (-(1 / n**2) + 1 / (1 + n) ** 2)
+            - 194868.0 * 2 / n**3
+            - 4172.2 * -6 / n**4
+            + 3924.3 * lm11m1(n, S1)
+            - 1324.9 * lm12m1(n, S1, S2)
+            - 12520.0 * lm12m2(n, S1, S2)
+        )
     else:
-        raise NotImplementedError("nf=6 is not available at N3LO")
+        raise NotImplementedError("Select nf=3,..,6 for N3LO evolution")
 
     # We return (for now) one of the two error-band boundaries
     # or the present best estimate, their average

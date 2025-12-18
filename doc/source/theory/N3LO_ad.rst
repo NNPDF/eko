@@ -14,7 +14,7 @@ which is set to ``(0,0,0,0,0,0,0)`` as default, can be varied to obtain parametr
 In particular:
 
 * ``use_fhmruvv = True`` (default option) adopts the parametrizations as provided
-  in :cite:`Moch:2017uml,Falcioni:2023luc,Falcioni:2023vqq,Falcioni:2024xyt,Falcioni:2024qpd`.
+  in :cite:`Moch:2017uml,Falcioni:2023luc,Falcioni:2023vqq,Falcioni:2024xyt,Falcioni:2024qpd,Falcioni:2025hfz`.
   For each of the 7 splitting functions, the approximation error can be obtained by varying
   the entries of ``n3lo_ad_variation`` in the range: ``0``,
   cental value (default), ``1`` down variation, ``2`` up variation.

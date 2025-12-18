@@ -2,7 +2,8 @@ r"""The unpolarized, space-like anomalous dimension
 :math:`\gamma_{qg}^{(3)}`."""
 
 import numba as nb
-import numpy as np
+
+from eko.constants import zeta2
 
 from ......harmonics import cache as c
 from ......harmonics.log_functions import lm11, lm12, lm13, lm14, lm14m1, lm15, lm15m1
@@ -12,7 +13,8 @@ from ......harmonics.log_functions import lm11, lm12, lm13, lm14, lm14m1, lm15, 
 def gamma_qg(n, nf, cache, variation):
     r"""Compute the |N3LO| quark-gluon singlet anomalous dimension.
 
-    The routine is taken from :cite:`Falcioni:2023vqq`.
+    The routine is taken from :cite:`Falcioni:2023vqq`,
+    with the update for :math:`n_f=6` from :cite:`Falcioni:2025hfz`.
 
     Parameters
     ----------
@@ -77,7 +79,7 @@ def gamma_qg(n, nf, cache, variation):
             + 119.8 * lm13(n, S1, S2, S3)
             + 7156.3 * lm12(n, S1, S2)
             + 45790.0 * lm11(n, S1)
-            - 95682.0 * (S1 - n * (np.pi**2 / 6 - S2)) / n**2
+            - 95682.0 * (S1 - n * (zeta2 - S2)) / n**2
         )
         P3qgApp2 = (
             P3QG01
@@ -91,7 +93,7 @@ def gamma_qg(n, nf, cache, variation):
             - 850.1 * lm13(n, S1, S2, S3)
             - 11425.0 * lm12(n, S1, S2)
             - 75323.0 * lm11(n, S1)
-            + 282836.0 * (S1 - n * (np.pi**2 / 6 - S2)) / n**2
+            + 282836.0 * (S1 - n * (zeta2 - S2)) / n**2
         )
     elif nf == 4:
         P3qgApp1 = (
@@ -106,7 +108,7 @@ def gamma_qg(n, nf, cache, variation):
             + 272.4 * lm13(n, S1, S2, S3)
             + 10911.0 * lm12(n, S1, S2)
             + 60563.0 * lm11(n, S1)
-            - 161448.0 * (S1 - n * (np.pi**2 / 6 - S2)) / n**2
+            - 161448.0 * (S1 - n * (zeta2 - S2)) / n**2
         )
         P3qgApp2 = (
             P3QG01
@@ -120,7 +122,7 @@ def gamma_qg(n, nf, cache, variation):
             - 1020.8 * lm13(n, S1, S2, S3)
             - 13864.0 * lm12(n, S1, S2)
             - 100922.0 * lm11(n, S1)
-            + 343243.0 * (S1 - n * (np.pi**2 / 6 - S2)) / n**2
+            + 343243.0 * (S1 - n * (zeta2 - S2)) / n**2
         )
     elif nf == 5:
         P3qgApp1 = (
@@ -135,7 +137,7 @@ def gamma_qg(n, nf, cache, variation):
             + 472.7 * lm13(n, S1, S2, S3)
             + 15415.0 * lm12(n, S1, S2)
             + 75644.0 * lm11(n, S1)
-            - 244869.0 * (S1 - n * (np.pi**2 / 6 - S2)) / n**2
+            - 244869.0 * (S1 - n * (zeta2 - S2)) / n**2
         )
         P3qgApp2 = (
             P3QG01
@@ -149,10 +151,39 @@ def gamma_qg(n, nf, cache, variation):
             - 1143.8 * lm13(n, S1, S2, S3)
             - 15553.0 * lm12(n, S1, S2)
             - 126212.0 * lm11(n, S1)
-            + 385995.0 * (S1 - n * (np.pi**2 / 6 - S2)) / n**2
+            + 385995.0 * (S1 - n * (zeta2 - S2)) / n**2
+        )
+    elif nf == 6:
+        P3qgApp1 = (
+            P3QG01
+            + 375000.0 * -(1 / (-1 + n) ** 2)
+            + 1595330.0 * -(1 / (-1 + n) ** 2)
+            - 477729.0 * 1 / n
+            + 637552.0 * (3 + n) / (2 + 3 * n + n**2)
+            + 931556.0 * -1 / n**2
+            - 387017.0 * 2 / n**3
+            + 187509.0 * -6 / n**4
+            + 715.5 * lm13(n, S1, S2, S3)
+            + 20710.0 * lm12(n, S1, S2)
+            + 91373.0 * lm11(n, S1)
+            - 346374.0 * (S1 - n * (zeta2 - S2)) / n**2
+        )
+        P3qgApp2 = (
+            P3QG01
+            + 270000.0 * -(1 / (-1 + n) ** 2)
+            + 912695.0 * -(1 / (-1 + n) ** 2)
+            - 200034.0 * 1 / n
+            - 189918.0 * (3 + n) / (2 + 3 * n + n**2)
+            + 603114.0 * -1 / n**2
+            - 190521.0 * 2 / n**3
+            + 56661.0 * -6 / n**4
+            - 1224.3 * lm13(n, S1, S2, S3)
+            - 16453.0 * lm12(n, S1, S2)
+            - 150856.0 * lm11(n, S1)
+            + 410661.0 * (S1 - n * (zeta2 - S2)) / n**2
         )
     else:
-        raise NotImplementedError("nf=6 is not available at N3LO")
+        raise NotImplementedError("Select nf=3,..,6 for N3LO evolution")
 
     # We return one of the two error-band representatives
     # or the present best estimate, their average

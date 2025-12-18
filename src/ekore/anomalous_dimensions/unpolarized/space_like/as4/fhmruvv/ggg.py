@@ -2,9 +2,8 @@ r"""The unpolarized, space-like anomalous dimension
 :math:`\gamma_{gg}^{(3)}`."""
 
 import numba as nb
-import numpy as np
 
-from eko.constants import zeta3
+from eko.constants import zeta2, zeta3
 
 from ......harmonics import cache as c
 from ......harmonics.log_functions import (
@@ -23,7 +22,8 @@ from ......harmonics.log_functions import (
 def gamma_gg(n, nf, cache, variation):
     r"""Compute the |N3LO| gluon-gluon singlet anomalous dimension.
 
-    The routine is taken from :cite:`Falcioni:2024qpd`.
+    The routine is taken from :cite:`Falcioni:2024qpd`,
+    with the update for :math:`n_f=6` from :cite:`Falcioni:2025hfz`.
     A previous version based only on the lowest 10 moments
     was given in :cite:`Moch:2023tdj`.
 
@@ -127,11 +127,7 @@ def gamma_gg(n, nf, cache, variation):
             + 84068.0 * Lm11m1
             + 346318.0 * Lm12m1
             + 315725.0
-            * (
-                -3 * S1**2
-                + n * S1 * (np.pi**2 - 6 * S2)
-                - 3 * (S2 + 2 * n * (S3 - zeta3))
-            )
+            * (-3 * S1**2 + n * S1 * 6 * (zeta2 - S2) - 3 * (S2 + 2 * n * (S3 - zeta3)))
             / (3 * n**2)
         )
     elif nf == 4:
@@ -188,8 +184,35 @@ def gamma_gg(n, nf, cache, variation):
             + 19295.0 * Lm12m1
             - 13719.0 * lm12m2(n, S1, S2)
         )
+    elif nf == 6:
+        P3ggApp1 = (
+            P3gg01
+            - 476018.0 * (-(1 / (-1 + n) ** 2) + 1 / n**2)
+            - 469289.0 * 1 / ((-1 + n) * n)
+            + 2049351.0 * (1 / (n + n**2))
+            - 1589000.0 * (1 / (2 + 3 * n + n**2))
+            + 3185549.0 * (-(1 / n**2) + 1 / (1 + n) ** 2)
+            + 1994521.0 * 2 / n**3
+            + 527723.0 * (-(6 / n**4))
+            - 340674.0 * Lm11m1
+            + 22460.0 * Lm12m1
+            - 394556.0 * (S1 - n * (zeta2 - S2)) / n**2
+        )
+        P3ggApp2 = (
+            P3gg01
+            - 709863.0 * (-(1 / (-1 + n) ** 2) + 1 / n**2)
+            - 2134347.0 * 1 / ((-1 + n) * n)
+            + 1605315.0 * (1 / (2 + 3 * n + n**2))
+            + 360743.0 * ((12 + 9 * n + n**2) / (6 * n + 11 * n**2 + 6 * n**3 + n**4))
+            - 2426250.0 * (-(1 / n**2) + 1 / (1 + n) ** 2)
+            + 230631.0 * 2 / n**3
+            - 185804.0 * (-(6 / n**4))
+            - 7992.9 * Lm11m1
+            + 15918.0 * Lm12m1
+            - 32771.0 * lm11m2(n, S1)
+        )
     else:
-        raise NotImplementedError("nf=6 is not available at N3LO")
+        raise NotImplementedError("Select nf=3,..,6 for N3LO evolution")
 
     # We return (for now) one of the two error-band representatives
     # or the present best estimate, their average
