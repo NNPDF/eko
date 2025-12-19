@@ -45,7 +45,7 @@ def test_momentum_conservation():
     # total
     np.testing.assert_allclose(
         g_singlet[:, 0, 0] + g_singlet[:, 1, 0],
-        [0.040173 + 0.0j, 0.260616, -0.18027],
+        [0.040173, 0.260616, -0.18027],
         atol=1e-6,
     )
     np.testing.assert_allclose(
