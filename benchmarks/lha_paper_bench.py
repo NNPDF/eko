@@ -1,5 +1,5 @@
 """Benchmark to :cite:`Giele:2002hx` (LO + NLO) and :cite:`Dittmar:2005ed`
-(NNLO)."""
+(NNLO) and :cite:`Cooper-Sarkar:2024crx` (aN3LO)."""
 
 import os
 
@@ -162,6 +162,14 @@ class BaseBenchmark:
     def benchmark_sv_nnlo(self):
         self.transformed_runner().run_sv(2)
 
+    @pytest.mark.n3lo
+    def benchmark_plain_n3lo(self):
+        self.transformed_runner().run_plain(3)
+
+    @pytest.mark.n3lo
+    @pytest.mark.sv
+    def benchmark_sv_n3lo(self):
+        self.transformed_runner().run_sv(3)
 
 class VFNS(LHA):
     """Provide |VFNS| settings."""

@@ -187,6 +187,7 @@ markers = [
   "lo: Leading order",
   "nlo: Next-to-leading order",
   "nnlo: Next-to-next-to-leading order",
+  "n3lo: Next-to-next-to-next-to-leading order",
   "sv: Scale variations",
 ]
 
