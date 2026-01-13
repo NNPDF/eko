@@ -182,7 +182,9 @@ def compute_LHA_data(theory, operators, rotate_to_evolution_basis=False):
     else:
         raise ValueError(f"unknown FNS {fns} or order {order}")
     ref_values = rotate_data(
-        data[f"table{table}"][f"part{part}"], is_ffns_nnlo_n3lo, rotate_to_evolution_basis
+        data[f"table{table}"][f"part{part}"],
+        is_ffns_nnlo_n3lo,
+        rotate_to_evolution_basis,
     )
     ref = {
         "target_xgrid": toy_xgrid,

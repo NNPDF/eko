@@ -171,6 +171,7 @@ class BaseBenchmark:
     def benchmark_sv_n3lo(self):
         self.transformed_runner().run_sv(3)
 
+
 class VFNS(LHA):
     """Provide |VFNS| settings."""
 
@@ -276,6 +277,15 @@ class BenchmarkFFNS_polarized(BaseBenchmark):
     @pytest.mark.nnlo
     @pytest.mark.sv
     def benchmark_sv_nnlo(self):
+        pass
+
+    @pytest.mark.n3lo
+    def benchmark_plain_n3lo(self):
+        pass
+
+    @pytest.mark.n3lo
+    @pytest.mark.sv
+    def benchmark_sv_n3lo(self):
         pass
 
 
