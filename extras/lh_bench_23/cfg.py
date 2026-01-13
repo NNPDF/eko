@@ -26,14 +26,9 @@ _t_vfns = dict(
     couplings=dict(
         alphas=0.35,
         alphaem=0.007496,
-        scale=_sqrt2,
-        num_flavs_ref=3,
-        max_num_flavs=6,
+        ref=(_sqrt2, 3),
     ),
     heavy=dict(
-        num_flavs_init=3,
-        num_flavs_max_pdf=6,
-        intrinsic_flavors=[],
         masses=[ReferenceRunning([mq, nan]) for mq in (_sqrt2, 4.5, 175.0)],
         masses_scheme="POLE",
         matching_ratios=[1.0, 1.0, 1.0],
@@ -53,8 +48,7 @@ def vfns_theory(xif=1.0):
 
 
 _t_ffns = copy.deepcopy(_t_vfns)
-_t_ffns["couplings"]["num_flavs_ref"] = 4
-_t_ffns["heavy"]["num_flavs_init"] = 4
+_t_ffns["couplings"]["ref"] = (_sqrt2, 4)
 _t_ffns["heavy"]["masses"] = [
     ReferenceRunning([0, nan]),
     ReferenceRunning([inf, nan]),
@@ -87,7 +81,7 @@ def n3lo_theory(ad_variation, is_ffns, use_fhmruvv=False, xif=1.0):
 # operator settings
 # -----------------
 _o_vfns = dict(
-    mu0=_sqrt2,
+    init=(_sqrt2, 3),
     mugrid=[(100.0, 5)],
     xgrid=lambertgrid(60).tolist(),
     configs=dict(
@@ -114,6 +108,7 @@ def ffns_operator(ev_method="iterate-exact"):
     """Generate a FFNS theory card."""
     op = copy.deepcopy(_o_vfns)
     op["mugrid"] = [(100.0, 4)]
+    op["init"] = (_sqrt2, 4)
     op["configs"]["evolution_method"] = ev_method
     if ev_method == "truncated":
         op["configs"]["ev_op_iterations"] = 1
