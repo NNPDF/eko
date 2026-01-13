@@ -18,6 +18,9 @@ Items without prefix refer to a global change.
 ### Added
 - rust: N3LO unpolarized, space-like anomalous dimensions from FHMRUVV translated ([#443](https://github.com/NNPDF/eko/pull/443))
 
+### Fixed
+- py: Fix ad.u.t.as3.singlet. Thank you Yuxun Guo (@yuxunguo). ([#488](https://github.com/NNPDF/eko/pull/488))
+
 ## [0.15.2](https://github.com/NNPDF/eko/compare/v0.15.1...v0.15.2) - 2025-07-14
 
 ### Changed

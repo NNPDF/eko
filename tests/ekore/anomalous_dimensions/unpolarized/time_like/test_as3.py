@@ -136,7 +136,7 @@ def test_nsv():
         np.testing.assert_almost_equal(ad_as3.gamma_nsv(Nlist[i], NF, cache), res[i])
 
 
-def test_qq():
+def test_ps():
     Nlist = [2, complex(0, 1), complex(1, 1)]
     res = [
         -184.274140748,
