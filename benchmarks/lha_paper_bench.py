@@ -162,6 +162,14 @@ class BaseBenchmark:
     def benchmark_sv_nnlo(self):
         self.transformed_runner().run_sv(2)
 
+
+class BaseBenchmarkN3LO(BaseBenchmark):
+    """Abstract common benchmark tasks."""
+
+    def runner(self) -> LHA:
+        """Runner to run."""
+        raise NotImplementedError("runner method has to be overwritten!")
+
     @pytest.mark.n3lo
     def benchmark_plain_n3lo(self):
         self.transformed_runner().run_plain(3)
@@ -191,7 +199,7 @@ class VFNS(LHA):
 
 
 @pytest.mark.vfns
-class BenchmarkVFNS(BaseBenchmark):
+class BenchmarkVFNS(BaseBenchmarkN3LO):
     def runner(self):
         return VFNS()
 
@@ -237,7 +245,7 @@ class FFNS(LHA):
 
 
 @pytest.mark.ffns
-class BenchmarkFFNS(BaseBenchmark):
+class BenchmarkFFNS(BaseBenchmarkN3LO):
     def runner(self):
         return FFNS()
 
@@ -277,15 +285,6 @@ class BenchmarkFFNS_polarized(BaseBenchmark):
     @pytest.mark.nnlo
     @pytest.mark.sv
     def benchmark_sv_nnlo(self):
-        pass
-
-    @pytest.mark.n3lo
-    def benchmark_plain_n3lo(self):
-        pass
-
-    @pytest.mark.n3lo
-    @pytest.mark.sv
-    def benchmark_sv_n3lo(self):
         pass
 
 
