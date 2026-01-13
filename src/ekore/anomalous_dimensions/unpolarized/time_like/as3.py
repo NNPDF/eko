@@ -299,8 +299,8 @@ def gamma_nsv(N, nf, cache):
 
 
 @nb.njit(cache=True)
-def gamma_ps(N, nf, cache):
-    r"""Compute the |NNLO| quark-quark pure-singlet anomalous dimension.
+def gamma_qq(N, nf, cache):
+    r"""Compute the |NNLO| quark-quark anomalous dimension.
 
     Implements :eqref:`11` from  :cite:`Moch:2007tx` via the
     N-space translation from A. Vogt.
@@ -317,7 +317,7 @@ def gamma_ps(N, nf, cache):
     Returns
     -------
     complex
-        NNLO quark-quark pure-singlet anomalous dimension
+        NNLO quark-quark anomalous dimension
         :math:`\gamma_{qq}^{(2)}(N)`
     """
     NI = 1 / N
@@ -799,7 +799,7 @@ def gamma_singlet(N, nf, cache):
     """
     result = np.array(
         [
-            [gamma_nsp(N, nf, cache) + gamma_ps(N, nf, cache), gamma_gq(N, nf, cache)],
+            [gamma_qq(N, nf, cache), gamma_gq(N, nf, cache)],
             [gamma_qg(N, nf, cache), gamma_gg(N, nf, cache)],
         ],
         np.complex128,
