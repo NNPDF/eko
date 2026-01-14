@@ -1,4 +1,4 @@
-"""Testing values obtained from |MELA| functions."""
+"""Testing values obtained from |MELA| functions and 1905.01310."""
 
 import numpy as np
 
@@ -9,8 +9,9 @@ from ekore.harmonics import cache as c
 NF = 5
 
 
-# Thanks Yuxun Guo (@yuxunguo) for providing results from 1905.01310
+# Thanks Yuxun Guo (@yuxunguo)
 def n3(nf: int):
+    """Implements 1905.01310 Eq. (A8)"""
     z2 = zeta2
     z3 = zeta3
     z4 = zeta4
@@ -189,5 +190,5 @@ def test_singlet_n3():
     # test against 1905.01310
     for nf in range(3, 6 + 1):
         np.testing.assert_allclose(
-            ad_as3.gamma_singlet(3.0, nf, cache), n3(nf), rtol=1.5e-4
+            ad_as3.gamma_singlet(3.0, nf, cache), n3(nf), rtol=1.5e-4, err_msg=f"{nf=}"
         )
