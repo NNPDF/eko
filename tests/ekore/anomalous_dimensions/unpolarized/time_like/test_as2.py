@@ -1,11 +1,40 @@
-"""Testing values obtained from |MELA| functions."""
+"""Testing values obtained from |MELA| functions and 1905.01310."""
 
 import numpy as np
 
 import ekore.anomalous_dimensions.unpolarized.time_like.as2 as ad_as2
+from eko.constants import CA, CF, zeta2, zeta3
 from ekore.harmonics import cache as c
 
 NF = 5
+
+
+# Thanks Yuxun Guo (@yuxunguo)
+def n3(nf: int):
+    """Implements 1905.01310 Eq. (A7)"""
+    z2 = zeta2
+    z3 = zeta3
+    cf = CF
+    ca = CA
+
+    gTqq1 = (
+        -5453 / 1800 * cf * nf
+        + cf**2 * (-1693 / 48 + 24 * z2 - 16 * z3)
+        + ca * cf * (459 / 8 - 86 * z2 / 3 + 8 * z3)
+    )
+    gTgq1 = ca * cf * (-39451 / 5400 - 14 * z2 / 3) + cf**2 * (
+        -2977 / 432 + 28 * z2 / 3
+    )
+    gTqg1 = (
+        -833 / 216 * cf * nf - 4 / 25 * nf**2 + ca * nf * (619 / 2700 + 28 * z2 / 15)
+    )
+    gTgg1 = (
+        12839 / 5400 * cf * nf
+        + ca * nf * (3803 / 1350 - 16 * z2 / 3)
+        + ca**2 * (2158 / 675 + 52 * z2 / 15 - 8 * z3)
+    )
+
+    return np.array([[gTqq1, gTgq1 * 2 * nf], [gTqg1 / (2 * nf), gTgg1]])
 
 
 def test_nsp():
@@ -61,3 +90,12 @@ def test_gg():
     for i in range(3):
         cache = c.reset()
         np.testing.assert_almost_equal(ad_as2.gamma_gg(Nlist[i], NF, cache), res[i])
+
+
+def test_singlet_n3():
+    cache = c.reset()
+    # test against 1905.01310
+    for nf in range(3, 6 + 1):
+        np.testing.assert_allclose(
+            ad_as2.gamma_singlet(3.0, nf, cache), n3(nf), rtol=1.5e-5, err_msg=f"{nf=}"
+        )
