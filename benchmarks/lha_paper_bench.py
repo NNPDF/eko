@@ -57,6 +57,8 @@ class LHA(Runner):
         """
         th = self.theory.copy()
         th.update({"PTO": pto})
+        if pto == 3:
+            th["matching_order"] = pto - 1
         return [th]
 
     def sv_theories(self, pto):
@@ -80,6 +82,9 @@ class LHA(Runner):
         high["PTO"] = pto
         high["XIF"] = _sqrt2
         high["ModSV"] = "exponentiated"
+        if pto == 3:
+            low["matching_order"] = pto - 1
+            high["matching_order"] = pto - 1
         return [high, low]
 
     @staticmethod
