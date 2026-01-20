@@ -17,6 +17,10 @@ Items without prefix refer to a global change.
 
 ### Added
 - rust: N3LO unpolarized, space-like anomalous dimensions from FHMRUVV translated ([#443](https://github.com/NNPDF/eko/pull/443))
+- Added N3LO benchmark tables from 2406.16188 ([#489](https://github.com/NNPDF/eko/pull/489))
+
+### Changed
+- py: When converting from "old-style" NNPDF runcards, the perturbative order of the matching is now determined as follows. If `PTO_matching` is `None`, it is set to match the anomalous dimensions, i.e. according to `PTO`. If `PTO_matching` is a number, it is translated with the same logic as for the anomalous dimension, i.e. subtracting the one unit difference between `PTO` and `order`. In any other case it is used as is. ([#489](https://github.com/NNPDF/eko/pull/489))
 
 ## [0.15.2](https://github.com/NNPDF/eko/compare/v0.15.1...v0.15.2) - 2025-07-14
 
