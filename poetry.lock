@@ -118,15 +118,15 @@ dev = ["backports.zoneinfo ; python_version < \"3.9\"", "freezegun (>=1.0,<2.0)"
 
 [[package]]
 name = "banana-hep"
-version = "0.6.16"
+version = "0.6.17"
 description = "Benchmark QCD physics"
 optional = true
 python-versions = "<4.0,>=3.9"
 groups = ["main"]
 markers = "extra == \"mark\""
 files = [
-    {file = "banana_hep-0.6.16-py3-none-any.whl", hash = "sha256:cf809dd579f791aa5562a8ea6d274ecbcc5dad0423a253dd3b19d2512ad5b1d5"},
-    {file = "banana_hep-0.6.16.tar.gz", hash = "sha256:dc26cb644a43ba297d40d99eb321746388b91b327ebc3ed8a357a3cb669314c9"},
+    {file = "banana_hep-0.6.17-py3-none-any.whl", hash = "sha256:2a0e370ed4cd8e62923d50cd7c963ddb21cb705e1b408c051c70a001961717b0"},
+    {file = "banana_hep-0.6.17.tar.gz", hash = "sha256:aabfe4f37baf40fb3ebeed85805424d6d8de446448dd0c0e75535bd8f42086ef"},
 ]
 
 [package.dependencies]
@@ -5199,4 +5199,4 @@ mark = ["banana-hep", "matplotlib", "pandas", "sqlalchemy"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.9,<3.14"
-content-hash = "d28a6efb56783f332e2c142520190e32e1a49829c56c048f491ed00c56ff7471"
+content-hash = "48f0e89526500e24d8ec8628782c22dbd18d9fd44c117ffbf5f8f4d669c5f2ac"
