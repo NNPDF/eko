@@ -11,7 +11,7 @@ index 3a96cffe..c9026452 100644
 +
 +[project]
 +name = "eko"
-+requires-python = ">=3.9"
++requires-python = ">=3.10"
 +classifiers = [
 +  "Programming Language :: Rust",
 +  "Programming Language :: Python :: Implementation :: CPython",
