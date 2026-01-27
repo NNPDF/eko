@@ -3839,4 +3839,4 @@ mark = ["banana-hep", "matplotlib", "pandas", "sqlalchemy"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.10,<3.14"
-content-hash = "6acc91ef35ad85e13a0de4c5e650f8b9374c2f45d4c0596dfdb16b44418197fd"
+content-hash = "fec02cc5fd20915217830faebf259d3fa239fe681738da37ff106fed73acefce"
