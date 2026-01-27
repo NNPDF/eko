@@ -45,8 +45,8 @@ def test_momentum_conservation():
     # total
     np.testing.assert_allclose(
         g_singlet[:, 0, 0] + g_singlet[:, 1, 0],
-        [0.053441, 0.225674, -0.118792],
-        atol=2e-5,
+        [0.040173, 0.260616, -0.18027],
+        atol=1e-6,
     )
     np.testing.assert_allclose(
         g_singlet[:, 0, 1] + g_singlet[:, 1, 1],
@@ -170,11 +170,11 @@ def test_vogt_parametriztions():
     for N in [2, 4, 6, 8, 10, 12, 14, 16, 18, 20]:
         cache = h.cache.reset()
         for variation in [0, 1, 2]:
-            for nf in [3, 4, 5]:
+            for nf in [3, 4, 5, 6]:
                 np.testing.assert_allclose(
                     gps.gamma_ps(N, nf, cache, variation),
                     qq3ps_moment(N, nf),
-                    rtol=4e-4,
+                    rtol=4e-4 if nf != 6 else 2e-3,
                 )
                 np.testing.assert_allclose(
                     gqg.gamma_qg(N, nf, cache, variation),
@@ -190,14 +190,14 @@ def test_vogt_parametriztions():
                     np.testing.assert_allclose(
                         ggq.gamma_gq(N, nf, cache, variation),
                         gq3_moment(N, nf),
-                        rtol=4e-4,
+                        rtol=4e-4 if nf != 6 else 2e-3,
                     )
 
     with pytest.raises(NotImplementedError):
-        gps.gamma_ps(N, 6, cache, variation)
-        gqg.gamma_qg(N, 6, cache, variation)
-        ggg.gamma_gg(N, 6, cache, variation)
-        ggq.gamma_gq(N, 6, cache, variation)
+        gps.gamma_ps(N, 7, cache, variation)
+        gqg.gamma_qg(N, 7, cache, variation)
+        ggg.gamma_gg(N, 7, cache, variation)
+        ggq.gamma_gq(N, 7, cache, variation)
 
 
 def test_non_singlet_reference_moments():

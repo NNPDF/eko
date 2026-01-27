@@ -7,9 +7,10 @@ use crate::harmonics::log_functions::{lm11m1, lm12m1, lm12m2, lm13m1, lm13m2, lm
 
 /// Compute the pure-singlet quark-to-quark anomalous dimension.
 ///
-/// The routine is taken from [\[Falcioni:2023luc\]][crate::bib::Falcioni2023luc].
+/// The routine is taken from [\[Falcioni:2023luc\]][crate::bib::Falcioni2023luc],
+/// with the update for :math:`n_f=6` from [\[Falcioni:2025hfz\]][crate::bib::Falcioni:2025hfz].
 ///
-/// These are approximations for fixed `nf` = 3, 4 and 5 based on the
+/// These are approximations for fixed `nf` = 3, 4, 5 and 6 based on the
 /// first ten even moments together with small-x/large-x constraints.
 /// The two sets spanning the error estimate are called via `variation = 1`
 /// and `variation = 2`.  Any other value of `variation` invokes their average.
@@ -43,7 +44,7 @@ pub fn gamma_ps(c: &mut Cache, nf: u8, variation: u8) -> Complex<f64> {
         + y1L3cff * lm13m2(c)
         + y1L4cff * lm14m2(c);
 
-    // The selected approximations for nf = 3, 4, 5
+    // The selected approximations for nf = 3, 4, 5, 6
     let P3psApp1: Complex<f64>;
     let P3psApp2: Complex<f64>;
     if nf == 3 {
@@ -103,8 +104,27 @@ pub fn gamma_ps(c: &mut Cache, nf: u8, variation: u8) -> Complex<f64> {
             + 804.5 * lm11m1(c)
             - 1760.8 * lm12m1(c)
             - 10295.0 * lm12m2(c);
+    } else if nf == 6 {
+        P3psApp1 = P3ps01 + 134701.0 * xm1lm1 + 518318.0 * 1. / ((-1. + n) * n)
+            - 195241.0 * (1. / n - n / (2. + 3. * n + n.powu(2)))
+            + 66517.0 * 1. / (6. + 5. * n + n.powu(2))
+            + 658832.0 * (-(1. / n.powu(2)) + 1. / (1. + n).powu(2))
+            + 19605.0 * 2. / n.powu(3)
+            + 76125.0 * -6. / n.powu(4)
+            - 4734.5 * lm11m1(c)
+            - 2035.2 * lm12m1(c)
+            + 1633.1 * lm12m2(c);
+        P3psApp2 = P3ps01 + 110032.0 * xm1lm1 + 341158.0 * 1. / ((-1. + n) * n)
+            - 365676.0 * 1. / (n + n.powu(2))
+            + 25934.0 * 2. / (3. + 4. * n + n.powu(2))
+            + 3614.4 * (-(1. / n.powu(2)) + 1. / (1. + n).powu(2))
+            - 194868.0 * 2. / n.powu(3)
+            - 4172.2 * -6. / n.powu(4)
+            + 3924.3 * lm11m1(c)
+            - 1324.9 * lm12m1(c)
+            - 12520.0 * lm12m2(c);
     } else {
-        panic!("nf=6 is not available at N3LO");
+        panic!("Select nf=3,..,6 for N3LO evolution");
     }
     // We return (for now) one of the two error-band boundaries
     // or the present best estimate, their average
@@ -162,7 +182,7 @@ mod tests {
             mom_list[(N - 2) / 2]
         }
         for variation in [0, 1, 2] {
-            for NF in [3, 4, 5] {
+            for NF in [3, 4, 5, 6] {
                 for N in [2.0, 4.0, 6.0, 8.0, 10.0, 12.0, 14.0, 16.0, 18.0, 20.0] {
                     let mut c = Cache::new(cmplx!(N, 0.));
                     let test_value = gamma_ps(&mut c, NF, variation);
@@ -170,7 +190,7 @@ mod tests {
                         f64,
                         test_value,
                         cmplx!(qq3ps_moment(N as usize, NF as f64), 0.),
-                        rel = 4e-4
+                        rel = if NF != 6 { 4e-4 } else { 2e-3 }
                     );
                 }
             }

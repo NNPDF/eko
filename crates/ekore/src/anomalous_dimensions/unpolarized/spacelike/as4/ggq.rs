@@ -8,9 +8,11 @@ use crate::harmonics::log_functions::{lm11, lm12, lm12m1, lm13, lm14, lm14m1, lm
 
 /// Compute the singlet quark-to-gluon anomalous dimension.
 ///
-/// The routine is taken from [\[Falcioni:2024xyt\]][crate::bib::Falcioni2024xyt].
+/// The routine is taken from [\[Falcioni:2025hfz\]][crate::bib::Falcioni2025hfz].
+/// A previous version was given in [\[Falcioni:2024xyt\]][crate::bib::Falcioni2024xyt],
+/// while a version based only on the lowest 10 moments was given in [\[Moch:2023tdj\]][crate::bib::Moch2023tdj].
 ///
-/// These are approximations for fixed `nf` = 3, 4 and 5 based on the
+/// These are approximations for fixed `nf` = 3, 4, 5 and 6 based on the
 /// first 10 even moments together with small-x/large-x constraints.
 /// The two sets providing the error estimate are called via `variation = 1`
 /// and `variation = 2`.  Any other value of `variation` invokes their average.
@@ -48,80 +50,103 @@ pub fn gamma_gq(c: &mut Cache, nf: u8, variation: u8) -> Complex<f64> {
         + y1L4cff * lm14m1(c)
         + y1L5cff * lm15m1(c);
 
-    // The selected approximations for nf = 3, 4, 5
+    // The selected approximations for nf = 3, 4, 5, 6
     let P3gqApp1: Complex<f64>;
     let P3gqApp2: Complex<f64>;
     if nf == 3 {
-        P3gqApp1 = P3GQ01 + 6.0 * bfkl1 * (-(1. / (-1. + n).powu(2)))
-            - 744384.0 * 1. / ((-1. + n) * n)
-            + 2453640.0 * 1. / n
-            - 1540404.0 * (2. / (1. + n) + 1. / (2. + n))
-            + 1933026.0 * -1. / n.powu(2)
-            + 1142069.0 * 2. / n.powu(3)
-            + 162196.0 * -6. / n.powu(4)
-            - 2172.1 * lm13(c)
-            - 93264.1 * lm12(c)
-            - 786973.0 * lm11(c)
-            + 875383.0 * lm12m1(c);
-        P3gqApp2 =
-            P3GQ01 + 3.0 * bfkl1 * (-(1. / (-1. + n).powu(2))) + 142414.0 * 1. / ((-1. + n) * n)
-                - 326525.0 * 1. / n
-                + 2159787.0 * ((3. + n) / (2. + 3. * n + n.powu(2)))
-                - 289064.0 * -1. / n.powu(2)
-                - 176358.0 * 2. / n.powu(3)
-                + 156541.0 * -6. / n.powu(4)
-                + 9016.5 * lm13(c)
-                + 136063.0 * lm12(c)
-                + 829482.0 * lm11(c)
-                - 2359050.0 * (S1 - n * (ZETA2 - S2)) / n.powu(2);
+        P3gqApp1 = P3GQ01 + 3.5 * bfkl1 * (-(1. / (-1. + n).powu(2)))
+            - 27891.0 * 1. / ((-1. + n) * n)
+            - 309124.0 * 1. / n
+            + 1056866.0 * (3. + n) / (2. + 3. * n + n.powu(2))
+            - 124735.0 * -1. / n.powu(2)
+            - 16246.0 * 2. / n.powu(3)
+            + 131175.0 * -6. / n.powu(4)
+            + 4970.1 * lm13(c)
+            + 60041.0 * lm12(c)
+            + 343181.0 * lm11(c)
+            - 958330.0 * (S1 - n * (ZETA2 - S2)) / n.powu(2);
+        P3gqApp2 = P3GQ01 + 7.0 * bfkl1 * (-(1. / (-1. + n).powu(2)))
+            - 1139334.0 * 1. / ((-1. + n) * n)
+            + 143008.0 * 1. / n
+            - 290390.0 * (3. + n) / (2. + 3. * n + n.powu(2))
+            - 659492.0 * -1. / n.powu(2)
+            + 303685.0 * 2. / n.powu(3)
+            - 81867.0 * -6. / n.powu(4)
+            + 1811.8 * lm13(c)
+            - 465.9 * lm12(c)
+            - 51206.0 * lm11(c)
+            + 274249.0 * (S1 - n * (ZETA2 - S2)) / n.powu(2);
     } else if nf == 4 {
-        P3gqApp1 = P3GQ01 + 6.0 * bfkl1 * (-(1. / (-1. + n).powu(2)))
-            - 743535.0 * 1. / ((-1. + n) * n)
-            + 2125286.0 * 1. / n
-            - 1332472.0 * (2. / (1. + n) + 1. / (2. + n))
-            + 1631173.0 * -1. / n.powu(2)
-            + 1015255.0 * 2. / n.powu(3)
-            + 142612.0 * -6. / n.powu(4)
-            - 1910.4 * lm13(c)
-            - 80851.0 * lm12(c)
-            - 680219.0 * lm11(c)
-            + 752733.0 * lm12m1(c);
-        P3gqApp2 =
-            P3GQ01 + 3.0 * bfkl1 * (-(1. / (-1. + n).powu(2))) + 160568.0 * 1. / ((-1. + n) * n)
-                - 361207.0 * 1. / n
-                + 2048948.0 * ((3. + n) / (2. + 3. * n + n.powu(2)))
-                - 245963.0 * -1. / n.powu(2)
-                - 171312.0 * 2. / n.powu(3)
-                + 163099.0 * -6. / n.powu(4)
-                + 8132.2 * lm13(c)
-                + 124425.0 * lm12(c)
-                + 762435.0 * lm11(c)
-                - 2193335.0 * (S1 - n * (ZETA2 - S2)) / n.powu(2);
+        P3gqApp1 = P3GQ01 + 3.5 * bfkl1 * (-(1. / (-1. + n).powu(2)))
+            - 8302.8 * 1. / ((-1. + n) * n)
+            - 347706.0 * 1. / n
+            + 1105306.0 * (3. + n) / (2. + 3. * n + n.powu(2))
+            - 127650.0 * -1. / n.powu(2)
+            - 29728.0 * 2. / n.powu(3)
+            + 137537.0 * -6. / n.powu(4)
+            + 4658.1 * lm13(c)
+            + 59205.0 * lm12(c)
+            + 345513.0 * lm11(c)
+            - 995120.0 * (S1 - n * (ZETA2 - S2)) / n.powu(2);
+        P3gqApp2 = P3GQ01 + 7.0 * bfkl1 * (-(1. / (-1. + n).powu(2)))
+            - 1129822.0 * 1. / ((-1. + n) * n)
+            + 108527.0 * 1. / n
+            - 254166.0 * (3. + n) / (2. + 3. * n + n.powu(2))
+            - 667254.0 * -1. / n.powu(2)
+            + 293099.0 * 2. / n.powu(3)
+            - 77437.0 * -6. / n.powu(4)
+            + 1471.3 * lm13(c)
+            - 1850.3 * lm12(c)
+            - 52451.0 * lm11(c)
+            + 248634.0 * (S1 - n * (ZETA2 - S2)) / n.powu(2);
     } else if nf == 5 {
-        P3gqApp1 = P3GQ01 + 6.0 * bfkl1 * (-(1. / (-1. + n).powu(2)))
-            - 785864.0 * 1. / ((-1. + n) * n)
-            + 285034.0 * 1. / n
-            - 131648.0 * (2. / (1. + n) + 1. / (2. + n))
-            - 162840.0 * -1. / n.powu(2)
-            + 321220.0 * 2. / n.powu(3)
-            + 12688.0 * -6. / n.powu(4)
-            + 1423.4 * lm13(c)
-            + 1278.9 * lm12(c)
-            - 30919.9 * lm11(c)
-            + 47588.0 * lm12m1(c);
-        P3gqApp2 =
-            P3GQ01 + 3.0 * bfkl1 * (-(1. / (-1. + n).powu(2))) + 177094.0 * 1. / ((-1. + n) * n)
-                - 470694.0 * 1. / n
-                + 1348823.0 * ((3. + n) / (2. + 3. * n + n.powu(2)))
-                - 52985.0 * -1. / n.powu(2)
-                - 87354.0 * 2. / n.powu(3)
-                + 176885.0 * -6. / n.powu(4)
-                + 4748.8 * lm13(c)
-                + 65811.9 * lm12(c)
-                + 396390.0 * lm11(c)
-                - 1190212.0 * (S1 - n * (ZETA2 - S2)) / n.powu(2);
+        P3gqApp1 =
+            P3GQ01 + 3.5 * bfkl1 * (-(1. / (-1. + n).powu(2))) + 14035.0 * 1. / ((-1. + n) * n)
+                - 384003.0 * 1. / n
+                + 1152711.0 * (3. + n) / (2. + 3. * n + n.powu(2))
+                - 126346.0 * -1. / n.powu(2)
+                - 42967.0 * 2. / n.powu(3)
+                + 144270.0 * -6. / n.powu(4)
+                + 4385.5 * lm13(c)
+                + 58688.0 * lm12(c)
+                + 348988.0 * lm11(c)
+                - 1031165.0 * (S1 - n * (ZETA2 - S2)) / n.powu(2);
+        P3gqApp2 = P3GQ01 + 7.0 * bfkl1 * (-(1. / (-1. + n).powu(2)))
+            - 1117561.0 * 1. / ((-1. + n) * n)
+            + 76329.0 * 1. / n
+            - 218973.0 * (3. + n) / (2. + 3. * n + n.powu(2))
+            - 670799.0 * -1. / n.powu(2)
+            + 282763.0 * 2. / n.powu(3)
+            - 72633.0 * -6. / n.powu(4)
+            + 1170.0 * lm13(c)
+            - 2915.5 * lm12(c)
+            - 52548.0 * lm11(c)
+            + 223771.0 * (S1 - n * (ZETA2 - S2)) / n.powu(2);
+    } else if nf == 6 {
+        P3gqApp1 =
+            P3GQ01 + 3.5 * bfkl1 * (-(1. / (-1. + n).powu(2))) + 39203.0 * 1. / ((-1. + n) * n)
+                - 417914.0 * 1. / n
+                + 1199042.0 * (3. + n) / (2. + 3. * n + n.powu(2))
+                - 120750.0 * -1. / n.powu(2)
+                - 55941.0 * 2. / n.powu(3)
+                + 151383.0 * -6. / n.powu(4)
+                + 4149.2 * lm13(c)
+                + 58466.0 * lm12(c)
+                + 353589.0 * lm11(c)
+                - 1066510.0 * (S1 - n * (ZETA2 - S2)) / n.powu(2);
+        P3gqApp2 = P3GQ01 + 7.0 * bfkl1 * (-(1. / (-1. + n).powu(2)))
+            - 1102470.0 * 1. / ((-1. + n) * n)
+            + 46517.0 * 1. / n
+            - 184858.0 * (3. + n) / (2. + 3. * n + n.powu(2))
+            - 670056.0 * -1. / n.powu(2)
+            + 272689.0 * 2. / n.powu(3)
+            - 67453.0 * -6. / n.powu(4)
+            + 905.0 * lm13(c)
+            - 3686.2 * lm12(c)
+            - 51523.0 * lm11(c)
+            + 199594.0 * (S1 - n * (ZETA2 - S2)) / n.powu(2);
     } else {
-        panic!("nf=6 is not available at N3LO");
+        panic!("Select nf = 3..6 for N3LO evolution");
     }
 
     // We return (for now) one of the two error-band boundaries
@@ -172,7 +197,7 @@ mod tests {
             mom_list[(N - 2) / 2]
         }
         for variation in [0, 1, 2] {
-            for NF in [3, 4, 5] {
+            for NF in [3, 4, 5, 6] {
                 for N in [2.0, 4.0, 6.0, 8.0, 10., 12., 14., 16., 18., 20.] {
                     let mut c = Cache::new(cmplx!(N, 0.));
                     let test_value = gamma_gq(&mut c, NF, variation);
@@ -180,7 +205,7 @@ mod tests {
                         f64,
                         test_value,
                         cmplx!(gq3_moment(N as usize, NF as f64), 0.),
-                        rel = 4e-4
+                        rel = if NF != 6 { 4e-4 } else { 2e-3 }
                     );
                 }
             }

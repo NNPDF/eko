@@ -40,7 +40,7 @@ def compute(op_card, th_card):
     # apply PDF
     out = {}
     with eko.EKO.read(path) as eko_:
-        pdf = apply.apply_pdf_flavor(eko_, toy.mkPDF("ToyLH", 0), xgrid, rot, lab)
+        pdf = apply.apply_pdf_flavor(eko_, toy.mkPDF("ToyLH", 0), lab, xgrid, rot)
         for lab, f in list(pdf.values())[0]["pdfs"].items():
             out[lab] = xgrid * f
 
