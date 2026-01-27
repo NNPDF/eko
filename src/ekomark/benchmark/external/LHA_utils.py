@@ -54,7 +54,7 @@ LHA_rotate_to_flavor = np.array(
 
 
 # rotate basis
-def rotate_data(raw, is_ffns_nnlo=False, rotate_to_evolution_basis=False):
+def rotate_data(raw, is_ffns_nnlo_n3lo=False, rotate_to_evolution_basis=False):
     """Rotate data in flavor space.
 
     Rotate either to flavor basis  or evolution basis from the LHA basis, which is yet an other basis.
@@ -63,8 +63,8 @@ def rotate_data(raw, is_ffns_nnlo=False, rotate_to_evolution_basis=False):
     ----------
     raw : dict
         data
-    is_ffns_nnlo : bool
-        special table for NNLO FFNS
+    is_ffns_nnlo_n3lo : bool
+        special table for NNLO or aN3LO FFNS
     rotate_to_evolution_basis : bool
         to evolution basis?
 
@@ -77,7 +77,7 @@ def rotate_data(raw, is_ffns_nnlo=False, rotate_to_evolution_basis=False):
     label_list = raw_label_list
     to_flavor = LHA_rotate_to_flavor
     to_evolution = np.copy(br.rotate_flavor_to_evolution)
-    if is_ffns_nnlo:
+    if is_ffns_nnlo_n3lo:
         # add s_v and delete b_p to label_list
         label_list = np.insert(label_list, 4, "s_v")
         label_list = np.delete(label_list, -2)
@@ -135,6 +135,8 @@ def compute_LHA_data(theory, operators, rotate_to_evolution_basis=False):
         yaml_file = "LHA_polarized.yaml"
     elif polarized and order > 1:
         raise ValueError("LHA tables beyond NLO do not exist for polarized Case")
+    elif order == 3:
+        yaml_file = "LHA_an3lo.yaml"
     else:
         yaml_file = "LHA.yaml"
     # load data
@@ -146,7 +148,7 @@ def compute_LHA_data(theory, operators, rotate_to_evolution_basis=False):
         raise ValueError("LO LHA tables with scale variations are not available")
     table = None
     part = None
-    is_ffns_nnlo = False
+    is_ffns_nnlo_n3lo = False
 
     # Switching at the intermediate point.
     if xif2 > np.sqrt(2):
@@ -162,8 +164,11 @@ def compute_LHA_data(theory, operators, rotate_to_evolution_basis=False):
         elif order == 1:
             table = 17 if polarized else 3
         elif order == 2:
-            is_ffns_nnlo = True
+            is_ffns_nnlo_n3lo = True
             table = 14
+        elif order == 3:
+            table = 2
+            is_ffns_nnlo_n3lo = True
     elif fns == "ZM-VFNS":
         if order == 0:
             part = 3
@@ -172,10 +177,14 @@ def compute_LHA_data(theory, operators, rotate_to_evolution_basis=False):
             table = 18 if polarized else 4
         elif order == 2:
             table = 15
+        elif order == 3:
+            table = 7
     else:
         raise ValueError(f"unknown FNS {fns} or order {order}")
     ref_values = rotate_data(
-        data[f"table{table}"][f"part{part}"], is_ffns_nnlo, rotate_to_evolution_basis
+        data[f"table{table}"][f"part{part}"],
+        is_ffns_nnlo_n3lo,
+        rotate_to_evolution_basis,
     )
     ref = {
         "target_xgrid": toy_xgrid,

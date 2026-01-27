@@ -1,5 +1,5 @@
 """Benchmark to :cite:`Giele:2002hx` (LO + NLO) and :cite:`Dittmar:2005ed`
-(NNLO)."""
+(NNLO) and :cite:`Cooper-Sarkar:2024crx` (aN3LO)."""
 
 import os
 
@@ -57,6 +57,8 @@ class LHA(Runner):
         """
         th = self.theory.copy()
         th.update({"PTO": pto})
+        if pto == 3:
+            th["PTO_matching"] = pto - 1
         return [th]
 
     def sv_theories(self, pto):
@@ -80,6 +82,9 @@ class LHA(Runner):
         high["PTO"] = pto
         high["XIF"] = _sqrt2
         high["ModSV"] = "exponentiated"
+        if pto == 3:
+            low["PTO_matching"] = pto - 1
+            high["PTO_matching"] = pto - 1
         return [high, low]
 
     @staticmethod
@@ -163,6 +168,23 @@ class BaseBenchmark:
         self.transformed_runner().run_sv(2)
 
 
+class BaseBenchmarkN3LO(BaseBenchmark):
+    """Abstract common benchmark tasks."""
+
+    def runner(self) -> LHA:
+        """Runner to run."""
+        raise NotImplementedError("runner method has to be overwritten!")
+
+    @pytest.mark.n3lo
+    def benchmark_plain_n3lo(self):
+        self.transformed_runner().run_plain(3)
+
+    @pytest.mark.n3lo
+    @pytest.mark.sv
+    def benchmark_sv_n3lo(self):
+        self.transformed_runner().run_sv(3)
+
+
 class VFNS(LHA):
     """Provide |VFNS| settings."""
 
@@ -182,7 +204,7 @@ class VFNS(LHA):
 
 
 @pytest.mark.vfns
-class BenchmarkVFNS(BaseBenchmark):
+class BenchmarkVFNS(BaseBenchmarkN3LO):
     def runner(self):
         return VFNS()
 
@@ -228,7 +250,7 @@ class FFNS(LHA):
 
 
 @pytest.mark.ffns
-class BenchmarkFFNS(BaseBenchmark):
+class BenchmarkFFNS(BaseBenchmarkN3LO):
     def runner(self):
         return FFNS()
 

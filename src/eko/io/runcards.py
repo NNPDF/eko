@@ -238,7 +238,13 @@ class Legacy:
 
         new["n3lo_ad_variation"] = old.get("n3lo_ad_variation", (0, 0, 0, 0, 0, 0, 0))
         # here PTO: 0 means truly LO, no QED matching is available so far.
-        new["matching_order"] = old.get("PTO_matching", [old["PTO"], 0])
+        pto_matching = old.get("PTO_matching")
+        if pto_matching is None:
+            new["matching_order"] = [old["PTO"], 0]
+        elif isinstance(pto_matching, int):
+            new["matching_order"] = [pto_matching + 1, 0]
+        else:
+            new["matching_order"] = pto_matching
         new["use_fhmruvv"] = old.get("use_fhmruvv", True)
         return TheoryCard.from_dict(new)
 
