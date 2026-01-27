@@ -42,3 +42,4 @@ jobs:
         run: |
           poe lha -m "nnlo and sv"
           poe lha -m "ffns_pol and sv"
+          poe lha -m "n3lo and sv"
