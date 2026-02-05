@@ -13,7 +13,9 @@ We may prefix the items to signal the scope:
 
 Items without prefix refer to a global change.
 
-## [Unreleased](https://github.com/NNPDF/eko/compare/v0.15.2...HEAD)
+## [Unreleased](https://github.com/NNPDF/eko/compare/v0.15.3...HEAD)
+
+## [0.15.3](https://github.com/NNPDF/eko/compare/v0.15.2...v0.15.3) - 2026-02-05
 
 ### Added
 - rust: N3LO unpolarized, space-like anomalous dimensions from FHMRUVV translated ([#443](https://github.com/NNPDF/eko/pull/443))
