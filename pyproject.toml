@@ -48,7 +48,7 @@ lz4 = "^4.0.2"
 numba = "^0.61.0"
 packaging = "^24.1"
 # ekomark
-banana-hep = { version = "^0.6.16", optional = true }
+banana-hep = { version = "^0.6.17", optional = true }
 sqlalchemy = { version = "^1.4.21", optional = true }
 pandas = { version = "^2.1.4", optional = true }
 matplotlib = { version = "^3.5.1", optional = true }
@@ -186,6 +186,7 @@ markers = [
   "lo: Leading order",
   "nlo: Next-to-leading order",
   "nnlo: Next-to-next-to-leading order",
+  "n3lo: Next-to-next-to-next-to-leading order",
   "sv: Scale variations",
 ]
 
