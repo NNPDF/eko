@@ -79,7 +79,6 @@ pylint = "^3.1.0"
 pdbpp = "^0.11.6"
 ipython = "^8.0"
 # benchmark
-asv = "^0.4.2"
 virtualenv = "^20.13.2"
 devtools = "^0.10.0"
 
@@ -147,12 +146,6 @@ docs-server = { "shell" = "cd doc; make server" }
 docs-clean = { "shell" = "cd doc; make clean" }
 docs-cleanall = { "shell" = "cd doc; make cleanall" }
 docs-install-nb = { "shell" = "python -m ipykernel install --user --name=$(basename $(poetry env info -p))" }
-asv-run = "asv run --config benchmarks/asv.conf.json master..HEAD"
-asv-preview = "asv preview --config benchmarks/asv.conf.json"
-asv-publish = "asv publish --config benchmarks/asv.conf.json"
-asv-show = "asv show --config benchmarks/asv.conf.json"
-asv-clean = { "shell" = "rm -rf benchmarks/env benchmarks/html benchmarks/results" }
-asv = ["asv-run", "asv-publish", "asv-preview"]
 bump-version = { "shell" = "python crates/bump-versions.py $(git describe --tags)" }
 compile = "pip install -e crates/eko/"
 rdocs.cmd = "cargo doc --workspace --no-deps"
