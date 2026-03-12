@@ -266,23 +266,17 @@ map_ad_to_unified_evolution = {
 }
 
 
-def ad_projector(ad_lab, nf, qed):
-    """Build a projector (as a numpy array) for the given anomalous dimension
-    sector.
+def ad_projector(ad_lab: str, nf: int, qed: bool = False) -> np.ndarray:
+    """
+    Constructs the Anomalous Dimension (AD) projector matrix for a given sector.
 
-    Parameters
-    ----------
-    ad_lab : str
-        name of anomalous dimension sector
-    nf : int
-        number of light flavors
-    qed : bool
-        activate qed
+    Args:
+        ad_lab (str): Name of the anomalous dimension sector (e.g., 'S', 'NS').
+        nf (int): Number of active flavors.
+        qed (bool): Whether to include QED evolution. Defaults to False.
 
-    Returns
-    -------
-    proj : np.ndarray
-        projector over the specified sector
+    Returns:
+        np.ndarray: The projection matrix for the specified sector.
     """
     if not qed:
         proj = np.zeros_like(rotate_flavor_to_evolution, dtype=float)
@@ -345,21 +339,20 @@ def select_light_flavors_uni_ev(ad_lab, nf):
         return map_ad_to_evolution[ad_lab]
 
 
-def ad_projectors(nf, qed):
-    """Build projectors tensor (as a numpy array), collecting all the
-    individual sector projectors.
+def ad_projectors( nf: int, qed: bool = False) -> np.ndarray:
+    """
+    Constructs the Anomalous Dimension (AD) projector matrix.
 
-    Parameters
-    ----------
-    nf : int
-        number of light flavors
-    qed : bool
-        activate qed
+    This operator projects the flavor-basis PDFs into the evolution
+    basis (Singlet, Non-Singlet, etc.) based on the specific Particle
+    ID (PID) pairs.
 
-    Returns
-    -------
-    projs : np.ndarray
-        projectors tensor
+    Args:
+        nf (int): Number of active flavors.
+        qed (bool): Whether to include QED evolution. Defaults to False.
+
+    Returns:
+        np.ndarray: The projection matrix.
     """
     projs = []
     for ad in anomalous_dimensions_basis:
