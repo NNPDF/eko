@@ -16,7 +16,7 @@ version.workspace = true
 rustdoc-args = ["--html-in-header", "doc-header.html"]
 
 [dependencies]
-tar = "0.4.41"
+tar = "0.4.45"
 yaml-rust2 = "0.8"
 lz4_flex = "0.11.6"
 ndarray = "0.15.4"
