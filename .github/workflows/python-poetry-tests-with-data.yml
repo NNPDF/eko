@@ -39,7 +39,8 @@ jobs:
     name: 🔬 Test (🐍 ${{ inputs.python-version }})
     runs-on: ubuntu-latest
     container: ${{ inputs.container-image }}
-
+    env:
+      POETRY_DYNAMIC_VERSIONING_BYPASS: "0.0.0"
     steps:
       - uses: actions/checkout@v4
         with:
