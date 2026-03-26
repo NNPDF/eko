@@ -29,6 +29,9 @@ on:
         required: true
         description: "Token used to deploy package on PyPI"
 
+permissions:
+  id-token: write
+
 jobs:
   publish:
     name: 📦 PyPI (🐍 ${{ inputs.python-version }})

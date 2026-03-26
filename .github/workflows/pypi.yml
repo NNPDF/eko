@@ -5,6 +5,9 @@ on:
     tags:
       - "*"
 
+permissions:
+  id-token: write
+
 jobs:
   publish:
     uses: ./.github/workflows/python-poetry-pypi-with-data.yml
