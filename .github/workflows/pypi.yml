@@ -7,14 +7,33 @@ on:
 
 permissions:
   id-token: write
+  contents: read
 
 jobs:
   publish:
-    uses: ./.github/workflows/python-poetry-pypi-with-data.yml
-    permissions:
-      id-token: write
-      contents: read
-    with:
-      poetry-extras: "-E mark -E box"
-      data-version: "v2"
-      data-download: "./tests/data/assets.sh"
+    name: 📦 PyPI (🐍 3.10)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+      - name: Install and configure Poetry
+        uses: snok/install-poetry@v1
+        with:
+          virtualenvs-path: ~/.virtualenvs
+          installer-parallel: true
+      - name: Install version management tool
+        run: |
+          PIP="$(head -n1 $(which poetry) | cut -c 3-) -m pip"
+          ${PIP} install poetry-dynamic-versioning
+      - name: Install project
+        run: poetry install --no-interaction -E mark -E box
+      - name: Package the distribution
+        run: poetry build
+      - name: Publish distribution 📦 to TestPyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: https://test.pypi.org/legacy/
