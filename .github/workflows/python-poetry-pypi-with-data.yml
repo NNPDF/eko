@@ -24,10 +24,6 @@ on:
         required: false
         description: >
           Extras to be installed, in poetry format (e.g. "-E extra1 extra2")
-    secrets:
-      PYPI_TOKEN:
-        required: true
-        description: "Token used to deploy package on PyPI"
 
 permissions:
   id-token: write
@@ -93,4 +89,4 @@ jobs:
       - name: Publish distribution 📦 to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
-          password: ${{ secrets.PYPI_TOKEN }}
+          repository-url: https://test.pypi.org/legacy/

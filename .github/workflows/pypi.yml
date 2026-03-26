@@ -11,8 +11,9 @@ permissions:
 jobs:
   publish:
     uses: ./.github/workflows/python-poetry-pypi-with-data.yml
-    secrets:
-      PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
+    permissions:
+      id-token: write
+      contents: read
     with:
       poetry-extras: "-E mark -E box"
       data-version: "v2"
