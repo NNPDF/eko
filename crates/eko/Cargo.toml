@@ -1,5 +1,5 @@
 [package]
-name = "eko-gluonparticle"
+name = "eko"
 
 authors.workspace = true
 description.workspace = true
