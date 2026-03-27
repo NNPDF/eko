@@ -53,6 +53,13 @@ repos:
       pass_filenames: false
       types: [file, rust]
       language: system
+    - id: reset-version-files
+      name: Reset version files to 0.0.0
+      language: system
+      entry: git checkout HEAD -- src/eko/version.py src/ekomark/version.py src/ekobox/version.py
+      pass_filenames: false
+      always_run: true
+      stages: [pre-commit]
   - repo: https://github.com/pre-commit/pre-commit
     rev: v4.5.1
     hooks:
