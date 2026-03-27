@@ -19,4 +19,4 @@ keywords = ["physics"]
 license = "GPL-3.0-or-later"
 repository = "https://github.com/NNPDF/eko"
 rust-version = "1.70.0"
-version = "0.0.1"
+version = "99.8.0"
