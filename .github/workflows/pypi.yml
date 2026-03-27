@@ -33,5 +33,5 @@ jobs:
         run: poetry install --no-interaction -E mark -E box
       - name: Package the distribution
         run: poetry build
-      - name: Publish distribution 📦 to TestPyPI
+      - name: Publish distribution 📦 to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
