@@ -23,6 +23,11 @@ jobs:
             target: aarch64
     steps:
       - uses: actions/checkout@v4
+      - name: Install 32-bit glibc headers (x86 only)
+        if: matrix.platform.target == 'x86'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc-multilib
       - uses: actions/setup-python@v5
         with:
           python-version: "3.10"
@@ -114,6 +119,9 @@ jobs:
     needs: [linux, windows, macos, sdist]
     steps:
       - uses: actions/download-artifact@v4
+        with:
+          pattern: wheels-*
+          merge-multiple: true
       - name: Publish to PyPI
         uses: PyO3/maturin-action@v1
         env:
