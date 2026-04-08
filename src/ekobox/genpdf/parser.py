@@ -3,7 +3,6 @@
 import pathlib
 from dataclasses import dataclass
 from io import StringIO
-from typing import Self, Type
 
 import numpy as np
 import numpy.typing as npt
@@ -25,7 +24,7 @@ class LhapdfDataBlock:
     data: npt.NDArray[np.float64]
     """Tabulated data."""
 
-    def is_valid(self: Self) -> bool:
+    def is_valid(self) -> bool:
         """Check if dimensions are reasonable."""
         for a in [self.xgrid, self.qgrid, self.pids]:
             if len(a.shape) != 1 or len(a) <= 0:
@@ -42,14 +41,12 @@ class LhapdfDataFile:
     blocks: list[LhapdfDataBlock]
     """Data blocks."""
 
-    def __init__(
-        self: Self, header: dict[str, str], blocks: list[LhapdfDataBlock]
-    ) -> None:
+    def __init__(self, header: dict[str, str], blocks: list[LhapdfDataBlock]) -> None:
         self.header = header
         self.blocks = blocks
 
     @classmethod
-    def read(cls: Type[Self], path: pathlib.Path) -> Self:
+    def read(cls, path: pathlib.Path):
         """Read from file."""
         cnt = path.read_text().split("---\n")
         # header
@@ -74,7 +71,7 @@ class LhapdfDataFile:
             )
         return cls(header=header, blocks=blocks)
 
-    def write(self: Self, path: pathlib.Path) -> int:
+    def write(self, path: pathlib.Path) -> int:
         """Write to file."""
         cnt = ""
         # header
@@ -100,8 +97,6 @@ class LhapdfDataFile:
         return path.write_text(cnt)
 
     @classmethod
-    def read_with_set(
-        cls: Type[Self], path: pathlib.Path, pdfset: str, member: int = 0
-    ) -> Self:
+    def read_with_set(cls, path: pathlib.Path, pdfset: str, member: int = 0):
         """Read given `member` from given `pdfset` inside `path`."""
         return cls.read(path / pdfset / f"{pdfset}_{member:04d}.dat")
