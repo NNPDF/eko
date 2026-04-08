@@ -5,89 +5,9 @@ import pathlib
 import re
 from typing import Optional
 
-import numpy as np
 import yaml
 
-
-def list_to_str(ls, fmt="%.6e"):
-    """Convert a list of numbers to a string.
-
-    Parameters
-    ----------
-    ls : list(float)
-        list
-    fmt : str
-        format string
-
-    Returns
-    -------
-    str :
-        final string
-    """
-    return " ".join([fmt % x for x in ls])
-
-
-def array_to_str(ar):
-    """Convert an array of numbers to a string.
-
-    Parameters
-    ----------
-    ar : list(list(float))
-        array
-
-    Returns
-    -------
-    str :
-        final string
-    """
-    table = ""
-    for line in ar:
-        table += f"{line[0]:.8e} " + list_to_str(line[1:], fmt="%.8e") + "\n"
-    return table
-
-
-def dump_blocks(
-    name: str, member: int, blocks: list[dict], pdf_type: Optional[str] = None
-) -> pathlib.Path:
-    """Write LHAPDF data file.
-
-    Parameters
-    ----------
-    name : str or os.PathLike
-        target name or path
-    member : int
-        PDF member
-    blocks : list(dict)
-        pdf blocks of data
-    pdf_type : str
-        PdfType to be copied in the head of member files
-
-    Returns
-    -------
-        pathlib.Path : target file
-    """
-    path_name = pathlib.Path(name)
-    if path_name.suffix == ".dat":
-        target = path_name
-    else:
-        target = path_name / f"{path_name.stem}_{member:04d}.dat"
-    target.parent.mkdir(exist_ok=True)
-    with open(target, "w", encoding="utf-8") as o:
-        if pdf_type is None:
-            if member == 0:
-                o.write("PdfType: central\n")
-            else:
-                o.write("PdfType: replica\n")
-        else:
-            o.write(pdf_type)
-        o.write("Format: lhagrid1\n---\n")
-        for b in blocks:
-            o.write(list_to_str(b["xgrid"]) + "\n")
-            o.write(list_to_str(list(np.sqrt(b["mu2grid"]))) + "\n")
-            o.write(list_to_str(b["pids"], "%d") + "\n")
-            o.write(array_to_str(b["data"]))
-            o.write("---\n")
-    return target
+from .parser import LhapdfDataFile
 
 
 def dump_info(name: str, info: dict) -> pathlib.Path:
@@ -125,23 +45,35 @@ def dump_info(name: str, info: dict) -> pathlib.Path:
     return target
 
 
-def dump_set(name, info, member_blocks, pdf_type_list=None):
+def dump_set(
+    name: str,
+    info: dict,
+    member_files: list[LhapdfDataFile],
+    header_list: Optional[list[dict[str, str]]] = None,
+) -> None:
     """Dump a whole set.
 
     Parameters
     ----------
-    name : str
+    name :
         target name
-    info : dict
+    info :
         info dictionary
-    member_blocks : list(list(dict))
+    member_files :
         blocks for all members
-    pdf_type : list(str)
-        list of strings to be copied in the head of member files
+    header_list :
+        list of optional additional headers to be copied in the head of member files
     """
     dump_info(name, info)
-    for mem, blocks in enumerate(member_blocks):
-        if not isinstance(pdf_type_list, list) or len(pdf_type_list) == 0:
-            dump_blocks(name, mem, blocks)
+    for mem, f in enumerate(member_files):
+        # update header if necessary
+        if header_list is not None and len(header_list) > 0:
+            f.header.update(header_list[mem])
+        # find path
+        path_name = pathlib.Path(name)
+        if path_name.suffix == ".dat":
+            target = path_name
         else:
-            dump_blocks(name, mem, blocks, pdf_type=pdf_type_list[mem])
+            target = path_name / f"{path_name.stem}_{mem:04d}.dat"
+        target.parent.mkdir(exist_ok=True)
+        f.write(target)

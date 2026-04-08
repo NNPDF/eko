@@ -12,6 +12,7 @@ from eko import basis_rotation as br
 from eko.io.types import EvolutionPoint as EPoint
 
 from . import export, flavors, load
+from .parser import LhapdfDataBlock, LhapdfDataFile
 
 logger = logging.getLogger(__name__)
 
@@ -21,7 +22,7 @@ def take_data(
     members: bool = False,
     xgrid: Optional[List[float]] = None,
     evolgrid: Optional[List[EPoint]] = None,
-):
+) -> tuple[dict, list[dict[str, str]], list[LhapdfDataFile]]:
     """Auxiliary function for `generate_pdf`.
 
     It provides the info, the heads of the member files and the blocks
@@ -60,35 +61,46 @@ def take_data(
             else:
                 toylh = toy.mkPDF("", 0)
             all_blocks.append(
-                [
-                    generate_block(
-                        toylh.xfxQ2, xgrid, sorted_q2grid, list(br.flavor_basis_pids)
-                    )
-                ]
+                LhapdfDataFile(
+                    header={"PdfType": "central"},
+                    blocks=[
+                        generate_block(
+                            toylh.xfxQ2,
+                            xgrid,
+                            sorted_q2grid,
+                            list(br.flavor_basis_pids),
+                        )
+                    ],
+                )
             )
 
         else:
             info = load.load_info_from_file(parent_pdf_set)
             # iterate on members
             for m in range(int(info["NumMembers"])):
-                head, blocks = load.load_blocks_from_file(parent_pdf_set, m)
-                heads.append(head)
-                all_blocks.append(blocks)
+                f = load.load_blocks_from_file(parent_pdf_set, m)
+                heads.append(f.header)
+                all_blocks.append(f)
                 if not members:
                     break
     elif isinstance(parent_pdf_set, dict):
         info = copy.deepcopy(load.template_info)
         all_blocks.append(
-            [
-                generate_block(
-                    lambda pid, x, Q2: (
-                        0.0 if pid not in parent_pdf_set else parent_pdf_set[pid](x, Q2)
-                    ),
-                    xgrid,
-                    sorted_q2grid,
-                    list(br.flavor_basis_pids),
-                )
-            ]
+            LhapdfDataFile(
+                header={"PdfType": "central"},
+                blocks=[
+                    generate_block(
+                        lambda pid, x, Q2: (
+                            0.0
+                            if pid not in parent_pdf_set
+                            else parent_pdf_set[pid](x, Q2)
+                        ),
+                        xgrid,
+                        sorted_q2grid,
+                        list(br.flavor_basis_pids),
+                    )
+                ],
+            )
         )
     else:
         raise ValueError("Unknown parent pdf type")
@@ -188,7 +200,7 @@ def generate_pdf(
         info["ForcePositive"] = 0
     info["NumMembers"] = len(new_all_blocks)
     # exporting
-    export.dump_set(name, info, new_all_blocks, pdf_type_list=heads)
+    export.dump_set(name, info, new_all_blocks, heads)
 
     # install
     if install:
@@ -220,12 +232,14 @@ def install_pdf(name):
 
 def generate_block(
     xfxQ2: Callable, xgrid: List[float], sorted_q2grid: List[float], pids: List[int]
-) -> dict:
+) -> LhapdfDataBlock:
     """Generate an LHAPDF data block from a callable."""
-    block: dict = dict(mu2grid=sorted_q2grid, pids=pids, xgrid=xgrid)
+    qgrid = np.sqrt(sorted_q2grid)
     data = []
     for x in xgrid:
         for mu2 in sorted_q2grid:
             data.append(np.array([xfxQ2(pid, x, mu2) for pid in pids]))
-    block["data"] = np.array(data)
-    return block
+    data = np.array(data)
+    return LhapdfDataBlock(
+        xgrid=np.array(xgrid), qgrid=qgrid, pids=np.array(pids), data=data
+    )
