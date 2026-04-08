@@ -15,6 +15,9 @@ Items without prefix refer to a global change.
 
 ## [Unreleased](https://github.com/NNPDF/eko/compare/v0.15.3...HEAD)
 
+### Changed
+- py: Add LHAPDF parser to `genpdf` (soft breaking change) ([#506](https://github.com/NNPDF/eko/pull/506))
+
 ## [0.15.3](https://github.com/NNPDF/eko/compare/v0.15.2...v0.15.3) - 2026-02-05
 
 ### Added
