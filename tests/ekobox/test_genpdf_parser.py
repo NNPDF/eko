@@ -1,6 +1,6 @@
 import numpy as np
 
-from ekobox.genpdf.parser import LhapdfDataFile
+from ekobox.genpdf.parser import LhapdfDataBlock, LhapdfDataFile
 
 
 def test_genpdf_parser_ct14(fake_lhapdf, fake_ct14, tmp_path):
@@ -62,3 +62,56 @@ def test_genpdf_parser_nn31(fake_lhapdf, fake_nn31):
     f1 = LhapdfDataFile.read_with_set(fake_lhapdf, fake_nn31, 1)
     assert "PdfType" in f1.header
     assert f1.header["PdfType"] == "replica"
+
+
+def test_genpdf_parser_block_add():
+    a = LhapdfDataBlock(
+        xgrid=np.array([0.5]),
+        qgrid=np.array([10.0]),
+        pids=np.array([1]),
+        data=np.array([[1.0], [-1.0]]),
+    )
+    b = LhapdfDataBlock(
+        xgrid=np.array([0.5]),
+        qgrid=np.array([10.0]),
+        pids=np.array([1]),
+        data=np.array([[2.0], [1.0]]),
+    )
+    c = a.add(b)
+    np.testing.assert_allclose(c.xgrid, a.xgrid)
+    np.testing.assert_allclose(c.qgrid, a.qgrid)
+    np.testing.assert_allclose(c.pids, a.pids)
+    np.testing.assert_allclose(c.data, np.array([[3.0], [0.0]]))
+    b = LhapdfDataBlock(
+        xgrid=np.array([0.5]),
+        qgrid=np.array([10.0]),
+        pids=np.array([2]),
+        data=np.array([[2.0], [1.0]]),
+    )
+    c = a.add(b)
+    np.testing.assert_allclose(c.xgrid, a.xgrid)
+    np.testing.assert_allclose(c.qgrid, a.qgrid)
+    np.testing.assert_allclose(c.pids, np.array([1, 2]))
+    np.testing.assert_allclose(c.data, np.array([[1.0, 2.0], [-1.0, 1.0]]))
+    b = LhapdfDataBlock(
+        xgrid=np.array([0.5]),
+        qgrid=np.array([10.0]),
+        pids=np.array([2]),
+        data=np.array([[2.0], [1.0]]),
+    )
+    c = a.add(b)
+    np.testing.assert_allclose(c.xgrid, a.xgrid)
+    np.testing.assert_allclose(c.qgrid, a.qgrid)
+    np.testing.assert_allclose(c.pids, np.array([1, 2]))
+    np.testing.assert_allclose(c.data, np.array([[1.0, 2.0], [-1.0, 1.0]]))
+    b = LhapdfDataBlock(
+        xgrid=np.array([0.5]),
+        qgrid=np.array([10.0]),
+        pids=np.array([1, 2]),
+        data=np.array([[3.0, 2.0], [4.0, 1.0]]),
+    )
+    c = a.add(b)
+    np.testing.assert_allclose(c.xgrid, a.xgrid)
+    np.testing.assert_allclose(c.qgrid, a.qgrid)
+    np.testing.assert_allclose(c.pids, np.array([1, 2]))
+    np.testing.assert_allclose(c.data, np.array([[4.0, 2.0], [3.0, 1.0]]))

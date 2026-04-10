@@ -31,6 +31,28 @@ class LhapdfDataBlock:
                 return False
         return self.data.shape == (len(self.xgrid) * len(self.qgrid), len(self.pids))
 
+    def add(self, other):
+        """Add other block."""
+        # x and q have to be the same
+        np.testing.assert_allclose(self.xgrid, other.xgrid)
+        np.testing.assert_allclose(self.qgrid, other.qgrid)
+        # PID we can recover
+        tot_pids = np.unique(np.concatenate([self.pids, other.pids]))
+        tot_data = []
+        for pid in tot_pids:
+            if pid in self.pids and pid in other.pids:
+                tot_data.append(
+                    self.data[:, self.pids.searchsorted(pid)].copy()
+                    + other.data[:, other.pids.searchsorted(pid)].copy()
+                )
+            elif pid in self.pids:
+                tot_data.append(self.data[:, self.pids.searchsorted(pid)].copy())
+            elif pid in other.pids:
+                tot_data.append(other.data[:, other.pids.searchsorted(pid)].copy())
+        return LhapdfDataBlock(
+            xgrid=self.xgrid, qgrid=self.qgrid, pids=tot_pids, data=np.array(tot_data).T
+        )
+
 
 class LhapdfDataFile:
     """LHAPDF data file."""
