@@ -42,13 +42,13 @@ class LhapdfDataBlock:
         for pid in tot_pids:
             if pid in self.pids and pid in other.pids:
                 tot_data.append(
-                    self.data[:, self.pids.searchsorted(pid)].copy()
-                    + other.data[:, other.pids.searchsorted(pid)].copy()
+                    self.data[:, self.pids.tolist().index(pid)].copy()
+                    + other.data[:, other.pids.tolist().index(pid)].copy()
                 )
             elif pid in self.pids:
-                tot_data.append(self.data[:, self.pids.searchsorted(pid)].copy())
+                tot_data.append(self.data[:, self.pids.tolist().index(pid)].copy())
             elif pid in other.pids:
-                tot_data.append(other.data[:, other.pids.searchsorted(pid)].copy())
+                tot_data.append(other.data[:, other.pids.tolist().index(pid)].copy())
         return LhapdfDataBlock(
             xgrid=self.xgrid, qgrid=self.qgrid, pids=tot_pids, data=np.array(tot_data).T
         )

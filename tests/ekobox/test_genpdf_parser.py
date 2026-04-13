@@ -115,3 +115,20 @@ def test_genpdf_parser_block_add():
     np.testing.assert_allclose(c.qgrid, a.qgrid)
     np.testing.assert_allclose(c.pids, np.array([1, 2]))
     np.testing.assert_allclose(c.data, np.array([[4.0, 2.0], [3.0, 1.0]]))
+    a = LhapdfDataBlock(
+        xgrid=np.array([0.5]),
+        qgrid=np.array([10.0]),
+        pids=np.array([1, -1]),
+        data=np.array([[1.0, 2.0], [3.0, 4.0]]),
+    )
+    b = LhapdfDataBlock(
+        xgrid=np.array([0.5]),
+        qgrid=np.array([10.0]),
+        pids=np.array([-1, 1]),
+        data=np.array([[20.0, 10.0], [40.0, 30.0]]),
+    )
+    c = a.add(b)
+    np.testing.assert_allclose(c.xgrid, a.xgrid)
+    np.testing.assert_allclose(c.qgrid, a.qgrid)
+    np.testing.assert_allclose(c.pids, np.array([-1, 1]))
+    np.testing.assert_allclose(c.data, np.array([[22.0, 11.0], [44.0, 33.0]]))
