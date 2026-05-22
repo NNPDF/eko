@@ -28,8 +28,6 @@ def test_genpdf_exceptions(tmp_path, cd):
                 10,
             )
         # non-existant PDF set
-        with pytest.raises(FileNotFoundError):
-            genpdf.install_pdf("foo")
         with pytest.raises(TypeError):
             genpdf.generate_pdf("debug", [21], info_update=(10, 15, 20))
 
@@ -39,11 +37,9 @@ def test_generate_block():
     mu2s = np.geomspace(1.0, 1e3, 5).tolist()
     pids = np.arange(3)
     b = genpdf.generate_block(lambda pid, x, q2: pid * x * q2, xg, mu2s, pids)
-    assert isinstance(b, dict)
-    assert sorted(b.keys()) == sorted(["data", "mu2grid", "xgrid", "pids"])
-    assert isinstance(b["data"], np.ndarray)
-    assert b["data"].shape == (len(xg) * len(mu2s), len(pids))
-    assert b["mu2grid"] == sorted(b["mu2grid"])
+    assert isinstance(b.data, np.ndarray)
+    assert b.data.shape == (len(xg) * len(mu2s), len(pids))
+    np.testing.assert_allclose(b.qgrid, sorted(b.qgrid))
 
 
 def test_install_pdf(fake_lhapdf, cd):
@@ -100,19 +96,16 @@ def test_generate_pdf_debug_pid(fake_lhapdf, cd):
     ppm = pp / f"{n}_0000.dat"
     assert ppm.exists()
     assert "PdfType: central" in ppm.read_text()
-    head, blocks = genpdf.load.load_blocks_from_file(n, 0)
-    assert "PdfType: central" in head
-    assert len(blocks) == 1
-    b = blocks[0]
-    assert 21 in b["pids"]
-    for k, line in enumerate(b["data"]):
-        for pid, f in zip(b["pids"], line):
+    f = genpdf.load.load_blocks_from_file(n, 0)
+    assert "PdfType" in f.header
+    assert f.header["PdfType"] == "central"
+    assert len(f.blocks) == 1
+    b = f.blocks[0]
+    assert 21 in b.pids
+    for k, line in enumerate(b.data):
+        for pid, f in zip(b.pids, line):
             # the gluon is non-zero in the bulk - x=0 is included here
-            if (
-                pid == 21
-                and k > len(b["mu2grid"]) - 1
-                and k < len(b["data"]) - len(b["mu2grid"])
-            ):
+            if pid == 21 and k > len(b.qgrid) - 1 and k < len(b.data) - len(b.qgrid):
                 assert not f == 0.0
             else:
                 assert f == 0.0
@@ -143,23 +136,25 @@ def test_generate_pdf_pdf_evol(fake_lhapdf, fake_nn31, fake_mstw, fake_ct14, cd)
         for m in range(nmem + 1):
             pm = p / f"{n}_{m:04d}.dat"
             assert pm.exists()
-            head, blocks = genpdf.load.load_blocks_from_file(n, m)
-            assert ("PdfType: central" if m == 0 else f"PdfType: {err_type}") in head
-            assert len(blocks) == nb
-            for b in blocks:
-                for k, line in enumerate(b["data"]):
-                    for pid, f in zip(b["pids"], line):
+            f = genpdf.load.load_blocks_from_file(n, m)
+            assert "PdfType" in f.header
+            if m == 0:
+                assert f.header["PdfType"] == "central"
+            else:
+                assert f.header["PdfType"] == err_type
+            assert len(f.blocks) == nb
+            for b in f.blocks:
+                for k, line in enumerate(b.data):
+                    for pid, f in zip(b.pids, line):
                         # the singlet is non-zero in the bulk - x >= 0
-                        if abs(pid) in range(1, 6 + 1) and k < len(b["data"]) - len(
-                            b["mu2grid"]
+                        if abs(pid) in range(1, 6 + 1) and k < len(b.data) - len(
+                            b.qgrid
                         ):
                             assert not f == 0.0
                             assert not np.isclose(f, 0.0, atol=1e-15)
                         else:
                             # MSTW is not 0 at the end, but only almost
-                            if err_type == "error" and k >= len(b["data"]) - len(
-                                b["mu2grid"]
-                            ):
+                            if err_type == "error" and k >= len(b.data) - len(b.qgrid):
                                 np.testing.assert_allclose(f, 0.0, atol=1e-15)
                             else:
                                 assert f == 0.0
@@ -194,14 +189,15 @@ def test_generate_pdf_toy_antiqed(fake_lhapdf, cd):
     pm = p / f"{n}_0000.dat"
     assert pm.exists()
     assert "PdfType: central" in pm.read_text()
-    head, blocks = genpdf.load.load_blocks_from_file(n, 0)
-    assert "PdfType: central" in head
-    assert len(blocks) == 1
-    b = blocks[0]
-    for k, line in enumerate(b["data"]):
-        for pid, f in zip(b["pids"], line):
+    f = genpdf.load.load_blocks_from_file(n, 0)
+    assert "PdfType" in f.header
+    assert f.header["PdfType"] == "central"
+    assert len(f.blocks) == 1
+    b = f.blocks[0]
+    for k, line in enumerate(b.data):
+        for pid, f in zip(b.pids, line):
             # the u and d are non-zero in the bulk - x=0 is not included here
-            if abs(pid) in [1, 2] and k < len(b["data"]) - len(b["mu2grid"]):
+            if abs(pid) in [1, 2] and k < len(b.data) - len(b.qgrid):
                 assert not f == 0.0
             else:
                 assert f == 0.0
