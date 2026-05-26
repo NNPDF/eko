@@ -100,7 +100,7 @@ kernels/singlet.py | non_singlet.py | ...  →  evolution operator matrix
 np.real(ker * integrand)  →  returned float
 ```
 
-`quad_ker` is decorated `@nb.njit`, meaning Numba compiles it to machine code.  
+`quad_ker` is decorated `@nb.njit`, meaning Numba compiles it to machine code.
 `scipy` calls the resulting function through Python's normal calling convention on every quadrature node this carries Python overhead even with Numba.
 
 ### 5.2 rust_quad_ker
@@ -127,9 +127,9 @@ f64 returned to scipy
 
 ### Why LowLevelCallable, not PyO3?
 
-`scipy.integrate.quad` accepts a `LowLevelCallable`, a raw C function pointer paired with a user-data pointer.  
-When given an LLC, scipy's underlying Fortran/C QUADPACK routines call the function pointer directly, without ever entering the Python runtime.  
-There is no GIL acquisition, no Python frame allocation, and no argument marshalling through Python objects on each of the ~100–10000 evaluations per integral.  
+`scipy.integrate.quad` accepts a `LowLevelCallable`, a raw C function pointer paired with a user-data pointer.
+When given an LLC, scipy's underlying Fortran/C QUADPACK routines call the function pointer directly, without ever entering the Python runtime.
+There is no GIL acquisition, no Python frame allocation, and no argument marshalling through Python objects on each of the ~100–10000 evaluations per integral.
 
 PyO3 wraps Rust functions as ordinary Python callables. If the integration
 kernel were exposed via PyO3, the call chain on every point would be:
@@ -150,7 +150,7 @@ I am not sure what you want me to document exactly, so I'll give my best assumpt
 
 ### 6.1 access
 
-In python workflow, the ekore library is a dependency of several files in the eko folder.  
+In python workflow, the ekore library is a dependency of several files in the eko folder.
 In rust workflow, the ekore library is completely in Rust. There's a lib.rs which acts as a bridge between python and rust. All the integrands which are to be calculated and handled pretty neatly using `cfg` on the python side, and let Rust decide what the integrand should be based on the config. I would like to keep this system as it is.
 
 ### 6.2 bottom
