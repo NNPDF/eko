@@ -4,16 +4,9 @@
 
 ## 1. Build system
 
-The patch file switches the root build backend from Poetry to Maturin. This switch is not needed. Maturin is designed to be the root build tool for projects that are primarily or completely Rust (example you told me, [pineappl](https://github.com/NNPDF/pineappl)). Currently, `eko` is still predominantly Python. Using Maturin as the root builder produces broken wheels and complicates the standard `poetry install` workflow without any benefit.
+`eko` uses **Poetry** as its root build backend. Running `rustify.sh` switches the root build backend to **Maturin**, which is designed for projects that are primarily or entirely Rust (e.g., [pineappl](https://github.com/NNPDF/pineappl)).
 
-We shoulld keep Poetry as the single build tool for the `eko` Python package. Maturin's role is narrower - it compiles the Rust extension crate and installs it into the active venv. Poetry then treats that compiled extension as a path dependency. The transition to Maturin as root builder will happen only once the project is heavily or completely Rust.
-
-The necessary changes in the current architecture for this to take place are:
-
-- Change build backend to Poetry.
-- Add eko-rs as a dependency in pyproject.toml.
-- Add another .github/workflows file which publish the crates to PyPI on commit.
-- The file will take care of building, publishing using maturin. The version published will be taken care by `crates/bump-versions.py`.
+Maturin's role is narrower than the root builder: it compiles the Rust extension crate and installs it into the active virtual environment. Poetry then treats the compiled extension as a path dependency.
 
 ---
 
@@ -78,7 +71,6 @@ Inside `run_op_integration`, for each target point the code iterates:
 2. **Flavor label** — a `(mode0, mode1)` pair identifying which element of the operator matrix is being computed (e.g. `(100, 100)` for quark-singlet → quark-singlet).
 
 For each `(j, label)` pair a separate `scipy.integrate.quad` call is made.
-I had a thought to parallelize this (i.e. remove the two loops), but the thing is python has GIL, and outer loop is already parallelized, so it may not improve / might deteriorate the performance. Also, we would have to create a separate cfg for each process, thus increasing the memory usage.
 
 ---
 
@@ -93,15 +85,16 @@ quad_ker(u, order, mode0, ...) [quad_ker.py, @nb.njit]
        ↓
 QuadKerBase  →  integrand
        ↓
-quad_ker_qcd / quad_ker_qed  →  anomalous dimensions via ekore
+quad_ker_qcd / quad_ker_qed  →  anomalous dimensions via ekore [Numba]
        ↓
 kernels/singlet.py | non_singlet.py | ...  →  evolution operator matrix
        ↓
 np.real(ker * integrand)  →  returned float
 ```
 
-`quad_ker` is decorated `@nb.njit`, meaning Numba compiles it to machine code.
-`scipy` calls the resulting function through Python's normal calling convention on every quadrature node this carries Python overhead even with Numba.
+**Flow:** `scipy → Numba → scipy`
+
+`quad_ker` is decorated `@nb.njit`; Numba compiles it to machine code. The anomalous dimensions called from within `quad_ker` are also Numba-compiled (via ekore). `scipy` calls the resulting function through Python's normal calling convention on every quadrature node, carrying Python overhead at the entry point.
 
 ### 5.2 rust_quad_ker
 
@@ -110,52 +103,28 @@ scipy.integrate.quad(LowLevelCallable(rust_quad_ker, &cfg), 0.5, 1-ε)
        ↓  scipy's Fortran/C backend calls the C function pointer directly
 rust_quad_ker(u, *args)  [crates/eko/src/lib.rs]
        ↓
-TalbotPath  →  Mellin contour + Jacobian
-       ↓
 ekore Rust  →  anomalous dimensions
        ↓
-Python callback  →  cb_quad_ker_qcd / cb_quad_ker_qed
+Python callback  →  cb_quad_ker_qcd / cb_quad_ker_qed  [Numba]
        ↓
-Rust
+kernels/singlet.py | non_singlet.py | ... →  evolution operator matrix
        ↓
 f64 returned to scipy
 ```
 
-**Current transitional state:** `scipy → Rust → Python callback → Rust → scipy`
+**Flow:** `scipy → Numba → Rust → Numba → scipy` *(intermediate state)*
 
-**Target state:** `scipy → Rust → Rust → scipy` (no Python in the hot loop)
-
-### Why LowLevelCallable, not PyO3?
-
-`scipy.integrate.quad` accepts a `LowLevelCallable`, a raw C function pointer paired with a user-data pointer.
-When given an LLC, scipy's underlying Fortran/C QUADPACK routines call the function pointer directly, without ever entering the Python runtime.
-There is no GIL acquisition, no Python frame allocation, and no argument marshalling through Python objects on each of the ~100–10000 evaluations per integral.
-
-PyO3 wraps Rust functions as ordinary Python callables. If the integration
-kernel were exposed via PyO3, the call chain on every point would be:
-
-```text
-scipy Fortran  →  acquire GIL  →  Python call dispatch  →  PyO3 wrapper  →  Rust  →  release GIL  →  scipy Fortran
-```
-
-This overhead per node dominates at the scale of `O(grid_size²) × O(flavors) × O(100)` calls made in a typical EKO run.
-
-**Conclusion:** PyO3 is the right tool for the Python-Rust API boundary (configuration, result retrieval). LLC is the right tool for the integration loop. The architecture uses both in their appropriate roles.
+The mid-/long-term direction is to grow the middle Rust portion until it replaces the Numba callbacks entirely: `scipy → Rust → scipy`.
 
 ---
 
 ## 6. ekore
 
-I am not sure what you want me to document exactly, so I'll give my best assumptions.
+`ekore` provides user-facing entry points into the anomalous dimensions and operator matrix elements, for example [`ad.u.s.gamma_ns_qcd`](https://github.com/NNPDF/eko/blob/ba40d2be721b647b82259bb998c69bc7feedd1dd/crates/ekore/src/anomalous_dimensions/unpolarized/spacelike.rs#L22), which assembles the underlying mathematical ingredients (the "bottom" layer of actual math implementations).
 
-### 6.1 access
+The `eko` Python library accesses the `ekore` Rust library through the `eko` Rust library. In the Rust workflow, `lib.rs` acts as the bridge between Python and Rust, with the integrand selection delegated to Rust via `cfg`.
 
-In python workflow, the ekore library is a dependency of several files in the eko folder.
-In rust workflow, the ekore library is completely in Rust. There's a lib.rs which acts as a bridge between python and rust. All the integrands which are to be calculated and handled pretty neatly using `cfg` on the python side, and let Rust decide what the integrand should be based on the config. I would like to keep this system as it is.
-
-### 6.2 bottom
-
-I am not sure what this meant. Maybe that I got to check and document if python to rust is implemented correctly or not (i.e. any mistypings), or document how much of the functions are converted and what's remaining. Please do provide more info on this.
+The user-facing entry points of `ekore` are the primary focus of [#519](https://github.com/NNPDF/eko/issues/519), which tracks adding and testing C/C++ and Fortran interfaces to the Rust library.
 
 ---
 
@@ -169,7 +138,7 @@ The singlet sector is different. Quarks and gluons mix under evolution, so the s
 
 $$\frac{d}{d(\ln \mu^2)} \begin{bmatrix} \Sigma \\ g \end{bmatrix} = \begin{bmatrix} \gamma_{qq} & \gamma_{qg} \\ \gamma_{gq} & \gamma_{gg} \end{bmatrix} \begin{bmatrix} \Sigma \\ g \end{bmatrix}$$
 
-Solving this is the job of `kernels/singlet.py`, entered via `s.dispatcher(...)`. The dispatcher selects one of several solution strategies depending on `method` and `order`. Each uses different linear algebra. I won't go into detail as to what all linear algebra the functions do.
+Solving this is the job of `kernels/singlet.py`, entered via `s.dispatcher(...)`. The dispatcher selects one of several solution strategies depending on `method` and `order`. Each uses different linear algebra.
 
 Thing to note is every method ultimately calls `ekore.anomalous_dimensions.exp_matrix_2D`, which computes a 2×2 complex matrix exponential by diagonalisation: find eigenvalues λ₊, λ₋ and projectors e₊, e₋, then:
 
@@ -189,15 +158,6 @@ During the integral, `evaluate_grid` computes $p_j(N)$ analytically piece by pie
 
 - **`log_evaluate_Nx`** for logarithmic interpolation.
 - **`evaluate_Nx`** for linear interpolation.
-
-I won't go into detail on the exact formulas these functions execute.
-
-**What stays in Python vs what must move to Rust:**
-
-The architecture splits into two layers:
-
-1. **Setup (Stays in Python):** Classes like `BasisFunction`, `XGrid`, and `InterpolatorDispatcher` run once at startup to build the `areas_representation` array.
-2. **Hot path (Must move to Rust):** `evaluate_grid`, `log_evaluate_Nx`, and `evaluate_Nx`. Once the coefficient array exists and is passed into the kernel, the Python class hierarchy is never touched again during integration.
 
 ## 8. Versioning
 
@@ -238,49 +198,3 @@ poe bump-version   # runs: python crates/bump-versions.py $(git describe --tags)
 2. Updates the `version` field of any internal cross-dependencies (e.g. ekore inside eko's dependencies) to the same version string.
 
 The script strips the leading `v` from the git tag since Cargo does not use the `v` prefix.
-
----
-
-## 10. Files targeted for Rust conversion (GSoC)
-
-The following files contain logic that currently runs inside or is directly called by the integration callback. They must be ported to Rust. Files are listed in recommended porting order (each row depends on those above it).
-
-### Pure arithmetic, no matrix ops (port first)
-
-| File | What it contains | Rust notes |
-| --- | --- | --- |
-| `src/eko/constants.py` | Physical constants | Already ported to Rust |
-| `src/eko/beta.py` | QCD/QED beta function coefficients | Tuple, `match (k.0, k.1)`, clean 1:1 port |
-| `src/eko/kernels/evolution_integrals.py` | Scalar Mellin integrals | `num::Complex` arithmetic, no external deps |
-| `src/eko/kernels/as4_evolution_integrals.py` | N3LO scalar integrals | Same, complex sqrt/arctan via `num::Complex` |
-| `src/eko/scale_variations/exponentiated.py` | In-place gamma variation | Needs `beta.rs`, array slicing via `ndarray` |
-| `src/ekore/anomalous_dimensions/__init__.py` | `exp_matrix_2D`, `exp_matrix` | `exp_matrix_2D` is pure arithmetic, `exp_matrix` needs nalgebra |
-
-### Matrix operations (port second)
-
-| File | What it contains | Rust notes |
-| --- | --- | --- |
-| `src/eko/scale_variations/expanded.py` | Scalar + 2D/4D matrix sv kernels | Generic dispatch over dim=2 and dim=4 |
-| `src/eko/kernels/non_singlet.py` | Non-singlet evolution dispatcher | No matrix ops, nested `match` on `EvoMethods × order` |
-| `src/eko/kernels/non_singlet_qed.py` | QED non-singlet | `np.geomspace` → manual `exp(linspace(…))`, 2D dot product |
-| `src/eko/kernels/singlet_qed.py` | QED singlet iterate | Requires `exp_matrix` for the 4×4 QED case, `exp_matrix_2D` for the 2×2 QCD singlet case, const generics for dim |
-| `src/eko/kernels/valence_qed.py` | Thin QED valence dispatcher | ~10 lines once `singlet_qed.rs` exists |
-
-### Most complex (port last)
-
-| File | What it contains | Rust notes |
-| --- | --- | --- |
-| `src/eko/kernels/singlet.py` | Full singlet: iterate, perturbative, truncated, decompose | `np.linalg.inv` → `nalgebra`, rank-3 complex array `(k,2,2)` with runtime `k` |
-| `src/eko/interpolation.py` | **Only** `evaluate_grid`, `log_evaluate_Nx`, `evaluate_Nx` | `math.gamma` → `libm::tgamma`, rest of file stays Python |
-| `src/eko/evolution_operator/quad_ker.py` | `cb_quad_ker_qcd`, `cb_quad_ker_qed`, `cb_quad_ker_ome` | The callbacks themselves, port last once all above exist |
-
-### Files that stay in Python (do not port)
-
-| File | Reason |
-| --- | --- |
-| `src/eko/kernels/__init__.py` | `EvoMethods` enum → already `method_num: u8` in `QuadArgs` |
-| `src/eko/scale_variations/__init__.py` | `Modes` enum → already `sv_mode_num: u8` in `QuadArgs` |
-| `src/eko/io/types.py` | Config type aliases, never on hot path |
-| `src/eko/io/dictlike.py` | Serialisation framework, Python-only concern |
-| `src/eko/quantities/heavy_quarks.py` | Config data container, not in hot path |
-| `src/eko/matchings.py` | Orchestration stays Python, `lepton_number` is NOT in Rust. Inline in the QED callback as `if mu2_to > MTAU.powi(2) { 3 } else { 2 } |
