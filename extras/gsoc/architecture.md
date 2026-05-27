@@ -74,6 +74,10 @@ For each `(j, label)` pair a separate `scipy.integrate.quad` call is made.
 
 ---
 
+Here is the updated section 5.2:
+
+---
+
 ## 5. scipy.integrate.quad
 
 ### 5.1 quad_ker
@@ -112,9 +116,13 @@ kernels/singlet.py | non_singlet.py | ... →  evolution operator matrix
 f64 returned to scipy
 ```
 
-**Flow:** `scipy → Numba → Rust → Numba → scipy` *(intermediate state)*
+**Flow:** `scipy → Rust → Numba → Rust → scipy`
 
-The mid-/long-term direction is to grow the middle Rust portion until it replaces the Numba callbacks entirely: `scipy → Rust → scipy`.
+`scipy` skips Python overhead entirely by calling `rust_quad_ker` via a `LowLevelCallable` C function pointer. Rust handles the anomalous dimensions but then delegates back out to Numba callbacks for the evolution operator matrix, before returning to Rust and finally to `scipy`.
+
+The short-term direction is to invert the middle portion, i.e. moving to `scipy → Numba → Rust → Numba → scipy` to avoid code duplication, keeping the Numba as the primary entry point while Rust handles anomalous dimensions.
+
+The long-term goal is to grow the Rust portion until it replaces Numba entirely: `scipy → Rust → scipy`.
 
 ---
 
