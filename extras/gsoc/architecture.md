@@ -74,10 +74,6 @@ For each `(j, label)` pair a separate `scipy.integrate.quad` call is made.
 
 ---
 
-Here is the updated section 5.2:
-
----
-
 ## 5. scipy.integrate.quad
 
 ### 5.1 quad_ker
