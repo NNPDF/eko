@@ -71,4 +71,3 @@ poe bench
 ```
 
 - The complete list of benchmarks with external codes is available through `ekomark`: [documentation](https://eko.readthedocs.io/en/latest/development/Benchmarks.html)
-
