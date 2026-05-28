@@ -15,8 +15,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Install tomlkit
+        if: startsWith(github.ref, 'refs/tags/')
         run: pip install tomlkit
       - name: Bump versions
+        if: startsWith(github.ref, 'refs/tags/')
         run: python crates/bump-versions.py ${{ github.ref_name }}
       - name: Upload patched Cargo files
         uses: actions/upload-artifact@v4
