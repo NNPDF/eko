@@ -10,8 +10,25 @@ permissions:
   contents: read
 
 jobs:
+  set-version:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install tomlkit
+        run: pip install tomlkit
+      - name: Bump versions
+        run: python crates/bump-versions.py ${{ github.ref_name }}
+      - name: Upload patched Cargo files
+        uses: actions/upload-artifact@v4
+        with:
+          name: patched-cargo
+          path: |
+            Cargo.toml
+            crates/**/Cargo.toml
+
   linux:
     runs-on: ${{ matrix.platform.runner }}
+    needs: [set-version]
     strategy:
       matrix:
         platform:
@@ -23,6 +40,11 @@ jobs:
             target: aarch64
     steps:
       - uses: actions/checkout@v4
+      - name: Download patched Cargo files
+        uses: actions/download-artifact@v4
+        with:
+          name: patched-cargo
+          path: .
       - name: Install 32-bit glibc headers (x86 only)
         if: matrix.platform.target == 'x86'
         run: |
@@ -46,6 +68,7 @@ jobs:
 
   windows:
     runs-on: ${{ matrix.platform.runner }}
+    needs: [set-version]
     strategy:
       matrix:
         platform:
@@ -55,6 +78,11 @@ jobs:
             target: x86
     steps:
       - uses: actions/checkout@v4
+      - name: Download patched Cargo files
+        uses: actions/download-artifact@v4
+        with:
+          name: patched-cargo
+          path: .
       - uses: actions/setup-python@v5
         with:
           python-version: "3.10"
@@ -73,6 +101,7 @@ jobs:
 
   macos:
     runs-on: ${{ matrix.platform.runner }}
+    needs: [set-version]
     strategy:
       matrix:
         platform:
@@ -82,6 +111,11 @@ jobs:
             target: aarch64
     steps:
       - uses: actions/checkout@v4
+      - name: Download patched Cargo files
+        uses: actions/download-artifact@v4
+        with:
+          name: patched-cargo
+          path: .
       - uses: actions/setup-python@v5
         with:
           python-version: "3.10"
@@ -99,8 +133,14 @@ jobs:
 
   sdist:
     runs-on: ubuntu-latest
+    needs: [set-version]
     steps:
       - uses: actions/checkout@v4
+      - name: Download patched Cargo files
+        uses: actions/download-artifact@v4
+        with:
+          name: patched-cargo
+          path: .
       - name: Build sdist
         uses: PyO3/maturin-action@v1
         with:
@@ -122,10 +162,9 @@ jobs:
         with:
           pattern: wheels-*
           merge-multiple: true
+          path: dist
       - name: Publish to PyPI
-        uses: PyO3/maturin-action@v1
-        env:
-          MATURIN_PYPI_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
+        uses: pypa/gh-action-pypi-publish@release/v1
         with:
-          command: upload
-          args: --non-interactive --skip-existing wheels-*/*
+          password: ${{ secrets.PYPI_API_TOKEN }}
+          skip-existing: true
