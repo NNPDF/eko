@@ -6,4 +6,4 @@ EKO produces **Evolution Kernel Operators** (EKOs) which are rank-4 tensors used
 
 ## License
 
-GPL-3.0-or-later
+[GPL-3.0-or-later](https://github.com/NNPDF/eko/blob/master/LICENSE)
