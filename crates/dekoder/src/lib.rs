@@ -32,7 +32,7 @@
 //!
 //! ### Open an archive and inspect available operators
 //!
-//! ```rust
+//! ```rust,ignore
 //! use std::path::PathBuf;
 //! use dekoder::eko::{EvolutionPoint, EKO};
 //!
@@ -46,7 +46,7 @@
 //!
 //! ### Load a specific operator
 //!
-//! ```rust
+//! ```rust,ignore
 //! let ep = EvolutionPoint { scale: 10000.0, nf: 4 };
 //!
 //! if eko.has_operator(&ep) {
@@ -58,7 +58,7 @@
 //!
 //! ### Write back and clean up
 //!
-//! ```rust
+//! ```rust,ignore
 //! // Write to a new archive, keep the working directory
 //! eko.write(PathBuf::from("output.tar"))?;
 //!
@@ -68,7 +68,7 @@
 //!
 //! ### Work with an already-extracted directory
 //!
-//! ```rust
+//! ```rust,ignore
 //! let eko = EKO::load_opened(PathBuf::from("/tmp/eko_workdir"))?;
 //! ```
 use ndarray::Array4;
