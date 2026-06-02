@@ -15,6 +15,9 @@ Items without prefix refer to a global change.
 
 ## [Unreleased](https://github.com/NNPDF/eko/compare/v0.15.3...HEAD)
 
+### Fixed
+- rust: Fix and improve publication of Rust crates ([#522](https://github.com/NNPDF/eko/pull/522))
+
 ## [0.15.3](https://github.com/NNPDF/eko/compare/v0.15.2...v0.15.3) - 2026-02-05
 
 ### Added
