@@ -14,7 +14,6 @@ from typing import Dict, Tuple
 import numpy as np
 from scipy import integrate
 
-from .quad_ker import quad_ker
 from .. import basis_rotation as br
 from .. import scale_variations as sv
 from ..couplings import Couplings
@@ -23,6 +22,7 @@ from ..io.types import EvolutionMethod, OperatorLabel
 from ..kernels import ev_method
 from ..matchings import Atlas, Segment
 from ..member import OpMember
+from .quad_ker import quad_ker
 
 logger = logging.getLogger(__name__)
 
