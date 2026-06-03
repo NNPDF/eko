@@ -1,6 +1,7 @@
 r"""Integration kernels."""
 
 import logging
+import os
 
 import numba as nb
 import numpy as np
@@ -20,6 +21,16 @@ from ..kernels import valence_qed as qed_v
 from ..matchings import lepton_number
 from ..scale_variations import expanded as sv_expanded
 from ..scale_variations import exponentiated as sv_exponentiated
+
+if os.environ.get("NUMBA_DISABLE_JIT", "0") == "1":
+
+    def cfunc_wrapper(sig, *args, **kwargs):
+        def decorator(func):
+            return func
+
+        return decorator
+
+    nb.cfunc = cfunc_wrapper
 
 logger = logging.getLogger(__name__)
 
