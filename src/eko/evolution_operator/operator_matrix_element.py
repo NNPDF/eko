@@ -19,7 +19,8 @@ from .. import scale_variations as sv
 from ..io.types import InversionMethod
 from ..matchings import Segment
 from ..scale_variations.exponentiated import gamma_variation
-from . import Managers, Operator, QuadKerBase
+from . import Managers, Operator
+from .quad_ker import QuadKerBase
 
 logger = logging.getLogger(__name__)
 
