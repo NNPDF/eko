@@ -148,7 +148,7 @@ class QuadKerBase:
 
     @property
     def n(self):
-        """Returs the Mellin moment :math:`N`."""
+        """Returns the Mellin moment :math:`N`."""
         return self.path.n
 
     def integrand(
@@ -358,7 +358,7 @@ def quad_ker_qcd(
     sv_mode: int, `enum.IntEnum`
         scale variation mode, see `eko.scale_variations.Modes`
     is_threshold : boolean
-        is this an itermediate threshold operator?
+        is this an intermediate threshold operator?
     n3lo_ad_variation : tuple
         |N3LO| anomalous dimension variation ``(gg, gq, qg, qq, nsp, nsm, nsv)``
     use_fhmruvv : bool
@@ -490,7 +490,7 @@ def quad_ker_qed(
     sv_mode: int, `enum.IntEnum`
         scale variation mode, see `eko.scale_variations.Modes`
     is_threshold : boolean
-        is this an itermediate threshold operator?
+        is this an intermediate threshold operator?
     n3lo_ad_variation : tuple
         |N3LO| anomalous dimension variation ``(gg, gq, qg, qq, nsp, nsm, nsv)``
     use_fhmruvv : bool
