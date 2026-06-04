@@ -41,6 +41,8 @@ jobs:
       - name: Install task runner
         run: pip install poethepoet
       - name: Run benchmark
+        env:
+          VIRTUAL_ENV: ${{ env.pythonLocation }}
         run: |
           ./rustify.sh
           poe compile
