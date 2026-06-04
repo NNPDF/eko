@@ -1,0 +1,45 @@
+diff --git a/src/eko/evolution_operator/quad_ker.py b/src/eko/evolution_operator/quad_ker.py
+index f51df2b1..9b0f5a60 100644
+--- a/src/eko/evolution_operator/quad_ker.py
++++ b/src/eko/evolution_operator/quad_ker.py
+@@ -2,6 +2,7 @@ r"""Integration kernels."""
+
+ import logging
+
++import ekors
+ import numba as nb
+ import numpy as np
+
+@@ -371,18 +372,20 @@ def quad_ker_qcd(
+     """
+     # compute the actual evolution kernel for pure QCD
+     if ker_base.is_singlet:
+-        if is_polarized:
+-            if is_time_like:
+-                raise NotImplementedError("Polarized, time-like is not implemented")
+-            else:
+-                gamma_singlet = ad_ps.gamma_singlet(order, ker_base.n, nf)
+-        else:
+-            if is_time_like:
+-                gamma_singlet = ad_ut.gamma_singlet(order, ker_base.n, nf)
+-            else:
+-                gamma_singlet = ad_us.gamma_singlet(
+-                    order, ker_base.n, nf, n3lo_ad_variation, use_fhmruvv
+-                )
++        order_qcd = order[0]
++        n_re = ker_base.n.real
++        n_im = ker_base.n.imag
++        with nb.objmode(gamma_singlet="complex128[:,:,:]"):
++            re_out, im_out = ekors.qcd_gamma_singlet(
++                order_qcd,
++                n_re,
++                n_im,
++                nf,
++                is_polarized,
++                is_time_like,
++                n3lo_ad_variation[:4],
++            )
++            gamma_singlet = (re_out + 1j * im_out).reshape(order_qcd, 2, 2)
+         # scale var exponentiated is directly applied on gamma
+         if sv_mode == sv.Modes.exponentiated:
+             gamma_singlet = sv_exponentiated.gamma_variation(

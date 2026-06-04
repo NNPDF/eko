@@ -1,7 +1,12 @@
 //! Interface to the eko Python package.
 
+use ekore::anomalous_dimensions::polarized::spacelike as ad_ps;
+use ekore::anomalous_dimensions::unpolarized::spacelike as ad_us;
+// use ekore::anomalous_dimensions::unpolarized::timelike as ad_ut; TODO
 use ekore::harmonics::cache::Cache;
 use num::Complex;
+use numpy::{IntoPyArray, PyArray1};
+use pyo3::prelude::*;
 use std::ffi::c_void;
 
 pub mod bib;
@@ -72,6 +77,64 @@ fn unravel_qed_ns(res: Vec<Vec<Complex<f64>>>, order_qcd: usize, order_qed: usiz
         }
     }
     target
+}
+
+/// Type for gamma singlet return
+type GammaSinglet = PyResult<(Py<PyArray1<f64>>, Py<PyArray1<f64>>)>;
+
+/// Compute the QCD singlet anomalous dimension matrix in Mellin space.
+///
+/// # Errors
+/// Returns `PyNotImplementedError` if `is_time_like` is set (both polarized
+/// and unpolarized time-like are not yet implemented).
+#[pyfunction]
+#[allow(clippy::too_many_arguments)]
+pub fn qcd_gamma_singlet(
+    py: Python<'_>,
+    order_qcd: usize,
+    re_n: f64,
+    im_n: f64,
+    nf: u8,
+    is_polarized: bool,
+    is_time_like: bool,
+    variations: [u8; 4],
+) -> GammaSinglet {
+    if is_polarized && is_time_like {
+        return Err(pyo3::exceptions::PyNotImplementedError::new_err(
+            "Polarized time-like is not implemented",
+        ));
+    }
+    if is_time_like {
+        return Err(pyo3::exceptions::PyNotImplementedError::new_err(
+            "Unpolarized time-like is not yet implemented",
+        ));
+    }
+    let mut c = Cache::new(Complex::new(re_n, im_n));
+    let raw = if is_polarized {
+        unravel(
+            ad_ps::gamma_singlet_qcd(order_qcd, &mut c, nf, variations),
+            order_qcd,
+        )
+    } else {
+        unravel(
+            ad_us::gamma_singlet_qcd(order_qcd, &mut c, nf, variations),
+            order_qcd,
+        )
+    };
+    Ok((
+        raw.re.into_pyarray_bound(py).unbind(),
+        raw.im.into_pyarray_bound(py).unbind(),
+    ))
+}
+
+/// Python extension module exposing EKO's Rust kernels.
+///
+/// Currently exposes:
+/// - [`qcd_gamma_singlet`]: QCD singlet anomalous dimension matrix in Mellin space
+#[pymodule]
+fn ekors(_py: Python<'_>, m: &Bound<'_, PyModule>) -> PyResult<()> {
+    m.add_function(wrap_pyfunction!(qcd_gamma_singlet, m)?)?;
+    Ok(())
 }
 
 /// Integration kernel inside quad.

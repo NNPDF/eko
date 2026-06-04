@@ -22,3 +22,5 @@ crate-type = ["cdylib"]
 [dependencies]
 num = "0.4.1"
 ekore = { path = "../ekore", version = "0.0.1" }
+pyo3  = { version = "0.21", features = ["extension-module"] }
+numpy = "0.21"
