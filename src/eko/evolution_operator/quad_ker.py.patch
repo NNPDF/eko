@@ -1,5 +1,5 @@
 diff --git a/src/eko/evolution_operator/quad_ker.py b/src/eko/evolution_operator/quad_ker.py
-index f51df2b1..9b0f5a60 100644
+index f51df2b1..77fcb59a 100644
 --- a/src/eko/evolution_operator/quad_ker.py
 +++ b/src/eko/evolution_operator/quad_ker.py
 @@ -2,6 +2,7 @@ r"""Integration kernels."""
@@ -31,12 +31,12 @@ index f51df2b1..9b0f5a60 100644
 +        n_im = ker_base.n.imag
 +        with nb.objmode(gamma_singlet="complex128[:,:,:]"):
 +            re_out, im_out = ekors.qcd_gamma_singlet(
++                is_polarized,
++                is_time_like,
 +                order_qcd,
 +                n_re,
 +                n_im,
 +                nf,
-+                is_polarized,
-+                is_time_like,
 +                n3lo_ad_variation[:4],
 +            )
 +            gamma_singlet = (re_out + 1j * im_out).reshape(order_qcd, 2, 2)
