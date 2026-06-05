@@ -2,35 +2,21 @@
 evolution."""
 
 import copy
-import enum
 import functools
 import logging
 from typing import Optional
 
-import numba as nb
 import numpy as np
-
-import ekore.operator_matrix_elements.polarized.space_like as ome_ps
-import ekore.operator_matrix_elements.unpolarized.space_like as ome_us
-import ekore.operator_matrix_elements.unpolarized.time_like as ome_ut
 
 from .. import basis_rotation as br
 from .. import scale_variations as sv
 from ..io.types import InversionMethod
 from ..matchings import Segment
-from ..scale_variations.exponentiated import gamma_variation
 from . import Managers, Operator
-from .quad_ker import QuadKerBase
+from .quad_ker import MatchingMethods
+from .quad_ker import quad_ker_ome as quad_ker
 
 logger = logging.getLogger(__name__)
-
-
-class MatchingMethods(enum.IntEnum):
-    """Enumerate matching methods."""
-
-    FORWARD = enum.auto()
-    BACKWARD_EXACT = enum.auto()
-    BACKWARD_EXPANDED = enum.auto()
 
 
 def matching_method(s: Optional[InversionMethod]) -> MatchingMethods:
@@ -49,158 +35,6 @@ def matching_method(s: Optional[InversionMethod]) -> MatchingMethods:
     if s is not None:
         return MatchingMethods["BACKWARD_" + s.value.upper()]
     return MatchingMethods.FORWARD
-
-
-@nb.njit(cache=True)
-def build_ome(A, matching_order, a_s, backward_method):
-    r"""Construct the matching expansion in :math:`a_s` with the appropriate
-    method.
-
-    Parameters
-    ----------
-    A : numpy.ndarray
-        list of |OME|
-    matching_order : tuple(int,int)
-        perturbation matching order
-    a_s : float
-        strong coupling, needed only for the exact inverse
-    backward_method : MatchingMethods
-        empty or method for inverting the matching condition (exact or expanded)
-
-    Returns
-    -------
-    ome : numpy.ndarray
-        matching operator matrix
-    """
-    # to get the inverse one can use this FORM snippet
-    # Symbol a;
-    # NTensor c,d,e;
-    # Local x=-(a*c+a**2* d + a**3 * e);
-    # Local bi = 1+x+x**2+x**3;
-    # Print;
-    # .end
-    ome = np.eye(len(A[0]), dtype=np.complex128)
-    A = A[:, :, :]
-    A = np.ascontiguousarray(A)
-    if backward_method is MatchingMethods.BACKWARD_EXPANDED:
-        # expended inverse
-        if matching_order[0] >= 1:
-            ome -= a_s * A[0]
-        if matching_order[0] >= 2:
-            ome += a_s**2 * (-A[1] + A[0] @ A[0])
-        if matching_order[0] >= 3:
-            ome += a_s**3 * (-A[2] + A[0] @ A[1] + A[1] @ A[0] - A[0] @ A[0] @ A[0])
-    else:
-        # forward or exact inverse
-        if matching_order[0] >= 1:
-            ome += a_s * A[0]
-        if matching_order[0] >= 2:
-            ome += a_s**2 * A[1]
-        if matching_order[0] >= 3:
-            ome += a_s**3 * A[2]
-        # need inverse exact ?  so add the missing pieces
-        if backward_method is MatchingMethods.BACKWARD_EXACT:
-            ome = np.linalg.inv(ome)
-    return ome
-
-
-@nb.njit(cache=True)
-def quad_ker(
-    u,
-    order,
-    mode0,
-    mode1,
-    is_log,
-    logx,
-    areas,
-    a_s,
-    nf,
-    L,
-    sv_mode,
-    Lsv,
-    backward_method,
-    is_msbar,
-    is_polarized,
-    is_time_like,
-):
-    r"""Raw kernel inside quad.
-
-    Parameters
-    ----------
-    u : float
-        quad argument
-    order : tuple(int,int)
-        perturbation matching order
-    mode0 : int
-        pid for first element in the singlet sector
-    mode1 : int
-        pid for second element in the singlet sector
-    is_log : boolean
-        logarithmic interpolation
-    logx : float
-        Mellin inversion point
-    areas : tuple
-        basis function configuration
-    a_s : float
-        strong coupling, needed only for the exact inverse
-    nf: int
-        number of active flavor below threshold
-    L : float
-        :math:``\ln(\mu_F^2 / m_h^2)``
-    backward_method : InversionMethod or None
-        empty or method for inverting the matching condition (exact or expanded)
-    is_msbar: bool
-        add the |MSbar| contribution
-    is_polarized : boolean
-        is polarized evolution ?
-    is_time_like : boolean
-        is time-like evolution ?
-
-    Returns
-    -------
-    ker : float
-        evaluated integration kernel
-    """
-    ker_base = QuadKerBase(u, is_log, logx, mode0)
-    integrand = ker_base.integrand(areas)
-    if integrand == 0.0:
-        return 0.0
-    # compute the ome
-    if ker_base.is_singlet or ker_base.is_QEDsinglet:
-        indices = {21: 0, 100: 1, 90: 2}
-        if is_polarized:
-            if is_time_like:
-                raise NotImplementedError("Polarized, time-like is not implemented")
-            A = ome_ps.A_singlet(order, ker_base.n, nf, L)
-        else:
-            if is_time_like:
-                A = ome_ut.A_singlet(order, ker_base.n, L)
-            else:
-                A = ome_us.A_singlet(order, ker_base.n, nf, L, is_msbar)
-    else:
-        indices = {200: 0, 91: 1}
-        if is_polarized:
-            if is_time_like:
-                raise NotImplementedError("Polarized, time-like is not implemented")
-            A = ome_ps.A_non_singlet(order, ker_base.n, L)
-        else:
-            if is_time_like:
-                A = ome_ut.A_non_singlet(order, ker_base.n, L)
-            else:
-                A = ome_us.A_non_singlet(order, ker_base.n, nf, L)
-
-    # correct for scale variations
-    if sv_mode == sv.Modes.exponentiated:
-        A = gamma_variation(A, order, nf, Lsv)
-
-    # build the expansion in alpha_s depending on the strategy
-    ker = build_ome(A, order, a_s, backward_method)
-
-    # select the needed matrix element
-    ker = ker[indices[mode0], indices[mode1]]
-
-    # recombine everything
-    return np.real(ker * integrand)
 
 
 class OperatorMatrixElement(Operator):

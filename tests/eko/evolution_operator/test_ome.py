@@ -7,9 +7,9 @@ from eko import scale_variations as sv
 from eko.evolution_operator.operator_matrix_element import (
     MatchingMethods,
     OperatorMatrixElement,
-    build_ome,
     quad_ker,
 )
+from eko.evolution_operator.quad_ker import build_ome
 from eko.io.runcards import OperatorCard, TheoryCard
 from eko.io.types import InversionMethod
 from eko.runner.parts import _managers, _matching_configs

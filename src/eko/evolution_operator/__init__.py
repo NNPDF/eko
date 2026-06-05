@@ -22,7 +22,7 @@ from ..io.types import EvolutionMethod, OperatorLabel
 from ..kernels import ev_method
 from ..matchings import Atlas, Segment
 from ..member import OpMember
-from .quad_ker import quad_ker
+from .quad_ker import quad_ker_ad as quad_ker
 
 logger = logging.getLogger(__name__)
 
