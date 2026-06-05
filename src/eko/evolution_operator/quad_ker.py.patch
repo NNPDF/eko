@@ -1,16 +1,16 @@
 diff --git a/src/eko/evolution_operator/quad_ker.py b/src/eko/evolution_operator/quad_ker.py
-index f51df2b1..77fcb59a 100644
+index bc23643c..a6f327a8 100644
 --- a/src/eko/evolution_operator/quad_ker.py
 +++ b/src/eko/evolution_operator/quad_ker.py
-@@ -2,6 +2,7 @@ r"""Integration kernels."""
-
+@@ -3,6 +3,7 @@ r"""Integration kernels."""
+ import enum
  import logging
 
 +import ekors
  import numba as nb
  import numpy as np
 
-@@ -371,18 +372,20 @@ def quad_ker_qcd(
+@@ -437,18 +438,20 @@ def quad_ker_qcd(
      """
      # compute the actual evolution kernel for pure QCD
      if ker_base.is_singlet:
