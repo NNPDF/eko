@@ -1,8 +1,8 @@
 diff --git a/src/eko/evolution_operator/quad_ker.py b/src/eko/evolution_operator/quad_ker.py
-index bc23643c..a6f327a8 100644
+index bc23643c..4939775d 100644
 --- a/src/eko/evolution_operator/quad_ker.py
 +++ b/src/eko/evolution_operator/quad_ker.py
-@@ -3,6 +3,7 @@ r"""Integration kernels."""
+@@ -3,12 +3,11 @@ r"""Integration kernels."""
  import enum
  import logging
 
@@ -10,7 +10,13 @@ index bc23643c..a6f327a8 100644
  import numba as nb
  import numpy as np
 
-@@ -437,18 +438,20 @@ def quad_ker_qcd(
+-import ekore.anomalous_dimensions.polarized.space_like as ad_ps
+ import ekore.anomalous_dimensions.unpolarized.space_like as ad_us
+-import ekore.anomalous_dimensions.unpolarized.time_like as ad_ut
+ import ekore.operator_matrix_elements.polarized.space_like as ome_ps
+ import ekore.operator_matrix_elements.unpolarized.space_like as ome_us
+ import ekore.operator_matrix_elements.unpolarized.time_like as ome_ut
+@@ -437,18 +436,20 @@ def quad_ker_qcd(
      """
      # compute the actual evolution kernel for pure QCD
      if ker_base.is_singlet:
@@ -43,3 +49,38 @@ index bc23643c..a6f327a8 100644
          # scale var exponentiated is directly applied on gamma
          if sv_mode == sv.Modes.exponentiated:
              gamma_singlet = sv_exponentiated.gamma_variation(
+@@ -471,18 +472,22 @@ def quad_ker_qcd(
+             ) @ np.ascontiguousarray(ker)
+         ker = select_singlet_element(ker, mode0, mode1)
+     else:
+-        if is_polarized:
+-            if is_time_like:
+-                raise NotImplementedError("Polarized, time-like is not implemented")
+-            else:
+-                gamma_ns = ad_ps.gamma_ns(order, mode0, ker_base.n, nf)
+-        else:
+-            if is_time_like:
+-                gamma_ns = ad_ut.gamma_ns(order, mode0, ker_base.n, nf)
+-            else:
+-                gamma_ns = ad_us.gamma_ns(
+-                    order, mode0, ker_base.n, nf, n3lo_ad_variation, use_fhmruvv
+-                )
++        order_qcd = order[0]
++        n_re = ker_base.n.real
++        n_im = ker_base.n.imag
++        with nb.objmode(gamma_ns="complex128[:]"):
++            re_out, im_out = ekors.qcd_gamma_ns(
++                is_polarized,
++                is_time_like,
++                order_qcd,
++                mode0,
++                n_re,
++                n_im,
++                nf,
++                n3lo_ad_variation[4:],
++                use_fhmruvv,
++            )
++            gamma_ns = re_out + 1j * im_out
+         if sv_mode == sv.Modes.exponentiated:
+             gamma_ns = sv_exponentiated.gamma_variation(gamma_ns, order, nf, L)
+         ker = ns.dispatcher(

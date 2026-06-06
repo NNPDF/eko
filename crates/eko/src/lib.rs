@@ -7,7 +7,6 @@ use ekore::harmonics::cache::Cache;
 use num::Complex;
 use numpy::{IntoPyArray, PyArray1};
 use pyo3::prelude::*;
-use std::ffi::c_void;
 
 pub mod bib;
 pub mod mellin;
@@ -82,6 +81,9 @@ fn unravel_qed_ns(res: Vec<Vec<Complex<f64>>>, order_qcd: usize, order_qed: usiz
 /// Type for qcd gamma singlet return
 type GammaQCDSinglet = PyResult<(Py<PyArray1<f64>>, Py<PyArray1<f64>>)>;
 
+/// Type for qcd gamma ns return
+type GammaQCDNS = PyResult<(Py<PyArray1<f64>>, Py<PyArray1<f64>>)>;
+
 // TODO: once the Rust kernels grows we take be the computation of the integration path back to here
 // in the old implementation it was ~
 // // prepare Mellin stuff
@@ -133,12 +135,61 @@ pub fn qcd_gamma_singlet(
     ))
 }
 
+/// Compute the QCD non-singlet anomalous dimension in Mellin space.
+///
+/// # Errors
+/// Returns `PyNotImplementedError` for polarized time-like (not implemented)
+/// or plain time-like (not yet implemented).
+#[pyfunction]
+#[allow(clippy::too_many_arguments)]
+pub fn qcd_gamma_ns(
+    py: Python<'_>,
+    is_polarized: bool,
+    is_time_like: bool,
+    order_qcd: usize,
+    mode0: u16,
+    re_n: f64,
+    im_n: f64,
+    nf: u8,
+    variations: [u8; 3],
+    _use_fhmruvv: bool, // TODO
+) -> GammaQCDNS {
+    if is_polarized && is_time_like {
+        return Err(pyo3::exceptions::PyNotImplementedError::new_err(
+            "Polarized time-like is not implemented",
+        ));
+    }
+    if is_time_like {
+        return Err(pyo3::exceptions::PyNotImplementedError::new_err(
+            "Unpolarized time-like is not yet implemented",
+        ));
+    }
+
+    let mut c = Cache::new(Complex::new(re_n, im_n));
+
+    let raw: Vec<Complex<f64>> = if is_polarized {
+        ad_ps::gamma_ns_qcd(order_qcd, mode0, &mut c, nf, variations)
+    } else {
+        ad_us::gamma_ns_qcd(order_qcd, mode0, &mut c, nf, variations)
+    };
+
+    let re: Vec<f64> = raw.iter().map(|z| z.re).collect();
+    let im: Vec<f64> = raw.iter().map(|z| z.im).collect();
+
+    Ok((
+        re.into_pyarray_bound(py).unbind(),
+        im.into_pyarray_bound(py).unbind(),
+    ))
+}
+
 /// Python extension module exposing EKO's Rust kernels.
 ///
 /// Currently exposes:
 /// - [`qcd_gamma_singlet`]: QCD singlet anomalous dimension matrix in Mellin space
+/// - [`qcd_gamma_ns`]: QCD non-singlet anomalous dimension array in Mellin space
 #[pymodule]
 fn ekors(_py: Python<'_>, m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(qcd_gamma_singlet, m)?)?;
+    m.add_function(wrap_pyfunction!(qcd_gamma_ns, m)?)?;
     Ok(())
 }
