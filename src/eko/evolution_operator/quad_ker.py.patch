@@ -1,8 +1,8 @@
 diff --git a/src/eko/evolution_operator/quad_ker.py b/src/eko/evolution_operator/quad_ker.py
-index bc23643c..4939775d 100644
+index bc23643c..79cc0bdc 100644
 --- a/src/eko/evolution_operator/quad_ker.py
 +++ b/src/eko/evolution_operator/quad_ker.py
-@@ -3,12 +3,11 @@ r"""Integration kernels."""
+@@ -3,15 +3,11 @@ r"""Integration kernels."""
  import enum
  import logging
 
@@ -13,10 +13,13 @@ index bc23643c..4939775d 100644
 -import ekore.anomalous_dimensions.polarized.space_like as ad_ps
  import ekore.anomalous_dimensions.unpolarized.space_like as ad_us
 -import ekore.anomalous_dimensions.unpolarized.time_like as ad_ut
- import ekore.operator_matrix_elements.polarized.space_like as ome_ps
- import ekore.operator_matrix_elements.unpolarized.space_like as ome_us
- import ekore.operator_matrix_elements.unpolarized.time_like as ome_ut
-@@ -437,18 +436,20 @@ def quad_ker_qcd(
+-import ekore.operator_matrix_elements.polarized.space_like as ome_ps
+-import ekore.operator_matrix_elements.unpolarized.space_like as ome_us
+-import ekore.operator_matrix_elements.unpolarized.time_like as ome_ut
+
+ from .. import interpolation, mellin
+ from .. import scale_variations as sv
+@@ -437,18 +433,20 @@ def quad_ker_qcd(
      """
      # compute the actual evolution kernel for pure QCD
      if ker_base.is_singlet:
@@ -49,7 +52,7 @@ index bc23643c..4939775d 100644
          # scale var exponentiated is directly applied on gamma
          if sv_mode == sv.Modes.exponentiated:
              gamma_singlet = sv_exponentiated.gamma_variation(
-@@ -471,18 +472,22 @@ def quad_ker_qcd(
+@@ -471,18 +469,22 @@ def quad_ker_qcd(
              ) @ np.ascontiguousarray(ker)
          ker = select_singlet_element(ker, mode0, mode1)
      else:
@@ -84,3 +87,59 @@ index bc23643c..4939775d 100644
          if sv_mode == sv.Modes.exponentiated:
              gamma_ns = sv_exponentiated.gamma_variation(gamma_ns, order, nf, L)
          ker = ns.dispatcher(
+@@ -720,26 +722,37 @@ def quad_ker_ome(
+     # compute the ome
+     if ker_base.is_singlet or ker_base.is_QEDsinglet:
+         indices = {21: 0, 100: 1, 90: 2}
+-        if is_polarized:
+-            if is_time_like:
+-                raise NotImplementedError("Polarized, time-like is not implemented")
+-            A = ome_ps.A_singlet(order, ker_base.n, nf, L)
+-        else:
+-            if is_time_like:
+-                A = ome_ut.A_singlet(order, ker_base.n, L)
+-            else:
+-                A = ome_us.A_singlet(order, ker_base.n, nf, L, is_msbar)
++        matching_order_qcd = order[0]
++        n_re = ker_base.n.real
++        n_im = ker_base.n.imag
++        with nb.objmode(A="complex128[:,:,:]"):
++            re_out, im_out = ekors.ome_singlet(
++                is_polarized,
++                is_time_like,
++                matching_order_qcd,
++                n_re,
++                n_im,
++                nf,
++                L,
++                is_msbar,
++            )
++            A = (re_out + 1j * im_out).reshape(matching_order_qcd, 3, 3)
+     else:
+         indices = {200: 0, 91: 1}
+-        if is_polarized:
+-            if is_time_like:
+-                raise NotImplementedError("Polarized, time-like is not implemented")
+-            A = ome_ps.A_non_singlet(order, ker_base.n, L)
+-        else:
+-            if is_time_like:
+-                A = ome_ut.A_non_singlet(order, ker_base.n, L)
+-            else:
+-                A = ome_us.A_non_singlet(order, ker_base.n, nf, L)
++        matching_order_qcd = order[0]
++        n_re = ker_base.n.real
++        n_im = ker_base.n.imag
++        with nb.objmode(A="complex128[:,:,:]"):
++            re_out, im_out = ekors.ome_non_singlet(
++                is_polarized,
++                is_time_like,
++                matching_order_qcd,
++                n_re,
++                n_im,
++                nf,
++                L,
++            )
++            A = (re_out + 1j * im_out).reshape(matching_order_qcd, 2, 2)
+
+     # correct for scale variations
+     if sv_mode == sv.Modes.exponentiated:
