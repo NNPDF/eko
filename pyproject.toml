@@ -4,7 +4,7 @@ build-backend = "poetry_dynamic_versioning.backend"
 
 [tool.poetry]
 name = "eko"
-version = "0.0.0"
+version = "0.15.2"
 description = "Evolution Kernel Operators"
 readme = "README.md"
 authors = [
@@ -40,13 +40,13 @@ packages = [
 ]
 
 [tool.poetry.dependencies]
-python = "^3.9,<3.14"
+python = "^3.10,<3.15"
 numpy = "^2"
 scipy = "^1.10.1"
 PyYAML = "^6.0"
 lz4 = "^4.0.2"
-# 0.60.0 is the last version compatible with 3.9 and 0.61 the first with 3.13
-numba = "~0.60.0 || ~0.61.0"
+# 0.60.0 is the last version compatible with 3.9 and 0.63 the first with 3.14
+numba = ">=0.60,<0.66"
 packaging = "^24.1"
 # ekomark
 banana-hep = { version = "^0.6.16", optional = true }
@@ -96,29 +96,35 @@ enable = true
 vcs = "git"
 style = "semver"
 dirty = true
-format-jinja = "{% if distance == 0 %}{{ base }}{% else %}0.0.0-post.{{ distance }}+{{ commit }}{% endif %}"
+format-jinja = "{% if distance == 0 %}{{ base }}{% else %}0.15.2-post.{{ distance }}+{{ commit }}{% endif %}"
 
 [tool.poetry-dynamic-versioning.substitution]
 files = ["src/eko/version.py", "src/ekomark/version.py", "src/ekobox/version.py"]
 folders = [{path = "src/eko"}, {path = "src/ekomark"}, {path = "src/ekobox"}]
 
+[tool.setuptools_scm]
+write_to = "src/eko/version.py"
+version_scheme = "no-guess-dev"
+local_scheme = "no-local-version"
+
+
 [tool.poetry-dynamic-versioning.files."src/eko/version.py"]
 persistent-substitution = true
 initial-content = """
-  __version__ = "0.0.0"
+  __version__ = "0.15.2"
   __data_version__ = 3
 """
 
 [tool.poetry-dynamic-versioning.files."src/ekobox/version.py"]
 persistent-substitution = true
 initial-content = """
-  __version__ = "0.0.0"
+  __version__ = "0.15.2"
 """
 
 [tool.poetry-dynamic-versioning.files."src/ekomark/version.py"]
 persistent-substitution = true
 initial-content = """
-  __version__ = "0.0.0"
+  __version__ = "0.15.2"
 """
 
 [tool.poetry.scripts]
