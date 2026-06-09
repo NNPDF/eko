@@ -15,8 +15,17 @@ Items without prefix refer to a global change.
 
 ## [Unreleased](https://github.com/NNPDF/eko/compare/v0.15.3...HEAD)
 
+### Added
+- rust: Expose `qcd_gamma_singlet`, `qcd_gamma_ns`, `ome_singlet`, and `ome_non_singlet` as a native Python extension module (`ekors`) via PyO3 bindings
+
 ### Fixed
 - rust: Fix and improve publication of Rust crates ([#522](https://github.com/NNPDF/eko/pull/522))
+
+### Changed
+- py: Moved all quad kernels to quad_ker.py
+
+### Removed
+- rust: Drop CFFI and Python callback interface in favour of PyO3 bindings
 
 ## [0.15.3](https://github.com/NNPDF/eko/compare/v0.15.2...v0.15.3) - 2026-02-05
 

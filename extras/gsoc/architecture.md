@@ -96,27 +96,29 @@ np.real(ker * integrand)  →  returned float
 
 `quad_ker` is decorated `@nb.njit`; Numba compiles it to machine code. The anomalous dimensions called from within `quad_ker` are also Numba-compiled (via ekore). `scipy` calls the resulting function through Python's normal calling convention on every quadrature node, carrying Python overhead at the entry point.
 
-### 5.2 rust_quad_ker
+### 5.2 rust quad_ker
 
 ```text
-scipy.integrate.quad(LowLevelCallable(rust_quad_ker, &cfg), 0.5, 1-ε)
-       ↓  scipy's Fortran/C backend calls the C function pointer directly
-rust_quad_ker(u, *args)  [crates/eko/src/lib.rs]
+scipy.integrate.quad(quad_ker_ad, 0.5, 1-ε)
+       ↓  calls func at each quadrature node
+quad_ker_ad(u, order, mode0, ...) [quad_ker.py, @nb.njit]
        ↓
-ekore Rust  →  anomalous dimensions
+QuadKerBase  →  integrand
        ↓
-Python callback  →  cb_quad_ker_qcd / cb_quad_ker_qed  [Numba]
+quad_ker_qcd / quad_ker_qed  →  anomalous dimensions via ekore [Numba]
+       ↓  nb.objmode → exits Numba's compiled context
+ekors.qcd_gamma_singlet / ekors.qcd_gamma_ns  [crates/eko/src/lib.rs]
        ↓
+ekore Rust → anomalous dimensions
+       ↓  back to Numba via nb.objmode
 kernels/singlet.py | non_singlet.py | ... →  evolution operator matrix
        ↓
 f64 returned to scipy
 ```
 
-**Flow:** `scipy → Rust → Numba → Rust → scipy`
+**Flow:** `scipy → Numba → Rust → Numba → scipy`
 
-`scipy` skips Python overhead entirely by calling `rust_quad_ker` via a `LowLevelCallable` C function pointer. Rust handles the anomalous dimensions but then delegates back out to Numba callbacks for the evolution operator matrix, before returning to Rust and finally to `scipy`.
-
-The short-term direction is to invert the middle portion, i.e. moving to `scipy → Numba → Rust → Numba → scipy` to avoid code duplication, keeping the Numba as the primary entry point while Rust handles anomalous dimensions.
+`scipy.integrate.quad` receives `quad_ker_ad` — a Numba `@njit`-compiled function wrapped via `functools.partial` — as a plain Python callable. Numba is the primary entry point into the integration kernel. Rust is reached from within Numba via `nb.objmode` blocks, which temporarily exit the compiled context to call the `ekors` PyO3 native extension module for the anomalous dimensions. Control then returns to Numba for the evolution operator matrix computation before the final scalar is handed back to `scipy`.
 
 The long-term goal is to grow the Rust portion until it replaces Numba entirely: `scipy → Rust → scipy`.
 
@@ -126,7 +128,7 @@ The long-term goal is to grow the Rust portion until it replaces Numba entirely:
 
 `ekore` provides user-facing entry points into the anomalous dimensions and operator matrix elements, for example [`ad.u.s.gamma_ns_qcd`](https://github.com/NNPDF/eko/blob/ba40d2be721b647b82259bb998c69bc7feedd1dd/crates/ekore/src/anomalous_dimensions/unpolarized/spacelike.rs#L22), which assembles the underlying mathematical ingredients (the "bottom" layer of actual math implementations).
 
-The `eko` Python library accesses the `ekore` Rust library through the `eko` Rust library. In the Rust workflow, `lib.rs` acts as the bridge between Python and Rust, with the integrand selection delegated to Rust via `cfg`.
+The `eko` Python library accesses the `ekore` Rust library through the `ekors` PyO3 native extension module. `crates/eko/src/lib.rs` exposes four functions (`qcd_gamma_singlet`, `qcd_gamma_ns`, `ome_singlet`, and `ome_non_singlet`) called from within Numba `@njit` functions via `nb.objmode` blocks.
 
 The user-facing entry points of `ekore` are the primary focus of [#519](https://github.com/NNPDF/eko/issues/519), which tracks adding and testing C/C++ and Fortran interfaces to the Rust library.
 

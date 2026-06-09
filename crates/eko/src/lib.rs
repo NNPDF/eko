@@ -81,16 +81,10 @@ fn unravel_qed_ns(res: Vec<Vec<Complex<f64>>>, order_qcd: usize, order_qed: usiz
     target
 }
 
-/// Type for qcd gamma singlet return
-type GammaQCDSinglet = PyResult<(Py<PyArray1<f64>>, Py<PyArray1<f64>>)>;
+/// Type for list of complex numbers (real + imaginary part)
+type ComplexResult = PyResult<(Py<PyArray1<f64>>, Py<PyArray1<f64>>)>;
 
-/// Type for qcd gamma ns return
-type GammaQCDNS = PyResult<(Py<PyArray1<f64>>, Py<PyArray1<f64>>)>;
-
-/// Type for OME return values.
-type OmeResult = PyResult<(Py<PyArray1<f64>>, Py<PyArray1<f64>>)>;
-
-// TODO: once the Rust kernels grows we take be the computation of the integration path back to here
+// TODO: once the Rust kernels grow we take the computation of the integration path back to here
 // in the old implementation it was ~
 // // prepare Mellin stuff
 // let path = mellin::TalbotPath::new(u, args.logx, is_singlet);
@@ -112,7 +106,7 @@ pub fn qcd_gamma_singlet(
     im_n: f64,
     nf: u8,
     variations: [u8; 4],
-) -> GammaQCDSinglet {
+) -> ComplexResult {
     if is_polarized && is_time_like {
         return Err(pyo3::exceptions::PyNotImplementedError::new_err(
             "Polarized time-like is not implemented",
@@ -159,7 +153,7 @@ pub fn qcd_gamma_ns(
     nf: u8,
     variations: [u8; 3],
     _use_fhmruvv: bool, // TODO
-) -> GammaQCDNS {
+) -> ComplexResult {
     if is_polarized && is_time_like {
         return Err(pyo3::exceptions::PyNotImplementedError::new_err(
             "Polarized time-like is not implemented",
@@ -207,7 +201,7 @@ pub fn ome_singlet(
     nf: u8,
     l: f64,
     _is_msbar: bool,
-) -> OmeResult {
+) -> ComplexResult {
     if is_polarized && is_time_like {
         return Err(pyo3::exceptions::PyNotImplementedError::new_err(
             "Polarized time-like OME singlet is not implemented",
@@ -249,7 +243,7 @@ pub fn ome_non_singlet(
     im_n: f64,
     nf: u8,
     l: f64,
-) -> OmeResult {
+) -> ComplexResult {
     if is_polarized && is_time_like {
         return Err(pyo3::exceptions::PyNotImplementedError::new_err(
             "Polarized time-like OME non-singlet is not implemented",
