@@ -23,6 +23,7 @@ Items without prefix refer to a global change.
 
 ### Changed
 - py: Moved all quad kernels to quad_ker.py
+- Reorganize Python / Rust interface: Rust is now called inside numba (and not the inverse). This also simplified the Rust patch
 
 ### Removed
 - rust: Drop CFFI and Python callback interface in favour of PyO3 bindings
