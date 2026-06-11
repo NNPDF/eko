@@ -17,6 +17,8 @@ Items without prefix refer to a global change.
 
 ### Changed
 - py: Implement support for Python 3.14, dropping Python 3.10 ([#528](https://github.com/NNPDF/eko/pull/528))
+- rust: Make maturin a dev-dependency and use it directly for compilation ([#528](https://github.com/NNPDF/eko/pull/528))
+
 
 ### Fixed
 - rust: Fix and improve publication of Rust crates ([#522](https://github.com/NNPDF/eko/pull/522))
