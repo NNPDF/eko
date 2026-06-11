@@ -15,6 +15,9 @@ Items without prefix refer to a global change.
 
 ## [Unreleased](https://github.com/NNPDF/eko/compare/v0.15.3...HEAD)
 
+### Changed
+- py: Implement support for Python 3.14, dropping Python 3.10 ([#528](https://github.com/NNPDF/eko/pull/528))
+
 ### Fixed
 - rust: Fix and improve publication of Rust crates ([#522](https://github.com/NNPDF/eko/pull/522))
 
