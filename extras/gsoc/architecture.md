@@ -138,7 +138,7 @@ kernels/singlet.py | non_singlet.py | ...  →  evolution operator matrix
 f64 returned to scipy
 ```
 
-**Flow:** `scipy → → Rust → Numba → scipy`
+**Flow:** `scipy → Numba → Rust → Numba → scipy`
 
 Benchmarked against the master baseline using `poe lha -m nnlo and sv`, this approach was significantly worse on both metrics. See [performance.md](./performance.md) for the full numbers; the key comparison is:
 
@@ -158,7 +158,7 @@ In the master architecture all hot-path `cfunc`s have `cache=True`, so Numba wri
 
 #### Time regression (~3× per quad call)
 
-The overhead is structural. On every `integrate.quad` node evaluation had a lot of overhead (see [performance.md](./performance.md)). This added several milliseconds of fixed overhead per node which amplifies into a large total regression.
+The overhead is structural. Every `integrate.quad` node evaluation incurs substantial fixed overhead (see [performance.md](./performance.md)), adding several milliseconds per node which amplifies into a large total regression.
 
 In the master architecture, QUADPACK calls a pure Rust C function directly via LLC. Rust pre-computes the Talbot path and anomalous dimensions before handing already-prepared values to the Numba callback, so the per-call cost stays low.
 
