@@ -5,7 +5,7 @@ build-backend = "maturin"
 [project]
 name = "eko-rs"
 version = "0.0.0"
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 classifiers = [
   "Programming Language :: Rust",
   "Programming Language :: Python :: Implementation :: CPython",
