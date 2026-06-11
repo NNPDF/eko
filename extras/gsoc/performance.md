@@ -46,7 +46,7 @@ This runs 3 integration tests filtered to `nnlo and sv`, which is sufficiently c
 
 ### Per-column integration timing
 
-`run_op_integration` is called once per output x-grid point. The column index corresponds to the position in the 60-point x-grid; fewer `quad` calls per column toward the end reflects the near-triangular sparsity of the operator matrix (a mathematical feature of the DGLAP master equation combined with Lagrange interpolation, see `architecture.md §7`).
+`run_op_integration` is called once per output x-grid point. The column index corresponds to the position in the 60-point x-grid; fewer `quad` calls per column toward the end reflects the near-triangular sparsity of the operator matrix (a mathematical feature of the DGLAP master equation combined with Lagrange interpolation, see [architecture.md §7](./architecture.md#7-linear-algebra-and-interpolation)).
 
 ```text
 Evolution: col 1/60 | total=0.743s quad=0.728s(420 calls, 1.73ms/call) setup=0.000s misc=0.014s
@@ -119,7 +119,7 @@ Evolution: col 60/60 | total=0.001s quad=0.000s(0 calls, 0.00ms/call) setup=0.00
 
 ### Comparison with baseline
 
-| Metric | Baseline (`2c49156`) | [526](https://github.com/NNPDF/eko/pull/526) + cfunc/LLC | Ratio |
+| Metric | Baseline (`2c49156...`) | [526](https://github.com/NNPDF/eko/pull/526) + cfunc/LLC | Ratio |
 | ------------------------------- | ---------------------- | ---------------------- | --------- |
 | Wall clock time | 11:16 | 20:24 | ~1.8× |
 | User CPU time | 667 s | 1215 s | ~1.8× |
@@ -157,4 +157,4 @@ This adds a fixed overhead of several milliseconds on every `integrate.quad` nod
 
 ### Decision
 
-The `nb → rs → nb` architecture introduced in [526](https://github.com/NNPDF/eko/pull/526) was not viable, hence the PR was closed. The preferred short-term path remains `scipy → Rust → Numba → Rust → scipy`. See `architecture.md §5` for the full discussion.
+The `nb → rs → nb` architecture introduced in [526](https://github.com/NNPDF/eko/pull/526) was not viable, hence the PR was closed. The preferred short-term path remains `scipy → Rust → Numba → Rust → scipy`. See [architecture.md §5](./architecture.md#5-scipyintegratequad) for the full discussion.

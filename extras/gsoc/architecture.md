@@ -116,9 +116,53 @@ f64 returned to scipy
 
 `scipy` skips Python overhead entirely by calling `rust_quad_ker` via a `LowLevelCallable` C function pointer. Rust handles the anomalous dimensions but then delegates back out to Numba callbacks for the evolution operator matrix, before returning to Rust and finally to `scipy`.
 
-The short-term direction is to invert the middle portion, i.e. moving to `scipy → Numba → Rust → Numba → scipy` to avoid code duplication, keeping the Numba as the primary entry point while Rust handles anomalous dimensions.
-
 The long-term goal is to grow the Rust portion until it replaces Numba entirely: `scipy → Rust → scipy`.
+
+### 5.3 Attempted optimisation: LowLevelCallable with nb.cfunc (#526)
+
+During [526](https://github.com/NNPDF/eko/pull/526) an attempt was made to invert the call chain, i.e. replacing the architecture with `scipy → Numba → Rust → Numba` by wrapping the top-level kernel in `nb.cfunc` and passing it to `scipy` via `LowLevelCallable`. The intended chain was:
+
+```text
+scipy.integrate.quad(LowLevelCallable(quad_ker_llc, &cfg), 0.5, 1-ε)
+       ↓  scipy's Fortran/C backend calls the C function pointer directly
+quad_ker_llc(u, *args)  [nb.cfunc]
+       ↓
+QuadKerBase  →  integrand
+       ↓  ctypes call into Rust
+ekors.qcd_gamma_singlet / ekors.qcd_gamma_ns  [crates/eko/src/lib.rs]
+       ↓
+ekore Rust  →  anomalous dimensions
+       ↓  back to Numba
+kernels/singlet.py | non_singlet.py | ...  →  evolution operator matrix
+       ↓
+f64 returned to scipy
+```
+
+**Flow:** `scipy → → Rust → Numba → scipy`
+
+Benchmarked against the master baseline using `poe lha -m nnlo and sv`, this approach was significantly worse on both metrics. See [performance.md](./performance.md) for the full numbers; the key comparison is:
+
+| Metric | Master (rs → nb → rs) | #526 (nb → rs → nb) | Ratio |
+| --- | --- | --- | --- |
+| Wall clock | 11:16 | 20:24 | ~1.8× |
+| Peak RSS | 616 MB | 1953 MB | ~3.2× |
+| Avg. quad cost/call | ~1.5 ms | ~5 ms | ~3.3× |
+
+Two root causes were identified.
+
+#### Memory regression (~3×)
+
+When Numba compiles `_quad_ker_llc` it compiles the entire call graph in one pass, producing a compiled unit of approximately 1 GB. More critically, any function that holds a `ctypes` function pointer cannot use `cache=True` because `ctypes` addresses are process-specific.
+
+In the master architecture all hot-path `cfunc`s have `cache=True`, so Numba writes compiled artifacts to disk and releases the in-memory copies after startup. With the LLC path, all LLVM IR, typed IR, and machine code stay resident for the full process lifetime.
+
+#### Time regression (~3× per quad call)
+
+The overhead is structural. On every `integrate.quad` node evaluation had a lot of overhead (see [performance.md](./performance.md)). This added several milliseconds of fixed overhead per node which amplifies into a large total regression.
+
+In the master architecture, QUADPACK calls a pure Rust C function directly via LLC. Rust pre-computes the Talbot path and anomalous dimensions before handing already-prepared values to the Numba callback, so the per-call cost stays low.
+
+**Decision:** [526](https://github.com/NNPDF/eko/pull/526) was not merged. The `Numba → Rust → Numba` pattern is not viable for this workload.
 
 ---
 
