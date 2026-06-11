@@ -1,8 +1,5 @@
 #!/usr/bin/env bash
 
-# git diff --merge-base master pyproject.toml > pyproject.toml.patch
-patch -p1 <pyproject.toml.patch
-
 # git diff --merge-base master src/eko/evolution_operator/quad_ker.py > src/eko/evolution_operator/quad_ker.py.patch
 patch -p1 <src/eko/evolution_operator/quad_ker.py.patch
 
