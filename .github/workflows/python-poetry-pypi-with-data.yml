@@ -5,7 +5,7 @@ on:
     inputs:
       python-version:
         type: string
-        default: "3.10"
+        default: "3.14"
         required: false
         description: >
           Python version used to test and build the package
