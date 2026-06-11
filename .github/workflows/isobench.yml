@@ -7,12 +7,6 @@ jobs:
     name: 🏝️ Isolated Benchmarks
     runs-on: ubuntu-latest
 
-    container:
-      image: ghcr.io/n3pdf/bench-evol:v2
-      credentials:
-        username: ${{ github.repository_owner }}
-        password: ${{ secrets.GITHUB_TOKEN }}
-
     steps:
       - uses: actions/checkout@v2
         with:
@@ -27,9 +21,8 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.14"
-
       - name: Use Python 3.14
-        run: poetry env use 3.14
+        run: poetry env use ${{ env.pythonLocation }}/bin/python
       - name: Install project
         run: |
           poetry install --no-interaction --with test -E mark -E box
