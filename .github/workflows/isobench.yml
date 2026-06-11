@@ -44,3 +44,10 @@ jobs:
           flags: isobench
           name: codecov-umbrella
           fail_ci_if_error: false
+      - name: Install Python 3.14
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+
+      - name: Use Python 3.14
+        run: poetry env use 3.14
