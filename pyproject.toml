@@ -81,6 +81,7 @@ ipython = "^8.0"
 # benchmark
 virtualenv = "^20.13.2"
 devtools = "^0.10.0"
+maturin = "^1.1"
 
 [tool.poetry.group.version.dependencies]
 tomlkit = "^0.12.5"
@@ -147,7 +148,7 @@ docs-clean = { "shell" = "cd doc; make clean" }
 docs-cleanall = { "shell" = "cd doc; make cleanall" }
 docs-install-nb = { "shell" = "python -m ipykernel install --user --name=$(basename $(poetry env info -p))" }
 bump-version = { "shell" = "python crates/bump-versions.py $(git describe --tags)" }
-compile = "pip install -e crates/eko/"
+compile = "maturin develop --manifest-path crates/eko/Cargo.toml"
 rdocs.cmd = "cargo doc --workspace --no-deps"
 rdocs.env = { RUSTDOCFLAGS = "--html-in-header crates/doc-header.html" }
 rdocs-view = "xdg-open target/doc/ekors/index.html"
