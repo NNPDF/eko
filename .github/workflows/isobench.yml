@@ -12,17 +12,17 @@ jobs:
         with:
           # tags needed for dynamic versioning
           fetch-depth: 0
-      - name: Install Python 3.14
+      - name: Install Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.14"
+          python-version: ${{ vars.PYTHON_VERSION_WORKFLOWS }}
       - name: Install and configure Poetry
         uses: snok/install-poetry@v1
         with:
           virtualenvs-create: true
           virtualenvs-in-project: true
           installer-parallel: true
-      - name: Use Python 3.14
+      - name: Use Python
         run: poetry env use ${{ env.pythonLocation }}/bin/python
       - name: Install project
         run: |
