@@ -192,7 +192,7 @@ class QuadKerBase:
         is a logarithmic interpolation
     logx : float
         Mellin inversion point
-    mode0 : str
+    mode0 : int
         first sector element
     """
 
@@ -214,7 +214,7 @@ class QuadKerBase:
 
     @property
     def n(self):
-        """Returs the Mellin moment :math:`N`."""
+        """Returns the Mellin moment :math:`N`."""
         return self.path.n
 
     def integrand(
@@ -287,13 +287,11 @@ def quad_ker_ad(
         Mellin inversion point
     areas : tuple
         basis function configuration
-    as1 : float
-        target coupling value
-    as0 : float
-        initial coupling value
+    as_list : numpy.ndarray
+        list of strong coupling values
     mu2_from : float
         initial value of mu2
-    mu2_from : float
+    mu2_to : float
         final value of mu2
     aem_list : list
         list of electromagnetic coupling values
@@ -699,7 +697,7 @@ def quad_ker_ome(
         number of active flavor below threshold
     L : float
         :math:``\ln(\mu_F^2 / m_h^2)``
-    backward_method : InversionMethod or None
+    backward_method : MatchingMethods
         empty or method for inverting the matching condition (exact or expanded)
     is_msbar: bool
         add the |MSbar| contribution
