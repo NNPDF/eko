@@ -7,22 +7,23 @@ jobs:
     name: 🏝️ Isolated Benchmarks
     runs-on: ubuntu-latest
 
-    container:
-      image: ghcr.io/n3pdf/bench-evol:v2
-      credentials:
-        username: ${{ github.repository_owner }}
-        password: ${{ secrets.GITHUB_TOKEN }}
-
     steps:
       - uses: actions/checkout@v2
         with:
           # tags needed for dynamic versioning
           fetch-depth: 0
+      - name: Install Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ vars.PYTHON_VERSION_WORKFLOWS }}
       - name: Install and configure Poetry
         uses: snok/install-poetry@v1
         with:
-          virtualenvs-create: false
+          virtualenvs-create: true
+          virtualenvs-in-project: true
           installer-parallel: true
+      - name: Use Python
+        run: poetry env use ${{ env.pythonLocation }}/bin/python
       - name: Install project
         run: |
           poetry install --no-interaction --with test -E mark -E box
