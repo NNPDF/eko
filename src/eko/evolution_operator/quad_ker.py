@@ -23,7 +23,6 @@ from ..kernels import valence_qed as qed_v
 from ..matchings import lepton_number
 from ..scale_variations import expanded as sv_expanded
 from ..scale_variations import exponentiated as sv_exponentiated
-from ..scale_variations.exponentiated import gamma_variation
 
 logger = logging.getLogger(__name__)
 
@@ -247,7 +246,7 @@ def quad_ker_ad(
     order,
     mode0,
     mode1,
-    method,
+    ev_method,
     is_log,
     logx,
     areas,
@@ -257,7 +256,7 @@ def quad_ker_ad(
     a_half,
     alphaem_running,
     nf,
-    L,
+    Lsv,
     ev_op_iterations,
     ev_op_max_order,
     sv_mode,
@@ -279,8 +278,8 @@ def quad_ker_ad(
         pid for first sector element
     mode1 : int
         pid for second sector element
-    method : str
-        method
+    ev_method : str
+        ev_method
     is_log : boolean
         is a logarithmic interpolation
     logx : float
@@ -299,7 +298,7 @@ def quad_ker_ad(
         whether alphaem is running or not
     nf : int
         number of active flavors
-    L : float
+    Lsv : float
         logarithm of the squared ratio of factorization and renormalization scale
     ev_op_iterations : int
         number of evolution steps
@@ -333,11 +332,11 @@ def quad_ker_ad(
             order,
             mode0,
             mode1,
-            method,
+            ev_method,
             as_list[-1],
             as_list[0],
             nf,
-            L,
+            Lsv,
             ev_op_iterations,
             ev_op_max_order,
             sv_mode,
@@ -353,14 +352,14 @@ def quad_ker_ad(
             order,
             mode0,
             mode1,
-            method,
+            ev_method,
             as_list,
             mu2_from,
             mu2_to,
             a_half,
             alphaem_running,
             nf,
-            L,
+            Lsv,
             ev_op_iterations,
             ev_op_max_order,
             sv_mode,
@@ -379,11 +378,11 @@ def quad_ker_qcd(
     order,
     mode0,
     mode1,
-    method,
+    ev_method,
     as1,
     as0,
     nf,
-    L,
+    Lsv,
     ev_op_iterations,
     ev_op_max_order,
     sv_mode,
@@ -405,15 +404,15 @@ def quad_ker_qcd(
         pid for first sector element
     mode1 : int
         pid for second sector element
-    method : str
-        method
+    ev_method : str
+        ev_method
     as1 : float
         target coupling value
     as0 : float
         initial coupling value
     nf : int
         number of active flavors
-    L : float
+    Lsv : float
         logarithm of the squared ratio of factorization and renormalization scale
     ev_op_iterations : int
         number of evolution steps
@@ -450,11 +449,11 @@ def quad_ker_qcd(
         # scale var exponentiated is directly applied on gamma
         if sv_mode == sv.Modes.exponentiated:
             gamma_singlet = sv_exponentiated.gamma_variation(
-                gamma_singlet, order, nf, L
+                gamma_singlet, order, nf, Lsv
             )
         ker = s.dispatcher(
             order,
-            method,
+            ev_method,
             gamma_singlet,
             as1,
             as0,
@@ -465,7 +464,7 @@ def quad_ker_qcd(
         # scale var expanded is applied on the kernel
         if sv_mode == sv.Modes.expanded and not is_threshold:
             ker = np.ascontiguousarray(
-                sv_expanded.singlet_variation(gamma_singlet, as1, order, nf, L, dim=2)
+                sv_expanded.singlet_variation(gamma_singlet, as1, order, nf, Lsv, dim=2)
             ) @ np.ascontiguousarray(ker)
         ker = select_singlet_element(ker, mode0, mode1)
     else:
@@ -482,17 +481,17 @@ def quad_ker_qcd(
                     order, mode0, ker_base.n, nf, n3lo_ad_variation, use_fhmruvv
                 )
         if sv_mode == sv.Modes.exponentiated:
-            gamma_ns = sv_exponentiated.gamma_variation(gamma_ns, order, nf, L)
+            gamma_ns = sv_exponentiated.gamma_variation(gamma_ns, order, nf, Lsv)
         ker = ns.dispatcher(
             order,
-            method,
+            ev_method,
             gamma_ns,
             as1,
             as0,
             nf,
         )
         if sv_mode == sv.Modes.expanded and not is_threshold:
-            ker = sv_expanded.non_singlet_variation(gamma_ns, as1, order, nf, L) * ker
+            ker = sv_expanded.non_singlet_variation(gamma_ns, as1, order, nf, Lsv) * ker
     return ker
 
 
@@ -502,14 +501,14 @@ def quad_ker_qed(
     order,
     mode0,
     mode1,
-    method,
+    ev_method,
     as_list,
     mu2_from,
     mu2_to,
     a_half,
     alphaem_running,
     nf,
-    L,
+    Lsv,
     ev_op_iterations,
     ev_op_max_order,
     sv_mode,
@@ -529,8 +528,8 @@ def quad_ker_qed(
         pid for first sector element
     mode1 : int
         pid for second sector element
-    method : str
-        method
+    ev_method : str
+        ev_method
     as1 : float
         target coupling value
     as0 : float
@@ -545,7 +544,7 @@ def quad_ker_qed(
         whether alphaem is running or not
     nf : int
         number of active flavors
-    L : float
+    Lsv : float
         logarithm of the squared ratio of factorization and renormalization scale
     ev_op_iterations : int
         number of evolution steps
@@ -573,11 +572,11 @@ def quad_ker_qed(
         # scale var exponentiated is directly applied on gamma
         if sv_mode == sv.Modes.exponentiated:
             gamma_s = sv_exponentiated.gamma_variation_qed(
-                gamma_s, order, nf, lepton_number(mu2_to), L, alphaem_running
+                gamma_s, order, nf, lepton_number(mu2_to), Lsv, alphaem_running
             )
         ker = qed_s.dispatcher(
             order,
-            method,
+            ev_method,
             gamma_s,
             as_list,
             a_half,
@@ -592,7 +591,7 @@ def quad_ker_qed(
         if sv_mode == sv.Modes.expanded and not is_threshold:
             ker = np.ascontiguousarray(
                 sv_expanded.singlet_variation_qed(
-                    gamma_s, as_list[-1], a_half[-1][1], alphaem_running, order, nf, L
+                    gamma_s, as_list[-1], a_half[-1][1], alphaem_running, order, nf, Lsv
                 )
             ) @ np.ascontiguousarray(ker)
         ker = select_QEDsinglet_element(ker, mode0, mode1)
@@ -603,11 +602,11 @@ def quad_ker_qed(
         # scale var exponentiated is directly applied on gamma
         if sv_mode == sv.Modes.exponentiated:
             gamma_v = sv_exponentiated.gamma_variation_qed(
-                gamma_v, order, nf, lepton_number(mu2_to), L, alphaem_running
+                gamma_v, order, nf, lepton_number(mu2_to), Lsv, alphaem_running
             )
         ker = qed_v.dispatcher(
             order,
-            method,
+            ev_method,
             gamma_v,
             as_list,
             a_half,
@@ -619,7 +618,7 @@ def quad_ker_qed(
         if sv_mode == sv.Modes.expanded and not is_threshold:
             ker = np.ascontiguousarray(
                 sv_expanded.valence_variation_qed(
-                    gamma_v, as_list[-1], a_half[-1][1], alphaem_running, order, nf, L
+                    gamma_v, as_list[-1], a_half[-1][1], alphaem_running, order, nf, Lsv
                 )
             ) @ np.ascontiguousarray(ker)
         ker = select_QEDvalence_element(ker, mode0, mode1)
@@ -630,11 +629,11 @@ def quad_ker_qed(
         # scale var exponentiated is directly applied on gamma
         if sv_mode == sv.Modes.exponentiated:
             gamma_ns = sv_exponentiated.gamma_variation_qed(
-                gamma_ns, order, nf, lepton_number(mu2_to), L, alphaem_running
+                gamma_ns, order, nf, lepton_number(mu2_to), Lsv, alphaem_running
             )
         ker = qed_ns.dispatcher(
             order,
-            method,
+            ev_method,
             gamma_ns,
             as_list,
             a_half[:, 1],
@@ -647,7 +646,13 @@ def quad_ker_qed(
         if sv_mode == sv.Modes.expanded and not is_threshold:
             ker = (
                 sv_expanded.non_singlet_variation_qed(
-                    gamma_ns, as_list[-1], a_half[-1][1], alphaem_running, order, nf, L
+                    gamma_ns,
+                    as_list[-1],
+                    a_half[-1][1],
+                    alphaem_running,
+                    order,
+                    nf,
+                    Lsv,
                 )
                 * ker
             )
@@ -741,7 +746,7 @@ def quad_ker_ome(
 
     # correct for scale variations
     if sv_mode == sv.Modes.exponentiated:
-        A = gamma_variation(A, order, nf, Lsv)
+        A = sv_exponentiated.gamma_variation(A, order, nf, Lsv)
 
     # build the expansion in alpha_s depending on the strategy
     ker = build_ome(A, order, a_s, backward_method)

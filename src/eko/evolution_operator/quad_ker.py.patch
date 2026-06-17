@@ -1,8 +1,8 @@
 diff --git a/src/eko/evolution_operator/quad_ker.py b/src/eko/evolution_operator/quad_ker.py
-index 2f60975b..a2308d90 100644
+index 137ff7ec..57d7359f 100644
 --- a/src/eko/evolution_operator/quad_ker.py
 +++ b/src/eko/evolution_operator/quad_ker.py
-@@ -6,15 +6,9 @@ import logging
+@@ -6,14 +6,7 @@ import logging
  import numba as nb
  import numpy as np
 
@@ -16,43 +16,9 @@ index 2f60975b..a2308d90 100644
 -from .. import interpolation, mellin
 +from .. import interpolation
  from .. import scale_variations as sv
-+from ..io.types import InversionMethod
  from ..kernels import non_singlet as ns
  from ..kernels import non_singlet_qed as qed_ns
- from ..kernels import singlet as s
-@@ -23,7 +17,6 @@ from ..kernels import valence_qed as qed_v
- from ..matchings import lepton_number
- from ..scale_variations import expanded as sv_expanded
- from ..scale_variations import exponentiated as sv_exponentiated
--from ..scale_variations.exponentiated import gamma_variation
-
- logger = logging.getLogger(__name__)
-
-@@ -130,7 +123,7 @@ def build_ome(A, matching_order, a_s, backward_method):
-         perturbation matching order
-     a_s : float
-         strong coupling, needed only for the exact inverse
--    backward_method : MatchingMethods
-+    backward_method : InversionMethod or None
-         empty or method for inverting the matching condition (exact or expanded)
-
-     Returns
-@@ -148,7 +141,7 @@ def build_ome(A, matching_order, a_s, backward_method):
-     ome = np.eye(len(A[0]), dtype=np.complex128)
-     A = A[:, :, :]
-     A = np.ascontiguousarray(A)
--    if backward_method is MatchingMethods.BACKWARD_EXPANDED:
-+    if backward_method is InversionMethod.EXPANDED:
-         # expended inverse
-         if matching_order[0] >= 1:
-             ome -= a_s * A[0]
-@@ -165,298 +158,110 @@ def build_ome(A, matching_order, a_s, backward_method):
-         if matching_order[0] >= 3:
-             ome += a_s**3 * A[2]
-         # need inverse exact ?  so add the missing pieces
--        if backward_method is MatchingMethods.BACKWARD_EXACT:
-+        if backward_method is InversionMethod.EXACT:
-             ome = np.linalg.inv(ome)
+@@ -169,228 +162,82 @@ def build_ome(A, matching_order, a_s, backward_method):
      return ome
 
 
@@ -78,7 +44,7 @@ index 2f60975b..a2308d90 100644
 -        is a logarithmic interpolation
 -    logx : float
 -        Mellin inversion point
--    mode0 : str
+-    mode0 : int
 -        first sector element
 -    """
 -
@@ -100,7 +66,7 @@ index 2f60975b..a2308d90 100644
 -
 -    @property
 -    def n(self):
--        """Returs the Mellin moment :math:`N`."""
+-        """Returns the Mellin moment :math:`N`."""
 -        return self.path.n
 -
 -    def integrand(
@@ -185,7 +151,7 @@ index 2f60975b..a2308d90 100644
 +    is_singlet,
      mode0,
      mode1,
--    method,
+-    ev_method,
 +    nf,
      is_log,
      logx,
@@ -196,7 +162,7 @@ index 2f60975b..a2308d90 100644
 -    a_half,
 -    alphaem_running,
 -    nf,
--    L,
+-    Lsv,
 -    ev_op_iterations,
 -    ev_op_max_order,
 -    sv_mode,
@@ -218,21 +184,19 @@ index 2f60975b..a2308d90 100644
 -        pid for first sector element
 -    mode1 : int
 -        pid for second sector element
--    method : str
--        method
+-    ev_method : str
+-        ev_method
 -    is_log : boolean
 -        is a logarithmic interpolation
 -    logx : float
 -        Mellin inversion point
 -    areas : tuple
 -        basis function configuration
--    as1 : float
--        target coupling value
--    as0 : float
--        initial coupling value
+-    as_list : numpy.ndarray
+-        list of strong coupling values
 -    mu2_from : float
 -        initial value of mu2
--    mu2_from : float
+-    mu2_to : float
 -        final value of mu2
 -    aem_list : list
 -        list of electromagnetic coupling values
@@ -240,7 +204,7 @@ index 2f60975b..a2308d90 100644
 -        whether alphaem is running or not
 -    nf : int
 -        number of active flavors
--    L : float
+-    Lsv : float
 -        logarithm of the squared ratio of factorization and renormalization scale
 -    ev_op_iterations : int
 -        number of evolution steps
@@ -274,11 +238,11 @@ index 2f60975b..a2308d90 100644
 -            order,
 -            mode0,
 -            mode1,
--            method,
+-            ev_method,
 -            as_list[-1],
 -            as_list[0],
 -            nf,
--            L,
+-            Lsv,
 -            ev_op_iterations,
 -            ev_op_max_order,
 -            sv_mode,
@@ -294,14 +258,14 @@ index 2f60975b..a2308d90 100644
 -            order,
 -            mode0,
 -            mode1,
--            method,
+-            ev_method,
 -            as_list,
 -            mu2_from,
 -            mu2_to,
 -            a_half,
 -            alphaem_running,
 -            nf,
--            L,
+-            Lsv,
 -            ev_op_iterations,
 -            ev_op_max_order,
 -            sv_mode,
@@ -320,15 +284,14 @@ index 2f60975b..a2308d90 100644
 -    order,
 -    mode0,
 -    mode1,
--    method,
 +    areas_raw,
 +    areas_x,
 +    areas_y,
-+    ev_method,
+     ev_method,
      as1,
      as0,
 -    nf,
--    L,
+-    Lsv,
      ev_op_iterations,
 -    ev_op_max_order,
 +    ev_op_max_order_qcd,
@@ -348,46 +311,12 @@ index 2f60975b..a2308d90 100644
 +    _a_half_y,
 +    _alphaem_running,
  ):
--    """Raw evolution kernel inside quad.
--
--    Parameters
--    ----------
--    quad_ker : float
--        quad argument
--    order : int
--        perturbation order
--    mode0: int
--        pid for first sector element
--    mode1 : int
--        pid for second sector element
--    method : str
--        method
--    as1 : float
--        target coupling value
--    as0 : float
--        initial coupling value
--    nf : int
--        number of active flavors
--    L : float
--        logarithm of the squared ratio of factorization and renormalization scale
--    ev_op_iterations : int
--        number of evolution steps
--    ev_op_max_order : int
--        perturbative expansion order of U
--    sv_mode: int, `enum.IntEnum`
--        scale variation mode, see `eko.scale_variations.Modes`
--    is_threshold : boolean
--        is this an itermediate threshold operator?
--    n3lo_ad_variation : tuple
--        |N3LO| anomalous dimension variation ``(gg, gq, qg, qq, nsp, nsm, nsv)``
--    use_fhmruvv : bool
--        if True use the |FHMRUVV| |N3LO| anomalous dimensions
--
--    Returns
--    -------
--    float
--        evaluated integration kernel
--    """
+     """Raw evolution kernel inside quad.
+
+@@ -432,20 +279,19 @@ def quad_ker_qcd(
+     float
+         evaluated integration kernel
+     """
 -    # compute the actual evolution kernel for pure QCD
 -    if ker_base.is_singlet:
 -        if is_polarized:
@@ -402,8 +331,6 @@ index 2f60975b..a2308d90 100644
 -                gamma_singlet = ad_us.gamma_singlet(
 -                    order, ker_base.n, nf, n3lo_ad_variation, use_fhmruvv
 -                )
--        # scale var exponentiated is directly applied on gamma
-+    """C Callback inside integration kernel."""
 +    # recover complex variables
 +    n = re_n + im_n * 1j
 +    jac = re_jac + im_jac * 1j
@@ -417,25 +344,10 @@ index 2f60975b..a2308d90 100644
 +        re_gamma_singlet = nb.carray(re_gamma_raw, (order_qcd, 2, 2))
 +        im_gamma_singlet = nb.carray(im_gamma_raw, (order_qcd, 2, 2))
 +        gamma_singlet = re_gamma_singlet + im_gamma_singlet * 1j
+         # scale var exponentiated is directly applied on gamma
          if sv_mode == sv.Modes.exponentiated:
              gamma_singlet = sv_exponentiated.gamma_variation(
--                gamma_singlet, order, nf, L
-+                gamma_singlet, order, nf, Lsv
-             )
-+        # construct eko
-         ker = s.dispatcher(
-             order,
--            method,
-+            ev_method,
-             gamma_singlet,
-             as1,
-             as0,
-@@ -467,150 +272,136 @@ def quad_ker_qcd(
-         # scale var expanded is applied on the kernel
-         if sv_mode == sv.Modes.expanded and not is_threshold:
-             ker = np.ascontiguousarray(
--                sv_expanded.singlet_variation(gamma_singlet, as1, order, nf, L, dim=2)
-+                sv_expanded.singlet_variation(gamma_singlet, as1, order, nf, Lsv, dim=2)
+@@ -468,18 +314,10 @@ def quad_ker_qcd(
              ) @ np.ascontiguousarray(ker)
          ker = select_singlet_element(ker, mode0, mode1)
      else:
@@ -456,20 +368,12 @@ index 2f60975b..a2308d90 100644
 +        im_gamma_ns = nb.carray(im_gamma_raw, order_qcd)
 +        gamma_ns = re_gamma_ns + im_gamma_ns * 1j
          if sv_mode == sv.Modes.exponentiated:
--            gamma_ns = sv_exponentiated.gamma_variation(gamma_ns, order, nf, L)
-+            gamma_ns = sv_exponentiated.gamma_variation(gamma_ns, order, nf, Lsv)
-+        # construct eko
+             gamma_ns = sv_exponentiated.gamma_variation(gamma_ns, order, nf, Lsv)
          ker = ns.dispatcher(
-             order,
--            method,
-+            ev_method,
-             gamma_ns,
-             as1,
-             as0,
-             nf,
+@@ -492,29 +330,50 @@ def quad_ker_qcd(
          )
          if sv_mode == sv.Modes.expanded and not is_threshold:
--            ker = sv_expanded.non_singlet_variation(gamma_ns, as1, order, nf, L) * ker
+             ker = sv_expanded.non_singlet_variation(gamma_ns, as1, order, nf, Lsv) * ker
 -    return ker
 -
 -
@@ -477,7 +381,6 @@ index 2f60975b..a2308d90 100644
 -def quad_ker_qed(
 -    ker_base,
 -    order,
-+            ker = sv_expanded.non_singlet_variation(gamma_ns, as1, order, nf, Lsv) * ker
 +    # recombine everything
 +    res = ker * pj * jac
 +    return np.real(res)
@@ -500,14 +403,14 @@ index 2f60975b..a2308d90 100644
 +    is_singlet,
      mode0,
      mode1,
--    method,
+-    ev_method,
 -    as_list,
 -    mu2_from,
 -    mu2_to,
 -    a_half,
 -    alphaem_running,
      nf,
--    L,
+-    Lsv,
 +    is_log,
 +    logx,
 +    areas_raw,
@@ -533,49 +436,17 @@ index 2f60975b..a2308d90 100644
 +    a_half_y,
 +    alphaem_running,
  ):
--    """Raw evolution kernel inside quad.
--
--    Parameters
--    ----------
--    ker_base : QuadKerBase
--        quad argument
--    order : int
--        perturbation order
--    mode0: int
--        pid for first sector element
--    mode1 : int
--        pid for second sector element
--    method : str
--        method
--    as1 : float
--        target coupling value
--    as0 : float
--        initial coupling value
--    mu2_from : float
--        initial value of mu2
--    mu2_from : float
--        final value of mu2
--    aem_list : list
--        list of electromagnetic coupling values
--    alphaem_running : bool
--        whether alphaem is running or not
--    nf : int
--        number of active flavors
--    L : float
--        logarithm of the squared ratio of factorization and renormalization scale
--    ev_op_iterations : int
--        number of evolution steps
--    ev_op_max_order : int
--        perturbative expansion order of U
--    sv_mode: int, `enum.IntEnum`
--        scale variation mode, see `eko.scale_variations.Modes`
--    is_threshold : boolean
--        is this an itermediate threshold operator?
--    n3lo_ad_variation : tuple
--        |N3LO| anomalous dimension variation ``(gg, gq, qg, qq, nsp, nsm, nsv)``
--    use_fhmruvv : bool
--        if True use the |FHMRUVV| |N3LO| anomalous dimensions
-+    """C Callback inside integration kernel."""
+     """Raw evolution kernel inside quad.
+
+@@ -564,11 +423,24 @@ def quad_ker_qed(
+     float
+         evaluated integration kernel
+     """
+-    # compute the actual evolution kernel for QEDxQCD
+-    if ker_base.is_QEDsinglet:
+-        gamma_s = ad_us.gamma_singlet_qed(
+-            order, ker_base.n, nf, n3lo_ad_variation, use_fhmruvv
+-        )
 +    # recover complex variables
 +    n = re_n + im_n * 1j
 +    jac = re_jac + im_jac * 1j
@@ -591,56 +462,13 @@ index 2f60975b..a2308d90 100644
 +
 +    if is_singlet:
 +        # reconstruct singlet matrices
-+        re_gamma_singlet = nb.carray(re_gamma_raw, (order_qcd + 1, order_qed + 1, 4, 4))
-+        im_gamma_singlet = nb.carray(im_gamma_raw, (order_qcd + 1, order_qed + 1, 4, 4))
-+        gamma_singlet = re_gamma_singlet + im_gamma_singlet * 1j
-
--    Returns
--    -------
--    float
--        evaluated integration kernel
--    """
--    # compute the actual evolution kernel for QEDxQCD
--    if ker_base.is_QEDsinglet:
--        gamma_s = ad_us.gamma_singlet_qed(
--            order, ker_base.n, nf, n3lo_ad_variation, use_fhmruvv
--        )
++        re_gamma_s = nb.carray(re_gamma_raw, (order_qcd + 1, order_qed + 1, 4, 4))
++        im_gamma_s = nb.carray(im_gamma_raw, (order_qcd + 1, order_qed + 1, 4, 4))
++        gamma_s = re_gamma_s + im_gamma_s * 1j
          # scale var exponentiated is directly applied on gamma
          if sv_mode == sv.Modes.exponentiated:
--            gamma_s = sv_exponentiated.gamma_variation_qed(
--                gamma_s, order, nf, lepton_number(mu2_to), L, alphaem_running
-+            gamma_singlet = sv.exponentiated.gamma_variation_qed(
-+                gamma_singlet, order, nf, lepton_number(mu2_to), Lsv, alphaem_running
-             )
-+
-         ker = qed_s.dispatcher(
-             order,
--            method,
--            gamma_s,
-+            ev_method,
-+            gamma_singlet,
-             as_list,
-             a_half,
-             nf,
-             ev_op_iterations,
-             ev_op_max_order,
-         )
--        # scale var expanded is applied on the kernel
--        # TODO : in this way a_half[-1][1] is the aem value computed in
--        # the middle point of the last step. Instead we want aem computed in mu2_final.
--        # However the distance between the two is very small and affects only the running aem
-         if sv_mode == sv.Modes.expanded and not is_threshold:
-             ker = np.ascontiguousarray(
--                sv_expanded.singlet_variation_qed(
--                    gamma_s, as_list[-1], a_half[-1][1], alphaem_running, order, nf, L
-+                sv.expanded.singlet_variation_qed(
-+                    gamma_singlet,
-+                    as_list[-1],
-+                    a_half[-1][1],
-+                    alphaem_running,
-+                    order,
-+                    nf,
-+                    Lsv,
+             gamma_s = sv_exponentiated.gamma_variation_qed(
+@@ -595,11 +467,13 @@ def quad_ker_qed(
                  )
              ) @ np.ascontiguousarray(ker)
          ker = select_QEDsinglet_element(ker, mode0, mode1)
@@ -652,43 +480,16 @@ index 2f60975b..a2308d90 100644
 +
 +    elif is_valence:
 +        # reconstruct valence matrices
-+        re_gamma_valence = nb.carray(re_gamma_raw, (order_qcd + 1, order_qed + 1, 2, 2))
-+        im_gamma_valence = nb.carray(im_gamma_raw, (order_qcd + 1, order_qed + 1, 2, 2))
-+        gamma_valence = re_gamma_valence + im_gamma_valence * 1j
++        re_gamma_v = nb.carray(re_gamma_raw, (order_qcd + 1, order_qed + 1, 2, 2))
++        im_gamma_v = nb.carray(im_gamma_raw, (order_qcd + 1, order_qed + 1, 2, 2))
++        gamma_v = re_gamma_v + im_gamma_v * 1j
 +
          if sv_mode == sv.Modes.exponentiated:
--            gamma_v = sv_exponentiated.gamma_variation_qed(
--                gamma_v, order, nf, lepton_number(mu2_to), L, alphaem_running
-+            gamma_valence = sv.exponentiated.gamma_variation_qed(
-+                gamma_valence, order, nf, lepton_number(mu2_to), Lsv, alphaem_running
-             )
-         ker = qed_v.dispatcher(
-             order,
--            method,
--            gamma_v,
-+            ev_method,
-+            gamma_valence,
-             as_list,
-             a_half,
-             nf,
-@@ -620,23 +411,31 @@ def quad_ker_qed(
-         # scale var expanded is applied on the kernel
-         if sv_mode == sv.Modes.expanded and not is_threshold:
-             ker = np.ascontiguousarray(
--                sv_expanded.valence_variation_qed(
--                    gamma_v, as_list[-1], a_half[-1][1], alphaem_running, order, nf, L
-+                sv.expanded.valence_variation_qed(
-+                    gamma_valence,
-+                    as_list[-1],
-+                    a_half[-1][1],
-+                    alphaem_running,
-+                    order,
-+                    nf,
-+                    Lsv,
-                 )
+             gamma_v = sv_exponentiated.gamma_variation_qed(
+                 gamma_v, order, nf, lepton_number(mu2_to), Lsv, alphaem_running
+@@ -623,10 +497,10 @@ def quad_ker_qed(
              ) @ np.ascontiguousarray(ker)
          ker = select_QEDvalence_element(ker, mode0, mode1)
-+
      else:
 -        gamma_ns = ad_us.gamma_ns_qed(
 -            order, mode0, ker_base.n, nf, n3lo_ad_variation, use_fhmruvv
@@ -700,29 +501,8 @@ index 2f60975b..a2308d90 100644
 +        gamma_ns = re_gamma_ns + im_gamma_ns * 1j
          if sv_mode == sv.Modes.exponentiated:
              gamma_ns = sv_exponentiated.gamma_variation_qed(
--                gamma_ns, order, nf, lepton_number(mu2_to), L, alphaem_running
-+                gamma_ns, order, nf, lepton_number(mu2_to), Lsv, alphaem_running
-             )
-+        # construct eko
-         ker = qed_ns.dispatcher(
-             order,
--            method,
-+            ev_method,
-             gamma_ns,
-             as_list,
-             a_half[:, 1],
-@@ -649,107 +448,92 @@ def quad_ker_qed(
-         if sv_mode == sv.Modes.expanded and not is_threshold:
-             ker = (
-                 sv_expanded.non_singlet_variation_qed(
--                    gamma_ns, as_list[-1], a_half[-1][1], alphaem_running, order, nf, L
-+                    gamma_ns,
-+                    as_list[-1],
-+                    a_half[-1][1],
-+                    alphaem_running,
-+                    order,
-+                    nf,
-+                    Lsv,
+                 gamma_ns, order, nf, lepton_number(mu2_to), Lsv, alphaem_running
+@@ -656,27 +530,50 @@ def quad_ker_qed(
                  )
                  * ker
              )
@@ -786,51 +566,20 @@ index 2f60975b..a2308d90 100644
 +    _a_half_y,
 +    _alphaem_running,
  ):
--    r"""Raw kernel inside quad.
--
--    Parameters
--    ----------
--    u : float
--        quad argument
--    order : tuple(int,int)
--        perturbation matching order
--    mode0 : int
--        pid for first element in the singlet sector
--    mode1 : int
--        pid for second element in the singlet sector
--    is_log : boolean
--        logarithmic interpolation
--    logx : float
--        Mellin inversion point
--    areas : tuple
--        basis function configuration
--    a_s : float
--        strong coupling, needed only for the exact inverse
--    nf: int
--        number of active flavor below threshold
--    L : float
--        :math:``\ln(\mu_F^2 / m_h^2)``
--    backward_method : InversionMethod or None
--        empty or method for inverting the matching condition (exact or expanded)
--    is_msbar: bool
--        add the |MSbar| contribution
--    is_polarized : boolean
--        is polarized evolution ?
--    is_time_like : boolean
--        is time-like evolution ?
--
--    Returns
--    -------
--    ker : float
--        evaluated integration kernel
--    """
+     r"""Raw kernel inside quad.
+
+@@ -716,33 +613,27 @@ def quad_ker_ome(
+     ker : float
+         evaluated integration kernel
+     """
 -    ker_base = QuadKerBase(u, is_log, logx, mode0)
 -    integrand = ker_base.integrand(areas)
 -    if integrand == 0.0:
 -        return 0.0
 -    # compute the ome
 -    if ker_base.is_singlet or ker_base.is_QEDsinglet:
-+    """C Callback inside integration kernel."""
++    # shorten patch file
++    a_s = as1
 +    # recover complex variables
 +    n = re_n + im_n * 1j
 +    jac = re_jac + im_jac * 1j
@@ -871,14 +620,7 @@ index 2f60975b..a2308d90 100644
 
      # correct for scale variations
      if sv_mode == sv.Modes.exponentiated:
--        A = gamma_variation(A, order, nf, Lsv)
-+        A = sv.exponentiated.gamma_variation(A, order, nf, Lsv)
-
-     # build the expansion in alpha_s depending on the strategy
--    ker = build_ome(A, order, a_s, backward_method)
-+    ker = build_ome(A, order, as1, backward_method)
-
-     # select the needed matrix element
+@@ -755,4 +646,5 @@ def quad_ker_ome(
      ker = ker[indices[mode0], indices[mode1]]
 
      # recombine everything
