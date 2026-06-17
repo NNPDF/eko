@@ -17,17 +17,16 @@ jobs:
   lhabench:
     name: LHA paper Benchmarks
     runs-on: ubuntu-latest
-    container:
-      image: ghcr.io/nnpdf/bench-evol:v2
-      credentials:
-        username: ${{ github.repository_owner }}
-        password: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
       - uses: actions/checkout@v2
         with:
           # tags needed for dynamic versioning
           fetch-depth: 0
+      - name: Install Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ vars.PYTHON_VERSION_WORKFLOWS }}
       - name: Install and configure Poetry
         uses: snok/install-poetry@v1
         with:
