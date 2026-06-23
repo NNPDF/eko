@@ -16,8 +16,18 @@ version.workspace = true
 rustdoc-args = ["--html-in-header", "doc-header.html"]
 
 [lib]
-crate-type = ["cdylib"]
+crate-type = ["cdylib", "staticlib"]
+
+[features]
+capi = []
 
 [dependencies]
 ekore = { path = "../ekore", version = "0.0.1" }
 num = "0.4.1"
+
+[package.metadata.capi.header]
+subdirectory = "ekore_capi"
+name = "ekore_capi"
+
+[package.metadata.capi.library]
+name = "ekore_capi"
