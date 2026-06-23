@@ -12,7 +12,7 @@ use crate::operator_matrix_elements::unpolarized::spacelike::as1;
 /// |NNLO| light-light non-singlet |OME|.
 ///
 /// Implements Eq. (B.4) of [\[Buza:1996wv\]](crate::bib::Buza1996wv).
-pub fn A_qq_ns(c: &mut Cache, _nf: u8, L: f64) -> Complex<f64> {
+pub(super) fn A_qq_ns(c: &mut Cache, _nf: u8, L: f64) -> Complex<f64> {
     let N = c.n();
     let S1 = c.get(K::S1);
     let S2 = c.get(K::S2);
@@ -44,7 +44,7 @@ pub fn A_qq_ns(c: &mut Cache, _nf: u8, L: f64) -> Complex<f64> {
 /// |NNLO| heavy-light pure-singlet |OME|.
 ///
 /// Implements Eq. (B.1) of [\[Buza:1996wv\]](crate::bib::Buza1996wv).
-pub fn A_hq_ps(c: &mut Cache, _nf: u8, L: f64) -> Complex<f64> {
+pub(super) fn A_hq_ps(c: &mut Cache, _nf: u8, L: f64) -> Complex<f64> {
     let N = c.n();
     let S2 = c.get(K::S2);
     let F1M = 1.0 / (N - 1.0) * (ZETA2 - (S2 - 1.0 / N.powu(2)));
@@ -85,7 +85,7 @@ pub fn A_hq_ps(c: &mut Cache, _nf: u8, L: f64) -> Complex<f64> {
 ///
 /// Implements Eq. (B.3) of [\[Buza:1996wv\]](crate::bib::Buza1996wv).
 /// The expession for ``A_Hg_l0`` comes form [\[Bierenbaum:2009zt\]](crate::bib::Bierenbaum2009zt).
-pub fn A_hg(c: &mut Cache, _nf: u8, L: f64) -> Complex<f64> {
+pub(super) fn A_hg(c: &mut Cache, _nf: u8, L: f64) -> Complex<f64> {
     let N = c.n();
     let S1 = c.get(K::S1);
     let S2 = c.get(K::S2);
@@ -185,7 +185,7 @@ pub fn A_hg(c: &mut Cache, _nf: u8, L: f64) -> Complex<f64> {
 /// |NNLO| gluon-quark |OME|.
 ///
 /// Implements Eq. (B.5) of [\[Buza:1996wv\]](crate::bib::Buza1996wv).
-pub fn A_gq(c: &mut Cache, _nf: u8, L: f64) -> Complex<f64> {
+pub(super) fn A_gq(c: &mut Cache, _nf: u8, L: f64) -> Complex<f64> {
     let N = c.n();
     let S1 = c.get(K::S1);
     let S2 = c.get(K::S2);
@@ -212,7 +212,7 @@ pub fn A_gq(c: &mut Cache, _nf: u8, L: f64) -> Complex<f64> {
 /// |NNLO| gluon-gluon |OME|.
 ///
 /// Implements Eq. (B.7) of [\[Buza:1996wv\]](crate::bib::Buza1996wv).
-pub fn A_gg(c: &mut Cache, _nf: u8, L: f64) -> Complex<f64> {
+pub(super) fn A_gg(c: &mut Cache, _nf: u8, L: f64) -> Complex<f64> {
     let N = c.n();
     let S1 = c.get(K::S1);
     let S1m = S1 - 1. / N;
@@ -260,7 +260,12 @@ pub fn A_gg(c: &mut Cache, _nf: u8, L: f64) -> Complex<f64> {
 }
 
 /// |NNLO| singlet |OME|.
-pub fn A_singlet(c: &mut Cache, nf: u8, L: f64, is_msbar_mass: bool) -> [[Complex<f64>; 3]; 3] {
+pub(super) fn A_singlet(
+    c: &mut Cache,
+    nf: u8,
+    L: f64,
+    is_msbar_mass: bool,
+) -> [[Complex<f64>; 3]; 3] {
     let A_hq_2 = A_hq_ps(c, nf, L);
     let A_qq_2 = A_qq_ns(c, nf, L);
     let mut A_hg_2 = A_hg(c, nf, L);
@@ -280,7 +285,7 @@ pub fn A_singlet(c: &mut Cache, nf: u8, L: f64, is_msbar_mass: bool) -> [[Comple
 }
 
 /// |NNLO| non-singlet |OME|.
-pub fn A_ns(c: &mut Cache, nf: u8, L: f64) -> [[Complex<f64>; 2]; 2] {
+pub(super) fn A_ns(c: &mut Cache, nf: u8, L: f64) -> [[Complex<f64>; 2]; 2] {
     [
         [A_qq_ns(c, nf, L), Complex::<f64>::zero()],
         [Complex::<f64>::zero(), Complex::<f64>::zero()],

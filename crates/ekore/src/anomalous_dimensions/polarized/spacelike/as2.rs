@@ -7,18 +7,18 @@ use super::super::super::unpolarized::spacelike::as2::gamma_nsp as unpol_nsp;
 use crate::constants::{CA, CF, TR, ZETA2, ZETA3};
 use crate::harmonics::cache::{Cache, K};
 
-pub fn gamma_nsm(c: &mut Cache, nf: u8) -> Complex<f64> {
+pub(super) fn gamma_nsm(c: &mut Cache, nf: u8) -> Complex<f64> {
     unpol_nsp(c, nf)
 }
 
-pub fn gamma_nsp(c: &mut Cache, nf: u8) -> Complex<f64> {
+pub(super) fn gamma_nsp(c: &mut Cache, nf: u8) -> Complex<f64> {
     unpol_nsm(c, nf)
 }
 
 /// Compute the pure-singlet quark-quark anomalous dimension.
 ///
 /// Implements Eq. (A.3) of [\[Gluck:1995yr\]][crate::bib::Gluck1995yr].
-pub fn gamma_ps(c: &mut Cache, nf: u8) -> Complex<f64> {
+pub(super) fn gamma_ps(c: &mut Cache, nf: u8) -> Complex<f64> {
     let n = c.n();
     let gqqps1_nfcf = (2. * (n + 2.) * (1. + 2. * n + n.powu(3))) / ((1. + n).powu(3) * n.powu(3));
     4.0 * TR * (nf as f64) * CF * gqqps1_nfcf
@@ -27,7 +27,7 @@ pub fn gamma_ps(c: &mut Cache, nf: u8) -> Complex<f64> {
 /// Compute the quark-gluon singlet anomalous dimension.
 ///
 /// Implements Eq. (A.4) of [\[Gluck:1995yr\]][crate::bib::Gluck1995yr].
-pub fn gamma_qg(c: &mut Cache, nf: u8) -> Complex<f64> {
+pub(super) fn gamma_qg(c: &mut Cache, nf: u8) -> Complex<f64> {
     let n = c.n();
     let S1 = c.get(K::S1);
     let S2 = c.get(K::S2);
@@ -53,7 +53,7 @@ pub fn gamma_qg(c: &mut Cache, nf: u8) -> Complex<f64> {
 /// Compute the gluon-quark singlet anomalous dimension.
 ///
 /// Implements Eq. (A.5) of [\[Gluck:1995yr\]][crate::bib::Gluck1995yr].
-pub fn gamma_gq(c: &mut Cache, nf: u8) -> Complex<f64> {
+pub(super) fn gamma_gq(c: &mut Cache, nf: u8) -> Complex<f64> {
     let n = c.n();
     let S1 = c.get(K::S1);
     let S2 = c.get(K::S2);
@@ -83,7 +83,7 @@ pub fn gamma_gq(c: &mut Cache, nf: u8) -> Complex<f64> {
 /// Compute the gluon-gluon singlet anomalous dimension.
 ///
 /// Implements Eq. (A.6) of [\[Gluck:1995yr\]][crate::bib::Gluck1995yr].
-pub fn gamma_gg(c: &mut Cache, nf: u8) -> Complex<f64> {
+pub(super) fn gamma_gg(c: &mut Cache, nf: u8) -> Complex<f64> {
     let n = c.n();
     let S1 = c.get(K::S1);
     let Sp1m = c.get(K::S1mh);
@@ -118,7 +118,7 @@ pub fn gamma_gg(c: &mut Cache, nf: u8) -> Complex<f64> {
 }
 
 /// Compute the singlet anomalous dimension matrix.
-pub fn gamma_singlet(c: &mut Cache, nf: u8) -> [[Complex<f64>; 2]; 2] {
+pub(super) fn gamma_singlet(c: &mut Cache, nf: u8) -> [[Complex<f64>; 2]; 2] {
     let gamma_qq = gamma_nsp(c, nf) + gamma_ps(c, nf);
     [
         [gamma_qq, gamma_qg(c, nf)],

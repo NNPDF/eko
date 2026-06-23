@@ -11,16 +11,12 @@ mod gqg;
 use crate::harmonics::cache::Cache;
 use num::complex::Complex;
 
-pub use ggg::gamma_gg;
-pub use ggq::gamma_gq;
-pub use gnsm::gamma_nsm;
-pub use gnsp::gamma_nsp;
-pub use gnsv::gamma_nsv;
-pub use gps::gamma_ps;
-pub use gqg::gamma_qg;
+pub(super) use gnsm::gamma_nsm;
+pub(super) use gnsp::gamma_nsp;
+pub(super) use gnsv::gamma_nsv;
 
 /// Compute the singlet anomalous dimension matrix.
-pub fn gamma_singlet(c: &mut Cache, nf: u8, variation: [u8; 4]) -> [[Complex<f64>; 2]; 2] {
+pub(super) fn gamma_singlet(c: &mut Cache, nf: u8, variation: [u8; 4]) -> [[Complex<f64>; 2]; 2] {
     let gamma_qq = gnsp::gamma_nsp(c, nf, variation[3]) + gps::gamma_ps(c, nf, variation[3]);
     [
         [gamma_qq, gqg::gamma_qg(c, nf, variation[2])],

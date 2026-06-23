@@ -10,7 +10,7 @@ use crate::harmonics::cache::{Cache, K};
 /// Compute heavy-heavy |OME|.
 ///
 /// Implements Eq. (20a) of [\[Ball:2015tna\]](crate::bib::Ball2015tna).
-pub fn A_hh(c: &mut Cache, _nf: u8, L: f64) -> Complex<f64> {
+pub(super) fn A_hh(c: &mut Cache, _nf: u8, L: f64) -> Complex<f64> {
     let N = c.n();
     let S1m = c.get(K::S1) - 1. / N;
     let S2m = c.get(K::S2) - 1. / N.powu(2);
@@ -29,7 +29,7 @@ pub fn A_hh(c: &mut Cache, _nf: u8, L: f64) -> Complex<f64> {
 /// Compute gluon-heavy |OME|.
 ///
 /// Implements Eq. (20b) of [\[Ball:2015tna\]](crate::bib::Ball2015tna).
-pub fn A_gh(c: &mut Cache, _nf: u8, L: f64) -> Complex<f64> {
+pub(super) fn A_gh(c: &mut Cache, _nf: u8, L: f64) -> Complex<f64> {
     let N = c.n();
     let agh_l1 = (2. + N + N.powu(2)) / (N * (N.powu(2) - 1.));
     let agh_l0 = (-4. + 2. * N + N.powu(2) * (15. + N * (3. + N - N.powu(2))))
@@ -40,7 +40,7 @@ pub fn A_gh(c: &mut Cache, _nf: u8, L: f64) -> Complex<f64> {
 /// Compute heavy-gluon |OME|.
 ///
 /// Implements Eq. (B.2) of [\[Buza:1996wv\]](crate::bib::Buza1996wv).
-pub fn A_hg(c: &mut Cache, _nf: u8, L: f64) -> Complex<f64> {
+pub(super) fn A_hg(c: &mut Cache, _nf: u8, L: f64) -> Complex<f64> {
     let N = c.n();
     let den = 1. / (N * (N + 1.) * (2. + N));
     let num = 2. * (2. + N + N.powu(2));
@@ -50,12 +50,12 @@ pub fn A_hg(c: &mut Cache, _nf: u8, L: f64) -> Complex<f64> {
 /// Compute gluon-gluon |OME|.
 ///
 /// Implements Eq. (B.6) of [\[Buza:1996wv\]](crate::bib::Buza1996wv).
-pub fn A_gg(_c: &mut Cache, _nf: u8, L: f64) -> Complex<f64> {
+pub(super) fn A_gg(_c: &mut Cache, _nf: u8, L: f64) -> Complex<f64> {
     cmplx!(-2.0 / 3.0 * L, 0.)
 }
 
 /// Compute the |NLO| singlet |OME|.
-pub fn A_singlet(c: &mut Cache, nf: u8, L: f64) -> [[Complex<f64>; 3]; 3] {
+pub(super) fn A_singlet(c: &mut Cache, nf: u8, L: f64) -> [[Complex<f64>; 3]; 3] {
     [
         [A_gg(c, nf, L), Complex::<f64>::zero(), A_gh(c, nf, L)],
         [
@@ -68,7 +68,7 @@ pub fn A_singlet(c: &mut Cache, nf: u8, L: f64) -> [[Complex<f64>; 3]; 3] {
 }
 
 /// Compute the |NLO| non-singlet |OME|.
-pub fn A_ns(c: &mut Cache, nf: u8, L: f64) -> [[Complex<f64>; 2]; 2] {
+pub(super) fn A_ns(c: &mut Cache, nf: u8, L: f64) -> [[Complex<f64>; 2]; 2] {
     [
         [Complex::<f64>::zero(), Complex::<f64>::zero()],
         [Complex::<f64>::zero(), A_hh(c, nf, L)],

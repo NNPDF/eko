@@ -19,7 +19,7 @@ use crate::harmonics::log_functions::{lm11, lm11m1, lm12m1, lm13m1};
 /// eight even moments together with small-x and large-x constraints.
 /// The two sets spanning the error estimate are called via `variation = 1`
 /// and  ``variation = 2``. Any other value of `variation` invokes their average.
-pub fn gamma_nsm(c: &mut Cache, nf: u8, variation: u8) -> Complex<f64> {
+pub(crate) fn gamma_nsm(c: &mut Cache, nf: u8, variation: u8) -> Complex<f64> {
     let n = c.n();
     let S1 = c.get(K::S1);
     let S2 = c.get(K::S2);

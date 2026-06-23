@@ -9,7 +9,7 @@ use std::f64::consts::PI;
 /// Compute the photon-quark anomalous dimension.
 ///
 /// Implements Eq. (36) of [\[deFlorian:2015ujt\]][crate::bib::deFlorian2015ujt].
-pub fn gamma_phq(c: &mut Cache, _nf: u8) -> Complex<f64> {
+pub(super) fn gamma_phq(c: &mut Cache, _nf: u8) -> Complex<f64> {
     let N = c.n();
     let S1 = c.get(K::S1);
     let S2 = c.get(K::S2);
@@ -41,7 +41,7 @@ pub fn gamma_phq(c: &mut Cache, _nf: u8) -> Complex<f64> {
 /// Compute the quark-photon anomalous dimension.
 ///
 /// Implements Eq. (26) of [\[deFlorian:2015ujt\]][crate::bib::deFlorian2015ujt].
-pub fn gamma_qph(c: &mut Cache, nf: u8) -> Complex<f64> {
+pub(super) fn gamma_qph(c: &mut Cache, nf: u8) -> Complex<f64> {
     let N = c.n();
     let S1 = c.get(K::S1);
     let S2 = c.get(K::S2);
@@ -67,7 +67,7 @@ pub fn gamma_qph(c: &mut Cache, nf: u8) -> Complex<f64> {
 /// Compute the gluon-photon anomalous dimension.
 ///
 /// Implements Eq. (27) of [\[deFlorian:2015ujt\]][crate::bib::deFlorian2015ujt].
-pub fn gamma_gph(c: &mut Cache, _nf: u8) -> Complex<f64> {
+pub(super) fn gamma_gph(c: &mut Cache, _nf: u8) -> Complex<f64> {
     let N = c.n();
     CF * CA
         * (8.0 * (-4.0 + N * (-4.0 + N * (-5.0 + N * (-10.0 + N + 2.0 * N.powu(2) * (2.0 + N))))))
@@ -77,28 +77,28 @@ pub fn gamma_gph(c: &mut Cache, _nf: u8) -> Complex<f64> {
 /// Compute the photon-gluon anomalous dimension.
 ///
 /// Implements Eq. (30) of [\[deFlorian:2015ujt\]][crate::bib::deFlorian2015ujt].
-pub fn gamma_phg(c: &mut Cache, nf: u8) -> Complex<f64> {
+pub(super) fn gamma_phg(c: &mut Cache, nf: u8) -> Complex<f64> {
     TR / CF / CA * (NC as f64) * gamma_gph(c, nf)
 }
 
 /// Compute the quark-gluon singlet anomalous dimension.
 ///
 /// Implements Eq. (29) of [\[deFlorian:2015ujt\]][crate::bib::deFlorian2015ujt].
-pub fn gamma_qg(c: &mut Cache, nf: u8) -> Complex<f64> {
+pub(super) fn gamma_qg(c: &mut Cache, nf: u8) -> Complex<f64> {
     TR / CF / CA * (NC as f64) * gamma_qph(c, nf)
 }
 
 /// Compute the gluon-quark singlet anomalous dimension.
 ///
 /// Implements Eq. (35) of [\[deFlorian:2015ujt\]][crate::bib::deFlorian2015ujt].
-pub fn gamma_gq(c: &mut Cache, nf: u8) -> Complex<f64> {
+pub(super) fn gamma_gq(c: &mut Cache, nf: u8) -> Complex<f64> {
     gamma_phq(c, nf)
 }
 
 /// Compute the photon-photon singlet anomalous dimension.
 ///
 /// Implements Eq. (28) of [\[deFlorian:2015ujt\]][crate::bib::deFlorian2015ujt].
-pub fn gamma_phph(_c: &mut Cache, nf: u8) -> Complex<f64> {
+pub(super) fn gamma_phph(_c: &mut Cache, nf: u8) -> Complex<f64> {
     let cc = ChargeCombinations { nf };
     cmplx!(
         4.0 * CF * CA * ((cc.nu() as f64) * EU2 + (cc.nd() as f64) * ED2),
@@ -109,7 +109,7 @@ pub fn gamma_phph(_c: &mut Cache, nf: u8) -> Complex<f64> {
 /// Compute the gluon-gluon singlet anomalous dimension.
 ///
 /// Implements Eq. (31) of [\[deFlorian:2015ujt\]][crate::bib::deFlorian2015ujt].
-pub fn gamma_gg(_c: &mut Cache, _nf: u8) -> Complex<f64> {
+pub(super) fn gamma_gg(_c: &mut Cache, _nf: u8) -> Complex<f64> {
     cmplx!(4.0 * TR * (NC as f64), 0.)
 }
 
@@ -126,7 +126,7 @@ fn g3_shift(c: &mut Cache) -> Complex<f64> {
 /// Compute the singlet-like non-singlet anomalous dimension.
 ///
 /// Implements Eqs. (33-34) of [\[deFlorian:2015ujt\]][crate::bib::deFlorian2015ujt].
-pub fn gamma_nsp(c: &mut Cache, _nf: u8) -> Complex<f64> {
+pub(super) fn gamma_nsp(c: &mut Cache, _nf: u8) -> Complex<f64> {
     let N = c.n();
     let S1 = c.get(K::S1);
     let S2 = c.get(K::S2);
@@ -158,7 +158,7 @@ pub fn gamma_nsp(c: &mut Cache, _nf: u8) -> Complex<f64> {
 /// Compute the valence-like non-singlet anomalous dimension.
 ///
 /// Implements Eqs. (33-34) of [\[deFlorian:2015ujt\]][crate::bib::deFlorian2015ujt].
-pub fn gamma_nsm(c: &mut Cache, _nf: u8) -> Complex<f64> {
+pub(super) fn gamma_nsm(c: &mut Cache, _nf: u8) -> Complex<f64> {
     let N = c.n();
     let S1 = c.get(K::S1);
     let S2 = c.get(K::S2);
@@ -206,7 +206,7 @@ pub fn gamma_nsm(c: &mut Cache, _nf: u8) -> Complex<f64> {
 }
 
 /// Compute the singlet anomalous dimension matrix.
-pub fn gamma_singlet(c: &mut Cache, nf: u8) -> [[Complex<f64>; 4]; 4] {
+pub(super) fn gamma_singlet(c: &mut Cache, nf: u8) -> [[Complex<f64>; 4]; 4] {
     let cc = ChargeCombinations { nf };
     let e2_tot = nf as f64 * cc.e2avg();
     let gq = gamma_gq(c, nf);
@@ -243,7 +243,7 @@ pub fn gamma_singlet(c: &mut Cache, nf: u8) -> [[Complex<f64>; 4]; 4] {
 }
 
 /// Compute the valence anomalous dimension matrix.
-pub fn gamma_valence(c: &mut Cache, nf: u8) -> [[Complex<f64>; 2]; 2] {
+pub(super) fn gamma_valence(c: &mut Cache, nf: u8) -> [[Complex<f64>; 2]; 2] {
     let cc = ChargeCombinations { nf };
     let g = gamma_nsm(c, nf);
     [

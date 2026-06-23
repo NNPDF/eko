@@ -3,8 +3,8 @@ use crate::constants::MAX_ORDER_QCD;
 use crate::harmonics::cache::Cache;
 use num::Zero;
 use num::complex::Complex;
-pub mod as1;
-pub mod as2;
+mod as1;
+mod as2;
 
 /// Compute the tower of the singlet |OME|.
 ///

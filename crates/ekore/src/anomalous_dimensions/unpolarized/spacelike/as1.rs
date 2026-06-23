@@ -8,7 +8,7 @@ use crate::harmonics::cache::{Cache, K};
 /// Compute the non-singlet anomalous dimension.
 ///
 /// Implements Eq. (3.4) of [\[Moch:2004pa\]][crate::bib::Moch2004pa].
-pub fn gamma_ns(c: &mut Cache, _nf: u8) -> Complex<f64> {
+pub(crate) fn gamma_ns(c: &mut Cache, _nf: u8) -> Complex<f64> {
     let N = c.n();
     let S1 = c.get(K::S1);
     let gamma = -(3.0 - 4.0 * S1 + 2.0 / N / (N + 1.0));
@@ -18,7 +18,7 @@ pub fn gamma_ns(c: &mut Cache, _nf: u8) -> Complex<f64> {
 /// Compute the quark-gluon anomalous dimension.
 ///
 /// Implements Eq. (3.5) of [\[Vogt:2004mw\]](crate::bib::Vogt2004mw).
-pub fn gamma_qg(c: &mut Cache, nf: u8) -> Complex<f64> {
+pub(super) fn gamma_qg(c: &mut Cache, nf: u8) -> Complex<f64> {
     let N = c.n();
     let gamma = -(N.powu(2) + N + 2.0) / (N * (N + 1.0) * (N + 2.0));
     2.0 * TR * 2.0 * (nf as f64) * gamma
@@ -27,7 +27,7 @@ pub fn gamma_qg(c: &mut Cache, nf: u8) -> Complex<f64> {
 /// Compute the gluon-quark anomalous dimension.
 ///
 /// Implements Eq. (3.5) of [\[Vogt:2004mw\]](crate::bib::Vogt2004mw).
-pub fn gamma_gq(c: &mut Cache, _nf: u8) -> Complex<f64> {
+pub(super) fn gamma_gq(c: &mut Cache, _nf: u8) -> Complex<f64> {
     let N = c.n();
     let gamma = -(N.powu(2) + N + 2.0) / (N * (N + 1.0) * (N - 1.0));
     2.0 * CF * gamma
@@ -36,7 +36,7 @@ pub fn gamma_gq(c: &mut Cache, _nf: u8) -> Complex<f64> {
 /// Compute the gluon-gluon anomalous dimension.
 ///
 /// Implements Eq. (3.5) of [\[Vogt:2004mw\]](crate::bib::Vogt2004mw).
-pub fn gamma_gg(c: &mut Cache, nf: u8) -> Complex<f64> {
+pub(super) fn gamma_gg(c: &mut Cache, nf: u8) -> Complex<f64> {
     let N = c.n();
     let S1 = c.get(K::S1);
     let gamma = S1 - 1.0 / N / (N - 1.0) - 1.0 / (N + 1.0) / (N + 2.0);
@@ -44,7 +44,7 @@ pub fn gamma_gg(c: &mut Cache, nf: u8) -> Complex<f64> {
 }
 
 /// Compute the singlet anomalous dimension matrix.
-pub fn gamma_singlet(c: &mut Cache, nf: u8) -> [[Complex<f64>; 2]; 2] {
+pub(super) fn gamma_singlet(c: &mut Cache, nf: u8) -> [[Complex<f64>; 2]; 2] {
     let gamma_qq = gamma_ns(c, nf);
     [
         [gamma_qq, gamma_qg(c, nf)],

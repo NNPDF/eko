@@ -10,7 +10,7 @@ use crate::harmonics::log_functions::{lm11, lm11m1, lm12m1, lm13m1};
 /// Compute the singlet-like non-singlet anomalous dimension.
 ///
 /// See [gamma_nsm][super::gamma_nsm] for implementation details.
-pub fn gamma_nsp(c: &mut Cache, nf: u8, variation: u8) -> Complex<f64> {
+pub(crate) fn gamma_nsp(c: &mut Cache, nf: u8, variation: u8) -> Complex<f64> {
     let n = c.n();
     let S1 = c.get(K::S1);
     let S2 = c.get(K::S2);

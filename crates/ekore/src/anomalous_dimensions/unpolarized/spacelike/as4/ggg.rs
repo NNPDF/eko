@@ -16,7 +16,7 @@ use crate::harmonics::log_functions::{
 /// first 10 even moments together with small-x/large-x constraints.
 /// The two sets providing the error estimate are called via `variation = 1`
 /// and `variation = 2`.  Any other value of `variation` invokes their average.
-pub fn gamma_gg(c: &mut Cache, nf: u8, variation: u8) -> Complex<f64> {
+pub(super) fn gamma_gg(c: &mut Cache, nf: u8, variation: u8) -> Complex<f64> {
     let n = c.n();
     let S1 = c.get(K::S1);
     let S2 = c.get(K::S2);
