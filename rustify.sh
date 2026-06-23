@@ -6,6 +6,9 @@ patch -p1 <src/eko/evolution_operator/__init__.py.patch
 # git diff --merge-base master src/eko/evolution_operator/operator_matrix_element.py > src/eko/evolution_operator/operator_matrix_element.py.patch
 patch -p1 <src/eko/evolution_operator/operator_matrix_element.py.patch
 
+# git diff --merge-base master src/eko/evolution_operator/quad_ker.py > src/eko/evolution_operator/quad_ker.py.patch
+patch -p1 <src/eko/evolution_operator/quad_ker.py.patch
+
 # deactivate associated tests for the moment
 mv tests/eko/evolution_operator/test_init.py tests/eko/evolution_operator/deactivated_t_e_s_t_init.py
 mv tests/eko/evolution_operator/test_ome.py tests/eko/evolution_operator/deactivated_t_e_s_t_ome.py

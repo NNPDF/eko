@@ -1,0 +1,629 @@
+diff --git a/src/eko/evolution_operator/quad_ker.py b/src/eko/evolution_operator/quad_ker.py
+index 137ff7ec..57d7359f 100644
+--- a/src/eko/evolution_operator/quad_ker.py
++++ b/src/eko/evolution_operator/quad_ker.py
+@@ -6,14 +6,7 @@ import logging
+ import numba as nb
+ import numpy as np
+
+-import ekore.anomalous_dimensions.polarized.space_like as ad_ps
+-import ekore.anomalous_dimensions.unpolarized.space_like as ad_us
+-import ekore.anomalous_dimensions.unpolarized.time_like as ad_ut
+-import ekore.operator_matrix_elements.polarized.space_like as ome_ps
+-import ekore.operator_matrix_elements.unpolarized.space_like as ome_us
+-import ekore.operator_matrix_elements.unpolarized.time_like as ome_ut
+-
+-from .. import interpolation, mellin
++from .. import interpolation
+ from .. import scale_variations as sv
+ from ..kernels import non_singlet as ns
+ from ..kernels import non_singlet_qed as qed_ns
+@@ -169,228 +162,82 @@ def build_ome(A, matching_order, a_s, backward_method):
+     return ome
+
+
+-spec = [
+-    ("is_singlet", nb.boolean),
+-    ("is_QEDsinglet", nb.boolean),
+-    ("is_QEDvalence", nb.boolean),
+-    ("is_log", nb.boolean),
+-    ("logx", nb.float64),
+-    ("u", nb.float64),
+-]
+-
+-
+-@nb.experimental.jitclass(spec)
+-class QuadKerBase:
+-    """Manage the common part of Mellin inversion integral.
+-
+-    Parameters
+-    ----------
+-    u : float
+-        quad argument
+-    is_log : boolean
+-        is a logarithmic interpolation
+-    logx : float
+-        Mellin inversion point
+-    mode0 : int
+-        first sector element
+-    """
+-
+-    def __init__(self, u, is_log, logx, mode0):
+-        self.is_singlet = mode0 in [100, 21, 90]
+-        self.is_QEDsinglet = mode0 in [21, 22, 100, 101, 90]
+-        self.is_QEDvalence = mode0 in [10200, 10204]
+-        self.is_log = is_log
+-        self.u = u
+-        self.logx = logx
+-
+-    @property
+-    def path(self):
+-        """Return the associated instance of :class:`eko.mellin.Path`."""
+-        if self.is_singlet or self.is_QEDsinglet:
+-            return mellin.Path(self.u, self.logx, True)
+-        else:
+-            return mellin.Path(self.u, self.logx, False)
+-
+-    @property
+-    def n(self):
+-        """Returns the Mellin moment :math:`N`."""
+-        return self.path.n
+-
+-    def integrand(
+-        self,
+-        areas,
+-    ):
+-        """Get transformation to Mellin space integral.
+-
+-        Parameters
+-        ----------
+-        areas : tuple
+-            basis function configuration
+-
+-        Returns
+-        -------
+-        complex
+-            common mellin inversion integrand
+-        """
+-        if self.logx == 0.0:
+-            return 0.0
+-        pj = interpolation.evaluate_grid(self.path.n, self.is_log, self.logx, areas)
+-        if pj == 0.0:
+-            return 0.0
+-        return self.path.prefactor * pj * self.path.jac
+-
+-
+-@nb.njit(cache=True)
+-def quad_ker_ad(
+-    u,
+-    order,
++CB_SIGNATURE = nb.types.double(
++    nb.types.CPointer(nb.types.double),  # re_*_raw
++    nb.types.CPointer(nb.types.double),  # im_*_raw
++    nb.types.double,  # re_n
++    nb.types.double,  # im_n
++    nb.types.double,  # re_jac
++    nb.types.double,  # im_jac
++    nb.types.uintc,  # order_qcd
++    nb.types.uintc,  # order_qed
++    nb.types.bool_,  # is_singlet
++    nb.types.uintc,  # mode0
++    nb.types.uintc,  # mode1
++    nb.types.uintc,  # nf
++    nb.types.bool_,  # is_log
++    nb.types.double,  # logx
++    nb.types.CPointer(nb.types.double),  # areas_raw
++    nb.types.uintc,  # areas_x
++    nb.types.uintc,  # areas_y
++    nb.types.uintc,  # method_num
++    nb.types.double,  # as1
++    nb.types.double,  # as0
++    nb.types.uintc,  # ev_op_iterations
++    nb.types.uintc,  # ev_op_max_order_qcd
++    nb.types.uintc,  # sv_mode_num
++    nb.types.bool_,  # is_threshold
++    nb.types.double,  # Lsv
++    nb.types.CPointer(nb.types.double),  # as_list
++    nb.types.uintc,  # as_list_len
++    nb.types.double,  # mu2_from
++    nb.types.double,  # mu2_to
++    nb.types.CPointer(nb.types.double),  # a_half
++    nb.types.uintc,  # a_half_x
++    nb.types.uintc,  # a_half_y
++    nb.types.bool_,  # alphaem_running
++)
++
++
++@nb.cfunc(
++    CB_SIGNATURE,
++    cache=True,
++    nopython=True,
++)
++def cb_quad_ker_qcd(
++    re_gamma_raw,
++    im_gamma_raw,
++    re_n,
++    im_n,
++    re_jac,
++    im_jac,
++    order_qcd,
++    _order_qed,
++    is_singlet,
+     mode0,
+     mode1,
+-    ev_method,
++    nf,
+     is_log,
+     logx,
+-    areas,
+-    as_list,
+-    mu2_from,
+-    mu2_to,
+-    a_half,
+-    alphaem_running,
+-    nf,
+-    Lsv,
+-    ev_op_iterations,
+-    ev_op_max_order,
+-    sv_mode,
+-    is_threshold,
+-    n3lo_ad_variation,
+-    is_polarized,
+-    is_time_like,
+-    use_fhmruvv,
+-):
+-    """Raw evolution kernel inside quad.
+-
+-    Parameters
+-    ----------
+-    u : float
+-        quad argument
+-    order : int
+-        perturbation order
+-    mode0: int
+-        pid for first sector element
+-    mode1 : int
+-        pid for second sector element
+-    ev_method : str
+-        ev_method
+-    is_log : boolean
+-        is a logarithmic interpolation
+-    logx : float
+-        Mellin inversion point
+-    areas : tuple
+-        basis function configuration
+-    as_list : numpy.ndarray
+-        list of strong coupling values
+-    mu2_from : float
+-        initial value of mu2
+-    mu2_to : float
+-        final value of mu2
+-    aem_list : list
+-        list of electromagnetic coupling values
+-    alphaem_running : bool
+-        whether alphaem is running or not
+-    nf : int
+-        number of active flavors
+-    Lsv : float
+-        logarithm of the squared ratio of factorization and renormalization scale
+-    ev_op_iterations : int
+-        number of evolution steps
+-    ev_op_max_order : int
+-        perturbative expansion order of U
+-    sv_mode: int, `enum.IntEnum`
+-        scale variation mode, see `eko.scale_variations.Modes`
+-    is_threshold : boolean
+-        is this an intermediate threshold operator?
+-    n3lo_ad_variation : tuple
+-        |N3LO| anomalous dimension variation ``(gg, gq, qg, qq, nsp, nsm, nsv)``
+-    is_polarized : boolean
+-        is polarized evolution ?
+-    is_time_like : boolean
+-        is time-like evolution ?
+-    use_fhmruvv : bool
+-        if True use the |FHMRUVV| |N3LO| anomalous dimension
+-
+-    Returns
+-    -------
+-    float
+-        evaluated integration kernel
+-    """
+-    ker_base = QuadKerBase(u, is_log, logx, mode0)
+-    integrand = ker_base.integrand(areas)
+-    if integrand == 0.0:
+-        return 0.0
+-    if order[1] == 0:
+-        ker = quad_ker_qcd(
+-            ker_base,
+-            order,
+-            mode0,
+-            mode1,
+-            ev_method,
+-            as_list[-1],
+-            as_list[0],
+-            nf,
+-            Lsv,
+-            ev_op_iterations,
+-            ev_op_max_order,
+-            sv_mode,
+-            is_threshold,
+-            is_polarized,
+-            is_time_like,
+-            n3lo_ad_variation,
+-            use_fhmruvv,
+-        )
+-    else:
+-        ker = quad_ker_qed(
+-            ker_base,
+-            order,
+-            mode0,
+-            mode1,
+-            ev_method,
+-            as_list,
+-            mu2_from,
+-            mu2_to,
+-            a_half,
+-            alphaem_running,
+-            nf,
+-            Lsv,
+-            ev_op_iterations,
+-            ev_op_max_order,
+-            sv_mode,
+-            is_threshold,
+-            n3lo_ad_variation,
+-            use_fhmruvv,
+-        )
+-
+-    # recombine everything
+-    return np.real(ker * integrand)
+-
+-
+-@nb.njit(cache=True)
+-def quad_ker_qcd(
+-    ker_base,
+-    order,
+-    mode0,
+-    mode1,
++    areas_raw,
++    areas_x,
++    areas_y,
+     ev_method,
+     as1,
+     as0,
+-    nf,
+-    Lsv,
+     ev_op_iterations,
+-    ev_op_max_order,
++    ev_op_max_order_qcd,
+     sv_mode,
+     is_threshold,
+-    is_polarized,
+-    is_time_like,
+-    n3lo_ad_variation,
+-    use_fhmruvv,
++    Lsv,
++    _as_list,
++    _as_list_len,
++    _mu2_from,
++    _mu2_to,
++    _a_half,
++    _a_half_x,
++    _a_half_y,
++    _alphaem_running,
+ ):
+     """Raw evolution kernel inside quad.
+
+@@ -432,20 +279,19 @@ def quad_ker_qcd(
+     float
+         evaluated integration kernel
+     """
+-    # compute the actual evolution kernel for pure QCD
+-    if ker_base.is_singlet:
+-        if is_polarized:
+-            if is_time_like:
+-                raise NotImplementedError("Polarized, time-like is not implemented")
+-            else:
+-                gamma_singlet = ad_ps.gamma_singlet(order, ker_base.n, nf)
+-        else:
+-            if is_time_like:
+-                gamma_singlet = ad_ut.gamma_singlet(order, ker_base.n, nf)
+-            else:
+-                gamma_singlet = ad_us.gamma_singlet(
+-                    order, ker_base.n, nf, n3lo_ad_variation, use_fhmruvv
+-                )
++    # recover complex variables
++    n = re_n + im_n * 1j
++    jac = re_jac + im_jac * 1j
++    # combute basis functions
++    areas = nb.carray(areas_raw, (areas_x, areas_y))
++    pj = interpolation.evaluate_grid(n, is_log, logx, areas)
++    order = (order_qcd, 0)
++    ev_op_max_order = (ev_op_max_order_qcd, 0)
++    if is_singlet:
++        # reconstruct singlet matrices
++        re_gamma_singlet = nb.carray(re_gamma_raw, (order_qcd, 2, 2))
++        im_gamma_singlet = nb.carray(im_gamma_raw, (order_qcd, 2, 2))
++        gamma_singlet = re_gamma_singlet + im_gamma_singlet * 1j
+         # scale var exponentiated is directly applied on gamma
+         if sv_mode == sv.Modes.exponentiated:
+             gamma_singlet = sv_exponentiated.gamma_variation(
+@@ -468,18 +314,10 @@ def quad_ker_qcd(
+             ) @ np.ascontiguousarray(ker)
+         ker = select_singlet_element(ker, mode0, mode1)
+     else:
+-        if is_polarized:
+-            if is_time_like:
+-                raise NotImplementedError("Polarized, time-like is not implemented")
+-            else:
+-                gamma_ns = ad_ps.gamma_ns(order, mode0, ker_base.n, nf)
+-        else:
+-            if is_time_like:
+-                gamma_ns = ad_ut.gamma_ns(order, mode0, ker_base.n, nf)
+-            else:
+-                gamma_ns = ad_us.gamma_ns(
+-                    order, mode0, ker_base.n, nf, n3lo_ad_variation, use_fhmruvv
+-                )
++        # construct non-singlet matrices
++        re_gamma_ns = nb.carray(re_gamma_raw, order_qcd)
++        im_gamma_ns = nb.carray(im_gamma_raw, order_qcd)
++        gamma_ns = re_gamma_ns + im_gamma_ns * 1j
+         if sv_mode == sv.Modes.exponentiated:
+             gamma_ns = sv_exponentiated.gamma_variation(gamma_ns, order, nf, Lsv)
+         ker = ns.dispatcher(
+@@ -492,29 +330,50 @@ def quad_ker_qcd(
+         )
+         if sv_mode == sv.Modes.expanded and not is_threshold:
+             ker = sv_expanded.non_singlet_variation(gamma_ns, as1, order, nf, Lsv) * ker
+-    return ker
+-
+-
+-@nb.njit(cache=True)
+-def quad_ker_qed(
+-    ker_base,
+-    order,
++    # recombine everything
++    res = ker * pj * jac
++    return np.real(res)
++
++
++@nb.cfunc(
++    CB_SIGNATURE,
++    cache=True,
++    nopython=True,
++)
++def cb_quad_ker_qed(
++    re_gamma_raw,
++    im_gamma_raw,
++    re_n,
++    im_n,
++    re_jac,
++    im_jac,
++    order_qcd,
++    order_qed,
++    is_singlet,
+     mode0,
+     mode1,
+-    ev_method,
+-    as_list,
+-    mu2_from,
+-    mu2_to,
+-    a_half,
+-    alphaem_running,
+     nf,
+-    Lsv,
++    is_log,
++    logx,
++    areas_raw,
++    areas_x,
++    areas_y,
++    ev_method,
++    _as1,
++    _as0,
+     ev_op_iterations,
+-    ev_op_max_order,
++    ev_op_max_order_qcd,
+     sv_mode,
+     is_threshold,
+-    n3lo_ad_variation,
+-    use_fhmruvv,
++    Lsv,
++    as_list_raw,
++    as_list_len,
++    mu2_from,
++    mu2_to,
++    a_half_raw,
++    a_half_x,
++    a_half_y,
++    alphaem_running,
+ ):
+     """Raw evolution kernel inside quad.
+
+@@ -564,11 +423,24 @@ def quad_ker_qed(
+     float
+         evaluated integration kernel
+     """
+-    # compute the actual evolution kernel for QEDxQCD
+-    if ker_base.is_QEDsinglet:
+-        gamma_s = ad_us.gamma_singlet_qed(
+-            order, ker_base.n, nf, n3lo_ad_variation, use_fhmruvv
+-        )
++    # recover complex variables
++    n = re_n + im_n * 1j
++    jac = re_jac + im_jac * 1j
++    # compute basis functions
++    areas = nb.carray(areas_raw, (areas_x, areas_y))
++    pj = interpolation.evaluate_grid(n, is_log, logx, areas)
++    order = (order_qcd, order_qed)
++    ev_op_max_order = (ev_op_max_order_qcd, order_qed)
++    is_valence = (mode0 == 10200) or (mode0 == 10204)
++
++    as_list = nb.carray(as_list_raw, as_list_len)
++    a_half = nb.carray(a_half_raw, (a_half_x, a_half_y))
++
++    if is_singlet:
++        # reconstruct singlet matrices
++        re_gamma_s = nb.carray(re_gamma_raw, (order_qcd + 1, order_qed + 1, 4, 4))
++        im_gamma_s = nb.carray(im_gamma_raw, (order_qcd + 1, order_qed + 1, 4, 4))
++        gamma_s = re_gamma_s + im_gamma_s * 1j
+         # scale var exponentiated is directly applied on gamma
+         if sv_mode == sv.Modes.exponentiated:
+             gamma_s = sv_exponentiated.gamma_variation_qed(
+@@ -595,11 +467,13 @@ def quad_ker_qed(
+                 )
+             ) @ np.ascontiguousarray(ker)
+         ker = select_QEDsinglet_element(ker, mode0, mode1)
+-    elif ker_base.is_QEDvalence:
+-        gamma_v = ad_us.gamma_valence_qed(
+-            order, ker_base.n, nf, n3lo_ad_variation, use_fhmruvv
+-        )
+-        # scale var exponentiated is directly applied on gamma
++
++    elif is_valence:
++        # reconstruct valence matrices
++        re_gamma_v = nb.carray(re_gamma_raw, (order_qcd + 1, order_qed + 1, 2, 2))
++        im_gamma_v = nb.carray(im_gamma_raw, (order_qcd + 1, order_qed + 1, 2, 2))
++        gamma_v = re_gamma_v + im_gamma_v * 1j
++
+         if sv_mode == sv.Modes.exponentiated:
+             gamma_v = sv_exponentiated.gamma_variation_qed(
+                 gamma_v, order, nf, lepton_number(mu2_to), Lsv, alphaem_running
+@@ -623,10 +497,10 @@ def quad_ker_qed(
+             ) @ np.ascontiguousarray(ker)
+         ker = select_QEDvalence_element(ker, mode0, mode1)
+     else:
+-        gamma_ns = ad_us.gamma_ns_qed(
+-            order, mode0, ker_base.n, nf, n3lo_ad_variation, use_fhmruvv
+-        )
+-        # scale var exponentiated is directly applied on gamma
++        # construct non-singlet matrices
++        re_gamma_ns = nb.carray(re_gamma_raw, (order_qcd + 1, order_qed + 1))
++        im_gamma_ns = nb.carray(im_gamma_raw, (order_qcd + 1, order_qed + 1))
++        gamma_ns = re_gamma_ns + im_gamma_ns * 1j
+         if sv_mode == sv.Modes.exponentiated:
+             gamma_ns = sv_exponentiated.gamma_variation_qed(
+                 gamma_ns, order, nf, lepton_number(mu2_to), Lsv, alphaem_running
+@@ -656,27 +530,50 @@ def quad_ker_qed(
+                 )
+                 * ker
+             )
+-    return ker
+-
+-
+-@nb.njit(cache=True)
+-def quad_ker_ome(
+-    u,
+-    order,
++    # recombine everything
++    res = ker * pj * jac
++    return np.real(res)
++
++
++@nb.cfunc(
++    CB_SIGNATURE,
++    cache=True,
++    nopython=True,
++)
++def cb_quad_ker_ome(
++    re_ome_raw,
++    im_ome_raw,
++    re_n,
++    im_n,
++    re_jac,
++    im_jac,
++    order_qcd,
++    _order_qed,
++    is_singlet,
+     mode0,
+     mode1,
++    nf,
+     is_log,
+     logx,
+-    areas,
+-    a_s,
+-    nf,
+-    L,
++    areas_raw,
++    areas_x,
++    areas_y,
++    backward_method,
++    as1,
++    _as0,
++    _ev_op_iterations,
++    _ev_op_max_order_qcd,
+     sv_mode,
++    _is_threshold,
+     Lsv,
+-    backward_method,
+-    is_msbar,
+-    is_polarized,
+-    is_time_like,
++    _as_list,
++    _as_list_len,
++    _mu2_from,
++    _mu2_to,
++    _a_half,
++    _a_half_x,
++    _a_half_y,
++    _alphaem_running,
+ ):
+     r"""Raw kernel inside quad.
+
+@@ -716,33 +613,27 @@ def quad_ker_ome(
+     ker : float
+         evaluated integration kernel
+     """
+-    ker_base = QuadKerBase(u, is_log, logx, mode0)
+-    integrand = ker_base.integrand(areas)
+-    if integrand == 0.0:
+-        return 0.0
+-    # compute the ome
+-    if ker_base.is_singlet or ker_base.is_QEDsinglet:
++    # shorten patch file
++    a_s = as1
++    # recover complex variables
++    n = re_n + im_n * 1j
++    jac = re_jac + im_jac * 1j
++    # compute basis functions
++    areas = nb.carray(areas_raw, (areas_x, areas_y))
++    pj = interpolation.evaluate_grid(n, is_log, logx, areas)
++    order = (order_qcd, 0)
++    if is_singlet:
+         indices = {21: 0, 100: 1, 90: 2}
+-        if is_polarized:
+-            if is_time_like:
+-                raise NotImplementedError("Polarized, time-like is not implemented")
+-            A = ome_ps.A_singlet(order, ker_base.n, nf, L)
+-        else:
+-            if is_time_like:
+-                A = ome_ut.A_singlet(order, ker_base.n, L)
+-            else:
+-                A = ome_us.A_singlet(order, ker_base.n, nf, L, is_msbar)
++        # reconstruct singlet matrices
++        re_ome_singlet = nb.carray(re_ome_raw, (order_qcd, 3, 3))
++        im_ome_singlet = nb.carray(im_ome_raw, (order_qcd, 3, 3))
++        A = re_ome_singlet + im_ome_singlet * 1j
+     else:
+         indices = {200: 0, 91: 1}
+-        if is_polarized:
+-            if is_time_like:
+-                raise NotImplementedError("Polarized, time-like is not implemented")
+-            A = ome_ps.A_non_singlet(order, ker_base.n, L)
+-        else:
+-            if is_time_like:
+-                A = ome_ut.A_non_singlet(order, ker_base.n, L)
+-            else:
+-                A = ome_us.A_non_singlet(order, ker_base.n, nf, L)
++        # construct non-singlet matrices
++        re_ome_ns = nb.carray(re_ome_raw, (order_qcd, 2, 2))
++        im_ome_ns = nb.carray(im_ome_raw, (order_qcd, 2, 2))
++        A = re_ome_ns + im_ome_ns * 1j
+
+     # correct for scale variations
+     if sv_mode == sv.Modes.exponentiated:
+@@ -755,4 +646,5 @@ def quad_ker_ome(
+     ker = ker[indices[mode0], indices[mode1]]
+
+     # recombine everything
+-    return np.real(ker * integrand)
++    res = ker * pj * jac
++    return np.real(res)
