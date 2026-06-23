@@ -232,6 +232,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "ekore_capi"
+version = "0.0.1"
+dependencies = [
+ "ekore",
+ "num",
+]
+
+[[package]]
 name = "encoding_rs"
 version = "0.8.35"
 source = "registry+https://github.com/rust-lang/crates.io-index"
