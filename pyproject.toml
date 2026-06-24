@@ -145,7 +145,7 @@ docs-clean = { "shell" = "cd doc; make clean" }
 docs-cleanall = { "shell" = "cd doc; make cleanall" }
 docs-install-nb = { "shell" = "python -m ipykernel install --user --name=$(basename $(poetry env info -p))" }
 bump-version = { "shell" = "python crates/bump-versions.py $(git describe --tags)" }
-compile = "maturin develop --manifest-path crates/eko/Cargo.toml"
+compile = "maturin develop --release --manifest-path crates/eko/Cargo.toml"
 rdocs.cmd = "cargo doc --workspace --no-deps"
 rdocs.env = { RUSTDOCFLAGS = "--html-in-header crates/doc-header.html" }
 rdocs-view = "xdg-open target/doc/ekors/index.html"
