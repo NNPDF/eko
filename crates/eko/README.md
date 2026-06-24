@@ -16,6 +16,7 @@ When using our code please cite
 - [dekoder](https://crates.io/crates/dekoder) - Reading and writing EKO output files
 - [eko](https://crates.io/crates/eko) - Core EKO utilities
 - [ekore](https://crates.io/crates/ekore) - Anomalous dimensions and operator matrix elements
+- [ekore_capi](https://crates.io/crates/ekore) C API for ekore
 
 ## License
 
