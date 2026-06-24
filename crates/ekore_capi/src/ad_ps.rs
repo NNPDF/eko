@@ -1,4 +1,4 @@
-//! The polarized, space-like anomalous dimensions at various couplings power.
+//! The polarized, space-like anomalous dimensions.
 
 use crate::ComplexF64;
 use ekore::anomalous_dimensions::polarized::spacelike;
