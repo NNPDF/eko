@@ -16,7 +16,7 @@ struct RawCmplx {
 /// Map tensor with shape (o,d,d) to c-ordered list.
 ///
 /// This is needed for the QCD singlet.
-fn unravel<const DIM: usize>(res: Vec<[[Complex<f64>; DIM]; DIM]>, order_qcd: usize) -> RawCmplx {
+fn unravel<const DIM: usize>(res: &[[[Complex<f64>; DIM]; DIM]], order_qcd: usize) -> RawCmplx {
     let mut target = RawCmplx {
         re: Vec::<f64>::new(),
         im: Vec::<f64>::new(),
@@ -36,7 +36,7 @@ fn unravel<const DIM: usize>(res: Vec<[[Complex<f64>; DIM]; DIM]>, order_qcd: us
 ///
 /// This is needed for the QED singlet and valence.
 fn unravel_qed<const DIM: usize>(
-    res: Vec<Vec<[[Complex<f64>; DIM]; DIM]>>,
+    res: &[[[[Complex<f64>; DIM]; DIM]; 3]],
     order_qcd: usize,
     order_qed: usize,
 ) -> RawCmplx {
@@ -60,7 +60,7 @@ fn unravel_qed<const DIM: usize>(
 /// Map tensor with shape (o,o',d) to c-ordered list.
 ///
 /// This is needed for the QED non-singlet.
-fn unravel_qed_ns(res: Vec<Vec<Complex<f64>>>, order_qcd: usize, order_qed: usize) -> RawCmplx {
+fn unravel_qed_ns(res: &[[Complex<f64>; 3]], order_qcd: usize, order_qed: usize) -> RawCmplx {
     let mut target = RawCmplx {
         re: Vec::<f64>::new(),
         im: Vec::<f64>::new(),
@@ -104,7 +104,7 @@ pub unsafe extern "C" fn rust_quad_ker(u: f64, rargs: *mut c_void) -> f64 {
     if args.is_ome {
         if is_singlet {
             raw = unravel(
-                ekore::operator_matrix_elements::unpolarized::spacelike::A_singlet(
+                &ekore::operator_matrix_elements::unpolarized::spacelike::A_singlet(
                     args.order_qcd,
                     &mut c,
                     args.nf,
@@ -114,7 +114,7 @@ pub unsafe extern "C" fn rust_quad_ker(u: f64, rargs: *mut c_void) -> f64 {
             );
         } else {
             raw = unravel(
-                ekore::operator_matrix_elements::unpolarized::spacelike::A_non_singlet(
+                &ekore::operator_matrix_elements::unpolarized::spacelike::A_non_singlet(
                     args.order_qcd,
                     &mut c,
                     args.nf,
@@ -128,7 +128,7 @@ pub unsafe extern "C" fn rust_quad_ker(u: f64, rargs: *mut c_void) -> f64 {
             let gamma_singlet_qed =
                 ekore::anomalous_dimensions::unpolarized::spacelike::gamma_singlet_qed;
             raw = unravel_qed(
-                gamma_singlet_qed(
+                &gamma_singlet_qed(
                     args.order_qcd,
                     args.order_qed,
                     &mut c,
@@ -144,7 +144,7 @@ pub unsafe extern "C" fn rust_quad_ker(u: f64, rargs: *mut c_void) -> f64 {
                 false => ekore::anomalous_dimensions::unpolarized::spacelike::gamma_singlet_qcd,
             };
             raw = unravel(
-                gamma_singlet_qcd(
+                &gamma_singlet_qcd(
                     args.order_qcd,
                     &mut c,
                     args.nf,
@@ -158,7 +158,7 @@ pub unsafe extern "C" fn rust_quad_ker(u: f64, rargs: *mut c_void) -> f64 {
             let gamma_valence_qed =
                 ekore::anomalous_dimensions::unpolarized::spacelike::gamma_valence_qed;
             raw = unravel_qed(
-                gamma_valence_qed(
+                &gamma_valence_qed(
                     args.order_qcd,
                     args.order_qed,
                     &mut c,
@@ -171,7 +171,7 @@ pub unsafe extern "C" fn rust_quad_ker(u: f64, rargs: *mut c_void) -> f64 {
         } else {
             let gamma_ns_qed = ekore::anomalous_dimensions::unpolarized::spacelike::gamma_ns_qed;
             raw = unravel_qed_ns(
-                gamma_ns_qed(
+                &gamma_ns_qed(
                     args.order_qcd,
                     args.order_qed,
                     args.mode0,

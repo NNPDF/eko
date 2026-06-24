@@ -1,12 +1,11 @@
 //! Cache harmonic sums for given Mellin N.
 
 use num::{complex::Complex, Zero};
-use std::collections::HashMap;
 
 use crate::harmonics::{g_functions, w1, w2, w3, w4, w5};
 
 /// List of available elements.
-#[derive(Debug, PartialEq, Eq, Hash)]
+#[derive(Debug, PartialEq, Eq)]
 pub enum K {
     /// $S_1(N)$
     S1,
@@ -50,12 +49,41 @@ pub enum K {
     Sm21o,
 }
 
+impl K {
+    fn idx(&self) -> usize {
+        match self {
+            K::S1 => 0,
+            K::S2 => 1,
+            K::S3 => 2,
+            K::S4 => 3,
+            K::S5 => 4,
+            K::S1h => 5,
+            K::S2h => 6,
+            K::S3h => 7,
+            K::S1mh => 8,
+            K::S2mh => 9,
+            K::S3mh => 10,
+            K::G3 => 11,
+            K::Sm1e => 12,
+            K::Sm1o => 13,
+            K::Sm2e => 14,
+            K::Sm2o => 15,
+            K::Sm3e => 16,
+            K::Sm3o => 17,
+            K::Sm21e => 18,
+            K::Sm21o => 19,
+        }
+    }
+}
+
+const N_CACHE: usize = 20;
+
 /// Hold all cached values.
 pub struct Cache {
     /// Mellin N
     n: Complex<f64>,
-    /// Mapping
-    m: HashMap<K, Complex<f64>>,
+    /// Flat lookup table indexed by K::idx()
+    m: [Option<Complex<f64>>; N_CACHE],
 }
 
 impl Cache {
@@ -63,7 +91,7 @@ impl Cache {
     pub fn new(n: Complex<f64>) -> Self {
         Self {
             n,
-            m: HashMap::new(),
+            m: [None; N_CACHE],
         }
     }
 
@@ -74,10 +102,9 @@ impl Cache {
 
     /// Retrieve an element.
     pub fn get(&mut self, k: K) -> Complex<f64> {
-        let val = self.m.get(&k);
-        // already there?
-        if let Some(value) = val {
-            return *value;
+        let idx = k.idx();
+        if let Some(val) = self.m[idx] {
+            return val;
         }
         // compute new
         let val = match k {
@@ -103,7 +130,7 @@ impl Cache {
             K::Sm21o => w3::Sm21o(self),
         };
         // insert
-        self.m.insert(k, val);
+        self.m[idx] = Some(val);
         val
     }
 }

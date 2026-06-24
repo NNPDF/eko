@@ -25,8 +25,8 @@ pub fn gamma_ns_qcd(
     c: &mut Cache,
     nf: u8,
     n3lo_variation: [u8; 3],
-) -> Vec<Complex<f64>> {
-    let mut gamma_ns = vec![Complex::<f64>::zero(); order_qcd];
+) -> [Complex<f64>; 4] {
+    let mut gamma_ns = [Complex::<f64>::zero(); 4];
     gamma_ns[0] = as1::gamma_ns(c, nf);
     // NLO and beyond
     if order_qcd >= 2 {
@@ -71,14 +71,8 @@ pub fn gamma_singlet_qcd(
     c: &mut Cache,
     nf: u8,
     n3lo_variation: [u8; 4],
-) -> Vec<[[Complex<f64>; 2]; 2]> {
-    let mut gamma_S = vec![
-        [
-            [Complex::<f64>::zero(), Complex::<f64>::zero()],
-            [Complex::<f64>::zero(), Complex::<f64>::zero()]
-        ];
-        order_qcd
-    ];
+) -> [[[Complex<f64>; 2]; 2]; 4] {
+    let mut gamma_S = [[[Complex::<f64>::zero(); 2]; 2]; 4];
     gamma_S[0] = as1::gamma_singlet(c, nf);
     // NLO and beyond
     if order_qcd >= 2 {
@@ -107,9 +101,8 @@ pub fn gamma_ns_qed(
     c: &mut Cache,
     nf: u8,
     n3lo_variation: [u8; 3],
-) -> Vec<Vec<Complex<f64>>> {
-    let col = vec![Complex::<f64>::zero(); order_qed + 1];
-    let mut gamma_ns = vec![col; order_qcd + 1];
+) -> [[Complex<f64>; 3]; 5] {
+    let mut gamma_ns = [[Complex::<f64>::zero(); 3]; 5];
 
     // QCD corrections
     let qcd_mode = match mode {
@@ -158,17 +151,8 @@ pub fn gamma_singlet_qed(
     c: &mut Cache,
     nf: u8,
     n3lo_variation: [u8; 7],
-) -> Vec<Vec<[[Complex<f64>; 4]; 4]>> {
-    let col = vec![
-        [[
-            Complex::<f64>::zero(),
-            Complex::<f64>::zero(),
-            Complex::<f64>::zero(),
-            Complex::<f64>::zero()
-        ]; 4];
-        order_qed + 1
-    ];
-    let mut gamma_s = vec![col; order_qcd + 1];
+) -> [[[[Complex<f64>; 4]; 4]; 3]; 5] {
+    let mut gamma_s = [[[[Complex::<f64>::zero(); 4]; 4]; 3]; 5];
 
     // QCD corrections
     let gamma_qcd_s = gamma_singlet_qcd(order_qcd, c, nf, n3lo_variation[0..4].try_into().unwrap());
@@ -229,9 +213,8 @@ pub fn gamma_valence_qed(
     c: &mut Cache,
     nf: u8,
     n3lo_variation: [u8; 3],
-) -> Vec<Vec<[[Complex<f64>; 2]; 2]>> {
-    let col = vec![[[Complex::<f64>::zero(), Complex::<f64>::zero(),]; 2]; order_qed + 1];
-    let mut gamma_v = vec![col; order_qcd + 1];
+) -> [[[[Complex<f64>; 2]; 2]; 3]; 5] {
+    let mut gamma_v = [[[[Complex::<f64>::zero(); 2]; 2]; 3]; 5];
 
     // QCD corrections
     let gamma_qcd_nsv = gamma_ns_qcd(order_qcd, PID_NSV, c, nf, n3lo_variation);

@@ -15,8 +15,8 @@ pub fn gamma_ns_qcd(
     c: &mut Cache,
     nf: u8,
     _n3lo_variation: [u8; 3],
-) -> Vec<Complex<f64>> {
-    let mut gamma_ns = vec![Complex::<f64>::zero(); order_qcd];
+) -> [Complex<f64>; 4] {
+    let mut gamma_ns = [Complex::<f64>::zero(); 4];
     gamma_ns[0] = as1::gamma_ns(c, nf);
     // NLO and beyond
     if order_qcd >= 2 {
@@ -47,14 +47,8 @@ pub fn gamma_singlet_qcd(
     c: &mut Cache,
     nf: u8,
     _n3lo_variation: [u8; 4],
-) -> Vec<[[Complex<f64>; 2]; 2]> {
-    let mut gamma_S = vec![
-        [
-            [Complex::<f64>::zero(), Complex::<f64>::zero()],
-            [Complex::<f64>::zero(), Complex::<f64>::zero()]
-        ];
-        order_qcd
-    ];
+) -> [[[Complex<f64>; 2]; 2]; 4] {
+    let mut gamma_S = [[[Complex::<f64>::zero(); 2]; 2]; 4];
     gamma_S[0] = as1::gamma_singlet(c, nf);
     // NLO and beyond
     if order_qcd >= 2 {
