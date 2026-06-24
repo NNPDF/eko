@@ -13,12 +13,13 @@ We may prefix the items to signal the scope:
 
 Items without prefix refer to a global change.
 
-## [Unreleased](https://github.com/NNPDF/eko/compare/v0.15.3...HEAD)
+## [Unreleased](https://github.com/NNPDF/eko/compare/v0.15.4...HEAD)
+
+## [0.15.4](https://github.com/NNPDF/eko/compare/v0.15.3...v0.15.4) - 2026-06-24
 
 ### Changed
 - py: Implement support for Python 3.14, dropping Python 3.10 ([#528](https://github.com/NNPDF/eko/pull/528))
 - rust: Make maturin a dev-dependency and use it directly for compilation ([#528](https://github.com/NNPDF/eko/pull/528))
-
 
 ### Fixed
 - rust: Fix and improve publication of Rust crates ([#522](https://github.com/NNPDF/eko/pull/522))
