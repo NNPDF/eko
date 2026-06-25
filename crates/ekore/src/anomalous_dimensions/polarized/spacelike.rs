@@ -1,6 +1,6 @@
 //! The polarized, space-like anomalous dimensions at various couplings power.
 
-use crate::constants::{PID_NSM, PID_NSP, PID_NSV};
+use crate::constants::{MAX_ORDER_QCD, PID_NSM, PID_NSP, PID_NSV};
 use crate::harmonics::cache::Cache;
 use num::complex::Complex;
 use num::Zero;
@@ -15,8 +15,8 @@ pub fn gamma_ns_qcd(
     c: &mut Cache,
     nf: u8,
     _n3lo_variation: [u8; 3],
-) -> [Complex<f64>; 4] {
-    let mut gamma_ns = [Complex::<f64>::zero(); 4];
+) -> [Complex<f64>; MAX_ORDER_QCD] {
+    let mut gamma_ns = [Complex::<f64>::zero(); MAX_ORDER_QCD];
     gamma_ns[0] = as1::gamma_ns(c, nf);
     // NLO and beyond
     if order_qcd >= 2 {
@@ -47,8 +47,8 @@ pub fn gamma_singlet_qcd(
     c: &mut Cache,
     nf: u8,
     _n3lo_variation: [u8; 4],
-) -> [[[Complex<f64>; 2]; 2]; 4] {
-    let mut gamma_S = [[[Complex::<f64>::zero(); 2]; 2]; 4];
+) -> [[[Complex<f64>; 2]; 2]; MAX_ORDER_QCD] {
+    let mut gamma_S = [[[Complex::<f64>::zero(); 2]; 2]; MAX_ORDER_QCD];
     gamma_S[0] = as1::gamma_singlet(c, nf);
     // NLO and beyond
     if order_qcd >= 2 {

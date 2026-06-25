@@ -1,7 +1,8 @@
 //! The unpolarized, space-like anomalous dimensions at various couplings power.
 
 use crate::constants::{
-    ED2, EU2, PID_NSM, PID_NSM_D, PID_NSM_U, PID_NSP, PID_NSP_D, PID_NSP_U, PID_NSV,
+    ED2, EU2, MAX_ORDER_QCD, MAX_ORDER_QED, PID_NSM, PID_NSM_D, PID_NSM_U, PID_NSP, PID_NSP_D,
+    PID_NSP_U, PID_NSV,
 };
 use crate::harmonics::cache::Cache;
 use num::complex::Complex;
@@ -25,8 +26,8 @@ pub fn gamma_ns_qcd(
     c: &mut Cache,
     nf: u8,
     n3lo_variation: [u8; 3],
-) -> [Complex<f64>; 4] {
-    let mut gamma_ns = [Complex::<f64>::zero(); 4];
+) -> [Complex<f64>; MAX_ORDER_QCD] {
+    let mut gamma_ns = [Complex::<f64>::zero(); MAX_ORDER_QCD];
     gamma_ns[0] = as1::gamma_ns(c, nf);
     // NLO and beyond
     if order_qcd >= 2 {
@@ -71,8 +72,8 @@ pub fn gamma_singlet_qcd(
     c: &mut Cache,
     nf: u8,
     n3lo_variation: [u8; 4],
-) -> [[[Complex<f64>; 2]; 2]; 4] {
-    let mut gamma_S = [[[Complex::<f64>::zero(); 2]; 2]; 4];
+) -> [[[Complex<f64>; 2]; 2]; MAX_ORDER_QCD] {
+    let mut gamma_S = [[[Complex::<f64>::zero(); 2]; 2]; MAX_ORDER_QCD];
     gamma_S[0] = as1::gamma_singlet(c, nf);
     // NLO and beyond
     if order_qcd >= 2 {
@@ -101,8 +102,8 @@ pub fn gamma_ns_qed(
     c: &mut Cache,
     nf: u8,
     n3lo_variation: [u8; 3],
-) -> [[Complex<f64>; 3]; 5] {
-    let mut gamma_ns = [[Complex::<f64>::zero(); 3]; 5];
+) -> [[Complex<f64>; MAX_ORDER_QED + 1]; MAX_ORDER_QCD + 1] {
+    let mut gamma_ns = [[Complex::<f64>::zero(); MAX_ORDER_QED + 1]; MAX_ORDER_QCD + 1];
 
     // QCD corrections
     let qcd_mode = match mode {
@@ -151,8 +152,8 @@ pub fn gamma_singlet_qed(
     c: &mut Cache,
     nf: u8,
     n3lo_variation: [u8; 7],
-) -> [[[[Complex<f64>; 4]; 4]; 3]; 5] {
-    let mut gamma_s = [[[[Complex::<f64>::zero(); 4]; 4]; 3]; 5];
+) -> [[[[Complex<f64>; 4]; 4]; MAX_ORDER_QED + 1]; MAX_ORDER_QCD + 1] {
+    let mut gamma_s = [[[[Complex::<f64>::zero(); 4]; 4]; MAX_ORDER_QED + 1]; MAX_ORDER_QCD + 1];
 
     // QCD corrections
     let gamma_qcd_s = gamma_singlet_qcd(order_qcd, c, nf, n3lo_variation[0..4].try_into().unwrap());
@@ -213,8 +214,8 @@ pub fn gamma_valence_qed(
     c: &mut Cache,
     nf: u8,
     n3lo_variation: [u8; 3],
-) -> [[[[Complex<f64>; 2]; 2]; 3]; 5] {
-    let mut gamma_v = [[[[Complex::<f64>::zero(); 2]; 2]; 3]; 5];
+) -> [[[[Complex<f64>; 2]; 2]; MAX_ORDER_QED + 1]; MAX_ORDER_QCD + 1] {
+    let mut gamma_v = [[[[Complex::<f64>::zero(); 2]; 2]; MAX_ORDER_QED + 1]; MAX_ORDER_QCD + 1];
 
     // QCD corrections
     let gamma_qcd_nsv = gamma_ns_qcd(order_qcd, PID_NSV, c, nf, n3lo_variation);

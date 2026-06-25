@@ -1,4 +1,5 @@
 //! The unpolarized, space-like |OME| at various couplings power.
+use crate::constants::MAX_ORDER_QCD;
 use crate::harmonics::cache::Cache;
 use num::complex::Complex;
 use num::Zero;
@@ -11,8 +12,8 @@ pub fn A_singlet(
     c: &mut Cache,
     nf: u8,
     L: f64,
-) -> [[[Complex<f64>; 3]; 3]; 4] {
-    let mut A_s = [[[Complex::<f64>::zero(); 3]; 3]; 4];
+) -> [[[Complex<f64>; 3]; 3]; MAX_ORDER_QCD] {
+    let mut A_s = [[[Complex::<f64>::zero(); 3]; 3]; MAX_ORDER_QCD];
     if matching_order_qcd >= 1 {
         A_s[0] = as1::A_singlet(c, nf, L);
     }
@@ -29,8 +30,8 @@ pub fn A_non_singlet(
     c: &mut Cache,
     nf: u8,
     L: f64,
-) -> [[[Complex<f64>; 2]; 2]; 4] {
-    let mut A_ns = [[[Complex::<f64>::zero(); 2]; 2]; 4];
+) -> [[[Complex<f64>; 2]; 2]; MAX_ORDER_QCD] {
+    let mut A_ns = [[[Complex::<f64>::zero(); 2]; 2]; MAX_ORDER_QCD];
     if matching_order_qcd >= 1 {
         A_ns[0] = as1::A_ns(c, nf, L);
     }
