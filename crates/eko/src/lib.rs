@@ -1,5 +1,6 @@
 //! Interface to the eko Python package.
 
+use ekore::constants::{MAX_ORDER_QCD, MAX_ORDER_QED};
 use ekore::harmonics::cache::Cache;
 use num::Complex;
 use std::ffi::c_void;
@@ -7,11 +8,12 @@ use std::ffi::c_void;
 pub mod bib;
 pub mod mellin;
 
-/// Map tensor with shape (o,d,d) into pre-allocated output buffers.
+/// Map tensor with shape `(order_QCD, d, d)` into pre-allocated output buffers.
 ///
-/// This is needed for the QCD singlet.
-fn unravel<const DIM: usize>(
-    res: &[[[Complex<f64>; DIM]; DIM]],
+/// Only the first `order_qcd` entries along the outer axis are written;
+/// remaining buffer slots are left undefined.
+fn unravel_qcd<const DIM: usize>(
+    res: &[[[Complex<f64>; DIM]; DIM]; MAX_ORDER_QCD],
     order_qcd: usize,
     out_re: &mut [f64],
     out_im: &mut [f64],
@@ -28,11 +30,12 @@ fn unravel<const DIM: usize>(
     }
 }
 
-/// Map tensor with shape (o,o',d,d) into pre-allocated output buffers.
+/// Map tensor with shape `(order_QCD+1, order_QED+1, d, d)` into pre-allocated output buffers.
 ///
-/// This is needed for the QED singlet and valence.
+/// The first `order_qcd + 1` entries along the QCD axis and `order_qed + 1` along the QED axis
+/// are written; remaining buffer slots are left undefined.
 fn unravel_qed<const DIM: usize>(
-    res: &[[[[Complex<f64>; DIM]; DIM]; 3]],
+    res: &[[[[Complex<f64>; DIM]; DIM]; MAX_ORDER_QED + 1]; MAX_ORDER_QCD + 1],
     order_qcd: usize,
     order_qed: usize,
     out_re: &mut [f64],
@@ -52,11 +55,12 @@ fn unravel_qed<const DIM: usize>(
     }
 }
 
-/// Map tensor with shape (o,o',d) into pre-allocated output buffers.
+/// Map tensor with shape `(order_QCD+1, order_QED+1)` into pre-allocated output buffers.
 ///
-/// This is needed for the QED non-singlet.
+/// The first `order_qcd + 1` entries along the QCD axis and `order_qed + 1` along the QED axis
+/// are written; remaining buffer slots are left undefined.
 fn unravel_qed_ns(
-    res: &[[Complex<f64>; 3]],
+    res: &[[Complex<f64>; MAX_ORDER_QED + 1]; MAX_ORDER_QCD + 1],
     order_qcd: usize,
     order_qed: usize,
     out_re: &mut [f64],
@@ -101,7 +105,7 @@ pub unsafe extern "C" fn rust_quad_ker(u: f64, rargs: *mut c_void) -> f64 {
 
     if args.is_ome {
         if is_singlet {
-            unravel(
+            unravel_qcd(
                 &ekore::operator_matrix_elements::unpolarized::spacelike::A_singlet(
                     args.order_qcd,
                     &mut c,
@@ -113,7 +117,7 @@ pub unsafe extern "C" fn rust_quad_ker(u: f64, rargs: *mut c_void) -> f64 {
                 out_im,
             );
         } else {
-            unravel(
+            unravel_qcd(
                 &ekore::operator_matrix_elements::unpolarized::spacelike::A_non_singlet(
                     args.order_qcd,
                     &mut c,
@@ -147,7 +151,7 @@ pub unsafe extern "C" fn rust_quad_ker(u: f64, rargs: *mut c_void) -> f64 {
                 true => ekore::anomalous_dimensions::polarized::spacelike::gamma_singlet_qcd,
                 false => ekore::anomalous_dimensions::unpolarized::spacelike::gamma_singlet_qcd,
             };
-            unravel(
+            unravel_qcd(
                 &gamma_singlet_qcd(
                     args.order_qcd,
                     &mut c,
