@@ -76,14 +76,14 @@ impl K {
     }
 }
 
-const N_CACHE: usize = 20;
+const CACHE_SIZE: usize = 20;
 
 /// Hold all cached values.
 pub struct Cache {
     /// Mellin N
     n: Complex<f64>,
     /// Flat lookup table indexed by K::idx()
-    m: [Option<Complex<f64>>; N_CACHE],
+    m: [Option<Complex<f64>>; CACHE_SIZE],
 }
 
 impl Cache {
@@ -91,7 +91,7 @@ impl Cache {
     pub fn new(n: Complex<f64>) -> Self {
         Self {
             n,
-            m: [None; N_CACHE],
+            m: [None; CACHE_SIZE],
         }
     }
 
@@ -166,6 +166,47 @@ mod tests {
         m += cmplx!(1., 0.);
         assert_approx_eq_cmplx!(f64, c.n(), n);
         assert_approx_eq_cmplx!(f64, m, cmplx!(2., 0.));
+    }
+
+    #[test]
+    fn test_cache_idx_mapping() {
+        let all_variants = [
+            K::S1,
+            K::S2,
+            K::S3,
+            K::S4,
+            K::S5,
+            K::S1h,
+            K::S2h,
+            K::S3h,
+            K::S1mh,
+            K::S2mh,
+            K::S3mh,
+            K::G3,
+            K::Sm1e,
+            K::Sm1o,
+            K::Sm2e,
+            K::Sm2o,
+            K::Sm3e,
+            K::Sm3o,
+            K::Sm21e,
+            K::Sm21o,
+        ];
+        // size: number of variants matches CACHE_SIZE
+        assert_eq!(all_variants.len(), CACHE_SIZE);
+
+        let mut c = Cache::new(cmplx!(2., 0.));
+        let mut seen = [false; CACHE_SIZE];
+        for v in all_variants {
+            let idx = v.idx();
+            // mapping is continuous: no duplicate indices
+            assert!(!seen[idx], "duplicate index {idx}");
+            seen[idx] = true;
+            // exercises Cache::get(), panics if idx() >= CACHE_SIZE (size check)
+            c.get(v);
+        }
+        // every slot 0..CACHE_SIZE was covered (no holes)
+        assert!(seen.iter().all(|&b| b), "index mapping has holes");
     }
 
     #[test]
