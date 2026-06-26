@@ -12,7 +12,7 @@ use num::{Zero, complex::Complex};
 ///
 /// We use the name from [\[MuselliPhD\]](crate::bib::MuselliPhD), but not his implementation - rather we use the
 /// Pegasus [\[Vogt:2004ns\]](crate::bib::Vogt2004ns) implementation.
-pub fn g3(c: &mut Cache) -> Complex<f64> {
+pub(super) fn g3(c: &mut Cache) -> Complex<f64> {
     let N = c.n();
     let S1 = c.get(K::S1);
     const CS: [f64; 7] = [

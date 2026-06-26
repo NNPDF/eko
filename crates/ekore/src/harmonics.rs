@@ -1,11 +1,11 @@
 //! Tools to compute harmonic sums and related special functions.
 
 pub mod cache;
-pub mod g_functions;
-pub mod log_functions;
-pub mod polygamma;
-pub mod w1;
-pub mod w2;
-pub mod w3;
-pub mod w4;
-pub mod w5;
+mod g_functions;
+pub(super) mod log_functions;
+mod polygamma;
+mod w1;
+mod w2;
+mod w3;
+mod w4;
+mod w5;
