@@ -99,9 +99,9 @@ pub unsafe extern "C" fn rust_quad_ker(u: f64, rargs: *mut c_void) -> f64 {
         .try_into()
         .unwrap();
 
-    let n_max = (args.order_qcd + 1) * (args.order_qed + 1) * 16;
-    let out_re = std::slice::from_raw_parts_mut(args.re_gamma, n_max);
-    let out_im = std::slice::from_raw_parts_mut(args.im_gamma, n_max);
+    let max_buffer_size = (args.order_qcd + 1) * (args.order_qed + 1) * 16;
+    let out_re = std::slice::from_raw_parts_mut(args.re_gamma, max_buffer_size);
+    let out_im = std::slice::from_raw_parts_mut(args.im_gamma, max_buffer_size);
 
     if args.is_ome {
         if is_singlet {
