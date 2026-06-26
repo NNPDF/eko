@@ -1,7 +1,8 @@
 //! The unpolarized, space-like anomalous dimensions at various couplings power.
 
 use crate::constants::{
-    ED2, EU2, PID_NSM, PID_NSM_D, PID_NSM_U, PID_NSP, PID_NSP_D, PID_NSP_U, PID_NSV,
+    ED2, EU2, MAX_ORDER_QCD, MAX_ORDER_QED, PID_NSM, PID_NSM_D, PID_NSM_U, PID_NSP, PID_NSP_D,
+    PID_NSP_U, PID_NSV,
 };
 use crate::harmonics::cache::Cache;
 use num::complex::Complex;
@@ -19,14 +20,17 @@ pub mod as4;
 /// `n3lo_variation = (ns_p, ns_m, ns_v)` is a list indicating which variation should
 /// be used. `variation = 1,2` is the upper/lower bound, while any other value
 /// returns the central (averaged) value.
+///
+/// Returns an array of shape `(MAX_ORDER_QCD,)`. Only the first `order_qcd` entries
+/// are filled; remaining slots are zero.
 pub fn gamma_ns_qcd(
     order_qcd: usize,
     mode: u16,
     c: &mut Cache,
     nf: u8,
     n3lo_variation: [u8; 3],
-) -> Vec<Complex<f64>> {
-    let mut gamma_ns = vec![Complex::<f64>::zero(); order_qcd];
+) -> [Complex<f64>; MAX_ORDER_QCD] {
+    let mut gamma_ns = [Complex::<f64>::zero(); MAX_ORDER_QCD];
     gamma_ns[0] = as1::gamma_ns(c, nf);
     // NLO and beyond
     if order_qcd >= 2 {
@@ -66,19 +70,16 @@ pub fn gamma_ns_qcd(
 /// `n3lo_variation = (gg, gq, qg, qq)` is a list indicating which variation should
 /// be used. `variation = 1,2` is the upper/lower bound, while any other value
 /// returns the central (averaged) value.
+///
+/// Returns an array of shape `(MAX_ORDER_QCD, d, d)`. Only the first `order_qcd`
+/// entries along the outer axis are filled; remaining slots are zero.
 pub fn gamma_singlet_qcd(
     order_qcd: usize,
     c: &mut Cache,
     nf: u8,
     n3lo_variation: [u8; 4],
-) -> Vec<[[Complex<f64>; 2]; 2]> {
-    let mut gamma_S = vec![
-        [
-            [Complex::<f64>::zero(), Complex::<f64>::zero()],
-            [Complex::<f64>::zero(), Complex::<f64>::zero()]
-        ];
-        order_qcd
-    ];
+) -> [[[Complex<f64>; 2]; 2]; MAX_ORDER_QCD] {
+    let mut gamma_S = [[[Complex::<f64>::zero(); 2]; 2]; MAX_ORDER_QCD];
     gamma_S[0] = as1::gamma_singlet(c, nf);
     // NLO and beyond
     if order_qcd >= 2 {
@@ -100,6 +101,10 @@ pub fn gamma_singlet_qcd(
 /// `n3lo_variation = (ns_p, ns_m, ns_v)` is a list indicating which variation should
 /// be used. `variation = 1,2` is the upper/lower bound, while any other value
 /// returns the central (averaged) value.
+///
+/// Returns an array of shape `(MAX_ORDER_QCD+1, MAX_ORDER_QED+1)`. The first
+/// `order_qcd + 1` entries along the QCD axis and `order_qed + 1` along the QED axis
+/// are filled; remaining slots are zero.
 pub fn gamma_ns_qed(
     order_qcd: usize,
     order_qed: usize,
@@ -107,9 +112,8 @@ pub fn gamma_ns_qed(
     c: &mut Cache,
     nf: u8,
     n3lo_variation: [u8; 3],
-) -> Vec<Vec<Complex<f64>>> {
-    let col = vec![Complex::<f64>::zero(); order_qed + 1];
-    let mut gamma_ns = vec![col; order_qcd + 1];
+) -> [[Complex<f64>; MAX_ORDER_QED + 1]; MAX_ORDER_QCD + 1] {
+    let mut gamma_ns = [[Complex::<f64>::zero(); MAX_ORDER_QED + 1]; MAX_ORDER_QCD + 1];
 
     // QCD corrections
     let qcd_mode = match mode {
@@ -152,23 +156,18 @@ pub fn gamma_ns_qed(
 /// `n3lo_variation = (gg, gq, qg, qq, ns_p, ns_m, ns_v)` is a list indicating which variation should
 /// be used. `variation = 1,2` is the upper/lower bound, while any other value
 /// returns the central (averaged) value.
+///
+/// Returns an array of shape `(MAX_ORDER_QCD+1, MAX_ORDER_QED+1, d, d)`. The first
+/// `order_qcd + 1` entries along the QCD axis and `order_qed + 1` along the QED axis
+/// are filled; remaining slots are zero.
 pub fn gamma_singlet_qed(
     order_qcd: usize,
     order_qed: usize,
     c: &mut Cache,
     nf: u8,
     n3lo_variation: [u8; 7],
-) -> Vec<Vec<[[Complex<f64>; 4]; 4]>> {
-    let col = vec![
-        [[
-            Complex::<f64>::zero(),
-            Complex::<f64>::zero(),
-            Complex::<f64>::zero(),
-            Complex::<f64>::zero()
-        ]; 4];
-        order_qed + 1
-    ];
-    let mut gamma_s = vec![col; order_qcd + 1];
+) -> [[[[Complex<f64>; 4]; 4]; MAX_ORDER_QED + 1]; MAX_ORDER_QCD + 1] {
+    let mut gamma_s = [[[[Complex::<f64>::zero(); 4]; 4]; MAX_ORDER_QED + 1]; MAX_ORDER_QCD + 1];
 
     // QCD corrections
     let gamma_qcd_s = gamma_singlet_qcd(order_qcd, c, nf, n3lo_variation[0..4].try_into().unwrap());
@@ -223,15 +222,18 @@ pub fn gamma_singlet_qed(
 /// `n3lo_variation = (ns_p, ns_m, ns_v)` is a list indicating which variation should
 /// be used. `variation = 1,2` is the upper/lower bound, while any other value
 /// returns the central (averaged) value.
+///
+/// Returns an array of shape `(MAX_ORDER_QCD+1, MAX_ORDER_QED+1, d, d)`. The first
+/// `order_qcd + 1` entries along the QCD axis and `order_qed + 1` along the QED axis
+/// are filled; remaining slots are zero.
 pub fn gamma_valence_qed(
     order_qcd: usize,
     order_qed: usize,
     c: &mut Cache,
     nf: u8,
     n3lo_variation: [u8; 3],
-) -> Vec<Vec<[[Complex<f64>; 2]; 2]>> {
-    let col = vec![[[Complex::<f64>::zero(), Complex::<f64>::zero(),]; 2]; order_qed + 1];
-    let mut gamma_v = vec![col; order_qcd + 1];
+) -> [[[[Complex<f64>; 2]; 2]; MAX_ORDER_QED + 1]; MAX_ORDER_QCD + 1] {
+    let mut gamma_v = [[[[Complex::<f64>::zero(); 2]; 2]; MAX_ORDER_QED + 1]; MAX_ORDER_QCD + 1];
 
     // QCD corrections
     let gamma_qcd_nsv = gamma_ns_qcd(order_qcd, PID_NSV, c, nf, n3lo_variation);

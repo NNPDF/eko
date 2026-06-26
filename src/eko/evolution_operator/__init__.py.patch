@@ -1,5 +1,5 @@
 diff --git a/src/eko/evolution_operator/__init__.py b/src/eko/evolution_operator/__init__.py
-index f3c234f0..3980359e 100644
+index d25e6e4e..6c93b180 100644
 --- a/src/eko/evolution_operator/__init__.py
 +++ b/src/eko/evolution_operator/__init__.py
 @@ -3,7 +3,6 @@ r"""Contains the central operator classes.
@@ -90,13 +90,13 @@ index f3c234f0..3980359e 100644
 +        cfg.as1 = self.as_list[1]
 +        cfg.as0 = self.as_list[0]
 +        as_list_len = self.as_list.shape[0]
-+        for j, a in enumerate(self.as_list.tolist()):
-+            cfg.as_list[j] = a
++        as_list = np.ascontiguousarray(self.as_list, dtype=np.float64)
++        ekors.ffi.memmove(cfg.as_list, as_list, as_list.nbytes)
 +        cfg.as_list_len = as_list_len
 +        a_half_x = self.a_half_list.shape[0]
 +        a_half_y = self.a_half_list.shape[1]
-+        for j, a in enumerate(self.a_half_list.flatten().tolist()):
-+            cfg.a_half[j] = a
++        a_half = np.ascontiguousarray(self.a_half_list, dtype=np.float64)
++        ekors.ffi.memmove(cfg.a_half, a_half, a_half.nbytes)
 +        cfg.a_half_x = a_half_x
 +        cfg.a_half_y = a_half_y
 +
@@ -109,7 +109,7 @@ index f3c234f0..3980359e 100644
      def run_op_integration(
          self,
          log_grid,
-@@ -312,18 +291,62 @@ class Operator(sv.ScaleVariationModeMixin):
+@@ -312,18 +291,65 @@ class Operator(sv.ScaleVariationModeMixin):
          """
          column = []
          k, logx = log_grid
@@ -141,8 +141,15 @@ index f3c234f0..3980359e 100644
 +        max_area_len = max_areas_shape[0] * max_areas_shape[1]
 +        areas_ffi = ekors.ffi.new("double[]", max_area_len)
 +        cfg.areas = areas_ffi
++        gamma_len = (self.order[0] + 1) * (self.order[1] + 1) * 16
++        re_gamma_ffi = ekors.ffi.new("double[]", gamma_len)
++        im_gamma_ffi = ekors.ffi.new("double[]", gamma_len)
++        cfg.re_gamma = re_gamma_ffi
++        cfg.im_gamma = im_gamma_ffi
 +
 +        self.update_cfg(cfg)
++
++        func = LowLevelCallable(ekors.lib.rust_quad_ker, ekors.ffi.addressof(cfg))
 +
          # iterate basis functions
          for j, bf in enumerate(self.int_disp):
@@ -155,8 +162,8 @@ index f3c234f0..3980359e 100644
              temp_dict = {}
 +            # prepare areas for C
 +            curareas = bf.areas_representation
-+            for j, x in enumerate(curareas.flatten().tolist()):
-+                cfg.areas[j] = x
++            areas = np.ascontiguousarray(curareas, dtype=np.float64)
++            ekors.ffi.memmove(cfg.areas, areas, areas.nbytes)
 +            cfg.areas_x = curareas.shape[0]
 +            cfg.areas_y = curareas.shape[1]
              # iterate sectors
@@ -164,10 +171,6 @@ index f3c234f0..3980359e 100644
 +            for label in labels:
 +                cfg.mode0 = label[0]
 +                cfg.mode1 = label[1]
-+                # construct the low level object
-+                func = LowLevelCallable(
-+                    ekors.lib.rust_quad_ker, ekors.ffi.addressof(cfg)
-+                )
                  res = integrate.quad(
 -                    self.quad_ker(
 -                        label=label, logx=logx, areas=bf.areas_representation

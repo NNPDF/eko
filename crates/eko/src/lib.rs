@@ -1,5 +1,6 @@
 //! Interface to the eko Python package.
 
+use ekore::constants::{MAX_ORDER_QCD, MAX_ORDER_QED};
 use ekore::harmonics::cache::Cache;
 use num::Complex;
 use std::ffi::c_void;
@@ -7,71 +8,72 @@ use std::ffi::c_void;
 pub mod bib;
 pub mod mellin;
 
-/// Wrapper to pass arguments back to Python.
-struct RawCmplx {
-    re: Vec<f64>,
-    im: Vec<f64>,
-}
-
-/// Map tensor with shape (o,d,d) to c-ordered list.
+/// Map tensor with shape `(order_QCD, d, d)` into pre-allocated output buffers.
 ///
-/// This is needed for the QCD singlet.
-fn unravel<const DIM: usize>(res: Vec<[[Complex<f64>; DIM]; DIM]>, order_qcd: usize) -> RawCmplx {
-    let mut target = RawCmplx {
-        re: Vec::<f64>::new(),
-        im: Vec::<f64>::new(),
-    };
+/// Only the first `order_qcd` entries along the outer axis are written;
+/// remaining buffer slots are left undefined.
+fn unravel_qcd<const DIM: usize>(
+    res: &[[[Complex<f64>; DIM]; DIM]; MAX_ORDER_QCD],
+    order_qcd: usize,
+    out_re: &mut [f64],
+    out_im: &mut [f64],
+) {
+    let mut i = 0;
     for obj in res.iter().take(order_qcd) {
-        for col in obj.iter().take(DIM) {
-            for el in col.iter().take(DIM) {
-                target.re.push(el.re);
-                target.im.push(el.im);
+        for col in obj.iter() {
+            for el in col.iter() {
+                out_re[i] = el.re;
+                out_im[i] = el.im;
+                i += 1;
             }
         }
     }
-    target
 }
 
-/// Map tensor with shape (o,o',d,d) to c-ordered list.
+/// Map tensor with shape `(order_QCD+1, order_QED+1, d, d)` into pre-allocated output buffers.
 ///
-/// This is needed for the QED singlet and valence.
+/// The first `order_qcd + 1` entries along the QCD axis and `order_qed + 1` along the QED axis
+/// are written; remaining buffer slots are left undefined.
 fn unravel_qed<const DIM: usize>(
-    res: Vec<Vec<[[Complex<f64>; DIM]; DIM]>>,
+    res: &[[[[Complex<f64>; DIM]; DIM]; MAX_ORDER_QED + 1]; MAX_ORDER_QCD + 1],
     order_qcd: usize,
     order_qed: usize,
-) -> RawCmplx {
-    let mut target = RawCmplx {
-        re: Vec::<f64>::new(),
-        im: Vec::<f64>::new(),
-    };
+    out_re: &mut [f64],
+    out_im: &mut [f64],
+) {
+    let mut i = 0;
     for obj_ in res.iter().take(order_qcd + 1) {
         for obj in obj_.iter().take(order_qed + 1) {
-            for col in obj.iter().take(DIM) {
-                for el in col.iter().take(DIM) {
-                    target.re.push(el.re);
-                    target.im.push(el.im);
+            for col in obj.iter() {
+                for el in col.iter() {
+                    out_re[i] = el.re;
+                    out_im[i] = el.im;
+                    i += 1;
                 }
             }
         }
     }
-    target
 }
 
-/// Map tensor with shape (o,o',d) to c-ordered list.
+/// Map tensor with shape `(order_QCD+1, order_QED+1)` into pre-allocated output buffers.
 ///
-/// This is needed for the QED non-singlet.
-fn unravel_qed_ns(res: Vec<Vec<Complex<f64>>>, order_qcd: usize, order_qed: usize) -> RawCmplx {
-    let mut target = RawCmplx {
-        re: Vec::<f64>::new(),
-        im: Vec::<f64>::new(),
-    };
+/// The first `order_qcd + 1` entries along the QCD axis and `order_qed + 1` along the QED axis
+/// are written; remaining buffer slots are left undefined.
+fn unravel_qed_ns(
+    res: &[[Complex<f64>; MAX_ORDER_QED + 1]; MAX_ORDER_QCD + 1],
+    order_qcd: usize,
+    order_qed: usize,
+    out_re: &mut [f64],
+    out_im: &mut [f64],
+) {
+    let mut i = 0;
     for col in res.iter().take(order_qcd + 1) {
         for el in col.iter().take(order_qed + 1) {
-            target.re.push(el.re);
-            target.im.push(el.im);
+            out_re[i] = el.re;
+            out_im[i] = el.im;
+            i += 1;
         }
     }
-    target
 }
 
 /// Integration kernel inside quad.
@@ -93,42 +95,46 @@ pub unsafe extern "C" fn rust_quad_ker(u: f64, rargs: *mut c_void) -> f64 {
     let path = mellin::TalbotPath::new(u, args.logx, is_singlet);
     let jac = path.jac() * path.prefactor();
     let mut c = Cache::new(path.n());
-    let mut raw = RawCmplx {
-        re: Vec::<f64>::new(),
-        im: Vec::<f64>::new(),
-    };
-    let n3lo_ad_variation = std::slice::from_raw_parts(args.n3lo_ad_variation, 7)
+    let n3lo_ad_variation: [u8; 7] = std::slice::from_raw_parts(args.n3lo_ad_variation, 7)
         .try_into()
         .unwrap();
 
+    let max_buffer_size = (args.order_qcd + 1) * (args.order_qed + 1) * 16;
+    let out_re = std::slice::from_raw_parts_mut(args.re_gamma, max_buffer_size);
+    let out_im = std::slice::from_raw_parts_mut(args.im_gamma, max_buffer_size);
+
     if args.is_ome {
         if is_singlet {
-            raw = unravel(
-                ekore::operator_matrix_elements::unpolarized::spacelike::A_singlet(
+            unravel_qcd(
+                &ekore::operator_matrix_elements::unpolarized::spacelike::A_singlet(
                     args.order_qcd,
                     &mut c,
                     args.nf,
                     args.L,
                 ),
                 args.order_qcd,
+                out_re,
+                out_im,
             );
         } else {
-            raw = unravel(
-                ekore::operator_matrix_elements::unpolarized::spacelike::A_non_singlet(
+            unravel_qcd(
+                &ekore::operator_matrix_elements::unpolarized::spacelike::A_non_singlet(
                     args.order_qcd,
                     &mut c,
                     args.nf,
                     args.L,
                 ),
                 args.order_qcd,
+                out_re,
+                out_im,
             );
         }
     } else if is_singlet {
         if args.order_qed > 0 {
             let gamma_singlet_qed =
                 ekore::anomalous_dimensions::unpolarized::spacelike::gamma_singlet_qed;
-            raw = unravel_qed(
-                gamma_singlet_qed(
+            unravel_qed(
+                &gamma_singlet_qed(
                     args.order_qcd,
                     args.order_qed,
                     &mut c,
@@ -137,28 +143,32 @@ pub unsafe extern "C" fn rust_quad_ker(u: f64, rargs: *mut c_void) -> f64 {
                 ),
                 args.order_qcd,
                 args.order_qed,
+                out_re,
+                out_im,
             );
         } else {
             let gamma_singlet_qcd = match args.is_polarized {
                 true => ekore::anomalous_dimensions::polarized::spacelike::gamma_singlet_qcd,
                 false => ekore::anomalous_dimensions::unpolarized::spacelike::gamma_singlet_qcd,
             };
-            raw = unravel(
-                gamma_singlet_qcd(
+            unravel_qcd(
+                &gamma_singlet_qcd(
                     args.order_qcd,
                     &mut c,
                     args.nf,
                     n3lo_ad_variation[0..4].try_into().unwrap(),
                 ),
                 args.order_qcd,
+                out_re,
+                out_im,
             );
         }
     } else if args.order_qed > 0 {
         if is_qed_valence {
             let gamma_valence_qed =
                 ekore::anomalous_dimensions::unpolarized::spacelike::gamma_valence_qed;
-            raw = unravel_qed(
-                gamma_valence_qed(
+            unravel_qed(
+                &gamma_valence_qed(
                     args.order_qcd,
                     args.order_qed,
                     &mut c,
@@ -167,11 +177,13 @@ pub unsafe extern "C" fn rust_quad_ker(u: f64, rargs: *mut c_void) -> f64 {
                 ),
                 args.order_qcd,
                 args.order_qed,
+                out_re,
+                out_im,
             );
         } else {
             let gamma_ns_qed = ekore::anomalous_dimensions::unpolarized::spacelike::gamma_ns_qed;
-            raw = unravel_qed_ns(
-                gamma_ns_qed(
+            unravel_qed_ns(
+                &gamma_ns_qed(
                     args.order_qcd,
                     args.order_qed,
                     args.mode0,
@@ -181,10 +193,11 @@ pub unsafe extern "C" fn rust_quad_ker(u: f64, rargs: *mut c_void) -> f64 {
                 ),
                 args.order_qcd,
                 args.order_qed,
+                out_re,
+                out_im,
             );
         }
     } else {
-        // we can not do 1D
         let gamma_ns_qcd = match args.is_polarized {
             true => ekore::anomalous_dimensions::polarized::spacelike::gamma_ns_qcd,
             false => ekore::anomalous_dimensions::unpolarized::spacelike::gamma_ns_qcd,
@@ -196,16 +209,16 @@ pub unsafe extern "C" fn rust_quad_ker(u: f64, rargs: *mut c_void) -> f64 {
             args.nf,
             n3lo_ad_variation[4..7].try_into().unwrap(),
         );
-        for el in res.iter().take(args.order_qcd) {
-            raw.re.push(el.re);
-            raw.im.push(el.im);
+        for (i, el) in res.iter().take(args.order_qcd).enumerate() {
+            out_re[i] = el.re;
+            out_im[i] = el.im;
         }
     }
 
     // pass on
     (args.py)(
-        raw.re.as_ptr(),
-        raw.im.as_ptr(),
+        args.re_gamma as *const f64,
+        args.im_gamma as *const f64,
         c.n().re,
         c.n().im,
         jac.re,
@@ -317,6 +330,9 @@ pub struct QuadArgs {
     pub alphaem_running: bool,
     // additional param required for N3LO
     pub n3lo_ad_variation: *const u8,
+    // pre-allocated gamma output buffers (owned by Python, written by Rust)
+    pub re_gamma: *mut f64,
+    pub im_gamma: *mut f64,
 }
 
 /// Empty placeholder function for python callback.
@@ -403,5 +419,7 @@ pub unsafe extern "C" fn empty_args() -> QuadArgs {
         a_half_y: 0,
         alphaem_running: false,
         n3lo_ad_variation: [0, 0, 0, 0, 0, 0, 0].as_ptr(),
+        re_gamma: std::ptr::null_mut(),
+        im_gamma: std::ptr::null_mut(),
     }
 }

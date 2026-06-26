@@ -158,3 +158,76 @@ This adds a fixed overhead of several milliseconds on every `integrate.quad` nod
 ### Decision
 
 The `nb → rs → nb` architecture introduced in [526](https://github.com/NNPDF/eko/pull/526) was not viable, hence the PR was closed. The preferred short-term path remains `scipy → Rust → Numba → Rust → scipy`. See [architecture.md §5](./architecture.md#5-scipyintegratequad) for the full discussion.
+
+---
+
+## 542: Remove mallocs, single shared buffer
+
+After [542](https://github.com/NNPDF/eko/pull/542), all mallocs were removed from `eko` and `ekore`, the gamma output is now written directly into a single Python-owned `f64` buffer that is pre-allocated once and passed through `QuadArgs`, minor python loops were removed.
+
+### Full-suite timing (`/usr/bin/time -v`)
+
+```text
+====================== 3 passed, 12 deselected, 1 warning in 219.57s (0:03:39) ======================
+        Command being timed: "poe lha -m nnlo and sv"
+        User time (seconds): 342.81
+        System time (seconds): 2.75
+        Percent of CPU this job got: 101%
+        Elapsed (wall clock) time (h:mm:ss or m:ss): 5:40.23
+        Average shared text size (kbytes): 0
+        Average unshared data size (kbytes): 0
+        Average stack size (kbytes): 0
+        Average total size (kbytes): 0
+        Maximum resident set size (kbytes): 931916
+        Average resident set size (kbytes): 0
+        Major (requiring I/O) page faults: 1681
+        Minor (reclaiming a frame) page faults: 679694
+        Voluntary context switches: 3758
+        Involuntary context switches: 3360
+        Swaps: 0
+        File system inputs: 366568
+        File system outputs: 179328
+        Socket messages sent: 0
+        Socket messages received: 0
+        Signals delivered: 0
+        Page size (bytes): 4096
+        Exit status: 0
+```
+
+### Comparison with master
+
+| | Wall clock | pytest time |
+| --- | ---------- | ----------- |
+| [master](https://github.com/NNPDF/eko/tree/5aebe0abdea3e75ed7761b5ad4ce31d7fd227cd4) | 6:33 | 4:16 |
+| PR #542 | 5:40 | 3:39 |
+| **improvement** | | **−14.5%** |
+
+### Rust/Python time split and memory analysis
+
+Some debugging revealed where time is actually spent per integration:
+
+```text
+Evolution: Rust/Python split over 891240 quad evaluations — Rust (anomalous dims): 1.573 s (9.5%), Python (numba callback): 15.015 s (90.5%)
+Matching:  Rust/Python split over 1847076 quad evaluations — Rust (anomalous dims): 2.654 s (11.4%), Python (numba callback): 20.665 s (88.6%)
+```
+
+~90% of integration time is spent in the Python/Numba callback. This sets a hard ceiling: even eliminating the Rust side entirely could only improve total runtime by ~10%.
+
+Regarding the peak RSS (~910 MB): this is not a maturin issue. Switching the compile step to `pip install -e . crates/eko` produces nearly identical RSS. The process sits at ~800 MB for the entire run; the peak is caused by a transient spike at the end when computed results are compared against reference values. The 800 MB baseline itself is dominated by Numba `cfunc` compilation at import time:
+
+```text
+[MEM] eko.__init__: START                                      RSS=   58.1 MB  (baseline reset)
+[MEM] interpolation: loaded (all @njit functions)              RSS=  147.3 MB  delta=+89.2 MB
+[MEM] beta: loaded (all @njit functions)                       RSS=  186.4 MB  delta=+38.8 MB
+[MEM] quad_ker: cb_quad_ker_qcd @cfunc loaded                  RSS=  539.9 MB  delta=+353.0 MB
+[MEM] quad_ker: cb_quad_ker_ome @cfunc loaded                  RSS=  557.1 MB  delta=+17.1 MB
+[MEM] quad_ker: cb_quad_ker_qed @cfunc loaded (all cfuncs done)  RSS=  722.9 MB  delta=+165.9 MB
+[MEM] eko.__init__: END (all submodules loaded)                RSS=  722.9 MB
+```
+
+Of the 722.9 MB loaded at startup, only ~58 MB (~8%) is non-Numba code; the three `cfunc`s alone account for ~74%. The long-term fix is to port them to Rust (see [#383](https://github.com/NNPDF/eko/issues/383)), at which point the memory footprint will drop substantially.
+
+### Further optimisation attempts and conclusions
+
+- **quad_vec**: tried passing multiple integrand points at once; failed because `scipy.LowLevelCallable` cannot be used with `quad_vec`, causing a regression to 4:19.
+- **SIMD / FMA**: passing batches of points to `rust_quad_ker` could allow LLVM to emit SIMD instructions, but this requires significant changes for a gain capped at ~5–10% on the Rust share (i.e. ≤1% overall).

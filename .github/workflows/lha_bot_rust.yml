@@ -4,7 +4,7 @@ name: LHA Benchmarks (Rust)
 on:
   push:
     branches-ignore:
-      - "*"
+      - "**"
     tags:
   pull_request:
     types:

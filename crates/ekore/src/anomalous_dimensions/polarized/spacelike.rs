@@ -1,6 +1,6 @@
 //! The polarized, space-like anomalous dimensions at various couplings power.
 
-use crate::constants::{PID_NSM, PID_NSP, PID_NSV};
+use crate::constants::{MAX_ORDER_QCD, PID_NSM, PID_NSP, PID_NSV};
 use crate::harmonics::cache::Cache;
 use num::complex::Complex;
 use num::Zero;
@@ -9,14 +9,17 @@ pub mod as2;
 // pub mod as3;
 
 /// Compute the tower of the non-singlet anomalous dimensions.
+///
+/// Returns an array of shape `(MAX_ORDER_QCD,)`. Only the first `order_qcd` entries
+/// are filled; remaining slots are zero.
 pub fn gamma_ns_qcd(
     order_qcd: usize,
     mode: u16,
     c: &mut Cache,
     nf: u8,
     _n3lo_variation: [u8; 3],
-) -> Vec<Complex<f64>> {
-    let mut gamma_ns = vec![Complex::<f64>::zero(); order_qcd];
+) -> [Complex<f64>; MAX_ORDER_QCD] {
+    let mut gamma_ns = [Complex::<f64>::zero(); MAX_ORDER_QCD];
     gamma_ns[0] = as1::gamma_ns(c, nf);
     // NLO and beyond
     if order_qcd >= 2 {
@@ -42,19 +45,16 @@ pub fn gamma_ns_qcd(
 }
 
 /// Compute the tower of the singlet anomalous dimension matrices.
+///
+/// Returns an array of shape `(MAX_ORDER_QCD, d, d)`. Only the first `order_qcd`
+/// entries along the outer axis are filled; remaining slots are zero.
 pub fn gamma_singlet_qcd(
     order_qcd: usize,
     c: &mut Cache,
     nf: u8,
     _n3lo_variation: [u8; 4],
-) -> Vec<[[Complex<f64>; 2]; 2]> {
-    let mut gamma_S = vec![
-        [
-            [Complex::<f64>::zero(), Complex::<f64>::zero()],
-            [Complex::<f64>::zero(), Complex::<f64>::zero()]
-        ];
-        order_qcd
-    ];
+) -> [[[Complex<f64>; 2]; 2]; MAX_ORDER_QCD] {
+    let mut gamma_S = [[[Complex::<f64>::zero(); 2]; 2]; MAX_ORDER_QCD];
     gamma_S[0] = as1::gamma_singlet(c, nf);
     // NLO and beyond
     if order_qcd >= 2 {
