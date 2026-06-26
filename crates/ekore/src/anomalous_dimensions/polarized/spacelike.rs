@@ -9,6 +9,9 @@ pub mod as2;
 // pub mod as3;
 
 /// Compute the tower of the non-singlet anomalous dimensions.
+///
+/// Returns an array of shape `(MAX_ORDER_QCD,)`. Only the first `order_qcd` entries
+/// are filled; remaining slots are zero.
 pub fn gamma_ns_qcd(
     order_qcd: usize,
     mode: u16,
@@ -42,6 +45,9 @@ pub fn gamma_ns_qcd(
 }
 
 /// Compute the tower of the singlet anomalous dimension matrices.
+///
+/// Returns an array of shape `(MAX_ORDER_QCD, d, d)`. Only the first `order_qcd`
+/// entries along the outer axis are filled; remaining slots are zero.
 pub fn gamma_singlet_qcd(
     order_qcd: usize,
     c: &mut Cache,

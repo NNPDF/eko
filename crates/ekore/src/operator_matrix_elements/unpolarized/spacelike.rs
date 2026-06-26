@@ -7,6 +7,9 @@ pub mod as1;
 pub mod as2;
 
 /// Compute the tower of the singlet |OME|.
+///
+/// Returns an array of shape `(MAX_ORDER_QCD, d, d)`. Only the first `matching_order_qcd`
+/// entries along the outer axis are filled; remaining slots are zero.
 pub fn A_singlet(
     matching_order_qcd: usize,
     c: &mut Cache,
@@ -25,6 +28,9 @@ pub fn A_singlet(
 }
 
 /// Compute the tower of the non-singlet |OME|.
+///
+/// Returns an array of shape `(MAX_ORDER_QCD, d, d)`. Only the first `matching_order_qcd`
+/// entries along the outer axis are filled; remaining slots are zero.
 pub fn A_non_singlet(
     matching_order_qcd: usize,
     c: &mut Cache,
