@@ -31,12 +31,6 @@ pub const PID_NSM_U: u16 = 10202;
 /// valence-like non-singlet down-sector |PID|.
 pub const PID_NSM_D: u16 = 10203;
 
-/// Maximum QCD coupling power implemented.
-pub const MAX_ORDER_QCD: usize = 4;
-
-/// Maximum QED coupling power implemented.
-pub const MAX_ORDER_QED: usize = 2;
-
 /// |QED| electric charge combinations.
 pub(crate) struct ChargeCombinations {
     pub nf: u8,
