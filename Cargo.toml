@@ -21,6 +21,7 @@ repository = "https://github.com/NNPDF/eko"
 rust-version = "1.70.0"
 version = "0.0.1"
 
+# all dependencies should be collected here in the workspace
 [workspace.dependencies]
 # Internal crates
 ekore = { path = "crates/ekore", version = "0.0.1" }

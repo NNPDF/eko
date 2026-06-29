@@ -10,13 +10,9 @@ CRATES = json.loads((HERE / "release.json").read_text())
 
 def workspace(manifest, version):
     manifest["workspace"]["package"]["version"] = version
-    return manifest
-
-
-def crate(manifest, version):
-    internals = set(manifest["dependencies"].keys()).intersection(CRATES)
+    internals = set(manifest["workspace"]["dependencies"].keys()).intersection(CRATES)
     for dep in internals:
-        manifest["dependencies"][dep]["version"] = version
+        manifest["workspace"]["dependencies"][dep]["version"] = version
     return manifest
 
 
@@ -29,8 +25,6 @@ def update(path, version, edit):
 
 def main(version):
     update("..", version, workspace)
-    for name in CRATES:
-        update(name, version, crate)
 
 
 if __name__ == "__main__":
