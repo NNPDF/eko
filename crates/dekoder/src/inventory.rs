@@ -3,7 +3,7 @@ use lz4_flex::frame::FrameDecoder;
 use ndarray_npy::NpzReader;
 use std::collections::HashMap;
 use std::ffi::OsString;
-use std::fs::{read_dir, read_to_string, File};
+use std::fs::{File, read_dir, read_to_string};
 use std::io::{Cursor, Read};
 use std::path::PathBuf;
 use yaml_rust2::{Yaml, YamlLoader};
@@ -35,7 +35,7 @@ impl<K: Eq + for<'a> TryFrom<&'a Yaml, Error = EKOError>> Inventory<K> {
         for entry in read_dir(&self.path)? {
             // is header file?
             let entry = entry?.path();
-            if !entry.extension().is_some_and(|ext| ext == HEADER_EXT) {
+            if entry.extension().is_none_or(|ext| ext != HEADER_EXT) {
                 continue;
             }
             // read

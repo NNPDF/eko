@@ -1,6 +1,6 @@
 //! Utilities for reading and writing an eko output.
-use std::fs::remove_dir_all;
 use std::fs::File;
+use std::fs::remove_dir_all;
 use std::io::BufWriter;
 use std::path::PathBuf;
 use yaml_rust2::Yaml;

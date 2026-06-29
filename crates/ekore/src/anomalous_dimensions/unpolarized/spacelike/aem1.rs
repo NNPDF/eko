@@ -1,9 +1,9 @@
 //! |LO| |QED|.
-use num::complex::Complex;
 use num::Zero;
+use num::complex::Complex;
 
 use crate::cmplx;
-use crate::constants::{ChargeCombinations, CF, ED2, EU2, NC, TR};
+use crate::constants::{CF, ChargeCombinations, ED2, EU2, NC, TR};
 use crate::harmonics::cache::Cache;
 
 use crate::anomalous_dimensions::unpolarized::spacelike::as1;
@@ -92,8 +92,8 @@ pub fn gamma_valence(c: &mut Cache, nf: u8) -> [[Complex<f64>; 2]; 2] {
 mod tests {
     use super::*;
     use crate::{assert_approx_eq_cmplx, cmplx};
-    use num::complex::Complex;
     use num::Zero;
+    use num::complex::Complex;
     const NF: u8 = 5;
 
     #[test]

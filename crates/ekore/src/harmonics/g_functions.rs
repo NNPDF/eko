@@ -3,7 +3,7 @@
 use crate::constants::ZETA2;
 use crate::harmonics::cache::recursive_harmonic_sum as s;
 use crate::harmonics::cache::{Cache, K};
-use num::{complex::Complex, Zero};
+use num::{Zero, complex::Complex};
 
 /// Compute the Mellin transform of $\text{Li}_2(x)/(1+x)$.
 ///

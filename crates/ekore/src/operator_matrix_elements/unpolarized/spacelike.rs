@@ -1,8 +1,8 @@
 //! The unpolarized, space-like |OME| at various couplings power.
 use crate::constants::MAX_ORDER_QCD;
 use crate::harmonics::cache::Cache;
-use num::complex::Complex;
 use num::Zero;
+use num::complex::Complex;
 pub mod as1;
 pub mod as2;
 

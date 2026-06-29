@@ -1,8 +1,8 @@
 //! |NNLO| |QCD|.
 
+use num::Zero;
 use num::complex::Complex;
 use num::traits::Pow;
-use num::Zero;
 
 use crate::constants::{CA, CF, TR, ZETA2, ZETA3};
 use crate::harmonics::cache::{Cache, K};

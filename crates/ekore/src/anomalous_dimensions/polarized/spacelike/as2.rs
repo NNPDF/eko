@@ -132,9 +132,9 @@ mod tests {
     use super::*;
     use crate::harmonics::cache::Cache;
     use crate::{assert_approx_eq_cmplx, cmplx};
+    use num::Zero;
     use num::complex::Complex;
     use num::traits::Pow;
-    use num::Zero;
     use std::f64::consts::PI;
 
     const NF: u8 = 5;

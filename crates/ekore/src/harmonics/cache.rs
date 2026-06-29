@@ -1,6 +1,6 @@
 //! Cache harmonic sums for given Mellin N.
 
-use num::{complex::Complex, Zero};
+use num::{Zero, complex::Complex};
 
 use crate::harmonics::{g_functions, w1, w2, w3, w4, w5};
 
