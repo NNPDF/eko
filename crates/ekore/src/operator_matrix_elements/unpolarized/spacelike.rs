@@ -46,3 +46,36 @@ pub fn A_non_singlet(
     }
     A_ns
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::{assert_approx_eq_cmplx, assert_approx_eq_cmplx_2d, cmplx};
+    use num::complex::Complex;
+
+    #[test]
+    fn test_shapes() {
+        const NF: u8 = 4;
+        const N: Complex<f64> = cmplx!(0., 1.);
+        const L: f64 = 0.0;
+        for matching_order_qcd in 1..=2usize {
+            let mut c = Cache::new(N);
+            let a_s = A_singlet(matching_order_qcd, &mut c, NF, L);
+            assert_eq!(a_s.len(), MAX_ORDER_QCD);
+            assert_eq!(a_s[0].len(), 3);
+            assert_eq!(a_s[0][0].len(), 3);
+            // slots beyond order_qcd must be zero
+            for item in a_s.iter().skip(matching_order_qcd) {
+                assert_approx_eq_cmplx_2d!(f64, item, [[cmplx!(0., 0.); 3]; 3], 3);
+            }
+            let a_ns = A_non_singlet(matching_order_qcd, &mut c, NF, L);
+            assert_eq!(a_ns.len(), MAX_ORDER_QCD);
+            assert_eq!(a_ns[0].len(), 2);
+            assert_eq!(a_ns[0][0].len(), 2);
+            // slots beyond order_qcd must be zero
+            for item in a_ns.iter().skip(matching_order_qcd) {
+                assert_approx_eq_cmplx_2d!(f64, item, [[cmplx!(0., 0.); 2]; 2], 2);
+            }
+        }
+    }
+}
