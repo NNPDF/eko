@@ -1,0 +1,7 @@
+language = "C"
+
+include_guard = "EKORE_H"
+cpp_compat = true
+usize_is_size_t = true
+sys_includes = ["stddef.h", "stdint.h"]
+no_includes = true
