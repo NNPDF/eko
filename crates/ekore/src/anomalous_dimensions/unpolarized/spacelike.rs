@@ -298,6 +298,9 @@ mod tests {
             3,
             epsilon = 8e-4
         );
+
+        let gamma_nsp = gamma_ns_qcd(4, PID_NSP, &mut c, NF, n3lo_variation);
+        assert!(gamma_nsp.iter().any(|x| x.norm() > 1e-6));
     }
 
     #[test]
@@ -332,6 +335,30 @@ mod tests {
                 cmplx!(0., 0.),
                 epsilon = 1e-5
             );
+        }
+
+        // aem2 + as1aem1
+        for pid in [PID_NSM_U, PID_NSM_D] {
+            let g = gamma_ns_qed(1, 2, pid, &mut c, NF, n3lo_variation);
+            for row in g.iter().take(2) {
+                assert_approx_eq_cmplx_1d!(f64, row, [cmplx!(0., 0.); 3], 3, epsilon = 1e-5);
+            }
+        }
+
+        // as2
+        for pid in [PID_NSM_U, PID_NSM_D] {
+            let g = gamma_ns_qed(2, 1, pid, &mut c, NF, n3lo_variation);
+            for row in g.iter().take(3) {
+                assert_approx_eq_cmplx_1d!(f64, row, [cmplx!(0., 0.); 2], 2, epsilon = 1e-5);
+            }
+        }
+
+        // as3
+        for pid in [PID_NSM_U, PID_NSM_D] {
+            let g = gamma_ns_qed(3, 1, pid, &mut c, NF, n3lo_variation);
+            for row in g.iter().take(4) {
+                assert_approx_eq_cmplx_1d!(f64, row, [cmplx!(0., 0.); 2], 2, epsilon = 1e-3);
+            }
         }
     }
 
@@ -401,5 +428,52 @@ mod tests {
             4,
             epsilon = 1e-5
         );
+    }
+
+    #[test]
+    fn test_dim_singlet() {
+        const NF: u8 = 3;
+        const N: Complex<f64> = cmplx!(2., 0.);
+        let mut c = Cache::new(N);
+        let g = gamma_singlet_qed(3, 2, &mut c, NF, [0u8; 7]);
+        assert_eq!(g.len(), MAX_ORDER_QCD + 1);
+        assert_eq!(g[0].len(), MAX_ORDER_QED + 1);
+        assert_eq!(g[0][0].len(), 4);
+        assert_eq!(g[0][0][0].len(), 4);
+    }
+
+    #[test]
+    fn test_dim_valence() {
+        const NF: u8 = 3;
+        const N: Complex<f64> = cmplx!(2., 0.);
+        let mut c = Cache::new(N);
+        let g = gamma_valence_qed(3, 2, &mut c, NF, [0u8; 3]);
+        assert_eq!(g.len(), MAX_ORDER_QCD + 1);
+        assert_eq!(g[0].len(), MAX_ORDER_QED + 1);
+        assert_eq!(g[0][0].len(), 2);
+        assert_eq!(g[0][0][0].len(), 2);
+    }
+
+    #[test]
+    fn test_dim_nsp() {
+        const NF: u8 = 3;
+        const N: Complex<f64> = cmplx!(2., 0.);
+        let mut c = Cache::new(N);
+        let g = gamma_ns_qed(3, 2, PID_NSP_U, &mut c, NF, [0u8; 3]);
+        assert_eq!(g.len(), MAX_ORDER_QCD + 1);
+        assert_eq!(g[0].len(), MAX_ORDER_QED + 1);
+        let g = gamma_ns_qed(3, 2, PID_NSP_D, &mut c, NF, [0u8; 3]);
+        assert_eq!(g.len(), MAX_ORDER_QCD + 1);
+        assert_eq!(g[0].len(), MAX_ORDER_QED + 1);
+    }
+
+    #[test]
+    #[should_panic(expected = "Unknown non-singlet sector element")]
+    fn test_unknown_pid_panics() {
+        const NF: u8 = 3;
+        const N: Complex<f64> = cmplx!(2., 0.);
+        let mut c = Cache::new(N);
+        // PID 10106 is not a valid non-singlet mode
+        gamma_ns_qed(2, 0, 10106, &mut c, NF, [0u8; 3]);
     }
 }
