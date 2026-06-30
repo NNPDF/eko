@@ -8,23 +8,14 @@ HERE = Path(__file__).parent
 CRATES = json.loads((HERE / "release.json").read_text())
 
 
-def workspace(manifest, version):
+def main(version):
+    path = HERE / ".." / "Cargo.toml"
+    manifest = tomlkit.parse(path.read_text())
     manifest["workspace"]["package"]["version"] = version
     internals = set(manifest["workspace"]["dependencies"].keys()).intersection(CRATES)
     for dep in internals:
         manifest["workspace"]["dependencies"][dep]["version"] = version
-    return manifest
-
-
-def update(path, version, edit):
-    path = HERE / Path(path) / "Cargo.toml"
-    manifest = tomlkit.parse(path.read_text())
-    manifest = edit(manifest, version)
     path.write_text(tomlkit.dumps(manifest))
-
-
-def main(version):
-    update("..", version, workspace)
 
 
 if __name__ == "__main__":
