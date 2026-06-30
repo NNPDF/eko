@@ -2,8 +2,8 @@
 use crate::cmplx;
 use num::complex::Complex;
 
-use crate::constants::{ChargeCombinations, CA, CF, ED2, EU2, NC, TR, ZETA2, ZETA3};
-use crate::harmonics::cache::{recursive_harmonic_sum, Cache, K};
+use crate::constants::{CA, CF, ChargeCombinations, ED2, EU2, NC, TR, ZETA2, ZETA3};
+use crate::harmonics::cache::{Cache, K, recursive_harmonic_sum};
 use std::f64::consts::PI;
 
 /// Compute the photon-quark anomalous dimension.
@@ -256,8 +256,8 @@ pub fn gamma_valence(c: &mut Cache, nf: u8) -> [[Complex<f64>; 2]; 2] {
 mod tests {
     use super::*;
     use crate::{assert_approx_eq_cmplx, cmplx};
-    use num::complex::Complex;
     use num::Zero;
+    use num::complex::Complex;
     const NF: u8 = 5;
 
     #[test]

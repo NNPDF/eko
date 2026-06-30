@@ -1,6 +1,6 @@
 //! Tools to compute [polygamma functions](https://en.wikipedia.org/wiki/Polygamma_function).
 
-use num::{complex::Complex, Zero};
+use num::{Zero, complex::Complex};
 use std::f64::consts::PI;
 
 #[allow(clippy::excessive_precision, clippy::assign_op_pattern)]

@@ -80,178 +80,181 @@ fn unravel_qed_ns(
 ///
 /// # Safety
 /// This is the connection from Python, so we don't know what is on the other side.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn rust_quad_ker(u: f64, rargs: *mut c_void) -> f64 {
-    let args = *(rargs as *mut QuadArgs);
+    unsafe {
+        let args = *(rargs as *mut QuadArgs);
 
-    let is_singlet = (100 == args.mode0)
-        || (21 == args.mode0)
-        || (90 == args.mode0)
-        || (22 == args.mode0)
-        || (101 == args.mode0);
+        let is_singlet = (100 == args.mode0)
+            || (21 == args.mode0)
+            || (90 == args.mode0)
+            || (22 == args.mode0)
+            || (101 == args.mode0);
 
-    let is_qed_valence = (10200 == args.mode0) || (10204 == args.mode0);
-    // prepare Mellin stuff
-    let path = mellin::TalbotPath::new(u, args.logx, is_singlet);
-    let jac = path.jac() * path.prefactor();
-    let mut c = Cache::new(path.n());
-    let n3lo_ad_variation: [u8; 7] = std::slice::from_raw_parts(args.n3lo_ad_variation, 7)
-        .try_into()
-        .unwrap();
+        let is_qed_valence = (10200 == args.mode0) || (10204 == args.mode0);
+        // prepare Mellin stuff
+        let path = mellin::TalbotPath::new(u, args.logx, is_singlet);
+        let jac = path.jac() * path.prefactor();
+        let mut c = Cache::new(path.n());
+        let n3lo_ad_variation: [u8; 7] = std::slice::from_raw_parts(args.n3lo_ad_variation, 7)
+            .try_into()
+            .unwrap();
 
-    let max_buffer_size = (args.order_qcd + 1) * (args.order_qed + 1) * 16;
-    let out_re = std::slice::from_raw_parts_mut(args.re_gamma, max_buffer_size);
-    let out_im = std::slice::from_raw_parts_mut(args.im_gamma, max_buffer_size);
+        let max_buffer_size = (args.order_qcd + 1) * (args.order_qed + 1) * 16;
+        let out_re = std::slice::from_raw_parts_mut(args.re_gamma, max_buffer_size);
+        let out_im = std::slice::from_raw_parts_mut(args.im_gamma, max_buffer_size);
 
-    if args.is_ome {
-        if is_singlet {
-            unravel_qcd(
-                &ekore::operator_matrix_elements::unpolarized::spacelike::A_singlet(
+        if args.is_ome {
+            if is_singlet {
+                unravel_qcd(
+                    &ekore::operator_matrix_elements::unpolarized::spacelike::A_singlet(
+                        args.order_qcd,
+                        &mut c,
+                        args.nf,
+                        args.L,
+                    ),
                     args.order_qcd,
-                    &mut c,
-                    args.nf,
-                    args.L,
-                ),
-                args.order_qcd,
-                out_re,
-                out_im,
-            );
-        } else {
-            unravel_qcd(
-                &ekore::operator_matrix_elements::unpolarized::spacelike::A_non_singlet(
+                    out_re,
+                    out_im,
+                );
+            } else {
+                unravel_qcd(
+                    &ekore::operator_matrix_elements::unpolarized::spacelike::A_non_singlet(
+                        args.order_qcd,
+                        &mut c,
+                        args.nf,
+                        args.L,
+                    ),
                     args.order_qcd,
-                    &mut c,
-                    args.nf,
-                    args.L,
-                ),
-                args.order_qcd,
-                out_re,
-                out_im,
-            );
-        }
-    } else if is_singlet {
-        if args.order_qed > 0 {
-            let gamma_singlet_qed =
-                ekore::anomalous_dimensions::unpolarized::spacelike::gamma_singlet_qed;
-            unravel_qed(
-                &gamma_singlet_qed(
+                    out_re,
+                    out_im,
+                );
+            }
+        } else if is_singlet {
+            if args.order_qed > 0 {
+                let gamma_singlet_qed =
+                    ekore::anomalous_dimensions::unpolarized::spacelike::gamma_singlet_qed;
+                unravel_qed(
+                    &gamma_singlet_qed(
+                        args.order_qcd,
+                        args.order_qed,
+                        &mut c,
+                        args.nf,
+                        n3lo_ad_variation,
+                    ),
                     args.order_qcd,
                     args.order_qed,
-                    &mut c,
-                    args.nf,
-                    n3lo_ad_variation,
-                ),
-                args.order_qcd,
-                args.order_qed,
-                out_re,
-                out_im,
-            );
+                    out_re,
+                    out_im,
+                );
+            } else {
+                let gamma_singlet_qcd = match args.is_polarized {
+                    true => ekore::anomalous_dimensions::polarized::spacelike::gamma_singlet_qcd,
+                    false => ekore::anomalous_dimensions::unpolarized::spacelike::gamma_singlet_qcd,
+                };
+                unravel_qcd(
+                    &gamma_singlet_qcd(
+                        args.order_qcd,
+                        &mut c,
+                        args.nf,
+                        n3lo_ad_variation[0..4].try_into().unwrap(),
+                    ),
+                    args.order_qcd,
+                    out_re,
+                    out_im,
+                );
+            }
+        } else if args.order_qed > 0 {
+            if is_qed_valence {
+                let gamma_valence_qed =
+                    ekore::anomalous_dimensions::unpolarized::spacelike::gamma_valence_qed;
+                unravel_qed(
+                    &gamma_valence_qed(
+                        args.order_qcd,
+                        args.order_qed,
+                        &mut c,
+                        args.nf,
+                        n3lo_ad_variation[4..7].try_into().unwrap(),
+                    ),
+                    args.order_qcd,
+                    args.order_qed,
+                    out_re,
+                    out_im,
+                );
+            } else {
+                let gamma_ns_qed =
+                    ekore::anomalous_dimensions::unpolarized::spacelike::gamma_ns_qed;
+                unravel_qed_ns(
+                    &gamma_ns_qed(
+                        args.order_qcd,
+                        args.order_qed,
+                        args.mode0,
+                        &mut c,
+                        args.nf,
+                        n3lo_ad_variation[4..7].try_into().unwrap(),
+                    ),
+                    args.order_qcd,
+                    args.order_qed,
+                    out_re,
+                    out_im,
+                );
+            }
         } else {
-            let gamma_singlet_qcd = match args.is_polarized {
-                true => ekore::anomalous_dimensions::polarized::spacelike::gamma_singlet_qcd,
-                false => ekore::anomalous_dimensions::unpolarized::spacelike::gamma_singlet_qcd,
+            let gamma_ns_qcd = match args.is_polarized {
+                true => ekore::anomalous_dimensions::polarized::spacelike::gamma_ns_qcd,
+                false => ekore::anomalous_dimensions::unpolarized::spacelike::gamma_ns_qcd,
             };
-            unravel_qcd(
-                &gamma_singlet_qcd(
-                    args.order_qcd,
-                    &mut c,
-                    args.nf,
-                    n3lo_ad_variation[0..4].try_into().unwrap(),
-                ),
+            let res = gamma_ns_qcd(
                 args.order_qcd,
-                out_re,
-                out_im,
+                args.mode0,
+                &mut c,
+                args.nf,
+                n3lo_ad_variation[4..7].try_into().unwrap(),
             );
+            for (i, el) in res.iter().take(args.order_qcd).enumerate() {
+                out_re[i] = el.re;
+                out_im[i] = el.im;
+            }
         }
-    } else if args.order_qed > 0 {
-        if is_qed_valence {
-            let gamma_valence_qed =
-                ekore::anomalous_dimensions::unpolarized::spacelike::gamma_valence_qed;
-            unravel_qed(
-                &gamma_valence_qed(
-                    args.order_qcd,
-                    args.order_qed,
-                    &mut c,
-                    args.nf,
-                    n3lo_ad_variation[4..7].try_into().unwrap(),
-                ),
-                args.order_qcd,
-                args.order_qed,
-                out_re,
-                out_im,
-            );
-        } else {
-            let gamma_ns_qed = ekore::anomalous_dimensions::unpolarized::spacelike::gamma_ns_qed;
-            unravel_qed_ns(
-                &gamma_ns_qed(
-                    args.order_qcd,
-                    args.order_qed,
-                    args.mode0,
-                    &mut c,
-                    args.nf,
-                    n3lo_ad_variation[4..7].try_into().unwrap(),
-                ),
-                args.order_qcd,
-                args.order_qed,
-                out_re,
-                out_im,
-            );
-        }
-    } else {
-        let gamma_ns_qcd = match args.is_polarized {
-            true => ekore::anomalous_dimensions::polarized::spacelike::gamma_ns_qcd,
-            false => ekore::anomalous_dimensions::unpolarized::spacelike::gamma_ns_qcd,
-        };
-        let res = gamma_ns_qcd(
-            args.order_qcd,
-            args.mode0,
-            &mut c,
-            args.nf,
-            n3lo_ad_variation[4..7].try_into().unwrap(),
-        );
-        for (i, el) in res.iter().take(args.order_qcd).enumerate() {
-            out_re[i] = el.re;
-            out_im[i] = el.im;
-        }
-    }
 
-    // pass on
-    (args.py)(
-        args.re_gamma as *const f64,
-        args.im_gamma as *const f64,
-        c.n().re,
-        c.n().im,
-        jac.re,
-        jac.im,
-        args.order_qcd,
-        args.order_qed,
-        is_singlet,
-        args.mode0,
-        args.mode1,
-        args.nf,
-        args.is_log,
-        args.logx,
-        args.areas,
-        args.areas_x,
-        args.areas_y,
-        args.method_num,
-        args.as1,
-        args.as0,
-        args.ev_op_iterations,
-        args.ev_op_max_order_qcd,
-        args.sv_mode_num,
-        args.is_threshold,
-        args.Lsv,
-        // additional QED params
-        args.as_list,
-        args.as_list_len,
-        args.mu2_from,
-        args.mu2_to,
-        args.a_half,
-        args.a_half_x,
-        args.a_half_y,
-        args.alphaem_running,
-    )
+        // pass on
+        (args.py)(
+            args.re_gamma as *const f64,
+            args.im_gamma as *const f64,
+            c.n().re,
+            c.n().im,
+            jac.re,
+            jac.im,
+            args.order_qcd,
+            args.order_qed,
+            is_singlet,
+            args.mode0,
+            args.mode1,
+            args.nf,
+            args.is_log,
+            args.logx,
+            args.areas,
+            args.areas_x,
+            args.areas_y,
+            args.method_num,
+            args.as1,
+            args.as0,
+            args.ev_op_iterations,
+            args.ev_op_max_order_qcd,
+            args.sv_mode_num,
+            args.is_threshold,
+            args.Lsv,
+            // additional QED params
+            args.as_list,
+            args.as_list_len,
+            args.mu2_from,
+            args.mu2_to,
+            args.a_half,
+            args.a_half_x,
+            args.a_half_y,
+            args.alphaem_running,
+        )
+    }
 }
 
 /// Python callback signature
@@ -384,7 +387,7 @@ pub unsafe extern "C" fn my_py(
 ///
 /// # Safety
 /// This is the connection from and back to Python, so we don't know what is on the other side.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn empty_args() -> QuadArgs {
     QuadArgs {
         order_qcd: 0,

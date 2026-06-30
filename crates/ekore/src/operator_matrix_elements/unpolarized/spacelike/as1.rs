@@ -1,7 +1,7 @@
 //! |NLO| |QCD|.
 
-use num::complex::Complex;
 use num::Zero;
+use num::complex::Complex;
 
 use crate::cmplx;
 use crate::constants::CF;

@@ -57,8 +57,8 @@ mod tests {
     use super::*;
     use crate::harmonics::cache::Cache;
     use crate::{assert_approx_eq_cmplx, cmplx};
-    use num::complex::Complex;
     use num::Zero;
+    use num::complex::Complex;
     const NF: u8 = 5;
 
     #[test]
