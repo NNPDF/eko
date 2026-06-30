@@ -7,13 +7,13 @@ use crate::constants::{
 use crate::harmonics::cache::Cache;
 use num::Zero;
 use num::complex::Complex;
-pub mod aem1;
-pub mod aem2;
-pub mod as1;
-pub mod as1aem1;
-pub mod as2;
-pub mod as3;
-pub mod as4;
+mod aem1;
+mod aem2;
+pub(crate) mod as1;
+mod as1aem1;
+pub(crate) mod as2;
+mod as3;
+mod as4;
 
 /// Compute the tower of the non-singlet anomalous dimensions.
 ///

@@ -13,7 +13,7 @@ use crate::harmonics::log_functions::{lm11m1, lm12m1, lm12m2, lm13m1, lm13m2, lm
 /// first ten even moments together with small-x/large-x constraints.
 /// The two sets spanning the error estimate are called via `variation = 1`
 /// and `variation = 2`.  Any other value of `variation` invokes their average.
-pub fn gamma_ps(c: &mut Cache, nf: u8, variation: u8) -> Complex<f64> {
+pub(super) fn gamma_ps(c: &mut Cache, nf: u8, variation: u8) -> Complex<f64> {
     let n = c.n();
     let nf_ = nf as f64;
     let nf2 = nf_.pow(2);

@@ -6,7 +6,7 @@ use crate::harmonics::{g_functions, w1, w2, w3, w4, w5};
 
 /// List of available elements.
 #[derive(Debug, PartialEq, Eq)]
-pub enum K {
+pub(crate) enum K {
     /// $S_1(N)$
     S1,
     /// $S_2(N)$
@@ -101,7 +101,7 @@ impl Cache {
     }
 
     /// Retrieve an element.
-    pub fn get(&mut self, k: K) -> Complex<f64> {
+    pub(crate) fn get(&mut self, k: K) -> Complex<f64> {
         let idx = k.idx();
         if let Some(val) = self.m[idx] {
             return val;
@@ -138,7 +138,7 @@ impl Cache {
 /// Recursive computation of harmonic sums.
 ///
 /// Compute the harmonic sum $S_{w}(N+k)$ stating from the value $S_{w}(N)$ via the recurrence relations.
-pub fn recursive_harmonic_sum(
+pub(crate) fn recursive_harmonic_sum(
     base_value: Complex<f64>,
     n: Complex<f64>,
     iterations: usize,

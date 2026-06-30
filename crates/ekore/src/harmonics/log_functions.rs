@@ -10,14 +10,14 @@ use num::complex::Complex;
 use num::pow;
 
 /// Mellin transform of $(1-x)\ln(1-x)$.
-pub fn lm11m1(c: &mut Cache) -> Complex<f64> {
+pub(crate) fn lm11m1(c: &mut Cache) -> Complex<f64> {
     let n = c.n();
     let S1 = c.get(K::S1);
     1. / (1. + n).powu(2) - S1 / (1. + n).powu(2) - S1 / (n * (1. + n).powu(2))
 }
 
 /// Mellin transform of $(1-x)\ln^2(1-x)$.
-pub fn lm12m1(c: &mut Cache) -> Complex<f64> {
+pub(crate) fn lm12m1(c: &mut Cache) -> Complex<f64> {
     let n = c.n();
     let S1 = c.get(K::S1);
     let S2 = c.get(K::S2);
@@ -27,7 +27,7 @@ pub fn lm12m1(c: &mut Cache) -> Complex<f64> {
 }
 
 /// Mellin transform of $(1-x)\ln^3(1-x)$.
-pub fn lm13m1(c: &mut Cache) -> Complex<f64> {
+pub(crate) fn lm13m1(c: &mut Cache) -> Complex<f64> {
     let n = c.n();
     let S1 = c.get(K::S1);
     let S2 = c.get(K::S2);
@@ -40,7 +40,7 @@ pub fn lm13m1(c: &mut Cache) -> Complex<f64> {
 }
 
 /// Mellin transform of $(1-x)\ln^4(1-x)$.
-pub fn lm14m1(c: &mut Cache) -> Complex<f64> {
+pub(crate) fn lm14m1(c: &mut Cache) -> Complex<f64> {
     let n = c.n();
     let S1 = c.get(K::S1);
     let S2 = c.get(K::S2);
@@ -66,7 +66,7 @@ pub fn lm14m1(c: &mut Cache) -> Complex<f64> {
 }
 
 /// Mellin transform of $(1-x)\ln^5(1-x)$.
-pub fn lm15m1(c: &mut Cache) -> Complex<f64> {
+pub(crate) fn lm15m1(c: &mut Cache) -> Complex<f64> {
     let n = c.n();
     let S1 = c.get(K::S1);
     let S2 = c.get(K::S2);
@@ -93,14 +93,14 @@ pub fn lm15m1(c: &mut Cache) -> Complex<f64> {
 }
 
 /// Mellin transform of $\ln(1-x)$.
-pub fn lm11(c: &mut Cache) -> Complex<f64> {
+pub(crate) fn lm11(c: &mut Cache) -> Complex<f64> {
     let n = c.n();
     let S1 = c.get(K::S1);
     -S1 / n
 }
 
 /// Mellin transform of $\ln^2(1-x)$.
-pub fn lm12(c: &mut Cache) -> Complex<f64> {
+pub(crate) fn lm12(c: &mut Cache) -> Complex<f64> {
     let n = c.n();
     let S1 = c.get(K::S1);
     let S2 = c.get(K::S2);
@@ -108,7 +108,7 @@ pub fn lm12(c: &mut Cache) -> Complex<f64> {
 }
 
 /// Mellin transform of $\ln^3(1-x)$.
-pub fn lm13(c: &mut Cache) -> Complex<f64> {
+pub(crate) fn lm13(c: &mut Cache) -> Complex<f64> {
     let n = c.n();
     let S1 = c.get(K::S1);
     let S2 = c.get(K::S2);
@@ -117,7 +117,7 @@ pub fn lm13(c: &mut Cache) -> Complex<f64> {
 }
 
 /// Mellin transform of $\ln^4(1-x)$.
-pub fn lm14(c: &mut Cache) -> Complex<f64> {
+pub(crate) fn lm14(c: &mut Cache) -> Complex<f64> {
     let n = c.n();
     let S1 = c.get(K::S1);
     let S2 = c.get(K::S2);
@@ -127,7 +127,7 @@ pub fn lm14(c: &mut Cache) -> Complex<f64> {
 }
 
 /// Mellin transform of $\ln^5(1-x)$.
-pub fn lm15(c: &mut Cache) -> Complex<f64> {
+pub(crate) fn lm15(c: &mut Cache) -> Complex<f64> {
     let n = c.n();
     let S1 = c.get(K::S1);
     let S2 = c.get(K::S2);
@@ -143,14 +143,14 @@ pub fn lm15(c: &mut Cache) -> Complex<f64> {
 }
 
 /// Mellin transform of $(1-x)^2\ln(1-x)$.
-pub fn lm11m2(c: &mut Cache) -> Complex<f64> {
+pub(crate) fn lm11m2(c: &mut Cache) -> Complex<f64> {
     let n = c.n();
     let S1 = c.get(K::S1);
     (5. + 3. * n - (2. * (1. + n) * (2. + n) * S1) / n) / ((1. + n).powu(2) * (2. + n).powu(2))
 }
 
 /// Mellin transform of $(1-x)^2\ln^2(1-x)$.
-pub fn lm12m2(c: &mut Cache) -> Complex<f64> {
+pub(crate) fn lm12m2(c: &mut Cache) -> Complex<f64> {
     let n = c.n();
     let S1 = c.get(K::S1);
     let S2 = c.get(K::S2);
@@ -162,7 +162,7 @@ pub fn lm12m2(c: &mut Cache) -> Complex<f64> {
 }
 
 /// Mellin transform of $(1-x)^2\ln^3(1-x)$.
-pub fn lm13m2(c: &mut Cache) -> Complex<f64> {
+pub(crate) fn lm13m2(c: &mut Cache) -> Complex<f64> {
     let n = c.n();
     let S1 = c.get(K::S1);
     let S2 = c.get(K::S2);
@@ -179,7 +179,7 @@ pub fn lm13m2(c: &mut Cache) -> Complex<f64> {
 }
 
 /// Mellin transform of $(1-x)^2\ln^4(1-x)$.
-pub fn lm14m2(c: &mut Cache) -> Complex<f64> {
+pub(crate) fn lm14m2(c: &mut Cache) -> Complex<f64> {
     let n = c.n();
     let S1 = c.get(K::S1);
     let S2 = c.get(K::S2);

@@ -70,7 +70,7 @@ fn gamma_nss(c: &mut Cache, nf: u8, variation: u8) -> Complex<f64> {
 /// Compute the valence non-singlet anomalous dimension.
 ///
 /// See [gamma_nsm][super::gamma_nsm] for implementation details.
-pub fn gamma_nsv(c: &mut Cache, nf: u8, variation: u8) -> Complex<f64> {
+pub(crate) fn gamma_nsv(c: &mut Cache, nf: u8, variation: u8) -> Complex<f64> {
     gnsm::gamma_nsm(c, nf, variation) + gamma_nss(c, nf, variation)
 }
 
