@@ -16,6 +16,9 @@ pub fn A_singlet(
     nf: u8,
     L: f64,
 ) -> [[[Complex<f64>; 3]; 3]; MAX_ORDER_QCD - 1] {
+    if matching_order_qcd >= 3 {
+        panic!("OME beyond NLO is not yet implemented");
+    }
     let mut A_s = [[[Complex::<f64>::zero(); 3]; 3]; MAX_ORDER_QCD - 1];
     if matching_order_qcd >= 1 {
         A_s[0] = as1::A_singlet(c, nf, L);
@@ -37,6 +40,9 @@ pub fn A_non_singlet(
     nf: u8,
     L: f64,
 ) -> [[[Complex<f64>; 2]; 2]; MAX_ORDER_QCD - 1] {
+    if matching_order_qcd >= 3 {
+        panic!("OME beyond NLO is not yet implemented");
+    }
     let mut A_ns = [[[Complex::<f64>::zero(); 2]; 2]; MAX_ORDER_QCD - 1];
     if matching_order_qcd >= 1 {
         A_ns[0] = as1::A_ns(c, nf, L);
@@ -77,5 +83,25 @@ mod tests {
                 assert_approx_eq_cmplx_2d!(f64, item, [[cmplx!(0., 0.); 2]; 2], 2);
             }
         }
+    }
+
+    #[test]
+    #[should_panic(expected = "OME beyond NLO is not yet implemented")]
+    fn test_a_singlet_order3_panics() {
+        const NF: u8 = 4;
+        const N: Complex<f64> = cmplx!(1.234, 0.);
+        const L: f64 = 0.0;
+        let mut c = Cache::new(N);
+        A_singlet(3, &mut c, NF, L);
+    }
+
+    #[test]
+    #[should_panic(expected = "OME beyond NLO is not yet implemented")]
+    fn test_a_non_singlet_order3_panics() {
+        const NF: u8 = 4;
+        const N: Complex<f64> = cmplx!(1.234, 0.);
+        const L: f64 = 0.0;
+        let mut c = Cache::new(N);
+        A_non_singlet(3, &mut c, NF, L);
     }
 }

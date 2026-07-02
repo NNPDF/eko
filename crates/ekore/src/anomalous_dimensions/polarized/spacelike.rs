@@ -19,8 +19,8 @@ pub fn gamma_ns_qcd(
     nf: u8,
     _n3lo_variation: [u8; 3],
 ) -> [Complex<f64>; MAX_ORDER_QCD - 1] {
-    if order_qcd >= 4 {
-        panic!("Polarized beyond NNLO is not yet implemented");
+    if order_qcd >= 3 {
+        panic!("Polarized beyond NLO is not yet implemented");
     }
     let mut gamma_ns = [Complex::<f64>::zero(); MAX_ORDER_QCD - 1];
     gamma_ns[0] = as1::gamma_ns(c, nf);
@@ -57,8 +57,8 @@ pub fn gamma_singlet_qcd(
     nf: u8,
     _n3lo_variation: [u8; 4],
 ) -> [[[Complex<f64>; 2]; 2]; MAX_ORDER_QCD - 1] {
-    if order_qcd >= 4 {
-        panic!("Polarized beyond NNLO is not yet implemented");
+    if order_qcd >= 3 {
+        panic!("Polarized beyond NLO is not yet implemented");
     }
     let mut gamma_S = [[[Complex::<f64>::zero(); 2]; 2]; MAX_ORDER_QCD - 1];
     gamma_S[0] = as1::gamma_singlet(c, nf);
@@ -114,7 +114,7 @@ mod tests {
         // LO
         assert_approx_eq_cmplx!(
             f64,
-            gamma_ns_qcd(3, PID_NSP, &mut c, NF, n3lo_variation)[0],
+            gamma_ns_qcd(2, PID_NSP, &mut c, NF, n3lo_variation)[0],
             cmplx!(0., 0.),
             epsilon = 1e-14
         );
@@ -140,20 +140,20 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected = "Polarized beyond NNLO is not yet implemented")]
+    #[should_panic(expected = "Polarized beyond NLO is not yet implemented")]
     fn test_gamma_ns_order4_panics() {
         const NF: u8 = 4;
         const N: Complex<f64> = cmplx!(1.234, 0.);
         let mut c = Cache::new(N);
-        gamma_ns_qcd(4, PID_NSM, &mut c, NF, [0u8; 3]);
+        gamma_ns_qcd(3, PID_NSM, &mut c, NF, [0u8; 3]);
     }
 
     #[test]
-    #[should_panic(expected = "Polarized beyond NNLO is not yet implemented")]
+    #[should_panic(expected = "Polarized beyond NLO is not yet implemented")]
     fn test_gamma_singlet_order4_panics() {
         const NF: u8 = 4;
         const N: Complex<f64> = cmplx!(2.345, 0.);
         let mut c = Cache::new(N);
-        gamma_singlet_qcd(4, &mut c, NF, [0u8; 4]);
+        gamma_singlet_qcd(3, &mut c, NF, [0u8; 4]);
     }
 }
