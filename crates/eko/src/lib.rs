@@ -12,8 +12,8 @@ pub mod mellin;
 ///
 /// Only the first `order_qcd` entries along the outer axis are written;
 /// remaining buffer slots are left undefined.
-fn unravel_qcd<const DIM: usize>(
-    res: &[[[Complex<f64>; DIM]; DIM]; MAX_ORDER_QCD],
+pub fn unravel_qcd<const DIM: usize, const MAX_ORDER: usize>(
+    res: &[[[Complex<f64>; DIM]; DIM]; MAX_ORDER],
     order_qcd: usize,
     out_re: &mut [f64],
     out_im: &mut [f64],
@@ -148,21 +148,34 @@ pub unsafe extern "C" fn rust_quad_ker(u: f64, rargs: *mut c_void) -> f64 {
                     out_im,
                 );
             } else {
-                let gamma_singlet_qcd = match args.is_polarized {
-                    true => ekore::anomalous_dimensions::polarized::spacelike::gamma_singlet_qcd,
-                    false => ekore::anomalous_dimensions::unpolarized::spacelike::gamma_singlet_qcd,
-                };
-                unravel_qcd(
-                    &gamma_singlet_qcd(
-                        args.order_qcd,
-                        &mut c,
-                        args.nf,
-                        n3lo_ad_variation[0..4].try_into().unwrap(),
-                    ),
-                    args.order_qcd,
-                    out_re,
-                    out_im,
-                );
+                match args.is_polarized {
+                    true => {
+                        unravel_qcd(
+                            &ekore::anomalous_dimensions::polarized::spacelike::gamma_singlet_qcd(
+                                args.order_qcd,
+                                &mut c,
+                                args.nf,
+                                n3lo_ad_variation[0..4].try_into().unwrap(),
+                            ),
+                            args.order_qcd,
+                            out_re,
+                            out_im,
+                        );
+                    }
+                    false => {
+                        unravel_qcd(
+                            &ekore::anomalous_dimensions::unpolarized::spacelike::gamma_singlet_qcd(
+                                args.order_qcd,
+                                &mut c,
+                                args.nf,
+                                n3lo_ad_variation[0..4].try_into().unwrap(),
+                            ),
+                            args.order_qcd,
+                            out_re,
+                            out_im,
+                        );
+                    }
+                }
             }
         } else if args.order_qed > 0 {
             if is_qed_valence {
@@ -200,20 +213,33 @@ pub unsafe extern "C" fn rust_quad_ker(u: f64, rargs: *mut c_void) -> f64 {
                 );
             }
         } else {
-            let gamma_ns_qcd = match args.is_polarized {
-                true => ekore::anomalous_dimensions::polarized::spacelike::gamma_ns_qcd,
-                false => ekore::anomalous_dimensions::unpolarized::spacelike::gamma_ns_qcd,
-            };
-            let res = gamma_ns_qcd(
-                args.order_qcd,
-                args.mode0,
-                &mut c,
-                args.nf,
-                n3lo_ad_variation[4..7].try_into().unwrap(),
-            );
-            for (i, el) in res.iter().take(args.order_qcd).enumerate() {
-                out_re[i] = el.re;
-                out_im[i] = el.im;
+            match args.is_polarized {
+                true => {
+                    let res = ekore::anomalous_dimensions::polarized::spacelike::gamma_ns_qcd(
+                        args.order_qcd,
+                        args.mode0,
+                        &mut c,
+                        args.nf,
+                        n3lo_ad_variation[4..7].try_into().unwrap(),
+                    );
+                    for (i, el) in res.iter().take(args.order_qcd).enumerate() {
+                        out_re[i] = el.re;
+                        out_im[i] = el.im;
+                    }
+                }
+                false => {
+                    let res = ekore::anomalous_dimensions::unpolarized::spacelike::gamma_ns_qcd(
+                        args.order_qcd,
+                        args.mode0,
+                        &mut c,
+                        args.nf,
+                        n3lo_ad_variation[4..7].try_into().unwrap(),
+                    );
+                    for (i, el) in res.iter().take(args.order_qcd).enumerate() {
+                        out_re[i] = el.re;
+                        out_im[i] = el.im;
+                    }
+                }
             }
         }
 
