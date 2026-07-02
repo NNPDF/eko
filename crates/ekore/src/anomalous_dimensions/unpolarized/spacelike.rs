@@ -322,7 +322,7 @@ mod tests {
         }
 
         // ns+
-        for pid in [PID_NSP_U, PID_NSP_U] {
+        for pid in [PID_NSP_U, PID_NSP_D] {
             // as^0 a^0 must be trivial
             assert_approx_eq_cmplx!(
                 f64,
