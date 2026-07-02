@@ -12,7 +12,7 @@ pub mod mellin;
 ///
 /// Only the first `order_qcd` entries along the outer axis are written;
 /// remaining buffer slots are left undefined.
-pub fn unravel_qcd<const DIM: usize, const MAX_ORDER: usize>(
+fn unravel_qcd<const DIM: usize, const MAX_ORDER: usize>(
     res: &[[[Complex<f64>; DIM]; DIM]; MAX_ORDER],
     order_qcd: usize,
     out_re: &mut [f64],
