@@ -86,6 +86,55 @@ mod tests {
     }
 
     #[test]
+    fn test_a_non_singlet_math() {
+        // reference combinations from the individual as1/as2 modules
+        const NF: u8 = 5;
+        const N: Complex<f64> = cmplx!(1., 0.);
+        const L: f64 = 0.0;
+        let mut c = Cache::new(N);
+        let a_ns = A_non_singlet(2, &mut c, NF, L);
+        // LO
+        assert_approx_eq_cmplx_2d!(f64, a_ns[0], [[cmplx!(0., 0.); 2]; 2], 2, epsilon = 1e-14);
+        // NNLO
+        assert_approx_eq_cmplx_2d!(f64, a_ns[1], [[cmplx!(0., 0.); 2]; 2], 2, epsilon = 1e-14);
+    }
+
+    #[test]
+    fn test_a_singlet_math() {
+        // reference combinations from the individual as1/as2 modules
+        const NF: u8 = 5;
+        const N: Complex<f64> = cmplx!(2., 0.);
+        const L: f64 = 100.;
+        let mut c = Cache::new(N);
+        let a_s = A_singlet(2, &mut c, NF, L);
+        // LO
+        assert_approx_eq_cmplx!(
+            f64,
+            a_s[0][0][2] + a_s[0][1][2] + a_s[0][2][2],
+            Complex::zero(),
+            epsilon = 1e-10
+        );
+        assert_approx_eq_cmplx!(
+            f64,
+            a_s[0][0][0] + a_s[0][1][0] + a_s[0][2][0],
+            Complex::zero()
+        );
+        // NNLO
+        assert_approx_eq_cmplx!(
+            f64,
+            a_s[1][0][0] + a_s[1][1][0] + a_s[1][2][0],
+            Complex::zero(),
+            epsilon = 2e-6
+        );
+        assert_approx_eq_cmplx!(
+            f64,
+            a_s[1][0][1] + a_s[1][1][1] + a_s[1][2][1],
+            Complex::zero(),
+            epsilon = 1e-11
+        );
+    }
+
+    #[test]
     #[should_panic(expected = "OME beyond NLO is not yet implemented")]
     fn test_a_singlet_order3_panics() {
         const NF: u8 = 4;

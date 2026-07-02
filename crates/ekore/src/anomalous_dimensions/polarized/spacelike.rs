@@ -130,6 +130,46 @@ mod tests {
     }
 
     #[test]
+    fn test_gamma_singlet_qcd() {
+        // reference combinations from the individual as1/as2 modules
+        use crate::constants::{CA, CF, TR};
+        use num::traits::Pow;
+        use std::f64::consts::PI;
+
+        const NF: u8 = 5;
+        const N: Complex<f64> = cmplx!(2., 0.);
+        let mut c = Cache::new(N);
+        let gamma_s = gamma_singlet_qcd(2, &mut c, NF, [0u8; 4]);
+
+        // LO
+        assert_approx_eq_cmplx!(
+            f64,
+            gamma_s[0][0][0] + gamma_s[0][1][0],
+            cmplx!(4. * CF / 3., 0.),
+            epsilon = 1e-12
+        );
+        assert_approx_eq_cmplx!(
+            f64,
+            gamma_s[0][0][1] + gamma_s[0][1][1],
+            cmplx!(3. + (NF as f64) / 3., 0.),
+            epsilon = 1e-12
+        );
+
+        // NLO
+        assert_approx_eq_cmplx!(
+            f64,
+            -gamma_s[1][0][1],
+            cmplx!(
+                4. * (NF as f64)
+                    * (0.574074074 * CF - 2. * CA * (-7. / 18. + 1. / 6. * (5. - PI.pow(2) / 3.)))
+                    * TR,
+                0.
+            ),
+            epsilon = 1e-9
+        );
+    }
+
+    #[test]
     #[should_panic(expected = "Unkown non-singlet sector element")]
     fn test_unknown_pid_panics() {
         const NF: u8 = 4;
