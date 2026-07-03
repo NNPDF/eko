@@ -10,7 +10,7 @@ mod as2;
 
 /// Compute the tower of the non-singlet anomalous dimensions.
 ///
-/// Returns an array of shape `(MAX_ORDER_QCD - 1,)`. Only the first `order_qcd` entries
+/// Returns an array of shape `(MAX_ORDER_QCD - 2,)`. Only the first `order_qcd` entries
 /// are filled; remaining slots are zero.
 pub fn gamma_ns_qcd(
     order_qcd: usize,
@@ -18,11 +18,11 @@ pub fn gamma_ns_qcd(
     c: &mut Cache,
     nf: u8,
     _n3lo_variation: [u8; 3],
-) -> [Complex<f64>; MAX_ORDER_QCD - 1] {
+) -> [Complex<f64>; MAX_ORDER_QCD - 2] {
     if order_qcd >= 3 {
         panic!("Polarized beyond NLO is not yet implemented");
     }
-    let mut gamma_ns = [Complex::<f64>::zero(); MAX_ORDER_QCD - 1];
+    let mut gamma_ns = [Complex::<f64>::zero(); MAX_ORDER_QCD - 2];
     gamma_ns[0] = as1::gamma_ns(c, nf);
     // NLO and beyond
     if order_qcd >= 2 {
@@ -49,18 +49,18 @@ pub fn gamma_ns_qcd(
 
 /// Compute the tower of the singlet anomalous dimension matrices.
 ///
-/// Returns an array of shape `(MAX_ORDER_QCD - 1, d, d)`. Only the first `order_qcd`
+/// Returns an array of shape `(MAX_ORDER_QCD - 2, d, d)`. Only the first `order_qcd`
 /// entries along the outer axis are filled; remaining slots are zero.
 pub fn gamma_singlet_qcd(
     order_qcd: usize,
     c: &mut Cache,
     nf: u8,
     _n3lo_variation: [u8; 4],
-) -> [[[Complex<f64>; 2]; 2]; MAX_ORDER_QCD - 1] {
+) -> [[[Complex<f64>; 2]; 2]; MAX_ORDER_QCD - 2] {
     if order_qcd >= 3 {
         panic!("Polarized beyond NLO is not yet implemented");
     }
-    let mut gamma_S = [[[Complex::<f64>::zero(); 2]; 2]; MAX_ORDER_QCD - 1];
+    let mut gamma_S = [[[Complex::<f64>::zero(); 2]; 2]; MAX_ORDER_QCD - 2];
     gamma_S[0] = as1::gamma_singlet(c, nf);
     // NLO and beyond
     if order_qcd >= 2 {
@@ -88,13 +88,13 @@ mod tests {
         for order_qcd in 1..=2usize {
             let mut c = Cache::new(N);
             let gamma_ns = gamma_ns_qcd(order_qcd, PID_NSP, &mut c, NF, [0u8; 3]);
-            assert_eq!(gamma_ns.len(), MAX_ORDER_QCD - 1);
+            assert_eq!(gamma_ns.len(), MAX_ORDER_QCD - 2);
             // slots beyond order_qcd must be zero
             for item in gamma_ns.iter().skip(order_qcd) {
                 assert_approx_eq_cmplx!(f64, *item, cmplx!(0., 0.));
             }
             let gamma_s = gamma_singlet_qcd(order_qcd, &mut c, NF, [0u8; 4]);
-            assert_eq!(gamma_s.len(), MAX_ORDER_QCD - 1);
+            assert_eq!(gamma_s.len(), MAX_ORDER_QCD - 2);
             assert_eq!(gamma_s[0].len(), 2);
             assert_eq!(gamma_s[0][0].len(), 2);
             // slots beyond order_qcd must be zero
