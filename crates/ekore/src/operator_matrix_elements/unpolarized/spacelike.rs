@@ -86,7 +86,7 @@ mod tests {
     }
 
     #[test]
-    fn test_a_non_singlet_math() {
+    fn test_a_non_singlet() {
         // reference combinations from the individual as1/as2 modules
         const NF: u8 = 5;
         const N: Complex<f64> = cmplx!(1., 0.);
@@ -100,7 +100,7 @@ mod tests {
     }
 
     #[test]
-    fn test_a_singlet_math() {
+    fn test_momentum_conservation() {
         // reference combinations from the individual as1/as2 modules
         const NF: u8 = 5;
         const N: Complex<f64> = cmplx!(2., 0.);

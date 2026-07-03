@@ -172,11 +172,12 @@ mod tests {
     #[test]
     #[should_panic(expected = "Unkown non-singlet sector element")]
     fn test_unknown_pid_panics() {
+        use crate::constants::PID_NSM_U;
         const NF: u8 = 4;
         const N: Complex<f64> = cmplx!(1.234, 0.);
         let mut c = Cache::new(N);
         // PID_NSM_U (10202) is not a valid mode for polarized non-singlet
-        gamma_ns_qcd(2, 10202, &mut c, NF, [0u8; 3]);
+        gamma_ns_qcd(2, PID_NSM_U, &mut c, NF, [0u8; 3]);
     }
 
     #[test]
