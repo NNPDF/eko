@@ -100,7 +100,7 @@ mod tests {
     }
 
     #[test]
-    fn test_momentum_conservation() {
+    fn test_a_singlet() {
         // reference combinations from the individual as1/as2 modules
         const NF: u8 = 5;
         const N: Complex<f64> = cmplx!(2., 0.);
