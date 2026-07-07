@@ -26,7 +26,7 @@ impl From<Complex<f64>> for ComplexF64 {
 /// Create a new `Cache` at Mellin N = `n_re + i·n_im`.
 ///
 /// The returned pointer is heap-allocated and **must** be freed with [`cache_delete`].
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn cache_new(n_re: f64, n_im: f64) -> *mut Cache {
     Box::into_raw(Box::new(Cache::new(Complex::new(n_re, n_im))))
 }
@@ -37,9 +37,11 @@ pub extern "C" fn cache_new(n_re: f64, n_im: f64) -> *mut Cache {
 ///
 /// # Safety
 /// `c` must be a pointer returned by [`cache_new`] that has not already been freed.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn cache_delete(c: *mut Cache) {
     if !c.is_null() {
-        drop(Box::from_raw(c));
+        unsafe {
+            drop(Box::from_raw(c));
+        }
     }
 }
