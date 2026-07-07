@@ -22,8 +22,8 @@ crate-type = ["cdylib", "staticlib"]
 capi = []
 
 [dependencies]
-ekore = { path = "../ekore", version = "0.0.1" }
-num = "0.4.1"
+ekore.workspace = true
+num.workspace = true
 
 [package.metadata.capi.header]
 subdirectory = "ekore_capi"
