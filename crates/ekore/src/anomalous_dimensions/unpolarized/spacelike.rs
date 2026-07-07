@@ -74,7 +74,7 @@ pub fn gamma_ns_qcd(
 /// be used. `variation = 1,2` is the upper/lower bound, while any other value
 /// returns the central (averaged) value.
 ///
-/// Returns an array of shape `(MAX_ORDER_QCD, d, d)`. Only the first `order_qcd`
+/// Returns an array of shape `(MAX_ORDER_QCD, 2, 2)`. Only the first `order_qcd`
 /// entries along the outer axis are filled; remaining slots are zero.
 pub fn gamma_singlet_qcd(
     order_qcd: usize,
@@ -169,7 +169,7 @@ pub fn gamma_ns_qed(
 /// be used. `variation = 1,2` is the upper/lower bound, while any other value
 /// returns the central (averaged) value.
 ///
-/// Returns an array of shape `(MAX_ORDER_QCD+1, MAX_ORDER_QED+1, d, d)`. The first
+/// Returns an array of shape `(MAX_ORDER_QCD+1, MAX_ORDER_QED+1, 4, 4)`. The first
 /// `order_qcd + 1` entries along the QCD axis and `order_qed + 1` along the QED axis
 /// are filled; remaining slots are zero.
 pub fn gamma_singlet_qed(
@@ -241,7 +241,7 @@ pub fn gamma_singlet_qed(
 /// be used. `variation = 1,2` is the upper/lower bound, while any other value
 /// returns the central (averaged) value.
 ///
-/// Returns an array of shape `(MAX_ORDER_QCD+1, MAX_ORDER_QED+1, d, d)`. The first
+/// Returns an array of shape `(MAX_ORDER_QCD+1, MAX_ORDER_QED+1, 2, 2)`. The first
 /// `order_qcd + 1` entries along the QCD axis and `order_qed + 1` along the QED axis
 /// are filled; remaining slots are zero.
 pub fn gamma_valence_qed(

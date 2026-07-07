@@ -49,7 +49,7 @@ pub fn gamma_ns_qcd(
 
 /// Compute the tower of the singlet anomalous dimension matrices.
 ///
-/// Returns an array of shape `(MAX_ORDER_QCD - 2, d, d)`. Only the first `order_qcd`
+/// Returns an array of shape `(MAX_ORDER_QCD - 2, 2, 2)`. Only the first `order_qcd`
 /// entries along the outer axis are filled; remaining slots are zero.
 pub fn gamma_singlet_qcd(
     order_qcd: usize,
