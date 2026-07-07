@@ -30,6 +30,9 @@ pub fn gamma_ns_qcd(
     nf: u8,
     n3lo_variation: [u8; 3],
 ) -> [Complex<f64>; MAX_ORDER_QCD] {
+    if order_qcd > MAX_ORDER_QCD {
+        panic!("QCD beyond N3LO is not implemented");
+    }
     let mut gamma_ns = [Complex::<f64>::zero(); MAX_ORDER_QCD];
     gamma_ns[0] = as1::gamma_ns(c, nf);
     // NLO and beyond
@@ -71,7 +74,7 @@ pub fn gamma_ns_qcd(
 /// be used. `variation = 1,2` is the upper/lower bound, while any other value
 /// returns the central (averaged) value.
 ///
-/// Returns an array of shape `(MAX_ORDER_QCD, d, d)`. Only the first `order_qcd`
+/// Returns an array of shape `(MAX_ORDER_QCD, 2, 2)`. Only the first `order_qcd`
 /// entries along the outer axis are filled; remaining slots are zero.
 pub fn gamma_singlet_qcd(
     order_qcd: usize,
@@ -79,6 +82,9 @@ pub fn gamma_singlet_qcd(
     nf: u8,
     n3lo_variation: [u8; 4],
 ) -> [[[Complex<f64>; 2]; 2]; MAX_ORDER_QCD] {
+    if order_qcd > MAX_ORDER_QCD {
+        panic!("QCD beyond N3LO is not implemented");
+    }
     let mut gamma_S = [[[Complex::<f64>::zero(); 2]; 2]; MAX_ORDER_QCD];
     gamma_S[0] = as1::gamma_singlet(c, nf);
     // NLO and beyond
@@ -113,6 +119,12 @@ pub fn gamma_ns_qed(
     nf: u8,
     n3lo_variation: [u8; 3],
 ) -> [[Complex<f64>; MAX_ORDER_QED + 1]; MAX_ORDER_QCD + 1] {
+    if order_qcd > MAX_ORDER_QCD {
+        panic!("QCD beyond N3LO is not implemented");
+    }
+    if order_qed > MAX_ORDER_QED {
+        panic!("QED beyond NLO is not implemented");
+    }
     let mut gamma_ns = [[Complex::<f64>::zero(); MAX_ORDER_QED + 1]; MAX_ORDER_QCD + 1];
 
     // QCD corrections
@@ -157,7 +169,7 @@ pub fn gamma_ns_qed(
 /// be used. `variation = 1,2` is the upper/lower bound, while any other value
 /// returns the central (averaged) value.
 ///
-/// Returns an array of shape `(MAX_ORDER_QCD+1, MAX_ORDER_QED+1, d, d)`. The first
+/// Returns an array of shape `(MAX_ORDER_QCD+1, MAX_ORDER_QED+1, 4, 4)`. The first
 /// `order_qcd + 1` entries along the QCD axis and `order_qed + 1` along the QED axis
 /// are filled; remaining slots are zero.
 pub fn gamma_singlet_qed(
@@ -167,6 +179,12 @@ pub fn gamma_singlet_qed(
     nf: u8,
     n3lo_variation: [u8; 7],
 ) -> [[[[Complex<f64>; 4]; 4]; MAX_ORDER_QED + 1]; MAX_ORDER_QCD + 1] {
+    if order_qcd > MAX_ORDER_QCD {
+        panic!("QCD beyond N3LO is not implemented");
+    }
+    if order_qed > MAX_ORDER_QED {
+        panic!("QED beyond NLO is not implemented");
+    }
     let mut gamma_s = [[[[Complex::<f64>::zero(); 4]; 4]; MAX_ORDER_QED + 1]; MAX_ORDER_QCD + 1];
 
     // QCD corrections
@@ -223,7 +241,7 @@ pub fn gamma_singlet_qed(
 /// be used. `variation = 1,2` is the upper/lower bound, while any other value
 /// returns the central (averaged) value.
 ///
-/// Returns an array of shape `(MAX_ORDER_QCD+1, MAX_ORDER_QED+1, d, d)`. The first
+/// Returns an array of shape `(MAX_ORDER_QCD+1, MAX_ORDER_QED+1, 2, 2)`. The first
 /// `order_qcd + 1` entries along the QCD axis and `order_qed + 1` along the QED axis
 /// are filled; remaining slots are zero.
 pub fn gamma_valence_qed(
@@ -233,6 +251,12 @@ pub fn gamma_valence_qed(
     nf: u8,
     n3lo_variation: [u8; 3],
 ) -> [[[[Complex<f64>; 2]; 2]; MAX_ORDER_QED + 1]; MAX_ORDER_QCD + 1] {
+    if order_qcd > MAX_ORDER_QCD {
+        panic!("QCD beyond N3LO is not implemented");
+    }
+    if order_qed > MAX_ORDER_QED {
+        panic!("QED beyond NLO is not implemented");
+    }
     let mut gamma_v = [[[[Complex::<f64>::zero(); 2]; 2]; MAX_ORDER_QED + 1]; MAX_ORDER_QCD + 1];
 
     // QCD corrections
@@ -298,6 +322,27 @@ mod tests {
             3,
             epsilon = 8e-4
         );
+
+        let gamma_nsp = gamma_ns_qcd(4, PID_NSP, &mut c, NF, n3lo_variation);
+        assert!(gamma_nsp.iter().any(|x| x.norm() > 1e-6));
+    }
+
+    #[test]
+    #[should_panic(expected = "QCD beyond N3LO is not implemented")]
+    fn test_gamma_ns_qcd_order5_panics() {
+        const NF: u8 = 4;
+        const N: Complex<f64> = cmplx!(1.234, 0.);
+        let mut c = Cache::new(N);
+        gamma_ns_qcd(5, PID_NSP, &mut c, NF, [0u8; 3]);
+    }
+
+    #[test]
+    #[should_panic(expected = "QCD beyond N3LO is not implemented")]
+    fn test_gamma_singlet_qcd_order5_panics() {
+        const NF: u8 = 4;
+        const N: Complex<f64> = cmplx!(1.234, 0.);
+        let mut c = Cache::new(N);
+        gamma_singlet_qcd(5, &mut c, NF, [0u8; 4]);
     }
 
     #[test]
@@ -319,7 +364,7 @@ mod tests {
         }
 
         // ns+
-        for pid in [PID_NSP_U, PID_NSP_U] {
+        for pid in [PID_NSP_U, PID_NSP_D] {
             // as^0 a^0 must be trivial
             assert_approx_eq_cmplx!(
                 f64,
@@ -333,6 +378,58 @@ mod tests {
                 epsilon = 1e-5
             );
         }
+
+        // aem2 + as1aem1
+        for pid in [PID_NSM_U, PID_NSM_D] {
+            let g = gamma_ns_qed(1, 2, pid, &mut c, NF, n3lo_variation);
+            for row in g.iter().take(2) {
+                assert_approx_eq_cmplx_1d!(f64, row, [cmplx!(0., 0.); 3], 3, epsilon = 1e-5);
+            }
+        }
+
+        // as2
+        for pid in [PID_NSM_U, PID_NSM_D] {
+            let g = gamma_ns_qed(2, 1, pid, &mut c, NF, n3lo_variation);
+            for row in g.iter().take(3) {
+                assert_approx_eq_cmplx_1d!(f64, row, [cmplx!(0., 0.); 2], 2, epsilon = 1e-5);
+            }
+        }
+
+        // as3
+        for pid in [PID_NSM_U, PID_NSM_D] {
+            let g = gamma_ns_qed(3, 1, pid, &mut c, NF, n3lo_variation);
+            for row in g.iter().take(4) {
+                assert_approx_eq_cmplx_1d!(f64, row, [cmplx!(0., 0.); 2], 2, epsilon = 1e-3);
+            }
+        }
+    }
+
+    #[test]
+    #[should_panic(expected = "QCD beyond N3LO is not implemented")]
+    fn test_gamma_ns_qed_qcd_order5_panics() {
+        const NF: u8 = 4;
+        const N: Complex<f64> = cmplx!(1.234, 0.);
+        let mut c = Cache::new(N);
+        gamma_ns_qed(5, 1, PID_NSP_U, &mut c, NF, [0u8; 3]);
+    }
+
+    #[test]
+    #[should_panic(expected = "QED beyond NLO is not implemented")]
+    fn test_gamma_ns_qed_qed_order3_panics() {
+        const NF: u8 = 4;
+        const N: Complex<f64> = cmplx!(1.234, 0.);
+        let mut c = Cache::new(N);
+        gamma_ns_qed(1, 3, PID_NSP_U, &mut c, NF, [0u8; 3]);
+    }
+
+    #[test]
+    #[should_panic(expected = "Unknown non-singlet sector element")]
+    fn test_unknown_pid_panics() {
+        const NF: u8 = 3;
+        const N: Complex<f64> = cmplx!(2., 0.);
+        let mut c = Cache::new(N);
+        // PID 10106 is not a valid non-singlet mode
+        gamma_ns_qed(2, 0, 10106, &mut c, NF, [0u8; 3]);
     }
 
     #[test]
@@ -356,6 +453,24 @@ mod tests {
             2,
             epsilon = 1e-5
         );
+    }
+
+    #[test]
+    #[should_panic(expected = "QCD beyond N3LO is not implemented")]
+    fn test_gamma_valence_qed_qcd_order5_panics() {
+        const NF: u8 = 4;
+        const N: Complex<f64> = cmplx!(1.234, 0.);
+        let mut c = Cache::new(N);
+        gamma_valence_qed(5, 1, &mut c, NF, [0u8; 3]);
+    }
+
+    #[test]
+    #[should_panic(expected = "QED beyond NLO is not implemented")]
+    fn test_gamma_valence_qed_qed_order3_panics() {
+        const NF: u8 = 4;
+        const N: Complex<f64> = cmplx!(1.234, 0.);
+        let mut c = Cache::new(N);
+        gamma_valence_qed(1, 3, &mut c, NF, [0u8; 3]);
     }
 
     #[test]
@@ -401,5 +516,60 @@ mod tests {
             4,
             epsilon = 1e-5
         );
+    }
+
+    #[test]
+    #[should_panic(expected = "QCD beyond N3LO is not implemented")]
+    fn test_gamma_singlet_qed_qcd_order5_panics() {
+        const NF: u8 = 4;
+        const N: Complex<f64> = cmplx!(1.234, 0.);
+        let mut c = Cache::new(N);
+        gamma_singlet_qed(5, 1, &mut c, NF, [0u8; 7]);
+    }
+
+    #[test]
+    #[should_panic(expected = "QED beyond NLO is not implemented")]
+    fn test_gamma_singlet_qed_qed_order3_panics() {
+        const NF: u8 = 4;
+        const N: Complex<f64> = cmplx!(1.234, 0.);
+        let mut c = Cache::new(N);
+        gamma_singlet_qed(1, 3, &mut c, NF, [0u8; 7]);
+    }
+
+    #[test]
+    fn test_dim_singlet() {
+        const NF: u8 = 3;
+        const N: Complex<f64> = cmplx!(2., 0.);
+        let mut c = Cache::new(N);
+        let g = gamma_singlet_qed(3, 2, &mut c, NF, [0u8; 7]);
+        assert_eq!(g.len(), MAX_ORDER_QCD + 1);
+        assert_eq!(g[0].len(), MAX_ORDER_QED + 1);
+        assert_eq!(g[0][0].len(), 4);
+        assert_eq!(g[0][0][0].len(), 4);
+    }
+
+    #[test]
+    fn test_dim_valence() {
+        const NF: u8 = 3;
+        const N: Complex<f64> = cmplx!(2., 0.);
+        let mut c = Cache::new(N);
+        let g = gamma_valence_qed(3, 2, &mut c, NF, [0u8; 3]);
+        assert_eq!(g.len(), MAX_ORDER_QCD + 1);
+        assert_eq!(g[0].len(), MAX_ORDER_QED + 1);
+        assert_eq!(g[0][0].len(), 2);
+        assert_eq!(g[0][0][0].len(), 2);
+    }
+
+    #[test]
+    fn test_dim_nsp() {
+        const NF: u8 = 3;
+        const N: Complex<f64> = cmplx!(2., 0.);
+        let mut c = Cache::new(N);
+        let g = gamma_ns_qed(3, 2, PID_NSP_U, &mut c, NF, [0u8; 3]);
+        assert_eq!(g.len(), MAX_ORDER_QCD + 1);
+        assert_eq!(g[0].len(), MAX_ORDER_QED + 1);
+        let g = gamma_ns_qed(3, 2, PID_NSP_D, &mut c, NF, [0u8; 3]);
+        assert_eq!(g.len(), MAX_ORDER_QCD + 1);
+        assert_eq!(g[0].len(), MAX_ORDER_QED + 1);
     }
 }
