@@ -1,0 +1,35 @@
+name: C-API unit tests
+
+on: push
+
+jobs:
+  test-capi:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Get test data
+        id: cache-test-data
+        uses: actions/cache@v4
+        with:
+          path: test-data
+          key: test-data-v2
+      - name: Download test data
+        if: steps.cache-test-data.outputs.cache-hit != 'true'
+        run: |
+          ./tests/data/assets.sh
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ inputs.python-version }}
+      - name: Install task runner
+        run: pip install poethepoet
+      - name: Setup Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+      - name: Install cargo-c (Pre-built)
+        uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-c
+      - name: Run C-API tests
+        run: |
+          poe build-capi
+          poe ctest
