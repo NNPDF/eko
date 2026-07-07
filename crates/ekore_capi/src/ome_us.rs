@@ -13,13 +13,27 @@ pub unsafe extern "C" fn ome_us_A_singlet(
     nf: u8,
     L: f64,
     result: *mut ComplexF64,
+    result_len: usize,
 ) {
+    if c.is_null() || result.is_null() {
+        return;
+    }
+
+    if matching_order_qcd >= 3 {
+        return;
+    }
+
+    if result_len < matching_order_qcd * 9 {
+        return;
+    }
+
     unsafe {
         let c = &mut *c;
         let out = slice::from_raw_parts_mut(result, matching_order_qcd * 9);
 
         for (o, mat) in spacelike::A_singlet(matching_order_qcd, c, nf, L)
             .iter()
+            .take(matching_order_qcd)
             .enumerate()
         {
             for r in 0..3_usize {
@@ -39,13 +53,27 @@ pub unsafe extern "C" fn ome_us_A_non_singlet(
     nf: u8,
     L: f64,
     result: *mut ComplexF64,
+    result_len: usize,
 ) {
+    if c.is_null() || result.is_null() {
+        return;
+    }
+
+    if matching_order_qcd >= 3 {
+        return;
+    }
+
+    if result_len < matching_order_qcd * 4 {
+        return;
+    }
+
     unsafe {
         let c = &mut *c;
         let out = slice::from_raw_parts_mut(result, matching_order_qcd * 4);
 
         for (o, mat) in spacelike::A_non_singlet(matching_order_qcd, c, nf, L)
             .iter()
+            .take(matching_order_qcd)
             .enumerate()
         {
             for r in 0..2_usize {

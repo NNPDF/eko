@@ -1,6 +1,9 @@
 //! The unpolarized, space-like anomalous dimensions at various couplings power.
 
-use crate::ComplexF64;
+use crate::{
+    ComplexF64, MAX_ORDER_QCD, MAX_ORDER_QED, PID_NSM, PID_NSM_D, PID_NSM_U, PID_NSP, PID_NSP_D,
+    PID_NSP_U, PID_NSV,
+};
 use ekore::anomalous_dimensions::unpolarized::spacelike;
 use ekore::harmonics::cache::Cache;
 use std::slice;
@@ -17,8 +20,26 @@ pub unsafe extern "C" fn ad_us_gamma_ns_qcd(
     c: *mut Cache,
     nf: u8,
     n3lo_variation: *const u8,
+    n3lo_len: usize,
     result: *mut ComplexF64,
+    result_len: usize,
 ) {
+    if c.is_null() || n3lo_variation.is_null() || result.is_null() {
+        return;
+    }
+
+    if order_qcd > MAX_ORDER_QCD {
+        return;
+    }
+
+    if !matches!(mode, PID_NSP | PID_NSM | PID_NSV) {
+        return;
+    }
+
+    if n3lo_len < 3 || result_len < order_qcd {
+        return;
+    }
+
     unsafe {
         let c = &mut *c;
         let var: [u8; 3] = slice::from_raw_parts(n3lo_variation, 3).try_into().unwrap();
@@ -44,8 +65,22 @@ pub unsafe extern "C" fn ad_us_gamma_singlet_qcd(
     c: *mut Cache,
     nf: u8,
     n3lo_variation: *const u8,
+    n3lo_len: usize,
     result: *mut ComplexF64,
+    result_len: usize,
 ) {
+    if c.is_null() || n3lo_variation.is_null() || result.is_null() {
+        return;
+    }
+
+    if order_qcd > MAX_ORDER_QCD {
+        return;
+    }
+
+    if n3lo_len < 4 || result_len < (order_qcd * 4) {
+        return;
+    }
+
     unsafe {
         let c = &mut *c;
         let var: [u8; 4] = slice::from_raw_parts(n3lo_variation, 4).try_into().unwrap();
@@ -53,6 +88,7 @@ pub unsafe extern "C" fn ad_us_gamma_singlet_qcd(
 
         for (o, mat) in spacelike::gamma_singlet_qcd(order_qcd, c, nf, var)
             .iter()
+            .take(order_qcd)
             .enumerate()
         {
             for r in 0..2_usize {
@@ -77,8 +113,31 @@ pub unsafe extern "C" fn ad_us_gamma_ns_qed(
     c: *mut Cache,
     nf: u8,
     n3lo_variation: *const u8,
+    n3lo_len: usize,
     result: *mut ComplexF64,
+    result_len: usize,
 ) {
+    if c.is_null() || n3lo_variation.is_null() || result.is_null() {
+        return;
+    }
+
+    if order_qcd > MAX_ORDER_QCD || order_qed > MAX_ORDER_QED {
+        return;
+    }
+
+    if !matches!(
+        mode,
+        PID_NSP_U | PID_NSP_D | PID_NSM_U | PID_NSM_D | PID_NSP | PID_NSM | PID_NSV
+    ) {
+        return;
+    }
+
+    let required_result_len = (order_qcd + 1) * (order_qed + 1);
+
+    if n3lo_len < 3 || result_len < required_result_len {
+        return;
+    }
+
     unsafe {
         let c = &mut *c;
         let var: [u8; 3] = slice::from_raw_parts(n3lo_variation, 3).try_into().unwrap();
@@ -86,8 +145,8 @@ pub unsafe extern "C" fn ad_us_gamma_ns_qed(
         let out = slice::from_raw_parts_mut(result, (order_qcd + 1) * ncols);
 
         let gamma = spacelike::gamma_ns_qed(order_qcd, order_qed, mode, c, nf, var);
-        for (i, row) in gamma.iter().enumerate() {
-            for (j, val) in row.iter().enumerate() {
+        for (i, row) in gamma.iter().take(order_qcd + 1).enumerate() {
+            for (j, val) in row.iter().take(ncols).enumerate() {
                 out[i * ncols + j] = (*val).into();
             }
         }
@@ -106,17 +165,33 @@ pub unsafe extern "C" fn ad_us_gamma_singlet_qed(
     c: *mut Cache,
     nf: u8,
     n3lo_variation: *const u8,
+    n3lo_len: usize,
     result: *mut ComplexF64,
+    result_len: usize,
 ) {
+    if c.is_null() || n3lo_variation.is_null() || result.is_null() {
+        return;
+    }
+
+    if order_qcd > MAX_ORDER_QCD || order_qed > MAX_ORDER_QED {
+        return;
+    }
+
+    let required_result_len = (order_qcd + 1) * (order_qed + 1) * 16;
+
+    if n3lo_len < 7 || result_len < required_result_len {
+        return;
+    }
+
     unsafe {
         let c = &mut *c;
         let var: [u8; 7] = slice::from_raw_parts(n3lo_variation, 7).try_into().unwrap();
         let ncols = order_qed + 1;
-        let out = slice::from_raw_parts_mut(result, (order_qcd + 1) * ncols * 16);
+        let out = slice::from_raw_parts_mut(result, (order_qcd + 1) * (order_qed + 1) * 16);
 
         let gamma = spacelike::gamma_singlet_qed(order_qcd, order_qed, c, nf, var);
-        for (i, row) in gamma.iter().enumerate() {
-            for (j, mat) in row.iter().enumerate() {
+        for (i, row) in gamma.iter().take(order_qcd + 1).enumerate() {
+            for (j, mat) in row.iter().take(ncols).enumerate() {
                 let base = (i * ncols + j) * 16;
                 for r in 0..4_usize {
                     for col in 0..4_usize {
@@ -140,8 +215,24 @@ pub unsafe extern "C" fn ad_us_gamma_valence_qed(
     c: *mut Cache,
     nf: u8,
     n3lo_variation: *const u8,
+    n3lo_len: usize,
     result: *mut ComplexF64,
+    result_len: usize,
 ) {
+    if c.is_null() || n3lo_variation.is_null() || result.is_null() {
+        return;
+    }
+
+    if order_qcd > MAX_ORDER_QCD || order_qed > MAX_ORDER_QED {
+        return;
+    }
+
+    let required_result_len = (order_qcd + 1) * (order_qed + 1) * 4;
+
+    if n3lo_len < 3 || result_len < required_result_len {
+        return;
+    }
+
     unsafe {
         let c = &mut *c;
         let var: [u8; 3] = slice::from_raw_parts(n3lo_variation, 3).try_into().unwrap();
@@ -149,8 +240,8 @@ pub unsafe extern "C" fn ad_us_gamma_valence_qed(
         let out = slice::from_raw_parts_mut(result, (order_qcd + 1) * ncols * 4);
 
         let gamma = spacelike::gamma_valence_qed(order_qcd, order_qed, c, nf, var);
-        for (i, row) in gamma.iter().enumerate() {
-            for (j, mat) in row.iter().enumerate() {
+        for (i, row) in gamma.iter().take(order_qcd + 1).enumerate() {
+            for (j, mat) in row.iter().take(ncols).enumerate() {
                 let base = (i * ncols + j) * 4;
                 for r in 0..2_usize {
                     for col in 0..2_usize {
