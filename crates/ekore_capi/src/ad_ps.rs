@@ -5,7 +5,49 @@ use ekore::anomalous_dimensions::polarized::spacelike;
 use ekore::harmonics::cache::Cache;
 use std::slice;
 
+/// Required length of `n3lo_variation` for [`ad_ps_gamma_ns_qcd`].
+///
+/// # Returns
+/// * Returns the fixed required buffer length of `3`.
+#[unsafe(no_mangle)]
+pub extern "C" fn ad_ps_gamma_ns_qcd_n3lo_len() -> usize {
+    3
+}
+
+/// Required length of `result` for [`ad_ps_gamma_ns_qcd`] at the given `order_qcd`.
+///
+/// # Parameters
+/// * `order_qcd`: The QCD coupling power (must be < 3).
+///
+/// # Returns
+/// * Returns the required buffer size (number of `ComplexF64` elements).
+/// * Returns `0` if `order_qcd` is out of the supported range.
+#[unsafe(no_mangle)]
+pub extern "C" fn ad_ps_gamma_ns_qcd_result_len(order_qcd: usize) -> usize {
+    if order_qcd >= 3 {
+        return 0;
+    }
+    order_qcd
+}
+
 /// Compute the tower of non-singlet anomalous dimensions.
+///
+/// # Safety
+/// * `c` must be a valid, non-null pointer to an initialized `Cache`.
+/// * `n3lo_variation` must be a valid, non-null pointer to a buffer of `u8` elements.
+/// * `result` must be a valid, non-null pointer to a contiguous, properly aligned buffer of `ComplexF64`.
+///
+/// # Parameters
+/// * `order_qcd`: The QCD coupling power (supported range: < 3).
+/// * `mode`: The specific non-singlet sector.
+/// * `c`: Pointer to the harmonic cache.
+/// * `nf`: Number of active flavors.
+/// * `n3lo_variation`: Pointer to the buffer containing N3LO variations.
+/// * `n3lo_len`: The actual length of the provided `n3lo_variation` buffer. This should be at
+///   least the value returned by [`ad_ps_gamma_ns_qcd_n3lo_len`].
+/// * `result`: Pointer to the output buffer.
+/// * `result_len`: The actual length (in elements) of the provided `result` buffer. This should
+///   be at least the value returned by [`ad_ps_gamma_ns_qcd_result_len`].
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn ad_ps_gamma_ns_qcd(
     order_qcd: usize,
@@ -47,7 +89,48 @@ pub unsafe extern "C" fn ad_ps_gamma_ns_qcd(
     }
 }
 
+/// Required length of `n3lo_variation` for [`ad_ps_gamma_singlet_qcd`].
+///
+/// # Returns
+/// * Returns the fixed required buffer length of `4`.
+#[unsafe(no_mangle)]
+pub extern "C" fn ad_ps_gamma_singlet_qcd_n3lo_len() -> usize {
+    4
+}
+
+/// Required length of `result` for [`ad_ps_gamma_singlet_qcd`] at the given `order_qcd`.
+///
+/// # Parameters
+/// * `order_qcd`: The QCD coupling power (must be < 3).
+///
+/// # Returns
+/// * Returns the required buffer size (number of `ComplexF64` elements).
+/// * Returns `0` if `order_qcd` is out of the supported range.
+#[unsafe(no_mangle)]
+pub extern "C" fn ad_ps_gamma_singlet_qcd_result_len(order_qcd: usize) -> usize {
+    if order_qcd >= 3 {
+        return 0;
+    }
+    order_qcd * 4
+}
+
 /// Compute the tower of singlet anomalous dimension matrices.
+///
+/// # Safety
+/// * `c` must be a valid, non-null pointer to an initialized `Cache`.
+/// * `n3lo_variation` must be a valid, non-null pointer to a buffer of `u8` elements.
+/// * `result` must be a valid, non-null pointer to a contiguous, properly aligned buffer of `ComplexF64`.
+///
+/// # Parameters
+/// * `order_qcd`: The QCD coupling power (supported range: < 3).
+/// * `c`: Pointer to the harmonic cache.
+/// * `nf`: Number of active flavors.
+/// * `n3lo_variation`: Pointer to the buffer containing N3LO variations.
+/// * `n3lo_len`: The actual length of the provided `n3lo_variation` buffer. This should be at
+///   least the value returned by [`ad_ps_gamma_singlet_qcd_n3lo_len`].
+/// * `result`: Pointer to the output buffer.
+/// * `result_len`: The actual length (in elements) of the provided `result` buffer. This should
+///   be at least the value returned by [`ad_ps_gamma_singlet_qcd_result_len`].
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn ad_ps_gamma_singlet_qcd(
     order_qcd: usize,
