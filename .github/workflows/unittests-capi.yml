@@ -20,7 +20,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: ${{ inputs.python-version }}
+          python-version: ${{ vars.PYTHON_VERSION_WORKFLOWS }}
       - name: Install task runner
         run: pip install poethepoet
       - name: Setup Rust toolchain
