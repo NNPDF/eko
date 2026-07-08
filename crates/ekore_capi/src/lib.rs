@@ -1,8 +1,8 @@
 //! C-language interface for `ekore`.
 
-mod ad_ps;
-mod ad_us;
-mod ome_us;
+pub mod ad_ps;
+pub mod ad_us;
+pub mod ome_us;
 
 use ekore::harmonics::cache::Cache as EkoreCache;
 use num::complex::Complex;
@@ -42,8 +42,7 @@ const _: () = {
 
 /// C-compatible representation of a double-precision complex number.
 ///
-/// The memory layout (`re` followed by `im`) matches `num::Complex<f64>` and
-/// the C99 `double complex` / Fortran `COMPLEX(KIND=8)` types.
+/// The memory layout (`re` followed by `im`) matches `num::Complex<f64>` type.
 #[repr(C)]
 pub struct ComplexF64 {
     pub re: f64,
@@ -60,9 +59,16 @@ impl From<Complex<f64>> for ComplexF64 {
 /// Create with `cache_new`, free with `cache_delete`.
 pub struct Cache;
 
-/// Create a new `Cache` at Mellin N = `n_re + i·n_im`.
+/// Create a new `Cache` at Mellin N = `n_re` + i·`n_im`.
 ///
 /// The returned pointer is heap-allocated and **must** be freed with [`cache_delete`].
+///
+/// # Parameters
+/// * n_re: The real part of the Mellin variable N.
+/// * n_im: The imaginary part of the Mellin variable N.
+///
+/// # Returns
+/// * Returns a raw pointer to a newly allocated `Cache`.
 #[unsafe(no_mangle)]
 pub extern "C" fn cache_new(n_re: f64, n_im: f64) -> *mut Cache {
     let real_cache = EkoreCache::new(Complex::new(n_re, n_im));
@@ -74,7 +80,11 @@ pub extern "C" fn cache_new(n_re: f64, n_im: f64) -> *mut Cache {
 /// Passing `NULL` is safe and does nothing.
 ///
 /// # Safety
-/// `c` must be a pointer returned by [`cache_new`] that has not already been freed.
+/// * `c` must be a valid pointer returned by [`cache_new`] that has not already been freed.
+///   Double-freeing or passing arbitrary pointers will result in undefined behavior.
+///
+/// # Parameters
+/// * c: Pointer to the `Cache` to be freed.
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn cache_delete(c: *mut Cache) {
     if !c.is_null() {
