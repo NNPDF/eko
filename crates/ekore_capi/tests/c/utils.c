@@ -14,3 +14,21 @@ int check(const char *test, const char *label,
     }
     return 0;
 }
+
+int check_len(const char *label, size_t got, size_t expected)
+{
+    if (got != expected) {
+        fprintf(stderr, "FAIL lengths [%s]: got %zu, expected %zu\n", label, got, expected);
+        return 1;
+    }
+    return 0;
+}
+
+int check_val(const char *name, size_t actual, size_t expected)
+{
+    if (actual != expected) {
+        fprintf(stderr, "FAIL: %s - expected %zu, got %zu\n", name, expected, actual);
+        return 1;
+    }
+    return 0;
+}

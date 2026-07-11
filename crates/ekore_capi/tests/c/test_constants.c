@@ -1,15 +1,7 @@
+#include "utils.h"
 #include <ekore_capi.h>
 #include <stdio.h>
 #include <stdlib.h>
-
-static int check_val(const char *name, size_t actual, size_t expected)
-{
-    if (actual != expected) {
-        fprintf(stderr, "FAIL: %s - expected %zu, got %zu\n", name, expected, actual);
-        return 1;
-    }
-    return 0;
-}
 
 static int test_max_orders(void)
 {

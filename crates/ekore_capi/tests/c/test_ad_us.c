@@ -4,15 +4,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-static int check_len(const char *label, size_t got, size_t expected)
-{
-    if (got != expected) {
-        fprintf(stderr, "FAIL lengths [%s]: got %zu, expected %zu\n", label, got, expected);
-        return 1;
-    }
-    return 0;
-}
-
 static int test_lengths(void)
 {
     int fail = 0;
