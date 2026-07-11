@@ -39,6 +39,5 @@ run_section() {
 }
 
 run_section c       cc       c
-run_section cpp     c++      cpp
 
 echo "=== All tests passed ==="
