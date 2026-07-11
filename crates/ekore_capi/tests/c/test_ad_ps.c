@@ -7,13 +7,11 @@ static int test_lengths(void)
 {
     int fail = 0;
 
-    fail |= check_len("ad_ps_gamma_ns_qcd_n3lo_len", ad_ps_gamma_ns_qcd_n3lo_len(), 3);
     fail |= check_len("ad_ps_gamma_ns_qcd_result_len(0)", ad_ps_gamma_ns_qcd_result_len(0), 0);
     fail |= check_len("ad_ps_gamma_ns_qcd_result_len(1)", ad_ps_gamma_ns_qcd_result_len(1), 1);
     fail |= check_len("ad_ps_gamma_ns_qcd_result_len(2)", ad_ps_gamma_ns_qcd_result_len(2), 2);
     fail |= check_len("ad_ps_gamma_ns_qcd_result_len(3)", ad_ps_gamma_ns_qcd_result_len(3), 0);
 
-    fail |= check_len("ad_ps_gamma_singlet_qcd_n3lo_len", ad_ps_gamma_singlet_qcd_n3lo_len(), 4);
     fail |= check_len("ad_ps_gamma_singlet_qcd_result_len(0)", ad_ps_gamma_singlet_qcd_result_len(0), 0);
     fail |= check_len("ad_ps_gamma_singlet_qcd_result_len(1)", ad_ps_gamma_singlet_qcd_result_len(1), 4);
     fail |= check_len("ad_ps_gamma_singlet_qcd_result_len(2)", ad_ps_gamma_singlet_qcd_result_len(2), 8);
@@ -30,11 +28,10 @@ static int test_gamma_ns_qcd(void)
     const uint8_t var[3] = {0, 0, 0};
     Cache *c = cache_new(1.0, 0.0);
 
-    const size_t n3lo_len = ad_ps_gamma_ns_qcd_n3lo_len();
     const size_t len = ad_ps_gamma_ns_qcd_result_len(2);
     ComplexF64 r[len];
 
-    ad_ps_gamma_ns_qcd(2, PID_NSP, c, nf, var, n3lo_len, r, len);
+    ad_ps_gamma_ns_qcd(2, PID_NSP, c, nf, var, r, len);
     fail |= check("gamma_ns_qcd", "LO [0]", r[0].re, r[0].im, 0., 0., 1e-14);
     for (size_t i = 0; i < len; i++)
         fail |= check("gamma_ns_qcd", "NLO", r[i].re, r[i].im, 0., 0., 2e-6);
@@ -56,11 +53,10 @@ static int test_gamma_singlet_qcd(void)
     const double TR = 1.0 / 2.0;
     const double PI = 3.14159265358979323846;
 
-    const size_t n3lo_len = ad_ps_gamma_singlet_qcd_n3lo_len();
     const size_t len = ad_ps_gamma_singlet_qcd_result_len(2);
     ComplexF64 g[len];
 
-    ad_ps_gamma_singlet_qcd(2, c, nf, var, n3lo_len, g, len);
+    ad_ps_gamma_singlet_qcd(2, c, nf, var, g, len);
 
     /* LO */
     fail |= check("gamma_singlet_qcd", "LO qq+gq",
@@ -94,18 +90,18 @@ static int test_guards(void)
     Cache *c = cache_new(1.234, 0.0);
 
     ComplexF64 r3[3] = {sentinel, sentinel, sentinel};
-    ad_ps_gamma_ns_qcd(3, PID_NSP, c, nf, var3, 3, r3, 3);
+    ad_ps_gamma_ns_qcd(3, PID_NSP, c, nf, var3, r3, 3);
     for (int i = 0; i < 3; i++)
         fail |= check("guards", "ns order_qcd=3 untouched", r3[i].re, r3[i].im, sentinel.re, sentinel.im, 0.);
 
     ComplexF64 g[8];
     for (int i = 0; i < 8; i++) g[i] = sentinel;
-    ad_ps_gamma_singlet_qcd(3, c, nf, var4, 4, g, 8);
+    ad_ps_gamma_singlet_qcd(3, c, nf, var4, g, 8);
     for (int i = 0; i < 8; i++)
         fail |= check("guards", "singlet order_qcd=3 untouched", g[i].re, g[i].im, sentinel.re, sentinel.im, 0.);
 
     ComplexF64 r2[2] = {sentinel, sentinel};
-    ad_ps_gamma_ns_qcd(2, PID_NSM_U, c, nf, var3, 3, r2, 2);
+    ad_ps_gamma_ns_qcd(2, PID_NSM_U, c, nf, var3, r2, 2);
     for (int i = 0; i < 2; i++)
         fail |= check("guards", "unknown mode untouched", r2[i].re, r2[i].im, sentinel.re, sentinel.im, 0.);
 

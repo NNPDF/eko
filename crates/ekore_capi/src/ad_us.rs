@@ -8,15 +8,6 @@ use ekore::anomalous_dimensions::unpolarized::spacelike;
 use ekore::harmonics::cache::Cache;
 use std::slice;
 
-/// Required length of `n3lo_variation` for [`ad_us_gamma_ns_qcd`].
-///
-/// # Returns
-/// * Returns the fixed required buffer length of `3`.
-#[unsafe(no_mangle)]
-pub extern "C" fn ad_us_gamma_ns_qcd_n3lo_len() -> usize {
-    3
-}
-
 /// Required length of `result` for [`ad_us_gamma_ns_qcd`] at the given `order_qcd`.
 ///
 /// # Parameters
@@ -37,7 +28,7 @@ pub extern "C" fn ad_us_gamma_ns_qcd_result_len(order_qcd: usize) -> usize {
 ///
 /// # Safety
 /// * `c` must be a valid, non-null pointer to an initialized `Cache`.
-/// * `n3lo_variation` must be a valid, non-null pointer to a buffer of `u8` elements.
+/// * `n3lo_variation` must be a valid, non-null pointer to a buffer of three `u8` elements.
 /// * `result` must be a valid, non-null pointer to a contiguous, properly aligned buffer of `ComplexF64`.
 ///
 /// # Parameters
@@ -49,7 +40,8 @@ pub extern "C" fn ad_us_gamma_ns_qcd_result_len(order_qcd: usize) -> usize {
 /// * `n3lo_len`: The actual length of the provided `n3lo_variation` buffer. This should be at
 ///   least the value returned by [`ad_us_gamma_ns_qcd_n3lo_len`].
 /// * `result`: Pointer to the output buffer.
-/// * `result_len`: The actual length (in elements) of the provided `result` buffer. This should be at least the value returned by [`ad_us_gamma_ns_qcd_result_len`].
+/// * `result_len`: The actual length (in elements) of the provided `result` buffer. This should
+///   be at least the value returned by [`ad_us_gamma_ns_qcd_result_len`].
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn ad_us_gamma_ns_qcd(
     order_qcd: usize,
@@ -57,7 +49,6 @@ pub unsafe extern "C" fn ad_us_gamma_ns_qcd(
     c: *mut Cache,
     nf: u8,
     n3lo_variation: *const u8,
-    n3lo_len: usize,
     result: *mut ComplexF64,
     result_len: usize,
 ) {
@@ -73,7 +64,7 @@ pub unsafe extern "C" fn ad_us_gamma_ns_qcd(
         return;
     }
 
-    if n3lo_len < 3 || result_len < order_qcd {
+    if result_len < order_qcd {
         return;
     }
 
@@ -89,15 +80,6 @@ pub unsafe extern "C" fn ad_us_gamma_ns_qcd(
             *dst = src.into();
         }
     }
-}
-
-/// Required length of `n3lo_variation` for [`ad_us_gamma_singlet_qcd`].
-///
-/// # Returns
-/// * Returns the fixed required buffer length of `4`.
-#[unsafe(no_mangle)]
-pub extern "C" fn ad_us_gamma_singlet_qcd_n3lo_len() -> usize {
-    4
 }
 
 /// Required length of `result` for [`ad_us_gamma_singlet_qcd`] at the given `order_qcd`.
@@ -120,7 +102,7 @@ pub extern "C" fn ad_us_gamma_singlet_qcd_result_len(order_qcd: usize) -> usize 
 ///
 /// # Safety
 /// * `c` must be a valid, non-null pointer to an initialized `Cache`.
-/// * `n3lo_variation` must be a valid, non-null pointer to a buffer of `u8` elements.
+/// * `n3lo_variation` must be a valid, non-null pointer to a buffer of four `u8` elements.
 /// * `result` must be a valid, non-null pointer to a contiguous, properly aligned buffer of `ComplexF64`.
 ///
 /// # Parameters
@@ -139,7 +121,6 @@ pub unsafe extern "C" fn ad_us_gamma_singlet_qcd(
     c: *mut Cache,
     nf: u8,
     n3lo_variation: *const u8,
-    n3lo_len: usize,
     result: *mut ComplexF64,
     result_len: usize,
 ) {
@@ -151,7 +132,7 @@ pub unsafe extern "C" fn ad_us_gamma_singlet_qcd(
         return;
     }
 
-    if n3lo_len < 4 || result_len < (order_qcd * 4) {
+    if result_len < (order_qcd * 4) {
         return;
     }
 
@@ -172,15 +153,6 @@ pub unsafe extern "C" fn ad_us_gamma_singlet_qcd(
             }
         }
     }
-}
-
-/// Required length of `n3lo_variation` for [`ad_us_gamma_ns_qed`].
-///
-/// # Returns
-/// * Returns the fixed required buffer length of `3`.
-#[unsafe(no_mangle)]
-pub extern "C" fn ad_us_gamma_ns_qed_n3lo_len() -> usize {
-    3
 }
 
 /// Required length of `result` for [`ad_us_gamma_ns_qed`] at the given `order_qcd` and `order_qed`.
@@ -204,7 +176,7 @@ pub extern "C" fn ad_us_gamma_ns_qed_result_len(order_qcd: usize, order_qed: usi
 ///
 /// # Safety
 /// * `c` must be a valid, non-null pointer to an initialized `Cache`.
-/// * `n3lo_variation` must be a valid, non-null pointer to a buffer of `u8` elements.
+/// * `n3lo_variation` must be a valid, non-null pointer to a buffer of three `u8` elements.
 /// * `result` must be a valid, non-null pointer to a contiguous, properly aligned buffer of `ComplexF64`.
 ///
 /// # Parameters
@@ -227,7 +199,6 @@ pub unsafe extern "C" fn ad_us_gamma_ns_qed(
     c: *mut Cache,
     nf: u8,
     n3lo_variation: *const u8,
-    n3lo_len: usize,
     result: *mut ComplexF64,
     result_len: usize,
 ) {
@@ -248,7 +219,7 @@ pub unsafe extern "C" fn ad_us_gamma_ns_qed(
 
     let required_result_len = (order_qcd + 1) * (order_qed + 1);
 
-    if n3lo_len < 3 || result_len < required_result_len {
+    if result_len < required_result_len {
         return;
     }
 
@@ -265,14 +236,6 @@ pub unsafe extern "C" fn ad_us_gamma_ns_qed(
             }
         }
     }
-}
-/// Required length of `n3lo_variation` for [`ad_us_gamma_singlet_qed`].
-///
-/// # Returns
-/// * Returns the fixed required buffer length of `7`.
-#[unsafe(no_mangle)]
-pub extern "C" fn ad_us_gamma_singlet_qed_n3lo_len() -> usize {
-    7
 }
 
 /// Required length of `result` for [`ad_us_gamma_singlet_qed`] at the given `order_qcd` and `order_qed`.
@@ -296,7 +259,7 @@ pub extern "C" fn ad_us_gamma_singlet_qed_result_len(order_qcd: usize, order_qed
 ///
 /// # Safety
 /// * `c` must be a valid, non-null pointer to an initialized `Cache`.
-/// * `n3lo_variation` must be a valid, non-null pointer to a buffer of `u8` elements.
+/// * `n3lo_variation` must be a valid, non-null pointer to a buffer of seven `u8` elements.
 /// * `result` must be a valid, non-null pointer to a contiguous, properly aligned buffer of `ComplexF64`.
 ///
 /// # Parameters
@@ -317,7 +280,6 @@ pub unsafe extern "C" fn ad_us_gamma_singlet_qed(
     c: *mut Cache,
     nf: u8,
     n3lo_variation: *const u8,
-    n3lo_len: usize,
     result: *mut ComplexF64,
     result_len: usize,
 ) {
@@ -331,7 +293,7 @@ pub unsafe extern "C" fn ad_us_gamma_singlet_qed(
 
     let required_result_len = (order_qcd + 1) * (order_qed + 1) * 16;
 
-    if n3lo_len < 7 || result_len < required_result_len {
+    if result_len < required_result_len {
         return;
     }
 
@@ -355,15 +317,6 @@ pub unsafe extern "C" fn ad_us_gamma_singlet_qed(
     }
 }
 
-/// Required length of `n3lo_variation` for [`ad_us_gamma_valence_qed`].
-///
-/// # Returns
-/// * Returns the fixed required buffer length of `3`.
-#[unsafe(no_mangle)]
-pub extern "C" fn ad_us_gamma_valence_qed_n3lo_len() -> usize {
-    3
-}
-
 /// Required length of `result` for [`ad_us_gamma_valence_qed`] at the given `order_qcd` and `order_qed`.
 ///
 /// # Parameters
@@ -385,7 +338,7 @@ pub extern "C" fn ad_us_gamma_valence_qed_result_len(order_qcd: usize, order_qed
 ///
 /// # Safety
 /// * `c` must be a valid, non-null pointer to an initialized `Cache`.
-/// * `n3lo_variation` must be a valid, non-null pointer to a buffer of `u8` elements.
+/// * `n3lo_variation` must be a valid, non-null pointer to a buffer of three `u8` elements.
 /// * `result` must be a valid, non-null pointer to a contiguous, properly aligned buffer of `ComplexF64`.
 ///
 /// # Parameters
@@ -406,7 +359,6 @@ pub unsafe extern "C" fn ad_us_gamma_valence_qed(
     c: *mut Cache,
     nf: u8,
     n3lo_variation: *const u8,
-    n3lo_len: usize,
     result: *mut ComplexF64,
     result_len: usize,
 ) {
@@ -420,7 +372,7 @@ pub unsafe extern "C" fn ad_us_gamma_valence_qed(
 
     let required_result_len = (order_qcd + 1) * (order_qed + 1) * 4;
 
-    if n3lo_len < 3 || result_len < required_result_len {
+    if result_len < required_result_len {
         return;
     }
 

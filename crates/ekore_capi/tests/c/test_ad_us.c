@@ -8,25 +8,20 @@ static int test_lengths(void)
 {
     int fail = 0;
 
-    fail |= check_len("ad_us_gamma_ns_qcd_n3lo_len", ad_us_gamma_ns_qcd_n3lo_len(), 3);
     fail |= check_len("ad_us_gamma_ns_qcd_result_len(4)", ad_us_gamma_ns_qcd_result_len(4), 4);
     fail |= check_len("ad_us_gamma_ns_qcd_result_len(5)", ad_us_gamma_ns_qcd_result_len(5), 0);
 
-    fail |= check_len("ad_us_gamma_singlet_qcd_n3lo_len", ad_us_gamma_singlet_qcd_n3lo_len(), 4);
     fail |= check_len("ad_us_gamma_singlet_qcd_result_len(4)", ad_us_gamma_singlet_qcd_result_len(4), 16);
     fail |= check_len("ad_us_gamma_singlet_qcd_result_len(5)", ad_us_gamma_singlet_qcd_result_len(5), 0);
 
-    fail |= check_len("ad_us_gamma_ns_qed_n3lo_len", ad_us_gamma_ns_qed_n3lo_len(), 3);
     fail |= check_len("ad_us_gamma_ns_qed_result_len(3,2)", ad_us_gamma_ns_qed_result_len(3, 2), 12);
     fail |= check_len("ad_us_gamma_ns_qed_result_len(5,1)", ad_us_gamma_ns_qed_result_len(5, 1), 0);
     fail |= check_len("ad_us_gamma_ns_qed_result_len(1,3)", ad_us_gamma_ns_qed_result_len(1, 3), 0);
 
-    fail |= check_len("ad_us_gamma_singlet_qed_n3lo_len", ad_us_gamma_singlet_qed_n3lo_len(), 7);
     fail |= check_len("ad_us_gamma_singlet_qed_result_len(3,2)", ad_us_gamma_singlet_qed_result_len(3, 2), 192);
     fail |= check_len("ad_us_gamma_singlet_qed_result_len(5,1)", ad_us_gamma_singlet_qed_result_len(5, 1), 0);
     fail |= check_len("ad_us_gamma_singlet_qed_result_len(1,3)", ad_us_gamma_singlet_qed_result_len(1, 3), 0);
 
-    fail |= check_len("ad_us_gamma_valence_qed_n3lo_len", ad_us_gamma_valence_qed_n3lo_len(), 3);
     fail |= check_len("ad_us_gamma_valence_qed_result_len(3,2)", ad_us_gamma_valence_qed_result_len(3, 2), 48);
     fail |= check_len("ad_us_gamma_valence_qed_result_len(5,1)", ad_us_gamma_valence_qed_result_len(5, 1), 0);
     fail |= check_len("ad_us_gamma_valence_qed_result_len(1,3)", ad_us_gamma_valence_qed_result_len(1, 3), 0);
@@ -40,29 +35,28 @@ static int test_gamma_ns_qcd(void)
     int fail = 0;
     const uint8_t nf = 3;
     const uint8_t var[3] = {0, 0, 0};
-    const size_t n3lo_len = ad_us_gamma_ns_qcd_n3lo_len();
     Cache *c = cache_new(1.0, 0.0);
     const size_t len2 = ad_us_gamma_ns_qcd_result_len(2);
     const size_t len3 = ad_us_gamma_ns_qcd_result_len(3);
     const size_t len4 = ad_us_gamma_ns_qcd_result_len(4);
     ComplexF64 r2[len2], r3[len3], r4[len4];
 
-    ad_us_gamma_ns_qcd(3, PID_NSP, c, nf, var, n3lo_len, r3, len3);
+    ad_us_gamma_ns_qcd(3, PID_NSP, c, nf, var, r3, len3);
     fail |= check("gamma_ns_qcd", "NSP order3 [0]", r3[0].re, r3[0].im, 0., 0., 1e-14);
 
-    ad_us_gamma_ns_qcd(2, PID_NSM, c, nf, var, n3lo_len, r2, len2);
+    ad_us_gamma_ns_qcd(2, PID_NSM, c, nf, var, r2, len2);
     for (int i = 0; i < 2; i++)
         fail |= check("gamma_ns_qcd", "NSM order2", r2[i].re, r2[i].im, 0., 0., 2e-6);
 
-    ad_us_gamma_ns_qcd(3, PID_NSM, c, nf, var, n3lo_len, r3, len3);
+    ad_us_gamma_ns_qcd(3, PID_NSM, c, nf, var, r3, len3);
     for (int i = 0; i < 3; i++)
         fail |= check("gamma_ns_qcd", "NSM order3", r3[i].re, r3[i].im, 0., 0., 2e-4);
 
-    ad_us_gamma_ns_qcd(3, PID_NSV, c, nf, var, n3lo_len, r3, len3);
+    ad_us_gamma_ns_qcd(3, PID_NSV, c, nf, var, r3, len3);
     for (int i = 0; i < 3; i++)
         fail |= check("gamma_ns_qcd", "NSV order3", r3[i].re, r3[i].im, 0., 0., 8e-4);
 
-    ad_us_gamma_ns_qcd(4, PID_NSP, c, nf, var, n3lo_len, r4, len4);
+    ad_us_gamma_ns_qcd(4, PID_NSP, c, nf, var, r4, len4);
     int any_nonzero = 0;
     for (int i = 0; i < 4; i++)
         if (r4[i].re * r4[i].re + r4[i].im * r4[i].im > 1e-12) any_nonzero = 1;
@@ -81,7 +75,6 @@ static int test_gamma_ns_qed(void)
     int fail = 0;
     const uint8_t nf = 3;
     const uint8_t var[3] = {0, 0, 0};
-    const size_t n3lo_len = ad_us_gamma_ns_qed_n3lo_len();
     Cache *c = cache_new(1.0, 0.0);
     const size_t len11 = ad_us_gamma_ns_qed_result_len(1, 1);
     const size_t len12 = ad_us_gamma_ns_qed_result_len(1, 2);
@@ -91,32 +84,32 @@ static int test_gamma_ns_qed(void)
 
     uint16_t nsm_pids[2] = {PID_NSM_U, PID_NSM_D};
     for (int p = 0; p < 2; p++) {
-        ad_us_gamma_ns_qed(1, 1, nsm_pids[p], c, nf, var, n3lo_len, r1, len11);
+        ad_us_gamma_ns_qed(1, 1, nsm_pids[p], c, nf, var, r1, len11);
         for (int i = 0; i < 4; i++)
             fail |= check("gamma_ns_qed", "ns-", r1[i].re, r1[i].im, 0., 0., 1e-5);
     }
 
-    ad_us_gamma_ns_qed(1, 1, PID_NSP_U, c, nf, var, n3lo_len, r1, len11);
+    ad_us_gamma_ns_qed(1, 1, PID_NSP_U, c, nf, var, r1, len11);
     fail |= check("gamma_ns_qed", "ns+ [0][0]", r1[0].re, r1[0].im, 0., 0., DEFAULT_EPS);
     fail |= check("gamma_ns_qed", "ns+ [0][1]", r1[1].re, r1[1].im, 0., 0., 1e-5);
-    ad_us_gamma_ns_qed(1, 1, PID_NSP_D, c, nf, var, n3lo_len, r1, len11);
+    ad_us_gamma_ns_qed(1, 1, PID_NSP_D, c, nf, var, r1, len11);
     fail |= check("gamma_ns_qed", "ns+ [0][0]", r1[0].re, r1[0].im, 0., 0., DEFAULT_EPS);
     fail |= check("gamma_ns_qed", "ns+ [0][1]", r1[1].re, r1[1].im, 0., 0., 1e-5);
 
     for (int p = 0; p < 2; p++) {
-        ad_us_gamma_ns_qed(1, 2, nsm_pids[p], c, nf, var, n3lo_len, r2, len12);
+        ad_us_gamma_ns_qed(1, 2, nsm_pids[p], c, nf, var, r2, len12);
         for (int i = 0; i < 6; i++)
             fail |= check("gamma_ns_qed", "aem2+as1aem1", r2[i].re, r2[i].im, 0., 0., 1e-5);
     }
 
     for (int p = 0; p < 2; p++) {
-        ad_us_gamma_ns_qed(2, 1, nsm_pids[p], c, nf, var, n3lo_len, r2, len21);
+        ad_us_gamma_ns_qed(2, 1, nsm_pids[p], c, nf, var, r2, len21);
         for (int i = 0; i < 6; i++)
             fail |= check("gamma_ns_qed", "as2", r2[i].re, r2[i].im, 0., 0., 1e-5);
     }
 
     for (int p = 0; p < 2; p++) {
-        ad_us_gamma_ns_qed(3, 1, nsm_pids[p], c, nf, var, n3lo_len, r8, len31);
+        ad_us_gamma_ns_qed(3, 1, nsm_pids[p], c, nf, var, r8, len31);
         for (int i = 0; i < 8; i++)
             fail |= check("gamma_ns_qed", "as3", r8[i].re, r8[i].im, 0., 0., 1e-3);
     }
@@ -131,12 +124,11 @@ static int test_gamma_valence_qed(void)
     int fail = 0;
     const uint8_t nf = 3;
     const uint8_t var[3] = {0, 0, 0};
-    const size_t n3lo_len = ad_us_gamma_valence_qed_n3lo_len();
     Cache *c = cache_new(2.0, 0.0);
     const size_t len = ad_us_gamma_valence_qed_result_len(3, 2);
     ComplexF64 g[len];
 
-    ad_us_gamma_valence_qed(3, 2, c, nf, var, n3lo_len, g, len);
+    ad_us_gamma_valence_qed(3, 2, c, nf, var, g, len);
 
     for (int k = 0; k < 4; k++)
         fail |= check("gamma_valence_qed", "g[0][0]", g[k].re, g[k].im, 0., 0., DEFAULT_EPS);
@@ -157,12 +149,11 @@ static int test_gamma_singlet_qed(void)
     int fail = 0;
     const uint8_t nf = 3;
     const uint8_t var[7] = {0, 0, 0, 0, 0, 0, 0};
-    const size_t n3lo_len = ad_us_gamma_singlet_qed_n3lo_len();
     Cache *c = cache_new(2.0, 0.0);
     const size_t len = ad_us_gamma_singlet_qed_result_len(3, 2);
     ComplexF64 g[len];
 
-    ad_us_gamma_singlet_qed(3, 2, c, nf, var, n3lo_len, g, len);
+    ad_us_gamma_singlet_qed(3, 2, c, nf, var, g, len);
 
     for (int k = 0; k < 16; k++)
         fail |= check("gamma_singlet_qed", "g[0][0]", g[k].re, g[k].im, 0., 0., DEFAULT_EPS);
@@ -196,40 +187,40 @@ static int test_guards(void)
     Cache *c = cache_new(1.234, 0.0);
 
     ComplexF64 r5[5] = {sentinel, sentinel, sentinel, sentinel, sentinel};
-    ad_us_gamma_ns_qcd(5, PID_NSP, c, nf, var3, 3, r5, 5);
+    ad_us_gamma_ns_qcd(5, PID_NSP, c, nf, var3, r5, 5);
     for (int i = 0; i < 5; i++)
         fail |= check("guards", "ns_qcd order5 untouched", r5[i].re, r5[i].im, sentinel.re, sentinel.im, 0.);
 
     ComplexF64 gs[20];
     for (int i = 0; i < 20; i++) gs[i] = sentinel;
-    ad_us_gamma_singlet_qcd(5, c, nf, var4, 4, gs, 20);
+    ad_us_gamma_singlet_qcd(5, c, nf, var4, gs, 20);
     for (int i = 0; i < 20; i++)
         fail |= check("guards", "singlet_qcd order5 untouched", gs[i].re, gs[i].im, sentinel.re, sentinel.im, 0.);
 
     ComplexF64 rq[12];
     for (int i = 0; i < 12; i++) rq[i] = sentinel;
-    ad_us_gamma_ns_qed(5, 1, PID_NSP_U, c, nf, var3, 3, rq, 12);
+    ad_us_gamma_ns_qed(5, 1, PID_NSP_U, c, nf, var3, rq, 12);
     for (int i = 0; i < 12; i++)
         fail |= check("guards", "ns_qed order_qcd=5 untouched", rq[i].re, rq[i].im, sentinel.re, sentinel.im, 0.);
     for (int i = 0; i < 12; i++) rq[i] = sentinel;
-    ad_us_gamma_ns_qed(1, 3, PID_NSP_U, c, nf, var3, 3, rq, 12);
+    ad_us_gamma_ns_qed(1, 3, PID_NSP_U, c, nf, var3, rq, 12);
     for (int i = 0; i < 12; i++)
         fail |= check("guards", "ns_qed order_qed=3 untouched", rq[i].re, rq[i].im, sentinel.re, sentinel.im, 0.);
 
     ComplexF64 r3g[3] = {sentinel, sentinel, sentinel};
-    ad_us_gamma_ns_qed(2, 0, 10106 /* not a valid non-singlet mode */, c, nf, var3, 3, r3g, ad_us_gamma_ns_qed_result_len(2, 0));
+    ad_us_gamma_ns_qed(2, 0, 10106 /* not a valid non-singlet mode */, c, nf, var3, r3g, ad_us_gamma_ns_qed_result_len(2, 0));
     for (int i = 0; i < 3; i++)
         fail |= check("guards", "unknown mode untouched", r3g[i].re, r3g[i].im, sentinel.re, sentinel.im, 0.);
 
     ComplexF64 rv[16];
     for (int i = 0; i < 16; i++) rv[i] = sentinel;
-    ad_us_gamma_valence_qed(5, 1, c, nf, var3, 3, rv, 16);
+    ad_us_gamma_valence_qed(5, 1, c, nf, var3, rv, 16);
     for (int i = 0; i < 16; i++)
         fail |= check("guards", "valence_qed order_qcd=5 untouched", rv[i].re, rv[i].im, sentinel.re, sentinel.im, 0.);
 
     ComplexF64 rsq[64];
     for (int i = 0; i < 64; i++) rsq[i] = sentinel;
-    ad_us_gamma_singlet_qed(1, 3, c, nf, var7, 7, rsq, 64);
+    ad_us_gamma_singlet_qed(1, 3, c, nf, var7, rsq, 64);
     for (int i = 0; i < 64; i++)
         fail |= check("guards", "singlet_qed order_qed=3 untouched", rsq[i].re, rsq[i].im, sentinel.re, sentinel.im, 0.);
 
