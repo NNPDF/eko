@@ -289,8 +289,11 @@ mod tests {
     #[test]
     fn test_gamma_ns_qcd() {
         const NF: u8 = 3;
+        const NF_: u8 = 5;
         const N: Complex<f64> = cmplx!(1., 0.);
         let mut c = Cache::new(N);
+        let nsm_refs: [f64; 3] = [0.06776363, 0.064837, 0.07069];
+        let nss_refs: [f64; 3] = [-0.01100459, -0.00779938, -0.0142098];
         let n3lo_variation: [u8; 3] = [0, 0, 0];
         assert_approx_eq_cmplx!(
             f64,
@@ -323,6 +326,24 @@ mod tests {
             epsilon = 8e-4
         );
 
+        for var in 0..3u8 {
+            let gamma_nsm = gamma_ns_qcd(4, PID_NSM, &mut c, NF_, [0, var, 0])[3];
+            assert_approx_eq_cmplx!(
+                f64,
+                gamma_nsm,
+                cmplx!(nsm_refs[var as usize], 0.),
+                rel = 6e-5
+            );
+
+            let gamma_nsv = gamma_ns_qcd(4, PID_NSV, &mut c, NF_, [0, 0, var])[3];
+            assert_approx_eq_cmplx!(
+                f64,
+                gamma_nsv,
+                cmplx!(nsm_refs[var as usize] + nss_refs[var as usize], 0.),
+                rel = 1e-4
+            );
+        }
+
         let gamma_nsp = gamma_ns_qcd(4, PID_NSP, &mut c, NF, n3lo_variation);
         assert!(gamma_nsp.iter().any(|x| x.norm() > 1e-6));
     }
@@ -334,6 +355,30 @@ mod tests {
         const N: Complex<f64> = cmplx!(1.234, 0.);
         let mut c = Cache::new(N);
         gamma_ns_qcd(5, PID_NSP, &mut c, NF, [0u8; 3]);
+    }
+
+    #[test]
+    fn test_gamma_singlet_qcd() {
+        const NF: u8 = 5;
+        const N: Complex<f64> = cmplx!(2., 0.);
+        let mut c = Cache::new(N);
+        let quark_refs: [f64; 3] = [0.053441, 0.225674, -0.118792];
+        let gluon_refs: [f64; 3] = [-0.0300842, 0.283004, -0.343172];
+        for imod in 0..3u8 {
+            let g = gamma_singlet_qcd(4, &mut c, NF, [imod, imod, imod, imod])[3];
+            assert_approx_eq_cmplx!(
+                f64,
+                g[0][0] + g[1][0],
+                cmplx!(quark_refs[imod as usize], 0.),
+                rel = 2e-5
+            );
+            assert_approx_eq_cmplx!(
+                f64,
+                g[0][1] + g[1][1],
+                cmplx!(gluon_refs[imod as usize], 0.),
+                rel = 6e-5
+            );
+        }
     }
 
     #[test]

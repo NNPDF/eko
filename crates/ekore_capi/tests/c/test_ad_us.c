@@ -34,11 +34,14 @@ static int test_gamma_ns_qcd(void)
 {
     int fail = 0;
     const uint8_t nf = 3;
+    const uint8_t nf_ = 5;
     const uint8_t var[3] = {0, 0, 0};
     Cache *c = cache_new(1.0, 0.0);
     const size_t len2 = ad_us_gamma_ns_qcd_result_len(2);
     const size_t len3 = ad_us_gamma_ns_qcd_result_len(3);
     const size_t len4 = ad_us_gamma_ns_qcd_result_len(4);
+    const double nsm_refs[3] = {0.06776363, 0.064837, 0.07069};
+    const double nss_refs[3] = {-0.01100459, -0.00779938, -0.0142098};
     ComplexF64 r2[len2], r3[len3], r4[len4];
 
     ad_us_gamma_ns_qcd(3, PID_NSP, c, nf, var, r3, len3);
@@ -56,6 +59,16 @@ static int test_gamma_ns_qcd(void)
     for (int i = 0; i < 3; i++)
         fail |= check("gamma_ns_qcd", "NSV order3", r3[i].re, r3[i].im, 0., 0., 8e-4);
 
+    for (uint8_t var = 0; var < 3; var++) {
+        uint8_t var_nsm[3] = {0, var, 0};
+        ad_us_gamma_ns_qcd(4, PID_NSM, c, nf_, var_nsm, r4, len4);
+        fail |= check("gamma_ns_qcd", "N3LO NSM", r4[3].re, r4[3].im, nsm_refs[var], 0., 6e-6);
+
+        uint8_t var_nsv[3] = {0, 0, var};
+        ad_us_gamma_ns_qcd(4, PID_NSV, c, nf_, var_nsv, r4, len4);
+        fail |= check("gamma_ns_qcd", "N3LO NSV", r4[3].re, r4[3].im, nsm_refs[var] + nss_refs[var], 0., 1e-5);
+    }
+
     ad_us_gamma_ns_qcd(4, PID_NSP, c, nf, var, r4, len4);
     int any_nonzero = 0;
     for (int i = 0; i < 4; i++)
@@ -67,6 +80,41 @@ static int test_gamma_ns_qcd(void)
 
     cache_delete(c);
     if (!fail) printf("PASS test_gamma_ns_qcd\n");
+    return fail;
+}
+
+static int test_gamma_singlet_qcd(void)
+{
+    int fail = 0;
+    const uint8_t nf = 5;
+    Cache *c = cache_new(2.0, 0.0);
+    const size_t len4 = ad_us_gamma_singlet_qcd_result_len(4);
+    ComplexF64 g4[len4];
+
+    const double quark_refs[3] = {0.053441, 0.225674, -0.118792};
+    const double gluon_refs[3] = {-0.0300842, 0.283004, -0.343172};
+
+    for (uint8_t imod = 0; imod < 3; imod++) {
+        uint8_t var[4] = {imod, imod, imod, imod};
+        ad_us_gamma_singlet_qcd(4, c, nf, var, g4, len4);
+
+        int base = 3 * 4;
+        ComplexF64 qq = g4[base + 0];
+        ComplexF64 qg = g4[base + 1];
+        ComplexF64 gq = g4[base + 2];
+        ComplexF64 gg = g4[base + 3];
+
+        double quark_re = qq.re + gq.re;
+        double quark_im = qq.im + gq.im;
+        fail |= check("gamma_singlet_qcd", "N3LO quark conservation", quark_re, quark_im, quark_refs[imod], 0., 2e-6);
+
+        double gluon_re = qg.re + gg.re;
+        double gluon_im = qg.im + gg.im;
+        fail |= check("gamma_singlet_qcd", "N3LO gluon conservation", gluon_re, gluon_im, gluon_refs[imod], 0., 2e-5);
+    }
+
+    cache_delete(c);
+    if (!fail) printf("PASS test_gamma_singlet_qcd_n3lo_momentum_conservation\n");
     return fail;
 }
 
@@ -234,6 +282,7 @@ int main(void)
     int fail = 0;
     fail |= test_lengths();
     fail |= test_gamma_ns_qcd();
+    fail |= test_gamma_singlet_qcd();
     fail |= test_gamma_ns_qed();
     fail |= test_gamma_valence_qed();
     fail |= test_gamma_singlet_qed();
