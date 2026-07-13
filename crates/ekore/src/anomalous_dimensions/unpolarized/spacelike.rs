@@ -1,4 +1,4 @@
-//! The unpolarized, space-like anomalous dimensions at various couplings power.
+//! The unpolarized, space-like anomalous dimensions.
 
 use crate::constants::{
     ED2, EU2, MAX_ORDER_QCD, MAX_ORDER_QED, PID_NSM, PID_NSM_D, PID_NSM_U, PID_NSP, PID_NSP_D,
@@ -15,18 +15,31 @@ pub(crate) mod as2;
 mod as3;
 mod as4;
 
-/// Compute the tower of the non-singlet anomalous dimensions.
+/// Compute the tower of the unpolarized, space-like non-singlet anomalous dimensions.
 ///
-/// `n3lo_variation = (ns_p, ns_m, ns_v)` is a list indicating which variation should
-/// be used. `variation = 1,2` is the upper/lower bound, while any other value
+/// This function computes the first `order_qcd` entries for the |PID| `mode` at the Mellin variable set in `cache` using `nf` light flavors.
+/// `n3lo_variation = (ns_p, ns_m, ns_v)` is a list with three entries indicating which |N3LO| variation should
+/// be used (if requested) for the given `mode`, where values `1` or `2` indicate the upper or lower bound respectively, while any other value
 /// returns the central (averaged) value.
 ///
 /// Returns an array of shape `(MAX_ORDER_QCD,)`. Only the first `order_qcd` entries
 /// are filled; remaining slots are zero.
+///
+/// # Available perturbative orders:
+///
+/// - $a_s^1$ [\[Moch:2004pa\]][crate::bib::Moch2004pa] [\[Vogt:2004mw\]](crate::bib::Vogt2004mw)
+/// - $a_{em}^1$ [\[Carrazza:2015dea\]][crate::bib::Carrazza2015dea]
+/// - $a_s^2$ [\[Moch:2004pa\]][crate::bib::Moch2004pa] [\[Vogt:2004mw\]](crate::bib::Vogt2004mw)
+/// - $a_{em}^2$ [\[deFlorian:2016gvk\]][crate::bib::deFlorian2016gvk]
+/// - $a_s^3$ [\[Moch:2004pa\]][crate::bib::Moch2004pa] [\[Vogt:2004mw\]](crate::bib::Vogt2004mw)
+///
+/// # Panics
+///
+/// Panics if `order_qcd` is larger than the currently available order or `mode` is not a valid |PID|.
 pub fn gamma_ns_qcd(
     order_qcd: usize,
     mode: u16,
-    c: &mut Cache,
+    cache: &mut Cache,
     nf: u8,
     n3lo_variation: [u8; 3],
 ) -> [Complex<f64>; MAX_ORDER_QCD] {
@@ -34,13 +47,13 @@ pub fn gamma_ns_qcd(
         panic!("QCD beyond N3LO is not implemented");
     }
     let mut gamma_ns = [Complex::<f64>::zero(); MAX_ORDER_QCD];
-    gamma_ns[0] = as1::gamma_ns(c, nf);
+    gamma_ns[0] = as1::gamma_ns(cache, nf);
     // NLO and beyond
     if order_qcd >= 2 {
         let gamma_ns_1 = match mode {
-            PID_NSP => as2::gamma_nsp(c, nf),
+            PID_NSP => as2::gamma_nsp(cache, nf),
             // To fill the full valence vector in NNLO we need to add gamma_ns^1 explicitly here
-            PID_NSM | PID_NSV => as2::gamma_nsm(c, nf),
+            PID_NSM | PID_NSV => as2::gamma_nsm(cache, nf),
             _ => panic!("Unknown non-singlet sector element"),
         };
         gamma_ns[1] = gamma_ns_1
@@ -48,9 +61,9 @@ pub fn gamma_ns_qcd(
     // NNLO and beyond
     if order_qcd >= 3 {
         let gamma_ns_2 = match mode {
-            PID_NSP => as3::gamma_nsp(c, nf),
-            PID_NSM => as3::gamma_nsm(c, nf),
-            PID_NSV => as3::gamma_nsv(c, nf),
+            PID_NSP => as3::gamma_nsp(cache, nf),
+            PID_NSM => as3::gamma_nsm(cache, nf),
+            PID_NSV => as3::gamma_nsv(cache, nf),
             _ => panic!("Unknown non-singlet sector element"),
         };
         gamma_ns[2] = gamma_ns_2
@@ -58,9 +71,9 @@ pub fn gamma_ns_qcd(
     // N3LO and beyond
     if order_qcd >= 4 {
         let gamma_ns_3 = match mode {
-            PID_NSP => as4::gamma_nsp(c, nf, n3lo_variation[0]),
-            PID_NSM => as4::gamma_nsm(c, nf, n3lo_variation[1]),
-            PID_NSV => as4::gamma_nsv(c, nf, n3lo_variation[2]),
+            PID_NSP => as4::gamma_nsp(cache, nf, n3lo_variation[0]),
+            PID_NSM => as4::gamma_nsm(cache, nf, n3lo_variation[1]),
+            PID_NSV => as4::gamma_nsv(cache, nf, n3lo_variation[2]),
             _ => panic!("Unknown non-singlet sector element"),
         };
         gamma_ns[3] = gamma_ns_3
