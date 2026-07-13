@@ -33,8 +33,8 @@ static int test_lengths(void)
 static int test_gamma_ns_qcd(void)
 {
     int fail = 0;
-    const uint8_t nf = 3;
-    const uint8_t nf_ = 5;
+    const uint8_t nf3 = 3;
+    const uint8_t nf5 = 5;
     const uint8_t var[3] = {0, 0, 0};
     Cache *c = cache_new(1.0, 0.0);
     const size_t len2 = ad_us_gamma_ns_qcd_result_len(2);
@@ -44,32 +44,32 @@ static int test_gamma_ns_qcd(void)
     const double nss_refs[3] = {-0.01100459, -0.00779938, -0.0142098};
     ComplexF64 r2[len2], r3[len3], r4[len4];
 
-    ad_us_gamma_ns_qcd(3, PID_NSP, c, nf, var, r3, len3);
+    ad_us_gamma_ns_qcd(3, PID_NSP, c, nf3, var, r3, len3);
     fail |= check("gamma_ns_qcd", "NSP order3 [0]", r3[0].re, r3[0].im, 0., 0., 1e-14);
 
-    ad_us_gamma_ns_qcd(2, PID_NSM, c, nf, var, r2, len2);
+    ad_us_gamma_ns_qcd(2, PID_NSM, c, nf3, var, r2, len2);
     for (int i = 0; i < 2; i++)
         fail |= check("gamma_ns_qcd", "NSM order2", r2[i].re, r2[i].im, 0., 0., 2e-6);
 
-    ad_us_gamma_ns_qcd(3, PID_NSM, c, nf, var, r3, len3);
+    ad_us_gamma_ns_qcd(3, PID_NSM, c, nf3, var, r3, len3);
     for (int i = 0; i < 3; i++)
         fail |= check("gamma_ns_qcd", "NSM order3", r3[i].re, r3[i].im, 0., 0., 2e-4);
 
-    ad_us_gamma_ns_qcd(3, PID_NSV, c, nf, var, r3, len3);
+    ad_us_gamma_ns_qcd(3, PID_NSV, c, nf3, var, r3, len3);
     for (int i = 0; i < 3; i++)
         fail |= check("gamma_ns_qcd", "NSV order3", r3[i].re, r3[i].im, 0., 0., 8e-4);
 
     for (uint8_t var = 0; var < 3; var++) {
         uint8_t var_nsm[3] = {0, var, 0};
-        ad_us_gamma_ns_qcd(4, PID_NSM, c, nf_, var_nsm, r4, len4);
+        ad_us_gamma_ns_qcd(4, PID_NSM, c, nf5, var_nsm, r4, len4);
         fail |= check("gamma_ns_qcd", "N3LO NSM", r4[3].re, r4[3].im, nsm_refs[var], 0., 6e-6);
 
         uint8_t var_nsv[3] = {0, 0, var};
-        ad_us_gamma_ns_qcd(4, PID_NSV, c, nf_, var_nsv, r4, len4);
+        ad_us_gamma_ns_qcd(4, PID_NSV, c, nf5, var_nsv, r4, len4);
         fail |= check("gamma_ns_qcd", "N3LO NSV", r4[3].re, r4[3].im, nsm_refs[var] + nss_refs[var], 0., 1e-5);
     }
 
-    ad_us_gamma_ns_qcd(4, PID_NSP, c, nf, var, r4, len4);
+    ad_us_gamma_ns_qcd(4, PID_NSP, c, nf3, var, r4, len4);
     int any_nonzero = 0;
     for (int i = 0; i < 4; i++)
         if (r4[i].re * r4[i].re + r4[i].im * r4[i].im > 1e-12) any_nonzero = 1;

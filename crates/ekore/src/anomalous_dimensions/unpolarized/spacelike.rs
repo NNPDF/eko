@@ -288,8 +288,8 @@ mod tests {
 
     #[test]
     fn test_gamma_ns_qcd() {
-        const NF: u8 = 3;
-        const NF_: u8 = 5;
+        const NF3: u8 = 3;
+        const NF5: u8 = 5;
         const N: Complex<f64> = cmplx!(1., 0.);
         let mut c = Cache::new(N);
         let nsm_refs: [f64; 3] = [0.06776363, 0.064837, 0.07069];
@@ -297,14 +297,14 @@ mod tests {
         let n3lo_variation: [u8; 3] = [0, 0, 0];
         assert_approx_eq_cmplx!(
             f64,
-            gamma_ns_qcd(3, PID_NSP, &mut c, NF, n3lo_variation)[0],
+            gamma_ns_qcd(3, PID_NSP, &mut c, NF3, n3lo_variation)[0],
             cmplx!(0., 0.),
             epsilon = 1e-14
         );
 
         assert_approx_eq_cmplx_1d!(
             f64,
-            gamma_ns_qcd(2, PID_NSM, &mut c, NF, n3lo_variation),
+            gamma_ns_qcd(2, PID_NSM, &mut c, NF3, n3lo_variation),
             [cmplx!(0., 0.); 2],
             2,
             epsilon = 2e-6
@@ -312,7 +312,7 @@ mod tests {
 
         assert_approx_eq_cmplx_1d!(
             f64,
-            gamma_ns_qcd(3, PID_NSM, &mut c, NF, n3lo_variation),
+            gamma_ns_qcd(3, PID_NSM, &mut c, NF3, n3lo_variation),
             [cmplx!(0., 0.); 3],
             3,
             epsilon = 2e-4
@@ -320,14 +320,14 @@ mod tests {
 
         assert_approx_eq_cmplx_1d!(
             f64,
-            gamma_ns_qcd(3, PID_NSV, &mut c, NF, n3lo_variation),
+            gamma_ns_qcd(3, PID_NSV, &mut c, NF3, n3lo_variation),
             [cmplx!(0., 0.); 3],
             3,
             epsilon = 8e-4
         );
 
         for var in 0..3u8 {
-            let gamma_nsm = gamma_ns_qcd(4, PID_NSM, &mut c, NF_, [0, var, 0])[3];
+            let gamma_nsm = gamma_ns_qcd(4, PID_NSM, &mut c, NF5, [0, var, 0])[3];
             assert_approx_eq_cmplx!(
                 f64,
                 gamma_nsm,
@@ -335,7 +335,7 @@ mod tests {
                 rel = 6e-5
             );
 
-            let gamma_nsv = gamma_ns_qcd(4, PID_NSV, &mut c, NF_, [0, 0, var])[3];
+            let gamma_nsv = gamma_ns_qcd(4, PID_NSV, &mut c, NF5, [0, 0, var])[3];
             assert_approx_eq_cmplx!(
                 f64,
                 gamma_nsv,
@@ -344,7 +344,7 @@ mod tests {
             );
         }
 
-        let gamma_nsp = gamma_ns_qcd(4, PID_NSP, &mut c, NF, n3lo_variation);
+        let gamma_nsp = gamma_ns_qcd(4, PID_NSP, &mut c, NF3, n3lo_variation);
         assert!(gamma_nsp.iter().any(|x| x.norm() > 1e-6));
     }
 
