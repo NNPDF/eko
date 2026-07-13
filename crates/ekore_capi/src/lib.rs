@@ -1,5 +1,8 @@
 //! C-language interface for `ekore`.
 
+#[macro_use]
+mod macros;
+
 pub mod ad_ps;
 pub mod ad_us;
 pub mod ome_us;

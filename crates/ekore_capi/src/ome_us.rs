@@ -3,7 +3,6 @@
 use crate::ComplexF64;
 use ekore::harmonics::cache::Cache;
 use ekore::operator_matrix_elements::unpolarized::spacelike;
-use std::slice;
 
 /// Required length of `result` for [`ome_us_A_singlet`] at the given `matching_order_qcd`.
 ///
@@ -15,10 +14,7 @@ use std::slice;
 /// * Returns `0` if `matching_order_qcd` is out of the supported range.
 #[unsafe(no_mangle)]
 pub extern "C" fn ome_us_A_singlet_result_len(matching_order_qcd: usize) -> usize {
-    if matching_order_qcd >= 3 {
-        return 0;
-    }
-    matching_order_qcd * 9
+    result_len_body!(matching_order_qcd >= 3, matching_order_qcd * 9)
 }
 
 /// Compute the tower of the singlet |OME|.
@@ -45,34 +41,18 @@ pub unsafe extern "C" fn ome_us_A_singlet(
     result: *mut ComplexF64,
     result_len: usize,
 ) {
-    if c.is_null() || result.is_null() {
-        return;
-    }
-
-    if matching_order_qcd >= 3 {
-        return;
-    }
-
-    if result_len < matching_order_qcd * 9 {
-        return;
-    }
-
-    unsafe {
-        let c = &mut *c;
-        let out = slice::from_raw_parts_mut(result, matching_order_qcd * 9);
-
-        for (o, mat) in spacelike::A_singlet(matching_order_qcd, c, nf, L)
-            .iter()
-            .take(matching_order_qcd)
-            .enumerate()
-        {
-            for r in 0..3_usize {
-                for col in 0..3_usize {
-                    out[o * 9 + r * 3 + col] = mat[r][col].into();
-                }
-            }
-        }
-    }
+    ome_matrix_body!(
+        matching_order_qcd,
+        c,
+        nf,
+        L,
+        result,
+        result_len,
+        matching_order_qcd >= 3,
+        spacelike::A_singlet,
+        3,
+        9
+    )
 }
 
 /// Required length of `result` for [`ome_us_A_non_singlet`] at the given `matching_order_qcd`.
@@ -85,10 +65,7 @@ pub unsafe extern "C" fn ome_us_A_singlet(
 /// * Returns `0` if `matching_order_qcd` is out of the supported range.
 #[unsafe(no_mangle)]
 pub extern "C" fn ome_us_A_non_singlet_result_len(matching_order_qcd: usize) -> usize {
-    if matching_order_qcd >= 3 {
-        return 0;
-    }
-    matching_order_qcd * 4
+    result_len_body!(matching_order_qcd >= 3, matching_order_qcd * 4)
 }
 
 /// Compute the tower of the non-singlet |OME|.
@@ -115,32 +92,16 @@ pub unsafe extern "C" fn ome_us_A_non_singlet(
     result: *mut ComplexF64,
     result_len: usize,
 ) {
-    if c.is_null() || result.is_null() {
-        return;
-    }
-
-    if matching_order_qcd >= 3 {
-        return;
-    }
-
-    if result_len < matching_order_qcd * 4 {
-        return;
-    }
-
-    unsafe {
-        let c = &mut *c;
-        let out = slice::from_raw_parts_mut(result, matching_order_qcd * 4);
-
-        for (o, mat) in spacelike::A_non_singlet(matching_order_qcd, c, nf, L)
-            .iter()
-            .take(matching_order_qcd)
-            .enumerate()
-        {
-            for r in 0..2_usize {
-                for col in 0..2_usize {
-                    out[o * 4 + r * 2 + col] = mat[r][col].into();
-                }
-            }
-        }
-    }
+    ome_matrix_body!(
+        matching_order_qcd,
+        c,
+        nf,
+        L,
+        result,
+        result_len,
+        matching_order_qcd >= 3,
+        spacelike::A_non_singlet,
+        2,
+        4
+    )
 }
