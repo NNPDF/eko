@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
+# setup environment
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 INCLUDE_DIR="$SCRIPT_DIR/../dist/include/ekore_capi"
 LIB_DIR="$SCRIPT_DIR/../dist/lib"
@@ -13,6 +14,7 @@ run_section() {
 
     echo "=== Running $lang tests ==="
 
+    # compile utils for everybody
     if [ -f "$dir/utils.$ext" ]; then
         utils_obj="$dir/utils.o"
         echo "  Compiling utils.$ext..."
@@ -22,6 +24,7 @@ run_section() {
 
     extra+=("-I$INCLUDE_DIR")
 
+    # iterate test files
     for src in "$dir"/*."$ext"; do
         [ -f "$src" ] || { echo "  No $ext files found in $lang/"; continue; }
         name="$(basename "$src" ".$ext")"
