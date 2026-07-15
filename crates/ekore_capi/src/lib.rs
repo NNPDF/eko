@@ -1,4 +1,60 @@
-//! C-language interface for `ekore`.
+//! C-language interface for [`ekore`], the crate providing the anomalous dimensions and
+//! operator matrix elements of the [EKO](https://github.com/NNPDF/eko) framework.
+//!
+//! This crate re-exposes those quantities through a `#[no_mangle]` C ABI, so they can be
+//! called from C, C++, or any other language with a C FFI. See the main
+//! [EKO documentation](https://eko.readthedocs.io/en/latest/) for the physics behind the
+//! computed quantities, and the [ekore docs](https://docs.rs/ekore/latest/ekore) for the
+//! underlying Rust API.
+//!
+//! # Building & consuming
+//!
+//! The crate is built with [`cargo-c`](https://crates.io/crates/cargo-c), which compiles the
+//! `cdylib`/`staticlib` with the generation of a C header file using
+//! [`cbindgen`](https://github.com/mozilla/cbindgen) configured in `cbindgen.toml`, and
+//! a `pkg-config` file:
+//!
+//! ```sh
+//! cargo cinstall --release -p ekore_capi --destdir=./dist --prefix=/ --libdir=/lib --includedir=/include
+//! ```
+//!
+//! This generates `dist/lib/libekore_capi.{a,so}`, `dist/include/ekore_capi/ekore_capi.h`, and
+//! `dist/lib/pkgconfig/ekore_capi.pc`. Note that the above compilation hardcodes a system-root prefix
+//! into `ekore_capi.pc`. To exercise the built `dist/` tree without installing it in system, point
+//! `pkg-config` at it, override the `prefix` variable back to `dist/`, and tell the linker where
+//! to find the shared library at runtime too:
+//!
+//! ```sh
+//! PREFIX="$(realpath dist)"
+//! export PKG_CONFIG_PATH="$PREFIX/lib/pkgconfig"
+//!
+//! cc program.c -o program \
+//!     $(pkg-config --define-variable=prefix="$PREFIX" --cflags --libs ekore_capi) \
+//!     -Wl,-rpath,"$(pkg-config --define-variable=prefix="$PREFIX" --variable=libdir ekore_capi)"
+//! ```
+//!
+//! # Naming convention
+//!
+//! Every public function lives in a module named `<family>_<sector>` and is itself prefixed with
+//! that same `<family>_<sector>_` string:
+//!
+//! * [`ad_us`] - **a**nomalous **d**imensions, **u**npolarized, **s**pace-like
+//! * [`ad_ps`] - **a**nomalous **d**imensions, **p**olarized, **s**pace-like
+//! * [`ome_us`] - **o**perator **m**atrix **e**lements, **u**npolarized, **s**pace-like
+//!
+//! e.g. [`ad_us::ad_us_gamma_ns_qcd`] is the non-singlet |QCD| anomalous dimension from the
+//! unpolarized, space-like sector.
+//!
+//! # Result-buffer convention
+//!
+//! Quantities depending on a perturbative order are returned as a *tower*: one entry per order,
+//! flattened row-major for matrix-valued quantities. Since the tower length depends on the
+//! requested order(s), every such quantity `<name>` comes as a matching pair of functions:
+//!
+//! * `<name>_result_len(order, ...) -> usize`: the number of [`ComplexF64`] elements `result`
+//!   must hold, or `0` if the order is out of range.
+//! * `<name>(order, ..., result, result_len)`: fills `result` buffer up to `order`. A no-op if
+//!   `result_len` is too small, `result` is null, or the order/mode is invalid.
 
 #[macro_use]
 mod macros;
