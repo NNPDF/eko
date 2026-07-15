@@ -138,10 +138,10 @@ static int test_gamma_ns_qed(void)
     }
 
     ad_us_gamma_ns_qed(1, 1, PID_NSP_U, c, nf, var, r1, len11);
-    fail |= check("gamma_ns_qed", "ns+ [0][0]", r1[0].re, r1[0].im, 0., 0., DEFAULT_EPS);
+    fail |= check("gamma_ns_qed", "ns+ [0][0]", r1[0].re, r1[0].im, 0., 0., 1e-15);
     fail |= check("gamma_ns_qed", "ns+ [0][1]", r1[1].re, r1[1].im, 0., 0., 1e-5);
     ad_us_gamma_ns_qed(1, 1, PID_NSP_D, c, nf, var, r1, len11);
-    fail |= check("gamma_ns_qed", "ns+ [0][0]", r1[0].re, r1[0].im, 0., 0., DEFAULT_EPS);
+    fail |= check("gamma_ns_qed", "ns+ [0][0]", r1[0].re, r1[0].im, 0., 0., 1e-15);
     fail |= check("gamma_ns_qed", "ns+ [0][1]", r1[1].re, r1[1].im, 0., 0., 1e-5);
 
     for (int p = 0; p < 2; p++) {
@@ -179,7 +179,7 @@ static int test_gamma_valence_qed(void)
     ad_us_gamma_valence_qed(3, 2, c, nf, var, g, len);
 
     for (int k = 0; k < 4; k++)
-        fail |= check("gamma_valence_qed", "g[0][0]", g[k].re, g[k].im, 0., 0., DEFAULT_EPS);
+        fail |= check("gamma_valence_qed", "g[0][0]", g[k].re, g[k].im, 0., 0., 1e-15);
 
     int base = (3 * 3 + 0) * 4;
     fail |= check("gamma_valence_qed", "g[3][0][0][0]", g[base+0].re, g[base+0].im, 459.646893789751, 0., 1e-5);
@@ -204,7 +204,7 @@ static int test_gamma_singlet_qed(void)
     ad_us_gamma_singlet_qed(3, 2, c, nf, var, g, len);
 
     for (int k = 0; k < 16; k++)
-        fail |= check("gamma_singlet_qed", "g[0][0]", g[k].re, g[k].im, 0., 0., DEFAULT_EPS);
+        fail |= check("gamma_singlet_qed", "g[0][0]", g[k].re, g[k].im, 0., 0., 1e-15);
 
     int base = (3 * 3 + 0) * 16;
     double ref[4][4][2] = {

@@ -1,8 +1,6 @@
 #ifndef EKORE_TEST_UTILS_H
 #define EKORE_TEST_UTILS_H
 
-#define DEFAULT_EPS 1e-15
-
 #include <stddef.h>
 
 /* Returns 1 on failure, 0 on success. Prints a diagnostic to stderr on failure. */
