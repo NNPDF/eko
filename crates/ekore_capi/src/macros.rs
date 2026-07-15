@@ -16,6 +16,7 @@ macro_rules! gamma_ns_qcd_body {
         $order_qcd:expr, $mode:expr, $c:expr, $nf:expr, $n3lo_variation:expr,
         $result:expr, $result_len:expr, $bound:expr, $path:path
     ) => {{
+        // Sanity checks
         if $c.is_null() || $n3lo_variation.is_null() || $result.is_null() {
             return;
         }
@@ -34,6 +35,7 @@ macro_rules! gamma_ns_qcd_body {
                 .try_into()
                 .unwrap();
             let out = std::slice::from_raw_parts_mut($result, $order_qcd);
+            // Call function and transfer result
             for (dst, src) in out.iter_mut().zip($path($order_qcd, $mode, c, $nf, var)) {
                 *dst = src.into();
             }
@@ -47,6 +49,7 @@ macro_rules! gamma_singlet_qcd_body {
         $order_qcd:expr, $c:expr, $nf:expr, $n3lo_variation:expr,
         $result:expr, $result_len:expr, $bound:expr, $path:path
     ) => {{
+        // Sanity checks
         if $c.is_null() || $n3lo_variation.is_null() || $result.is_null() {
             return;
         }
@@ -62,6 +65,7 @@ macro_rules! gamma_singlet_qcd_body {
                 .try_into()
                 .unwrap();
             let out = std::slice::from_raw_parts_mut($result, $order_qcd * 4);
+            // Call function and transfer result
             for (o, mat) in $path($order_qcd, c, $nf, var)
                 .iter()
                 .take($order_qcd)
@@ -83,6 +87,7 @@ macro_rules! gamma_ns_qed_body {
         $order_qcd:expr, $order_qed:expr, $mode:expr, $c:expr, $nf:expr, $n3lo_variation:expr,
         $result:expr, $result_len:expr, $bound:expr, $path:path
     ) => {{
+        // Sanity checks
         if $c.is_null() || $n3lo_variation.is_null() || $result.is_null() {
             return;
         }
@@ -112,6 +117,7 @@ macro_rules! gamma_ns_qed_body {
                 .unwrap();
             let ncols = $order_qed + 1;
             let out = std::slice::from_raw_parts_mut($result, ($order_qcd + 1) * ncols);
+            // Call function and transfer result
             let gamma = $path($order_qcd, $order_qed, $mode, c, $nf, var);
             for (i, row) in gamma.iter().take($order_qcd + 1).enumerate() {
                 for (j, val) in row.iter().take(ncols).enumerate() {
@@ -129,6 +135,7 @@ macro_rules! gamma_qed_matrix_body {
         $result:expr, $result_len:expr, $bound:expr, $path:path,
         $dim:expr, $elem:expr, $n3lo_size:expr
     ) => {{
+        // Sanity checks
         if $c.is_null() || $n3lo_variation.is_null() || $result.is_null() {
             return;
         }
@@ -146,6 +153,7 @@ macro_rules! gamma_qed_matrix_body {
                 .unwrap();
             let ncols = $order_qed + 1;
             let out = std::slice::from_raw_parts_mut($result, ($order_qcd + 1) * ncols * $elem);
+            // Call function and transfer result
             let gamma = $path($order_qcd, $order_qed, c, $nf, var);
             for (i, row) in gamma.iter().take($order_qcd + 1).enumerate() {
                 for (j, mat) in row.iter().take(ncols).enumerate() {
@@ -167,6 +175,7 @@ macro_rules! ome_matrix_body {
         $order:expr, $c:expr, $nf:expr, $l:expr,
         $result:expr, $result_len:expr, $bound:expr, $path:path, $dim:expr, $elem:expr
     ) => {{
+        // Sanity checks
         if $c.is_null() || $result.is_null() {
             return;
         }
@@ -179,6 +188,7 @@ macro_rules! ome_matrix_body {
         unsafe {
             let c = &mut *$c;
             let out = std::slice::from_raw_parts_mut($result, $order * $elem);
+            // Call function and transfer result
             for (o, mat) in $path($order, c, $nf, $l).iter().take($order).enumerate() {
                 for r in 0..$dim {
                     for col in 0..$dim {
