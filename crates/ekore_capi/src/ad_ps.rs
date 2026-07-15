@@ -30,8 +30,6 @@ pub extern "C" fn ad_ps_gamma_ns_qcd_result_len(order_qcd: usize) -> usize {
 /// * `c`: Pointer to the harmonic cache.
 /// * `nf`: Number of active flavors.
 /// * `n3lo_variation`: Pointer to the buffer containing N3LO variations.
-/// * `n3lo_len`: The actual length of the provided `n3lo_variation` buffer. This should be at
-///   least the value returned by [`ad_ps_gamma_ns_qcd_n3lo_len`].
 /// * `result`: Pointer to the output buffer.
 /// * `result_len`: The actual length (in elements) of the provided `result` buffer. This should
 ///   be at least the value returned by [`ad_ps_gamma_ns_qcd_result_len`].
@@ -83,8 +81,6 @@ pub extern "C" fn ad_ps_gamma_singlet_qcd_result_len(order_qcd: usize) -> usize 
 /// * `c`: Pointer to the harmonic cache.
 /// * `nf`: Number of active flavors.
 /// * `n3lo_variation`: Pointer to the buffer containing N3LO variations.
-/// * `n3lo_len`: The actual length of the provided `n3lo_variation` buffer. This should be at
-///   least the value returned by [`ad_ps_gamma_singlet_qcd_n3lo_len`].
 /// * `result`: Pointer to the output buffer.
 /// * `result_len`: The actual length (in elements) of the provided `result` buffer. This should
 ///   be at least the value returned by [`ad_ps_gamma_singlet_qcd_result_len`].
