@@ -81,7 +81,7 @@ pub fn gamma_ns_qcd(
     gamma_ns
 }
 
-/// Compute the tower of the singlet anomalous dimension matrices.
+/// Compute the tower of the unpolarized, space-like singlet anomalous dimension matrices.
 ///
 /// `n3lo_variation = (gg, gq, qg, qq)` is a list indicating which variation should
 /// be used. `variation = 1,2` is the upper/lower bound, while any other value
@@ -91,7 +91,7 @@ pub fn gamma_ns_qcd(
 /// entries along the outer axis are filled; remaining slots are zero.
 pub fn gamma_singlet_qcd(
     order_qcd: usize,
-    c: &mut Cache,
+    cache: &mut Cache,
     nf: u8,
     n3lo_variation: [u8; 4],
 ) -> [[[Complex<f64>; 2]; 2]; MAX_ORDER_QCD] {
@@ -99,23 +99,23 @@ pub fn gamma_singlet_qcd(
         panic!("QCD beyond N3LO is not implemented");
     }
     let mut gamma_S = [[[Complex::<f64>::zero(); 2]; 2]; MAX_ORDER_QCD];
-    gamma_S[0] = as1::gamma_singlet(c, nf);
+    gamma_S[0] = as1::gamma_singlet(cache, nf);
     // NLO and beyond
     if order_qcd >= 2 {
-        gamma_S[1] = as2::gamma_singlet(c, nf);
+        gamma_S[1] = as2::gamma_singlet(cache, nf);
     }
     // NNLO and beyond
     if order_qcd >= 3 {
-        gamma_S[2] = as3::gamma_singlet(c, nf);
+        gamma_S[2] = as3::gamma_singlet(cache, nf);
     }
     // N3LO and beyond
     if order_qcd >= 4 {
-        gamma_S[3] = as4::gamma_singlet(c, nf, n3lo_variation);
+        gamma_S[3] = as4::gamma_singlet(cache, nf, n3lo_variation);
     }
     gamma_S
 }
 
-/// Compute the tower of the |QCD| x |QED| non-singlet anomalous dimensions.
+/// Compute the tower of the |QCD| x |QED| unpolarized, space-like non-singlet anomalous dimensions.
 ///
 /// `n3lo_variation = (ns_p, ns_m, ns_v)` is a list indicating which variation should
 /// be used. `variation = 1,2` is the upper/lower bound, while any other value
@@ -128,7 +128,7 @@ pub fn gamma_ns_qed(
     order_qcd: usize,
     order_qed: usize,
     mode: u16,
-    c: &mut Cache,
+    cache: &mut Cache,
     nf: u8,
     n3lo_variation: [u8; 3],
 ) -> [[Complex<f64>; MAX_ORDER_QED + 1]; MAX_ORDER_QCD + 1] {
@@ -146,37 +146,37 @@ pub fn gamma_ns_qed(
         PID_NSM_U | PID_NSM_D => PID_NSM,
         _ => mode,
     };
-    let gamma_qcd = gamma_ns_qcd(order_qcd, qcd_mode, c, nf, n3lo_variation);
+    let gamma_qcd = gamma_ns_qcd(order_qcd, qcd_mode, cache, nf, n3lo_variation);
     for j in 0..order_qcd {
         gamma_ns[1 + j][0] = gamma_qcd[j];
     }
     // QED corrections
     gamma_ns[0][1] = match mode {
-        PID_NSP_U | PID_NSM_U => EU2 * aem1::gamma_ns(c, nf),
-        PID_NSP_D | PID_NSM_D => ED2 * aem1::gamma_ns(c, nf),
+        PID_NSP_U | PID_NSM_U => EU2 * aem1::gamma_ns(cache, nf),
+        PID_NSP_D | PID_NSM_D => ED2 * aem1::gamma_ns(cache, nf),
         _ => panic!("Unknown non-singlet sector element"),
     };
     if order_qed >= 2 {
         gamma_ns[0][2] = match mode {
-            PID_NSP_U => EU2 * aem2::gamma_nspu(c, nf),
-            PID_NSP_D => ED2 * aem2::gamma_nspd(c, nf),
-            PID_NSM_U => EU2 * aem2::gamma_nsmu(c, nf),
-            PID_NSM_D => ED2 * aem2::gamma_nsmd(c, nf),
+            PID_NSP_U => EU2 * aem2::gamma_nspu(cache, nf),
+            PID_NSP_D => ED2 * aem2::gamma_nspd(cache, nf),
+            PID_NSM_U => EU2 * aem2::gamma_nsmu(cache, nf),
+            PID_NSM_D => ED2 * aem2::gamma_nsmd(cache, nf),
             _ => panic!("Unknown non-singlet sector element"),
         };
     }
     // QCDxQED corrections
     gamma_ns[1][1] = match mode {
-        PID_NSP_U => EU2 * as1aem1::gamma_nsp(c, nf),
-        PID_NSP_D => ED2 * as1aem1::gamma_nsp(c, nf),
-        PID_NSM_U => EU2 * as1aem1::gamma_nsm(c, nf),
-        PID_NSM_D => ED2 * as1aem1::gamma_nsm(c, nf),
+        PID_NSP_U => EU2 * as1aem1::gamma_nsp(cache, nf),
+        PID_NSP_D => ED2 * as1aem1::gamma_nsp(cache, nf),
+        PID_NSM_U => EU2 * as1aem1::gamma_nsm(cache, nf),
+        PID_NSM_D => ED2 * as1aem1::gamma_nsm(cache, nf),
         _ => panic!("Unknown non-singlet sector element"),
     };
     gamma_ns
 }
 
-/// Compute the tower of the |QCD| x |QED| singlet anomalous dimensions matrices.
+/// Compute the tower of the |QCD| x |QED| unpolarized, space-like singlet anomalous dimensions matrices.
 ///
 /// `n3lo_variation = (gg, gq, qg, qq, ns_p, ns_m, ns_v)` is a list indicating which variation should
 /// be used. `variation = 1,2` is the upper/lower bound, while any other value
@@ -188,7 +188,7 @@ pub fn gamma_ns_qed(
 pub fn gamma_singlet_qed(
     order_qcd: usize,
     order_qed: usize,
-    c: &mut Cache,
+    cache: &mut Cache,
     nf: u8,
     n3lo_variation: [u8; 7],
 ) -> [[[[Complex<f64>; 4]; 4]; MAX_ORDER_QED + 1]; MAX_ORDER_QCD + 1] {
@@ -201,11 +201,16 @@ pub fn gamma_singlet_qed(
     let mut gamma_s = [[[[Complex::<f64>::zero(); 4]; 4]; MAX_ORDER_QED + 1]; MAX_ORDER_QCD + 1];
 
     // QCD corrections
-    let gamma_qcd_s = gamma_singlet_qcd(order_qcd, c, nf, n3lo_variation[0..4].try_into().unwrap());
+    let gamma_qcd_s = gamma_singlet_qcd(
+        order_qcd,
+        cache,
+        nf,
+        n3lo_variation[0..4].try_into().unwrap(),
+    );
     let gamma_qcd_nsp = gamma_ns_qcd(
         order_qcd,
         PID_NSP,
-        c,
+        cache,
         nf,
         n3lo_variation[4..7].try_into().unwrap(),
     );
@@ -239,16 +244,16 @@ pub fn gamma_singlet_qed(
         ];
     }
     // QED corrections
-    gamma_s[0][1] = aem1::gamma_singlet(c, nf);
+    gamma_s[0][1] = aem1::gamma_singlet(cache, nf);
     if order_qed >= 2 {
-        gamma_s[0][2] = aem2::gamma_singlet(c, nf);
+        gamma_s[0][2] = aem2::gamma_singlet(cache, nf);
     }
     // QCDxQED corrections
-    gamma_s[1][1] = as1aem1::gamma_singlet(c, nf);
+    gamma_s[1][1] = as1aem1::gamma_singlet(cache, nf);
     gamma_s
 }
 
-/// Compute the tower of the |QCD| x |QED| valence anomalous dimensions matrices.
+/// Compute the tower of the |QCD| x |QED| unpolarized, space-like valence anomalous dimensions matrices.
 ///
 /// `n3lo_variation = (ns_p, ns_m, ns_v)` is a list indicating which variation should
 /// be used. `variation = 1,2` is the upper/lower bound, while any other value
@@ -260,7 +265,7 @@ pub fn gamma_singlet_qed(
 pub fn gamma_valence_qed(
     order_qcd: usize,
     order_qed: usize,
-    c: &mut Cache,
+    cache: &mut Cache,
     nf: u8,
     n3lo_variation: [u8; 3],
 ) -> [[[[Complex<f64>; 2]; 2]; MAX_ORDER_QED + 1]; MAX_ORDER_QCD + 1] {
@@ -273,8 +278,8 @@ pub fn gamma_valence_qed(
     let mut gamma_v = [[[[Complex::<f64>::zero(); 2]; 2]; MAX_ORDER_QED + 1]; MAX_ORDER_QCD + 1];
 
     // QCD corrections
-    let gamma_qcd_nsv = gamma_ns_qcd(order_qcd, PID_NSV, c, nf, n3lo_variation);
-    let gamma_qcd_nsm = gamma_ns_qcd(order_qcd, PID_NSM, c, nf, n3lo_variation);
+    let gamma_qcd_nsv = gamma_ns_qcd(order_qcd, PID_NSV, cache, nf, n3lo_variation);
+    let gamma_qcd_nsm = gamma_ns_qcd(order_qcd, PID_NSM, cache, nf, n3lo_variation);
     for j in 0..order_qcd {
         gamma_v[1 + j][0] = [
             [gamma_qcd_nsv[j], Complex::<f64>::zero()],
@@ -282,12 +287,12 @@ pub fn gamma_valence_qed(
         ];
     }
     // QED corrections
-    gamma_v[0][1] = aem1::gamma_valence(c, nf);
+    gamma_v[0][1] = aem1::gamma_valence(cache, nf);
     if order_qed >= 2 {
-        gamma_v[0][2] = aem2::gamma_valence(c, nf);
+        gamma_v[0][2] = aem2::gamma_valence(cache, nf);
     }
     // QCDxQED corrections
-    gamma_v[1][1] = as1aem1::gamma_valence(c, nf);
+    gamma_v[1][1] = as1aem1::gamma_valence(cache, nf);
     gamma_v
 }
 
@@ -303,18 +308,18 @@ mod tests {
     fn test_gamma_ns_qcd() {
         const NF: u8 = 3;
         const N: Complex<f64> = cmplx!(1., 0.);
-        let mut c = Cache::new(N);
+        let mut cache = Cache::new(N);
         let n3lo_variation: [u8; 3] = [0, 0, 0];
         assert_approx_eq_cmplx!(
             f64,
-            gamma_ns_qcd(3, PID_NSP, &mut c, NF, n3lo_variation)[0],
+            gamma_ns_qcd(3, PID_NSP, &mut cache, NF, n3lo_variation)[0],
             cmplx!(0., 0.),
             epsilon = 1e-14
         );
 
         assert_approx_eq_cmplx_1d!(
             f64,
-            gamma_ns_qcd(2, PID_NSM, &mut c, NF, n3lo_variation),
+            gamma_ns_qcd(2, PID_NSM, &mut cache, NF, n3lo_variation),
             [cmplx!(0., 0.); 2],
             2,
             epsilon = 2e-6
@@ -322,7 +327,7 @@ mod tests {
 
         assert_approx_eq_cmplx_1d!(
             f64,
-            gamma_ns_qcd(3, PID_NSM, &mut c, NF, n3lo_variation),
+            gamma_ns_qcd(3, PID_NSM, &mut cache, NF, n3lo_variation),
             [cmplx!(0., 0.); 3],
             3,
             epsilon = 2e-4
@@ -330,13 +335,13 @@ mod tests {
 
         assert_approx_eq_cmplx_1d!(
             f64,
-            gamma_ns_qcd(3, PID_NSV, &mut c, NF, n3lo_variation),
+            gamma_ns_qcd(3, PID_NSV, &mut cache, NF, n3lo_variation),
             [cmplx!(0., 0.); 3],
             3,
             epsilon = 8e-4
         );
 
-        let gamma_nsp = gamma_ns_qcd(4, PID_NSP, &mut c, NF, n3lo_variation);
+        let gamma_nsp = gamma_ns_qcd(4, PID_NSP, &mut cache, NF, n3lo_variation);
         assert!(gamma_nsp.iter().any(|x| x.norm() > 1e-6));
     }
 
@@ -345,8 +350,8 @@ mod tests {
     fn test_gamma_ns_qcd_order5_panics() {
         const NF: u8 = 4;
         const N: Complex<f64> = cmplx!(1.234, 0.);
-        let mut c = Cache::new(N);
-        gamma_ns_qcd(5, PID_NSP, &mut c, NF, [0u8; 3]);
+        let mut cache = Cache::new(N);
+        gamma_ns_qcd(5, PID_NSP, &mut cache, NF, [0u8; 3]);
     }
 
     #[test]
@@ -354,22 +359,22 @@ mod tests {
     fn test_gamma_singlet_qcd_order5_panics() {
         const NF: u8 = 4;
         const N: Complex<f64> = cmplx!(1.234, 0.);
-        let mut c = Cache::new(N);
-        gamma_singlet_qcd(5, &mut c, NF, [0u8; 4]);
+        let mut cache = Cache::new(N);
+        gamma_singlet_qcd(5, &mut cache, NF, [0u8; 4]);
     }
 
     #[test]
     fn test_gamma_ns_qed() {
         const NF: u8 = 3;
         const N: Complex<f64> = cmplx!(1., 0.);
-        let mut c = Cache::new(N);
+        let mut cache = Cache::new(N);
         let n3lo_variation: [u8; 3] = [0, 0, 0];
 
         // ns-
         for pid in [PID_NSM_U, PID_NSM_D] {
             assert_approx_eq_cmplx_2d!(
                 f64,
-                gamma_ns_qed(1, 1, pid, &mut c, NF, n3lo_variation),
+                gamma_ns_qed(1, 1, pid, &mut cache, NF, n3lo_variation),
                 [[cmplx!(0., 0.); 2]; 2],
                 2,
                 epsilon = 1e-5
@@ -381,12 +386,12 @@ mod tests {
             // as^0 a^0 must be trivial
             assert_approx_eq_cmplx!(
                 f64,
-                gamma_ns_qed(1, 1, pid, &mut c, NF, n3lo_variation)[0][0],
+                gamma_ns_qed(1, 1, pid, &mut cache, NF, n3lo_variation)[0][0],
                 cmplx!(0., 0.)
             );
             assert_approx_eq_cmplx!(
                 f64,
-                gamma_ns_qed(1, 1, pid, &mut c, NF, n3lo_variation)[0][1],
+                gamma_ns_qed(1, 1, pid, &mut cache, NF, n3lo_variation)[0][1],
                 cmplx!(0., 0.),
                 epsilon = 1e-5
             );
@@ -394,7 +399,7 @@ mod tests {
 
         // aem2 + as1aem1
         for pid in [PID_NSM_U, PID_NSM_D] {
-            let g = gamma_ns_qed(1, 2, pid, &mut c, NF, n3lo_variation);
+            let g = gamma_ns_qed(1, 2, pid, &mut cache, NF, n3lo_variation);
             for row in g.iter().take(2) {
                 assert_approx_eq_cmplx_1d!(f64, row, [cmplx!(0., 0.); 3], 3, epsilon = 1e-5);
             }
@@ -402,7 +407,7 @@ mod tests {
 
         // as2
         for pid in [PID_NSM_U, PID_NSM_D] {
-            let g = gamma_ns_qed(2, 1, pid, &mut c, NF, n3lo_variation);
+            let g = gamma_ns_qed(2, 1, pid, &mut cache, NF, n3lo_variation);
             for row in g.iter().take(3) {
                 assert_approx_eq_cmplx_1d!(f64, row, [cmplx!(0., 0.); 2], 2, epsilon = 1e-5);
             }
@@ -410,7 +415,7 @@ mod tests {
 
         // as3
         for pid in [PID_NSM_U, PID_NSM_D] {
-            let g = gamma_ns_qed(3, 1, pid, &mut c, NF, n3lo_variation);
+            let g = gamma_ns_qed(3, 1, pid, &mut cache, NF, n3lo_variation);
             for row in g.iter().take(4) {
                 assert_approx_eq_cmplx_1d!(f64, row, [cmplx!(0., 0.); 2], 2, epsilon = 1e-3);
             }
@@ -422,8 +427,8 @@ mod tests {
     fn test_gamma_ns_qed_qcd_order5_panics() {
         const NF: u8 = 4;
         const N: Complex<f64> = cmplx!(1.234, 0.);
-        let mut c = Cache::new(N);
-        gamma_ns_qed(5, 1, PID_NSP_U, &mut c, NF, [0u8; 3]);
+        let mut cache = Cache::new(N);
+        gamma_ns_qed(5, 1, PID_NSP_U, &mut cache, NF, [0u8; 3]);
     }
 
     #[test]
@@ -431,8 +436,8 @@ mod tests {
     fn test_gamma_ns_qed_qed_order3_panics() {
         const NF: u8 = 4;
         const N: Complex<f64> = cmplx!(1.234, 0.);
-        let mut c = Cache::new(N);
-        gamma_ns_qed(1, 3, PID_NSP_U, &mut c, NF, [0u8; 3]);
+        let mut cache = Cache::new(N);
+        gamma_ns_qed(1, 3, PID_NSP_U, &mut cache, NF, [0u8; 3]);
     }
 
     #[test]
@@ -440,19 +445,19 @@ mod tests {
     fn test_unknown_pid_panics() {
         const NF: u8 = 3;
         const N: Complex<f64> = cmplx!(2., 0.);
-        let mut c = Cache::new(N);
+        let mut cache = Cache::new(N);
         // PID 10106 is not a valid non-singlet mode
-        gamma_ns_qed(2, 0, 10106, &mut c, NF, [0u8; 3]);
+        gamma_ns_qed(2, 0, 10106, &mut cache, NF, [0u8; 3]);
     }
 
     #[test]
     fn test_gamma_valence_qed() {
         const NF: u8 = 3;
         const N: Complex<f64> = cmplx!(2., 0.);
-        let mut c = Cache::new(N);
+        let mut cache = Cache::new(N);
         let n3lo_variation: [u8; 3] = [0, 0, 0];
 
-        let g = gamma_valence_qed(3, 2, &mut c, NF, n3lo_variation);
+        let g = gamma_valence_qed(3, 2, &mut cache, NF, n3lo_variation);
         // as^0 a^0 must be trivial
         assert_approx_eq_cmplx_2d!(f64, g[0][0], [[cmplx!(0., 0.); 2]; 2], 2);
         // reference from Python side
@@ -473,8 +478,8 @@ mod tests {
     fn test_gamma_valence_qed_qcd_order5_panics() {
         const NF: u8 = 4;
         const N: Complex<f64> = cmplx!(1.234, 0.);
-        let mut c = Cache::new(N);
-        gamma_valence_qed(5, 1, &mut c, NF, [0u8; 3]);
+        let mut cache = Cache::new(N);
+        gamma_valence_qed(5, 1, &mut cache, NF, [0u8; 3]);
     }
 
     #[test]
@@ -482,17 +487,17 @@ mod tests {
     fn test_gamma_valence_qed_qed_order3_panics() {
         const NF: u8 = 4;
         const N: Complex<f64> = cmplx!(1.234, 0.);
-        let mut c = Cache::new(N);
-        gamma_valence_qed(1, 3, &mut c, NF, [0u8; 3]);
+        let mut cache = Cache::new(N);
+        gamma_valence_qed(1, 3, &mut cache, NF, [0u8; 3]);
     }
 
     #[test]
     fn test_gamma_singlet_qed() {
         const NF: u8 = 3;
         const N: Complex<f64> = cmplx!(2., 0.);
-        let mut c = Cache::new(N);
+        let mut cache = Cache::new(N);
         let n3lo_variation: [u8; 7] = [0, 0, 0, 0, 0, 0, 0];
-        let g = gamma_singlet_qed(3, 2, &mut c, NF, n3lo_variation);
+        let g = gamma_singlet_qed(3, 2, &mut cache, NF, n3lo_variation);
         // as^0 a^0 must be trivial
         assert_approx_eq_cmplx_2d!(f64, g[0][0], [[cmplx!(0., 0.); 4]; 4], 4);
 
@@ -536,8 +541,8 @@ mod tests {
     fn test_gamma_singlet_qed_qcd_order5_panics() {
         const NF: u8 = 4;
         const N: Complex<f64> = cmplx!(1.234, 0.);
-        let mut c = Cache::new(N);
-        gamma_singlet_qed(5, 1, &mut c, NF, [0u8; 7]);
+        let mut cache = Cache::new(N);
+        gamma_singlet_qed(5, 1, &mut cache, NF, [0u8; 7]);
     }
 
     #[test]
@@ -545,16 +550,16 @@ mod tests {
     fn test_gamma_singlet_qed_qed_order3_panics() {
         const NF: u8 = 4;
         const N: Complex<f64> = cmplx!(1.234, 0.);
-        let mut c = Cache::new(N);
-        gamma_singlet_qed(1, 3, &mut c, NF, [0u8; 7]);
+        let mut cache = Cache::new(N);
+        gamma_singlet_qed(1, 3, &mut cache, NF, [0u8; 7]);
     }
 
     #[test]
     fn test_dim_singlet() {
         const NF: u8 = 3;
         const N: Complex<f64> = cmplx!(2., 0.);
-        let mut c = Cache::new(N);
-        let g = gamma_singlet_qed(3, 2, &mut c, NF, [0u8; 7]);
+        let mut cache = Cache::new(N);
+        let g = gamma_singlet_qed(3, 2, &mut cache, NF, [0u8; 7]);
         assert_eq!(g.len(), MAX_ORDER_QCD + 1);
         assert_eq!(g[0].len(), MAX_ORDER_QED + 1);
         assert_eq!(g[0][0].len(), 4);
@@ -565,8 +570,8 @@ mod tests {
     fn test_dim_valence() {
         const NF: u8 = 3;
         const N: Complex<f64> = cmplx!(2., 0.);
-        let mut c = Cache::new(N);
-        let g = gamma_valence_qed(3, 2, &mut c, NF, [0u8; 3]);
+        let mut cache = Cache::new(N);
+        let g = gamma_valence_qed(3, 2, &mut cache, NF, [0u8; 3]);
         assert_eq!(g.len(), MAX_ORDER_QCD + 1);
         assert_eq!(g[0].len(), MAX_ORDER_QED + 1);
         assert_eq!(g[0][0].len(), 2);
@@ -577,11 +582,11 @@ mod tests {
     fn test_dim_nsp() {
         const NF: u8 = 3;
         const N: Complex<f64> = cmplx!(2., 0.);
-        let mut c = Cache::new(N);
-        let g = gamma_ns_qed(3, 2, PID_NSP_U, &mut c, NF, [0u8; 3]);
+        let mut cache = Cache::new(N);
+        let g = gamma_ns_qed(3, 2, PID_NSP_U, &mut cache, NF, [0u8; 3]);
         assert_eq!(g.len(), MAX_ORDER_QCD + 1);
         assert_eq!(g[0].len(), MAX_ORDER_QED + 1);
-        let g = gamma_ns_qed(3, 2, PID_NSP_D, &mut c, NF, [0u8; 3]);
+        let g = gamma_ns_qed(3, 2, PID_NSP_D, &mut cache, NF, [0u8; 3]);
         assert_eq!(g.len(), MAX_ORDER_QCD + 1);
         assert_eq!(g[0].len(), MAX_ORDER_QED + 1);
     }
