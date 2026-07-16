@@ -30,8 +30,6 @@ pub extern "C" fn ome_us_A_singlet_result_len(matching_order_qcd: usize) -> usiz
 /// * `nf`: Number of active flavors.
 /// * `L`: The logarithm parameter.
 /// * `result`: Pointer to the output buffer.
-/// * `result_len`: The actual length (in elements) of the provided `result` buffer. This should
-///   be at least the value returned by [`ome_us_A_singlet_result_len`].
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn ome_us_A_singlet(
     matching_order_qcd: usize,
@@ -39,7 +37,6 @@ pub unsafe extern "C" fn ome_us_A_singlet(
     nf: u8,
     L: f64,
     result: *mut ComplexF64,
-    result_len: usize,
 ) {
     ome_matrix_body!(
         matching_order_qcd,
@@ -47,7 +44,6 @@ pub unsafe extern "C" fn ome_us_A_singlet(
         nf,
         L,
         result,
-        result_len,
         matching_order_qcd >= 3,
         spacelike::A_singlet,
         3,
@@ -81,8 +77,6 @@ pub extern "C" fn ome_us_A_non_singlet_result_len(matching_order_qcd: usize) -> 
 /// * `nf`: Number of active flavors.
 /// * `L`: The logarithm parameter.
 /// * `result`: Pointer to the output buffer.
-/// * `result_len`: The actual length (in elements) of the provided `result` buffer. This should
-///   be at least the value returned by [`ome_us_A_non_singlet_result_len`].
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn ome_us_A_non_singlet(
     matching_order_qcd: usize,
@@ -90,7 +84,6 @@ pub unsafe extern "C" fn ome_us_A_non_singlet(
     nf: u8,
     L: f64,
     result: *mut ComplexF64,
-    result_len: usize,
 ) {
     ome_matrix_body!(
         matching_order_qcd,
@@ -98,7 +91,6 @@ pub unsafe extern "C" fn ome_us_A_non_singlet(
         nf,
         L,
         result,
-        result_len,
         matching_order_qcd >= 3,
         spacelike::A_non_singlet,
         2,

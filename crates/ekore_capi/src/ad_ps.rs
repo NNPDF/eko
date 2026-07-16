@@ -31,8 +31,6 @@ pub extern "C" fn ad_ps_gamma_ns_qcd_result_len(order_qcd: usize) -> usize {
 /// * `nf`: Number of active flavors.
 /// * `n3lo_variation`: Pointer to the buffer containing N3LO variations.
 /// * `result`: Pointer to the output buffer.
-/// * `result_len`: The actual length (in elements) of the provided `result` buffer. This should
-///   be at least the value returned by [`ad_ps_gamma_ns_qcd_result_len`].
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn ad_ps_gamma_ns_qcd(
     order_qcd: usize,
@@ -41,7 +39,6 @@ pub unsafe extern "C" fn ad_ps_gamma_ns_qcd(
     nf: u8,
     n3lo_variation: *const u8,
     result: *mut ComplexF64,
-    result_len: usize,
 ) {
     gamma_ns_qcd_body!(
         order_qcd,
@@ -50,7 +47,6 @@ pub unsafe extern "C" fn ad_ps_gamma_ns_qcd(
         nf,
         n3lo_variation,
         result,
-        result_len,
         order_qcd >= 3,
         spacelike::gamma_ns_qcd
     )
@@ -82,8 +78,6 @@ pub extern "C" fn ad_ps_gamma_singlet_qcd_result_len(order_qcd: usize) -> usize 
 /// * `nf`: Number of active flavors.
 /// * `n3lo_variation`: Pointer to the buffer containing N3LO variations.
 /// * `result`: Pointer to the output buffer.
-/// * `result_len`: The actual length (in elements) of the provided `result` buffer. This should
-///   be at least the value returned by [`ad_ps_gamma_singlet_qcd_result_len`].
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn ad_ps_gamma_singlet_qcd(
     order_qcd: usize,
@@ -91,7 +85,6 @@ pub unsafe extern "C" fn ad_ps_gamma_singlet_qcd(
     nf: u8,
     n3lo_variation: *const u8,
     result: *mut ComplexF64,
-    result_len: usize,
 ) {
     gamma_singlet_qcd_body!(
         order_qcd,
@@ -99,7 +92,6 @@ pub unsafe extern "C" fn ad_ps_gamma_singlet_qcd(
         nf,
         n3lo_variation,
         result,
-        result_len,
         order_qcd >= 3,
         spacelike::gamma_singlet_qcd
     )

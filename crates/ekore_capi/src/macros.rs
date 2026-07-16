@@ -14,7 +14,7 @@ macro_rules! result_len_body {
 macro_rules! gamma_ns_qcd_body {
     (
         $order_qcd:expr, $mode:expr, $c:expr, $nf:expr, $n3lo_variation:expr,
-        $result:expr, $result_len:expr, $bound:expr, $path:path
+        $result:expr, $bound:expr, $path:path
     ) => {{
         // Sanity checks
         if $c.is_null() || $n3lo_variation.is_null() || $result.is_null() {
@@ -24,9 +24,6 @@ macro_rules! gamma_ns_qcd_body {
             return;
         }
         if !matches!($mode, $crate::PID_NSP | $crate::PID_NSM | $crate::PID_NSV) {
-            return;
-        }
-        if $result_len < $order_qcd {
             return;
         }
         unsafe {
@@ -47,16 +44,13 @@ macro_rules! gamma_ns_qcd_body {
 macro_rules! gamma_singlet_qcd_body {
     (
         $order_qcd:expr, $c:expr, $nf:expr, $n3lo_variation:expr,
-        $result:expr, $result_len:expr, $bound:expr, $path:path
+        $result:expr, $bound:expr, $path:path
     ) => {{
         // Sanity checks
         if $c.is_null() || $n3lo_variation.is_null() || $result.is_null() {
             return;
         }
         if $bound {
-            return;
-        }
-        if $result_len < $order_qcd * 4 {
             return;
         }
         unsafe {
@@ -84,8 +78,8 @@ macro_rules! gamma_singlet_qcd_body {
 /// Body of a non-singlet |QCD| x |QED| anomalous dimension tower function.
 macro_rules! gamma_ns_qed_body {
     (
-        $order_qcd:expr, $order_qed:expr, $mode:expr, $c:expr, $nf:expr, $n3lo_variation:expr,
-        $result:expr, $result_len:expr, $bound:expr, $path:path
+        $order_qcd:expr, $order_qed:expr, $mode:expr, $c:expr, $nf:expr,
+        $n3lo_variation:expr, $result:expr, $bound:expr, $path:path
     ) => {{
         // Sanity checks
         if $c.is_null() || $n3lo_variation.is_null() || $result.is_null() {
@@ -104,10 +98,6 @@ macro_rules! gamma_ns_qed_body {
                 | $crate::PID_NSM
                 | $crate::PID_NSV
         ) {
-            return;
-        }
-        let required_result_len = ($order_qcd + 1) * ($order_qed + 1);
-        if $result_len < required_result_len {
             return;
         }
         unsafe {
@@ -132,18 +122,13 @@ macro_rules! gamma_ns_qed_body {
 macro_rules! gamma_qed_matrix_body {
     (
         $order_qcd:expr, $order_qed:expr, $c:expr, $nf:expr, $n3lo_variation:expr,
-        $result:expr, $result_len:expr, $bound:expr, $path:path,
-        $dim:expr, $elem:expr, $n3lo_size:expr
+        $result:expr, $bound:expr, $path:path, $dim:expr, $elem:expr, $n3lo_size:expr
     ) => {{
         // Sanity checks
         if $c.is_null() || $n3lo_variation.is_null() || $result.is_null() {
             return;
         }
         if $bound {
-            return;
-        }
-        let required_result_len = ($order_qcd + 1) * ($order_qed + 1) * $elem;
-        if $result_len < required_result_len {
             return;
         }
         unsafe {
@@ -172,17 +157,14 @@ macro_rules! gamma_qed_matrix_body {
 /// Body of an OME matrix tower function.
 macro_rules! ome_matrix_body {
     (
-        $order:expr, $c:expr, $nf:expr, $l:expr,
-        $result:expr, $result_len:expr, $bound:expr, $path:path, $dim:expr, $elem:expr
+        $order:expr, $c:expr, $nf:expr, $l:expr, $result:expr,
+        $bound:expr, $path:path, $dim:expr, $elem:expr
     ) => {{
         // Sanity checks
         if $c.is_null() || $result.is_null() {
             return;
         }
         if $bound {
-            return;
-        }
-        if $result_len < $order * $elem {
             return;
         }
         unsafe {

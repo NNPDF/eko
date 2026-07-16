@@ -31,7 +31,7 @@ static int test_a_non_singlet(void)
     const size_t len = ome_us_A_non_singlet_result_len(2);
     ComplexF64 a[len];
 
-    ome_us_A_non_singlet(2, c, nf, L, a, len);
+    ome_us_A_non_singlet(2, c, nf, L, a);
 
     /* LO */
     for (int k = 0; k < 4; k++)
@@ -55,7 +55,7 @@ static int test_a_singlet(void)
     const size_t len = ome_us_A_singlet_result_len(2);
     ComplexF64 a[len];
 
-    ome_us_A_singlet(2, c, nf, L, a, len);
+    ome_us_A_singlet(2, c, nf, L, a);
 
     /* LO */
     fail |= check("a_singlet", "LO col2 sum",
@@ -84,12 +84,12 @@ static int test_guards(void)
 
     ComplexF64 a_s[9];
     for (int i = 0; i < 9; i++) a_s[i] = sentinel;
-    ome_us_A_singlet(3, c, nf, L, a_s, 9);
+    ome_us_A_singlet(3, c, nf, L, a_s);
     for (int i = 0; i < 9; i++)
         fail |= check("guards", "A_singlet order3 untouched", a_s[i].re, a_s[i].im, sentinel.re, sentinel.im, 0.);
 
     ComplexF64 a_ns[4] = {sentinel, sentinel, sentinel, sentinel};
-    ome_us_A_non_singlet(3, c, nf, L, a_ns, 4);
+    ome_us_A_non_singlet(3, c, nf, L, a_ns);
     for (int i = 0; i < 4; i++)
         fail |= check("guards", "A_non_singlet order3 untouched", a_ns[i].re, a_ns[i].im, sentinel.re, sentinel.im, 0.);
 
