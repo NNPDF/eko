@@ -17,6 +17,10 @@ mod as2;
 ///
 /// - $a_s^1$ [\[Moch:2004pa\]][crate::bib::Moch2004pa]
 /// - $a_s^2$ [\[Moch:2004pa\]][crate::bib::Moch2004pa]
+///
+/// # Panics
+///
+/// Panics if `order_qcd` is larger than the currently available order or `mode` is not a valid |PID|.
 pub fn gamma_ns_qcd(
     order_qcd: usize,
     mode: u16,
@@ -61,6 +65,10 @@ pub fn gamma_ns_qcd(
 ///
 /// - $a_s^1$ [\[Gluck:1995yr\]][crate::bib::Gluck1995yr]
 /// - $a_s^2$ [\[Gluck:1995yr\]][crate::bib::Gluck1995yr] [\[Moch:2004pa\]][crate::bib::Moch2004pa]
+///
+/// # Panics
+///
+/// Panics if `order_qcd` is larger than the currently available order.
 pub fn gamma_singlet_qcd(
     order_qcd: usize,
     cache: &mut Cache,
