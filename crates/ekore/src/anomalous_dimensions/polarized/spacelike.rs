@@ -10,6 +10,12 @@ mod as2;
 
 /// Compute the tower of the polarized, space-like non-singlet anomalous dimensions.
 ///
+/// This function computes the first `order_qcd` entries for the |PID| `mode` at the Mellin variable
+/// set in `cache` using `nf` light flavors. `_n3lo_variation = (ns_p, ns_m, ns_v)` is a list with three
+/// entries indicating which |N3LO| variation should be used (if requested) for the given `mode`, where
+/// values `1` or `2` indicate the upper or lower bound respectively, while any other value returns the
+/// central (averaged) value.
+///
 /// Returns an array of shape `(MAX_ORDER_QCD - 2,)`. Only the first `order_qcd` entries
 /// are filled; remaining slots are zero.
 ///
@@ -57,6 +63,11 @@ pub fn gamma_ns_qcd(
 }
 
 /// Compute the tower of the polarized, space-like singlet anomalous dimension matrices.
+///
+/// This function computes the first `order_qcd` entries at the Mellin variable set in `cache` using `nf`
+/// light flavors. `_n3lo_variation = (gg, gq, qg, qq)` is a list with four entries indicating which
+/// |N3LO| variation should be used (if requested), where values `1` or `2` indicate the upper or lower
+/// bound respectively, while any other value returns the central (averaged) value.
 ///
 /// Returns an array of shape `(MAX_ORDER_QCD - 2, 2, 2)`. Only the first `order_qcd`
 /// entries along the outer axis are filled; remaining slots are zero.
