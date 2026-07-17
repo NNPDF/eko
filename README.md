@@ -19,14 +19,20 @@ EKO is available via
 The documentation is available here: <a href="https://eko.readthedocs.io/en/latest/?badge=latest"><img alt="Docs" src="https://readthedocs.org/projects/eko/badge/?version=latest"></a>
 
 ## ekore
-We also provide a convenient access to the core elements of EKO: the anomalous dimensions $\gamma$ and operator matrix elements/transition matrix elements $A$.
-
+We also provide a convenient access to the core elements of EKO: the anomalous dimensions $\gamma$ and operator matrix elements/transition matrix elements $\mathbf A$.
 These are collected from various references (see our documentation) and provide the current state of the art in one single place.
-They mostly consist of (very) complicated experessions comprising many complicated math objects.
 
 ### Python
 
 In Python you can access these elements through the `ekore` module installed together with the main Python library - [see our documentation](https://eko.readthedocs.io/en/latest/modules/ekore/ekore.html).
+
+### Rust
+
+In Rust you can access these elements through the `ekore` crate <img alt="crates.io" src="https://img.shields.io/crates/v/ekore"></a>
+
+### C
+
+In C you can access these elements through the `ekore_capi` crate <img alt="crates.io" src="https://img.shields.io/crates/v/ekore_capi"></a>
 
 ## Citation policy
 When using our code please cite
