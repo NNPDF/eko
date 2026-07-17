@@ -10,6 +10,11 @@ mod as2;
 ///
 /// Returns an array of shape `(MAX_ORDER_QCD - 2, 3, 3)`. Only the first `matching_order_qcd`
 /// entries along the outer axis are filled; remaining slots are zero.
+///
+/// # Available perturbative orders:
+///
+/// - $a_s^1$ [\[Ball:2015tna\]](crate::bib::Ball2015tna) [\[Buza:1996wv\]](crate::bib::Buza1996wv)
+/// - $a_s^2$ [\[Buza:1996wv\]](crate::bib::Buza1996wv) [\[Bierenbaum:2009zt\]](crate::bib::Bierenbaum2009zt)
 pub fn A_singlet(
     matching_order_qcd: usize,
     cache: &mut Cache,
@@ -34,6 +39,11 @@ pub fn A_singlet(
 ///
 /// Returns an array of shape `(MAX_ORDER_QCD - 2, 2, 2)`. Only the first `matching_order_qcd`
 /// entries along the outer axis are filled; remaining slots are zero.
+///
+/// # Available perturbative orders:
+///
+/// - $a_s^1$ [\[Ball:2015tna\]](crate::bib::Ball2015tna)
+/// - $a_s^2$ [\[Buza:1996wv\]](crate::bib::Buza1996wv)
 pub fn A_non_singlet(
     matching_order_qcd: usize,
     cache: &mut Cache,
