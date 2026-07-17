@@ -15,6 +15,10 @@ mod as2;
 ///
 /// - $a_s^1$ [\[Ball:2015tna\]](crate::bib::Ball2015tna) [\[Buza:1996wv\]](crate::bib::Buza1996wv)
 /// - $a_s^2$ [\[Buza:1996wv\]](crate::bib::Buza1996wv) [\[Bierenbaum:2009zt\]](crate::bib::Bierenbaum2009zt)
+///
+/// # Panics
+///
+/// Panics if `matching_order_qcd` is larger than the currently available order.
 pub fn A_singlet(
     matching_order_qcd: usize,
     cache: &mut Cache,
@@ -44,6 +48,10 @@ pub fn A_singlet(
 ///
 /// - $a_s^1$ [\[Ball:2015tna\]](crate::bib::Ball2015tna)
 /// - $a_s^2$ [\[Buza:1996wv\]](crate::bib::Buza1996wv)
+///
+/// # Panics
+///
+/// Panics if `matching_order_qcd` is larger than the currently available order.
 pub fn A_non_singlet(
     matching_order_qcd: usize,
     cache: &mut Cache,
