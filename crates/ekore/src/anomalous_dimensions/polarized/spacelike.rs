@@ -12,6 +12,11 @@ mod as2;
 ///
 /// Returns an array of shape `(MAX_ORDER_QCD - 2,)`. Only the first `order_qcd` entries
 /// are filled; remaining slots are zero.
+///
+/// # Available perturbative orders:
+///
+/// - $a_s^1$ [\[Moch:2004pa\]][crate::bib::Moch2004pa]
+/// - $a_s^2$ [\[Moch:2004pa\]][crate::bib::Moch2004pa]
 pub fn gamma_ns_qcd(
     order_qcd: usize,
     mode: u16,
@@ -51,6 +56,11 @@ pub fn gamma_ns_qcd(
 ///
 /// Returns an array of shape `(MAX_ORDER_QCD - 2, 2, 2)`. Only the first `order_qcd`
 /// entries along the outer axis are filled; remaining slots are zero.
+///
+/// # Available perturbative orders:
+///
+/// - $a_s^1$ [\[Gluck:1995yr\]][crate::bib::Gluck1995yr]
+/// - $a_s^2$ [\[Gluck:1995yr\]][crate::bib::Gluck1995yr] [\[Moch:2004pa\]][crate::bib::Moch2004pa]
 pub fn gamma_singlet_qcd(
     order_qcd: usize,
     cache: &mut Cache,
