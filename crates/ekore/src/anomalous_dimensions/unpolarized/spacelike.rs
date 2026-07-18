@@ -97,6 +97,10 @@ pub fn gamma_ns_qcd(
 /// - $a_S^4$ [\[Falcioni:2024qpd\]][crate::bib::Falcioni2024qpd] [\[Falcioni:2024xyt\]][crate::bib::Falcioni2024xyt]
 ///   [\[Falcioni:2023luc\]][crate::bib::Falcioni2023luc] [\[Falcioni:2023vqq\]][crate::bib::Falcioni2023vqq]
 ///   [\[Moch:2017uml\]][crate::bib::Moch2017uml]
+///
+/// # Panics
+///
+/// Panics if `order_qcd` is larger than the currently available order.
 pub fn gamma_singlet_qcd(
     order_qcd: usize,
     cache: &mut Cache,
@@ -138,6 +142,11 @@ pub fn gamma_singlet_qcd(
 /// - $a_{em}^1$ [\[Carrazza:2015dea\]][crate::bib::Carrazza2015dea]
 /// - $a_{em}^2$ [\[deFlorian:2016gvk\]][crate::bib::deFlorian2016gvk]
 /// - $a_s^1a_{em}^1$ [\[deFlorian:2015ujt\]][crate::bib::deFlorian2015ujt]
+///
+/// # Panics
+///
+/// Panics if `order_qcd` or `order_qed` is larger than the currently available order or `mode` is
+/// not a valid |PID|.
 pub fn gamma_ns_qed(
     order_qcd: usize,
     order_qed: usize,
@@ -211,6 +220,10 @@ pub fn gamma_ns_qed(
 /// - $a_S^4$ [\[Falcioni:2024qpd\]][crate::bib::Falcioni2024qpd] [\[Falcioni:2024xyt\]][crate::bib::Falcioni2024xyt]
 ///   [\[Falcioni:2023luc\]][crate::bib::Falcioni2023luc] [\[Falcioni:2023vqq\]][crate::bib::Falcioni2023vqq]
 ///   [\[Moch:2017uml\]][crate::bib::Moch2017uml]
+///
+/// # Panics
+///
+/// Panics if `order_qcd` or `order_qed` is larger than the currently available order.
 pub fn gamma_singlet_qed(
     order_qcd: usize,
     order_qed: usize,
@@ -298,6 +311,10 @@ pub fn gamma_singlet_qed(
 /// - $a_s^1a_{em}^1$ [\[deFlorian:2015ujt\]][crate::bib::deFlorian2015ujt]
 /// - $a_s^3$ [\[Moch:2004pa\]][crate::bib::Moch2004pa] [\[Vogt:2004mw\]](crate::bib::Vogt2004mw)
 /// - $a_S^4$ [\[Moch:2017uml\]][crate::bib::Moch2017uml]
+///
+/// # Panics
+///
+/// Panics if `order_qcd` or `order_qed` is larger than the currently available order.
 pub fn gamma_valence_qed(
     order_qcd: usize,
     order_qed: usize,
