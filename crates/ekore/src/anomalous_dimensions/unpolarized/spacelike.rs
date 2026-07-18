@@ -82,8 +82,9 @@ pub fn gamma_ns_qcd(
 
 /// Compute the tower of the unpolarized, space-like singlet anomalous dimension matrices.
 ///
-/// `n3lo_variation = (gg, gq, qg, qq)` is a list indicating which variation should
-/// be used. `variation = 1,2` is the upper/lower bound, while any other value
+/// This function computes the first `order_qcd` entries at the Mellin variable set in `cache` using `nf` light flavors.
+/// `n3lo_variation = (gg, gq, qg, qq)` is a list with four entries indicating which |N3LO| variation should be used
+/// (if requested), where values `1` or `2` indicate the upper or lower bound respectively, while any other value
 /// returns the central (averaged) value.
 ///
 /// Returns an array of shape `(MAX_ORDER_QCD, 2, 2)`. Only the first `order_qcd`
@@ -129,9 +130,10 @@ pub fn gamma_singlet_qcd(
 
 /// Compute the tower of the |QCD| x |QED| unpolarized, space-like non-singlet anomalous dimensions.
 ///
-/// `n3lo_variation = (ns_p, ns_m, ns_v)` is a list indicating which variation should
-/// be used. `variation = 1,2` is the upper/lower bound, while any other value
-/// returns the central (averaged) value.
+/// This function computes the first `order_qcd` and `order_qed` entries for the |PID| `mode` at the Mellin variable
+/// set in `cache` using `nf` light flavors. `n3lo_variation = (ns_p, ns_m, ns_v)` is a list with three entries
+/// indicating which |N3LO| variation should be used (if requested) for the given `mode`, where values `1` or `2`
+/// indicate the upper or lower bound respectively, while any other value returns the central (averaged) value.
 ///
 /// Returns an array of shape `(MAX_ORDER_QCD+1, MAX_ORDER_QED+1)`. The first
 /// `order_qcd + 1` entries along the QCD axis and `order_qed + 1` along the QED axis
@@ -201,8 +203,9 @@ pub fn gamma_ns_qed(
 
 /// Compute the tower of the |QCD| x |QED| unpolarized, space-like singlet anomalous dimensions matrices.
 ///
-/// `n3lo_variation = (gg, gq, qg, qq, ns_p, ns_m, ns_v)` is a list indicating which variation should
-/// be used. `variation = 1,2` is the upper/lower bound, while any other value
+/// This function computes the first `order_qcd` and `order_qed` entries at the Mellin variable set in `cache` using `nf` light flavors.
+/// `n3lo_variation = (gg, gq, qg, qq, ns_p, ns_m, ns_v)` is a list with seven entries indicating which |N3LO| variation should
+/// be used (if requested), where values `1` or `2` indicate the upper or lower bound respectively, while any other value
 /// returns the central (averaged) value.
 ///
 /// Returns an array of shape `(MAX_ORDER_QCD+1, MAX_ORDER_QED+1, 4, 4)`. The first
@@ -294,9 +297,9 @@ pub fn gamma_singlet_qed(
 
 /// Compute the tower of the |QCD| x |QED| unpolarized, space-like valence anomalous dimensions matrices.
 ///
-/// `n3lo_variation = (ns_p, ns_m, ns_v)` is a list indicating which variation should
-/// be used. `variation = 1,2` is the upper/lower bound, while any other value
-/// returns the central (averaged) value.
+/// This function computes the first `order_qcd` and `order_qed` entries at the Mellin variable set in `cache` using `nf` light flavors.
+/// `n3lo_variation = (ns_p, ns_m, ns_v)` is a list with three entries indicating which |N3LO| variation should be used (if requested),
+/// where values `1` or `2` indicate the upper or lower bound respectively, while any other value returns the central (averaged) value.
 ///
 /// Returns an array of shape `(MAX_ORDER_QCD+1, MAX_ORDER_QED+1, 2, 2)`. The first
 /// `order_qcd + 1` entries along the QCD axis and `order_qed + 1` along the QED axis
