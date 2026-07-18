@@ -28,10 +28,9 @@ mod as4;
 /// # Available perturbative orders:
 ///
 /// - $a_s^1$ [\[Moch:2004pa\]][crate::bib::Moch2004pa] [\[Vogt:2004mw\]](crate::bib::Vogt2004mw)
-/// - $a_{em}^1$ [\[Carrazza:2015dea\]][crate::bib::Carrazza2015dea]
 /// - $a_s^2$ [\[Moch:2004pa\]][crate::bib::Moch2004pa] [\[Vogt:2004mw\]](crate::bib::Vogt2004mw)
-/// - $a_{em}^2$ [\[deFlorian:2016gvk\]][crate::bib::deFlorian2016gvk]
 /// - $a_s^3$ [\[Moch:2004pa\]][crate::bib::Moch2004pa] [\[Vogt:2004mw\]](crate::bib::Vogt2004mw)
+/// - $a_S^4$ [\[Moch:2017uml\]][crate::bib::Moch2017uml]
 ///
 /// # Panics
 ///
@@ -89,6 +88,15 @@ pub fn gamma_ns_qcd(
 ///
 /// Returns an array of shape `(MAX_ORDER_QCD, 2, 2)`. Only the first `order_qcd`
 /// entries along the outer axis are filled; remaining slots are zero.
+///
+/// # Available perturbative orders:
+///
+/// - $a_s^1$ [\[Moch:2004pa\]][crate::bib::Moch2004pa] [\[Vogt:2004mw\]](crate::bib::Vogt2004mw)
+/// - $a_s^2$ [\[Moch:2004pa\]][crate::bib::Moch2004pa] [\[Vogt:2004mw\]](crate::bib::Vogt2004mw)
+/// - $a_s^3$ [\[Moch:2004pa\]][crate::bib::Moch2004pa] [\[Vogt:2004mw\]](crate::bib::Vogt2004mw)
+/// - $a_S^4$ [\[Falcioni:2024qpd\]][crate::bib::Falcioni2024qpd] [\[Falcioni:2024xyt\]][crate::bib::Falcioni2024xyt]
+///   [\[Falcioni:2023luc\]][crate::bib::Falcioni2023luc] [\[Falcioni:2023vqq\]][crate::bib::Falcioni2023vqq]
+///   [\[Moch:2017uml\]][crate::bib::Moch2017uml]
 pub fn gamma_singlet_qcd(
     order_qcd: usize,
     cache: &mut Cache,
@@ -124,6 +132,12 @@ pub fn gamma_singlet_qcd(
 /// Returns an array of shape `(MAX_ORDER_QCD+1, MAX_ORDER_QED+1)`. The first
 /// `order_qcd + 1` entries along the QCD axis and `order_qed + 1` along the QED axis
 /// are filled; remaining slots are zero.
+///
+/// # Available perturbative orders:
+///
+/// - $a_{em}^1$ [\[Carrazza:2015dea\]][crate::bib::Carrazza2015dea]
+/// - $a_{em}^2$ [\[deFlorian:2016gvk\]][crate::bib::deFlorian2016gvk]
+/// - $a_s^1a_{em}^1$ [\[deFlorian:2015ujt\]][crate::bib::deFlorian2015ujt]
 pub fn gamma_ns_qed(
     order_qcd: usize,
     order_qed: usize,
@@ -185,6 +199,18 @@ pub fn gamma_ns_qed(
 /// Returns an array of shape `(MAX_ORDER_QCD+1, MAX_ORDER_QED+1, 4, 4)`. The first
 /// `order_qcd + 1` entries along the QCD axis and `order_qed + 1` along the QED axis
 /// are filled; remaining slots are zero.
+///
+/// # Available perturbative orders:
+///
+/// - $a_s^1$ [\[Moch:2004pa\]][crate::bib::Moch2004pa] [\[Vogt:2004mw\]](crate::bib::Vogt2004mw)
+/// - $a_{em}^1$ [\[Carrazza:2015dea\]][crate::bib::Carrazza2015dea]
+/// - $a_s^2$ [\[Moch:2004pa\]][crate::bib::Moch2004pa] [\[Vogt:2004mw\]](crate::bib::Vogt2004mw)
+/// - $a_{em}^2$ [\[deFlorian:2016gvk\]][crate::bib::deFlorian2016gvk]
+/// - $a_s^1a_{em}^1$ [\[deFlorian:2015ujt\]][crate::bib::deFlorian2015ujt]
+/// - $a_s^3$ [\[Moch:2004pa\]][crate::bib::Moch2004pa] [\[Vogt:2004mw\]](crate::bib::Vogt2004mw)
+/// - $a_S^4$ [\[Falcioni:2024qpd\]][crate::bib::Falcioni2024qpd] [\[Falcioni:2024xyt\]][crate::bib::Falcioni2024xyt]
+///   [\[Falcioni:2023luc\]][crate::bib::Falcioni2023luc] [\[Falcioni:2023vqq\]][crate::bib::Falcioni2023vqq]
+///   [\[Moch:2017uml\]][crate::bib::Moch2017uml]
 pub fn gamma_singlet_qed(
     order_qcd: usize,
     order_qed: usize,
@@ -262,6 +288,16 @@ pub fn gamma_singlet_qed(
 /// Returns an array of shape `(MAX_ORDER_QCD+1, MAX_ORDER_QED+1, 2, 2)`. The first
 /// `order_qcd + 1` entries along the QCD axis and `order_qed + 1` along the QED axis
 /// are filled; remaining slots are zero.
+///
+/// # Available perturbative orders:
+///
+/// - $a_s^1$ [\[Moch:2004pa\]][crate::bib::Moch2004pa] [\[Vogt:2004mw\]](crate::bib::Vogt2004mw)
+/// - $a_{em}^1$ [\[Carrazza:2015dea\]][crate::bib::Carrazza2015dea]
+/// - $a_s^2$ [\[Moch:2004pa\]][crate::bib::Moch2004pa] [\[Vogt:2004mw\]](crate::bib::Vogt2004mw)
+/// - $a_{em}^2$ [\[deFlorian:2016gvk\]][crate::bib::deFlorian2016gvk]
+/// - $a_s^1a_{em}^1$ [\[deFlorian:2015ujt\]][crate::bib::deFlorian2015ujt]
+/// - $a_s^3$ [\[Moch:2004pa\]][crate::bib::Moch2004pa] [\[Vogt:2004mw\]](crate::bib::Vogt2004mw)
+/// - $a_S^4$ [\[Moch:2017uml\]][crate::bib::Moch2017uml]
 pub fn gamma_valence_qed(
     order_qcd: usize,
     order_qed: usize,
