@@ -15,6 +15,9 @@ Items without prefix refer to a global change.
 
 ## [Unreleased](https://github.com/NNPDF/eko/compare/v0.15.4...HEAD)
 
+### Added
+- rust: `ekore_capi` crate, which exposes `ekore` crate as a C-ABI for other languages.
+
 ### Changed
 - rust: Visibility of functions in `ekore` crate changed, `constants.rs` split into 3 files ([#543](https://github.com/NNPDF/eko/pull/543))
 - rust: Bumped `rust-version` to 1.85.0, `edition` to 2024 ([#545](https://github.com/NNPDF/eko/pull/545))
