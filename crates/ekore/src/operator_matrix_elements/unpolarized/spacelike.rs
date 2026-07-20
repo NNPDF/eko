@@ -9,8 +9,8 @@ mod as2;
 /// Compute the tower of the unpolarized, space-like singlet |OME|.
 ///
 /// This function computes the first `matching_order_qcd` entries at the Mellin variable set in `cache`
-/// using `nf` light flavors and `L`, logarithm of the squared ratio of factorization and renormalization
-/// scale $\ln(\mu_F^2 / m^2)$.
+/// using `nf` light flavors and `L`, logarithm of the squared ratio of factorization scale and mass
+/// $\ln(\mu_F^2 / m^2)$.
 ///
 /// Returns an array of shape `(MAX_ORDER_QCD - 2, 3, 3)`. Only the first `matching_order_qcd`
 /// entries along the outer axis are filled; remaining slots are zero.
@@ -46,8 +46,8 @@ pub fn A_singlet(
 /// Compute the tower of the unpolarized, space-like non-singlet |OME|.
 ///
 /// This function computes the first `matching_order_qcd` entries at the Mellin variable set in `cache`
-/// using `nf` light flavors and `L`, logarithm of the squared ratio of factorization and renormalization
-/// scale $\ln(\mu_F^2 / m^2)$.
+/// using `nf` light flavors and `L`, logarithm of the squared ratio of factorization scale and mass
+/// $\ln(\mu_F^2 / m^2)$.
 ///
 /// Returns an array of shape `(MAX_ORDER_QCD - 2, 2, 2)`. Only the first `matching_order_qcd`
 /// entries along the outer axis are filled; remaining slots are zero.
