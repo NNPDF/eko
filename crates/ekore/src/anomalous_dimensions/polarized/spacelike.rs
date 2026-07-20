@@ -11,10 +11,7 @@ mod as2;
 /// Compute the tower of the polarized, space-like non-singlet anomalous dimensions.
 ///
 /// This function computes the first `order_qcd` entries for the |PID| `mode` at the Mellin variable
-/// set in `cache` using `nf` light flavors. `_n3lo_variation = (ns_p, ns_m, ns_v)` is a list with three
-/// entries indicating which |N3LO| variation should be used (if requested) for the given `mode`, where
-/// values `1` or `2` indicate the upper or lower bound respectively, while any other value returns the
-/// central (averaged) value.
+/// set in `cache` using `nf` light flavors.
 ///
 /// Returns an array of shape `(MAX_ORDER_QCD - 2,)`. Only the first `order_qcd` entries
 /// are filled; remaining slots are zero.
@@ -32,7 +29,6 @@ pub fn gamma_ns_qcd(
     mode: u16,
     cache: &mut Cache,
     nf: u8,
-    _n3lo_variation: [u8; 3],
 ) -> [Complex<f64>; MAX_ORDER_QCD - 2] {
     if order_qcd >= 3 {
         panic!("Polarized beyond NLO is not yet implemented");
@@ -65,9 +61,7 @@ pub fn gamma_ns_qcd(
 /// Compute the tower of the polarized, space-like singlet anomalous dimension matrices.
 ///
 /// This function computes the first `order_qcd` entries at the Mellin variable set in `cache` using `nf`
-/// light flavors. `_n3lo_variation = (gg, gq, qg, qq)` is a list with four entries indicating which
-/// |N3LO| variation should be used (if requested), where values `1` or `2` indicate the upper or lower
-/// bound respectively, while any other value returns the central (averaged) value.
+/// light flavors.
 ///
 /// Returns an array of shape `(MAX_ORDER_QCD - 2, 2, 2)`. Only the first `order_qcd`
 /// entries along the outer axis are filled; remaining slots are zero.
@@ -84,7 +78,6 @@ pub fn gamma_singlet_qcd(
     order_qcd: usize,
     cache: &mut Cache,
     nf: u8,
-    _n3lo_variation: [u8; 4],
 ) -> [[[Complex<f64>; 2]; 2]; MAX_ORDER_QCD - 2] {
     if order_qcd >= 3 {
         panic!("Polarized beyond NLO is not yet implemented");
@@ -116,13 +109,13 @@ mod tests {
         const N: Complex<f64> = cmplx!(2., 0.);
         for order_qcd in 1..=2usize {
             let mut cache = Cache::new(N);
-            let gamma_ns = gamma_ns_qcd(order_qcd, PID_NSP, &mut cache, NF, [0u8; 3]);
+            let gamma_ns = gamma_ns_qcd(order_qcd, PID_NSP, &mut cache, NF);
             assert_eq!(gamma_ns.len(), MAX_ORDER_QCD - 2);
             // slots beyond order_qcd must be zero
             for item in gamma_ns.iter().skip(order_qcd) {
                 assert_approx_eq_cmplx!(f64, *item, cmplx!(0., 0.));
             }
-            let gamma_s = gamma_singlet_qcd(order_qcd, &mut cache, NF, [0u8; 4]);
+            let gamma_s = gamma_singlet_qcd(order_qcd, &mut cache, NF);
             assert_eq!(gamma_s.len(), MAX_ORDER_QCD - 2);
             assert_eq!(gamma_s[0].len(), 2);
             assert_eq!(gamma_s[0][0].len(), 2);
@@ -138,12 +131,11 @@ mod tests {
         const NF: u8 = 3;
         const N: Complex<f64> = cmplx!(1., 0.);
         let mut cache = Cache::new(N);
-        let n3lo_variation = [0u8; 3];
 
         // LO
         assert_approx_eq_cmplx!(
             f64,
-            gamma_ns_qcd(2, PID_NSP, &mut cache, NF, n3lo_variation)[0],
+            gamma_ns_qcd(2, PID_NSP, &mut cache, NF)[0],
             cmplx!(0., 0.),
             epsilon = 1e-14
         );
@@ -151,7 +143,7 @@ mod tests {
         // NLO
         assert_approx_eq_cmplx_1d!(
             f64,
-            gamma_ns_qcd(2, PID_NSP, &mut cache, NF, n3lo_variation),
+            gamma_ns_qcd(2, PID_NSP, &mut cache, NF),
             [cmplx!(0., 0.); 2],
             2,
             epsilon = 2e-6
@@ -168,7 +160,7 @@ mod tests {
         const NF: u8 = 5;
         const N: Complex<f64> = cmplx!(2., 0.);
         let mut cache = Cache::new(N);
-        let gamma_s = gamma_singlet_qcd(2, &mut cache, NF, [0u8; 4]);
+        let gamma_s = gamma_singlet_qcd(2, &mut cache, NF);
 
         // LO
         assert_approx_eq_cmplx!(
@@ -206,7 +198,7 @@ mod tests {
         const N: Complex<f64> = cmplx!(1.234, 0.);
         let mut cache = Cache::new(N);
         // PID_NSM_U (10202) is not a valid mode for polarized non-singlet
-        gamma_ns_qcd(2, PID_NSM_U, &mut cache, NF, [0u8; 3]);
+        gamma_ns_qcd(2, PID_NSM_U, &mut cache, NF);
     }
 
     #[test]
@@ -215,7 +207,7 @@ mod tests {
         const NF: u8 = 4;
         const N: Complex<f64> = cmplx!(1.234, 0.);
         let mut cache = Cache::new(N);
-        gamma_ns_qcd(3, PID_NSM, &mut cache, NF, [0u8; 3]);
+        gamma_ns_qcd(3, PID_NSM, &mut cache, NF);
     }
 
     #[test]
@@ -224,6 +216,6 @@ mod tests {
         const NF: u8 = 4;
         const N: Complex<f64> = cmplx!(2.345, 0.);
         let mut cache = Cache::new(N);
-        gamma_singlet_qcd(3, &mut cache, NF, [0u8; 4]);
+        gamma_singlet_qcd(3, &mut cache, NF);
     }
 }
