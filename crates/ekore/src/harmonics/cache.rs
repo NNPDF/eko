@@ -81,7 +81,7 @@ const CACHE_SIZE: usize = 20;
 /// Hold all cached values.
 ///
 /// We use implementations from [\[Vogt:2004ns\]](crate::bib::Vogt2004ns) [\[KOLBIG1972221\]](crate::bib::KOLBIG1972221)
-/// [CERNlib](http://cernlib.web.cern.ch/cernlib/), name from [\[MuselliPhD\]](crate::bib::MuselliPhD)
+/// [CERNlib](http://cernlib.web.cern.ch/cernlib/)
 pub struct Cache {
     /// Mellin N
     n: Complex<f64>,
