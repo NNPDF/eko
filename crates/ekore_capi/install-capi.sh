@@ -14,6 +14,10 @@ target=
 while [ $# -gt 0 ]; do
     case $1 in
         --version)
+            if [ $# -lt 2 ]; then
+                echo "Error: --version requires a value" >&2
+                exit 1
+            fi
             version=$2
             shift
             shift
@@ -23,6 +27,10 @@ while [ $# -gt 0 ]; do
             shift
             ;;
         --prefix)
+            if [ $# -lt 2 ]; then
+                echo "Error: --prefix requires a value" >&2
+                exit 1
+            fi
             prefix=$2
             shift
             shift
@@ -32,6 +40,10 @@ while [ $# -gt 0 ]; do
             shift
             ;;
         --target)
+            if [ $# -lt 2 ]; then
+                echo "Error: --target requires a value" >&2
+                exit 1
+            fi
             target=$2
             shift
             shift
@@ -41,7 +53,7 @@ while [ $# -gt 0 ]; do
             shift
             ;;
         *)
-            echo "Error: argument '$1' unknown"
+            echo "Error: argument '$1' unknown" >&2
             exit 1
             ;;
     esac
