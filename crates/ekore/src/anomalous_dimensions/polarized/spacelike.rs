@@ -1,4 +1,4 @@
-//! The polarized, space-like anomalous dimensions at various couplings power.
+//! The polarized, space-like anomalous dimensions.
 
 use crate::constants::{MAX_ORDER_QCD, PID_NSM, PID_NSP, PID_NSV};
 use crate::harmonics::cache::Cache;
@@ -8,28 +8,39 @@ mod as1;
 mod as2;
 // pub mod as3;
 
-/// Compute the tower of the non-singlet anomalous dimensions.
+/// Compute the tower of the polarized, space-like non-singlet anomalous dimensions.
+///
+/// This function computes the first `order_qcd` entries for the |PID| `mode` at the Mellin variable
+/// set in `cache` using `nf` light flavors.
 ///
 /// Returns an array of shape `(MAX_ORDER_QCD - 2,)`. Only the first `order_qcd` entries
 /// are filled; remaining slots are zero.
+///
+/// # Available perturbative orders:
+///
+/// - $a_s^1$ [\[Moch:2004pa\]][crate::bib::Moch2004pa]
+/// - $a_s^2$ [\[Moch:2004pa\]][crate::bib::Moch2004pa]
+///
+/// # Panics
+///
+/// Panics if `order_qcd` is larger than the currently available order or `mode` is not a valid |PID|.
 pub fn gamma_ns_qcd(
     order_qcd: usize,
     mode: u16,
-    c: &mut Cache,
+    cache: &mut Cache,
     nf: u8,
-    _n3lo_variation: [u8; 3],
 ) -> [Complex<f64>; MAX_ORDER_QCD - 2] {
     if order_qcd >= 3 {
         panic!("Polarized beyond NLO is not yet implemented");
     }
     let mut gamma_ns = [Complex::<f64>::zero(); MAX_ORDER_QCD - 2];
-    gamma_ns[0] = as1::gamma_ns(c, nf);
+    gamma_ns[0] = as1::gamma_ns(cache, nf);
     // NLO and beyond
     if order_qcd >= 2 {
         let gamma_ns_1 = match mode {
-            PID_NSP => as2::gamma_nsp(c, nf),
+            PID_NSP => as2::gamma_nsp(cache, nf),
             // To fill the full valence vector in NNLO we need to add gamma_ns^1 explicitly here
-            PID_NSM | PID_NSV => as2::gamma_nsm(c, nf),
+            PID_NSM | PID_NSV => as2::gamma_nsm(cache, nf),
             _ => panic!("Unkown non-singlet sector element"),
         };
         gamma_ns[1] = gamma_ns_1
@@ -37,9 +48,9 @@ pub fn gamma_ns_qcd(
     // // NNLO and beyond
     // if order_qcd >= 3 {
     //     let gamma_ns_2 = match mode {
-    //         PID_NSP => as3::gamma_nsp(c, nf),
-    //         PID_NSM => as3::gamma_nsm(c, nf),
-    //         PID_NSV => as3::gamma_nsv(c, nf),
+    //         PID_NSP => as3::gamma_nsp(cache, nf),
+    //         PID_NSM => as3::gamma_nsm(cache, nf),
+    //         PID_NSV => as3::gamma_nsv(cache, nf),
     //         _ => panic!("Unkown non-singlet sector element"),
     //     };
     //     gamma_ns[2] = gamma_ns_2
@@ -47,28 +58,39 @@ pub fn gamma_ns_qcd(
     gamma_ns
 }
 
-/// Compute the tower of the singlet anomalous dimension matrices.
+/// Compute the tower of the polarized, space-like singlet anomalous dimension matrices.
+///
+/// This function computes the first `order_qcd` entries at the Mellin variable set in `cache` using `nf`
+/// light flavors.
 ///
 /// Returns an array of shape `(MAX_ORDER_QCD - 2, 2, 2)`. Only the first `order_qcd`
 /// entries along the outer axis are filled; remaining slots are zero.
+///
+/// # Available perturbative orders:
+///
+/// - $a_s^1$ [\[Gluck:1995yr\]][crate::bib::Gluck1995yr]
+/// - $a_s^2$ [\[Gluck:1995yr\]][crate::bib::Gluck1995yr] [\[Moch:2004pa\]][crate::bib::Moch2004pa]
+///
+/// # Panics
+///
+/// Panics if `order_qcd` is larger than the currently available order.
 pub fn gamma_singlet_qcd(
     order_qcd: usize,
-    c: &mut Cache,
+    cache: &mut Cache,
     nf: u8,
-    _n3lo_variation: [u8; 4],
 ) -> [[[Complex<f64>; 2]; 2]; MAX_ORDER_QCD - 2] {
     if order_qcd >= 3 {
         panic!("Polarized beyond NLO is not yet implemented");
     }
     let mut gamma_S = [[[Complex::<f64>::zero(); 2]; 2]; MAX_ORDER_QCD - 2];
-    gamma_S[0] = as1::gamma_singlet(c, nf);
+    gamma_S[0] = as1::gamma_singlet(cache, nf);
     // NLO and beyond
     if order_qcd >= 2 {
-        gamma_S[1] = as2::gamma_singlet(c, nf);
+        gamma_S[1] = as2::gamma_singlet(cache, nf);
     }
     // // NNLO and beyond
     // if order_qcd >= 3 {
-    //     gamma_S[2] = as3::gamma_singlet(c, nf);
+    //     gamma_S[2] = as3::gamma_singlet(cache, nf);
     // }
     gamma_S
 }
@@ -86,14 +108,14 @@ mod tests {
         const NF: u8 = 4;
         const N: Complex<f64> = cmplx!(2., 0.);
         for order_qcd in 1..=2usize {
-            let mut c = Cache::new(N);
-            let gamma_ns = gamma_ns_qcd(order_qcd, PID_NSP, &mut c, NF, [0u8; 3]);
+            let mut cache = Cache::new(N);
+            let gamma_ns = gamma_ns_qcd(order_qcd, PID_NSP, &mut cache, NF);
             assert_eq!(gamma_ns.len(), MAX_ORDER_QCD - 2);
             // slots beyond order_qcd must be zero
             for item in gamma_ns.iter().skip(order_qcd) {
                 assert_approx_eq_cmplx!(f64, *item, cmplx!(0., 0.));
             }
-            let gamma_s = gamma_singlet_qcd(order_qcd, &mut c, NF, [0u8; 4]);
+            let gamma_s = gamma_singlet_qcd(order_qcd, &mut cache, NF);
             assert_eq!(gamma_s.len(), MAX_ORDER_QCD - 2);
             assert_eq!(gamma_s[0].len(), 2);
             assert_eq!(gamma_s[0][0].len(), 2);
@@ -108,13 +130,12 @@ mod tests {
     fn test_gamma_ns_qcd() {
         const NF: u8 = 3;
         const N: Complex<f64> = cmplx!(1., 0.);
-        let mut c = Cache::new(N);
-        let n3lo_variation = [0u8; 3];
+        let mut cache = Cache::new(N);
 
         // LO
         assert_approx_eq_cmplx!(
             f64,
-            gamma_ns_qcd(2, PID_NSP, &mut c, NF, n3lo_variation)[0],
+            gamma_ns_qcd(2, PID_NSP, &mut cache, NF)[0],
             cmplx!(0., 0.),
             epsilon = 1e-14
         );
@@ -122,7 +143,7 @@ mod tests {
         // NLO
         assert_approx_eq_cmplx_1d!(
             f64,
-            gamma_ns_qcd(2, PID_NSP, &mut c, NF, n3lo_variation),
+            gamma_ns_qcd(2, PID_NSP, &mut cache, NF),
             [cmplx!(0., 0.); 2],
             2,
             epsilon = 2e-6
@@ -138,8 +159,8 @@ mod tests {
 
         const NF: u8 = 5;
         const N: Complex<f64> = cmplx!(2., 0.);
-        let mut c = Cache::new(N);
-        let gamma_s = gamma_singlet_qcd(2, &mut c, NF, [0u8; 4]);
+        let mut cache = Cache::new(N);
+        let gamma_s = gamma_singlet_qcd(2, &mut cache, NF);
 
         // LO
         assert_approx_eq_cmplx!(
@@ -175,9 +196,9 @@ mod tests {
         use crate::constants::PID_NSM_U;
         const NF: u8 = 4;
         const N: Complex<f64> = cmplx!(1.234, 0.);
-        let mut c = Cache::new(N);
+        let mut cache = Cache::new(N);
         // PID_NSM_U (10202) is not a valid mode for polarized non-singlet
-        gamma_ns_qcd(2, PID_NSM_U, &mut c, NF, [0u8; 3]);
+        gamma_ns_qcd(2, PID_NSM_U, &mut cache, NF);
     }
 
     #[test]
@@ -185,8 +206,8 @@ mod tests {
     fn test_gamma_ns_order4_panics() {
         const NF: u8 = 4;
         const N: Complex<f64> = cmplx!(1.234, 0.);
-        let mut c = Cache::new(N);
-        gamma_ns_qcd(3, PID_NSM, &mut c, NF, [0u8; 3]);
+        let mut cache = Cache::new(N);
+        gamma_ns_qcd(3, PID_NSM, &mut cache, NF);
     }
 
     #[test]
@@ -194,7 +215,7 @@ mod tests {
     fn test_gamma_singlet_order4_panics() {
         const NF: u8 = 4;
         const N: Complex<f64> = cmplx!(2.345, 0.);
-        let mut c = Cache::new(N);
-        gamma_singlet_qcd(3, &mut c, NF, [0u8; 4]);
+        let mut cache = Cache::new(N);
+        gamma_singlet_qcd(3, &mut cache, NF);
     }
 }

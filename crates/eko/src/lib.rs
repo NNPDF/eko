@@ -155,7 +155,6 @@ pub unsafe extern "C" fn rust_quad_ker(u: f64, rargs: *mut c_void) -> f64 {
                                 args.order_qcd,
                                 &mut c,
                                 args.nf,
-                                n3lo_ad_variation[0..4].try_into().unwrap(),
                             ),
                             args.order_qcd,
                             out_re,
@@ -220,7 +219,6 @@ pub unsafe extern "C" fn rust_quad_ker(u: f64, rargs: *mut c_void) -> f64 {
                         args.mode0,
                         &mut c,
                         args.nf,
-                        n3lo_ad_variation[4..7].try_into().unwrap(),
                     );
                     for (i, el) in res.iter().take(args.order_qcd).enumerate() {
                         out_re[i] = el.re;

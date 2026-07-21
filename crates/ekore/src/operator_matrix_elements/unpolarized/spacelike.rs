@@ -1,4 +1,4 @@
-//! The unpolarized, space-like |OME| at various couplings power.
+//! The unpolarized, space-like |OME|.
 use crate::constants::MAX_ORDER_QCD;
 use crate::harmonics::cache::Cache;
 use num::Zero;
@@ -6,13 +6,26 @@ use num::complex::Complex;
 mod as1;
 mod as2;
 
-/// Compute the tower of the singlet |OME|.
+/// Compute the tower of the unpolarized, space-like singlet |OME|.
+///
+/// This function computes the first `matching_order_qcd` entries at the Mellin variable set in `cache`
+/// using `nf` light flavors and `L`, logarithm of the squared ratio of factorization scale and mass
+/// $\ln(\mu_F^2 / m^2)$.
 ///
 /// Returns an array of shape `(MAX_ORDER_QCD - 2, 3, 3)`. Only the first `matching_order_qcd`
 /// entries along the outer axis are filled; remaining slots are zero.
+///
+/// # Available perturbative orders:
+///
+/// - $a_s^1$ [\[Ball:2015tna\]](crate::bib::Ball2015tna) [\[Buza:1996wv\]](crate::bib::Buza1996wv)
+/// - $a_s^2$ [\[Buza:1996wv\]](crate::bib::Buza1996wv) [\[Bierenbaum:2009zt\]](crate::bib::Bierenbaum2009zt)
+///
+/// # Panics
+///
+/// Panics if `matching_order_qcd` is larger than the currently available order.
 pub fn A_singlet(
     matching_order_qcd: usize,
-    c: &mut Cache,
+    cache: &mut Cache,
     nf: u8,
     L: f64,
 ) -> [[[Complex<f64>; 3]; 3]; MAX_ORDER_QCD - 2] {
@@ -21,22 +34,35 @@ pub fn A_singlet(
     }
     let mut A_s = [[[Complex::<f64>::zero(); 3]; 3]; MAX_ORDER_QCD - 2];
     if matching_order_qcd >= 1 {
-        A_s[0] = as1::A_singlet(c, nf, L);
+        A_s[0] = as1::A_singlet(cache, nf, L);
     }
     if matching_order_qcd >= 2 {
         // TODO recover MSbar mass
-        A_s[1] = as2::A_singlet(c, nf, L, false);
+        A_s[1] = as2::A_singlet(cache, nf, L, false);
     }
     A_s
 }
 
-/// Compute the tower of the non-singlet |OME|.
+/// Compute the tower of the unpolarized, space-like non-singlet |OME|.
+///
+/// This function computes the first `matching_order_qcd` entries at the Mellin variable set in `cache`
+/// using `nf` light flavors and `L`, logarithm of the squared ratio of factorization scale and mass
+/// $\ln(\mu_F^2 / m^2)$.
 ///
 /// Returns an array of shape `(MAX_ORDER_QCD - 2, 2, 2)`. Only the first `matching_order_qcd`
 /// entries along the outer axis are filled; remaining slots are zero.
+///
+/// # Available perturbative orders:
+///
+/// - $a_s^1$ [\[Ball:2015tna\]](crate::bib::Ball2015tna)
+/// - $a_s^2$ [\[Buza:1996wv\]](crate::bib::Buza1996wv)
+///
+/// # Panics
+///
+/// Panics if `matching_order_qcd` is larger than the currently available order.
 pub fn A_non_singlet(
     matching_order_qcd: usize,
-    c: &mut Cache,
+    cache: &mut Cache,
     nf: u8,
     L: f64,
 ) -> [[[Complex<f64>; 2]; 2]; MAX_ORDER_QCD - 2] {
@@ -45,10 +71,10 @@ pub fn A_non_singlet(
     }
     let mut A_ns = [[[Complex::<f64>::zero(); 2]; 2]; MAX_ORDER_QCD - 2];
     if matching_order_qcd >= 1 {
-        A_ns[0] = as1::A_ns(c, nf, L);
+        A_ns[0] = as1::A_ns(cache, nf, L);
     }
     if matching_order_qcd >= 2 {
-        A_ns[1] = as2::A_ns(c, nf, L);
+        A_ns[1] = as2::A_ns(cache, nf, L);
     }
     A_ns
 }
@@ -65,8 +91,8 @@ mod tests {
         const N: Complex<f64> = cmplx!(0., 1.);
         const L: f64 = 0.0;
         for matching_order_qcd in 1..=2usize {
-            let mut c = Cache::new(N);
-            let a_s = A_singlet(matching_order_qcd, &mut c, NF, L);
+            let mut cache = Cache::new(N);
+            let a_s = A_singlet(matching_order_qcd, &mut cache, NF, L);
             assert_eq!(a_s.len(), MAX_ORDER_QCD - 2);
             assert_eq!(a_s[0].len(), 3);
             assert_eq!(a_s[0][0].len(), 3);
@@ -74,7 +100,7 @@ mod tests {
             for item in a_s.iter().skip(matching_order_qcd) {
                 assert_approx_eq_cmplx_2d!(f64, item, [[cmplx!(0., 0.); 3]; 3], 3);
             }
-            let a_ns = A_non_singlet(matching_order_qcd, &mut c, NF, L);
+            let a_ns = A_non_singlet(matching_order_qcd, &mut cache, NF, L);
             assert_eq!(a_ns.len(), MAX_ORDER_QCD - 2);
             assert_eq!(a_ns[0].len(), 2);
             assert_eq!(a_ns[0][0].len(), 2);
@@ -91,8 +117,8 @@ mod tests {
         const NF: u8 = 5;
         const N: Complex<f64> = cmplx!(1., 0.);
         const L: f64 = 0.0;
-        let mut c = Cache::new(N);
-        let a_ns = A_non_singlet(2, &mut c, NF, L);
+        let mut cache = Cache::new(N);
+        let a_ns = A_non_singlet(2, &mut cache, NF, L);
         // LO
         assert_approx_eq_cmplx_2d!(f64, a_ns[0], [[cmplx!(0., 0.); 2]; 2], 2, epsilon = 1e-14);
         // NNLO
@@ -105,8 +131,8 @@ mod tests {
         const NF: u8 = 5;
         const N: Complex<f64> = cmplx!(2., 0.);
         const L: f64 = 100.;
-        let mut c = Cache::new(N);
-        let a_s = A_singlet(2, &mut c, NF, L);
+        let mut cache = Cache::new(N);
+        let a_s = A_singlet(2, &mut cache, NF, L);
         // LO
         assert_approx_eq_cmplx!(
             f64,
@@ -140,8 +166,8 @@ mod tests {
         const NF: u8 = 4;
         const N: Complex<f64> = cmplx!(1.234, 0.);
         const L: f64 = 0.0;
-        let mut c = Cache::new(N);
-        A_singlet(3, &mut c, NF, L);
+        let mut cache = Cache::new(N);
+        A_singlet(3, &mut cache, NF, L);
     }
 
     #[test]
@@ -150,7 +176,7 @@ mod tests {
         const NF: u8 = 4;
         const N: Complex<f64> = cmplx!(1.234, 0.);
         const L: f64 = 0.0;
-        let mut c = Cache::new(N);
-        A_non_singlet(3, &mut c, NF, L);
+        let mut cache = Cache::new(N);
+        A_non_singlet(3, &mut cache, NF, L);
     }
 }
