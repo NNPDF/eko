@@ -77,10 +77,14 @@ fi
 
 # if no prefix is given, prompt for one
 if [ -z "${prefix}" ]; then
-    # read from stdin (`<&1`), even if piped into a shell
-    printf "Enter installation path: "
-    read -r <&1 prefix
-    echo
+    if [ -r /dev/tty ]; then
+        printf "Enter installation path: "
+        IFS= read -r prefix </dev/tty
+        echo
+    else
+        echo "Error: cannot prompt for --prefix (no TTY available); pass --prefix explicitly" >&2
+        exit 1
+    fi
 fi
 
 # we need the absolute path; use `eval` to expand possible tilde `~`
