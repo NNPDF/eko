@@ -84,14 +84,14 @@ mod tests {
         const NF: u8 = 4;
         const N: Complex<f64> = cmplx!(2., 0.);
         for order_qcd in 1..=2usize {
-            let mut c = Cache::new(N);
-            let gamma_ns = gamma_ns_qcd(order_qcd, PID_NSP, &mut c, NF);
+            let mut cache = Cache::new(N);
+            let gamma_ns = gamma_ns_qcd(order_qcd, PID_NSP, &mut cache, NF);
             assert_eq!(gamma_ns.len(), MAX_ORDER_QCD - 2);
             // slots beyond order_qcd must be zero
             for item in gamma_ns.iter().skip(order_qcd) {
                 assert_approx_eq_cmplx!(f64, *item, cmplx!(0., 0.));
             }
-            let gamma_s = gamma_singlet_qcd(order_qcd, &mut c, NF);
+            let gamma_s = gamma_singlet_qcd(order_qcd, &mut cache, NF);
             assert_eq!(gamma_s.len(), MAX_ORDER_QCD - 2);
             assert_eq!(gamma_s[0].len(), 2);
             assert_eq!(gamma_s[0][0].len(), 2);
@@ -106,12 +106,12 @@ mod tests {
     fn test_gamma_ns_qcd() {
         const NF: u8 = 3;
         const N: Complex<f64> = cmplx!(1., 0.);
-        let mut c = Cache::new(N);
+        let mut cache = Cache::new(N);
 
         // LO
         assert_approx_eq_cmplx!(
             f64,
-            gamma_ns_qcd(2, PID_NSP, &mut c, NF)[0],
+            gamma_ns_qcd(2, PID_NSP, &mut cache, NF)[0],
             cmplx!(0., 0.),
             epsilon = 1e-14
         );
@@ -119,7 +119,7 @@ mod tests {
         // NLO
         assert_approx_eq_cmplx_1d!(
             f64,
-            gamma_ns_qcd(2, PID_NSP, &mut c, NF),
+            gamma_ns_qcd(2, PID_NSP, &mut cache, NF),
             [cmplx!(0., 0.); 2],
             2,
             epsilon = 2e-6
@@ -135,8 +135,8 @@ mod tests {
 
         const NF: u8 = 5;
         const N: Complex<f64> = cmplx!(2., 0.);
-        let mut c = Cache::new(N);
-        let gamma_s = gamma_singlet_qcd(2, &mut c, NF);
+        let mut cache = Cache::new(N);
+        let gamma_s = gamma_singlet_qcd(2, &mut cache, NF);
 
         // LO
         assert_approx_eq_cmplx!(
@@ -172,9 +172,9 @@ mod tests {
         use crate::constants::PID_NSM_U;
         const NF: u8 = 4;
         const N: Complex<f64> = cmplx!(1.234, 0.);
-        let mut c = Cache::new(N);
+        let mut cache = Cache::new(N);
         // PID_NSM_U (10202) is not a valid mode for polarized non-singlet
-        gamma_ns_qcd(2, PID_NSM_U, &mut c, NF);
+        gamma_ns_qcd(2, PID_NSM_U, &mut cache, NF);
     }
 
     #[test]
@@ -182,8 +182,8 @@ mod tests {
     fn test_gamma_ns_order4_panics() {
         const NF: u8 = 4;
         const N: Complex<f64> = cmplx!(1.234, 0.);
-        let mut c = Cache::new(N);
-        gamma_ns_qcd(3, PID_NSM, &mut c, NF);
+        let mut cache = Cache::new(N);
+        gamma_ns_qcd(3, PID_NSM, &mut cache, NF);
     }
 
     #[test]
@@ -191,7 +191,7 @@ mod tests {
     fn test_gamma_singlet_order4_panics() {
         const NF: u8 = 4;
         const N: Complex<f64> = cmplx!(2.345, 0.);
-        let mut c = Cache::new(N);
-        gamma_singlet_qcd(3, &mut c, NF);
+        let mut cache = Cache::new(N);
+        gamma_singlet_qcd(3, &mut cache, NF);
     }
 }
