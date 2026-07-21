@@ -87,9 +87,10 @@ if [ -z "${prefix}" ]; then
     fi
 fi
 
-# we need the absolute path; use `eval` to expand possible tilde `~`
-eval mkdir -p "${prefix}"
-eval cd "${prefix}"
+# we need the absolute path; expand a leading "~" (POSIX) and canonicalize
+case ${prefix} in "~"|"~/"*) prefix=${HOME}${prefix#\~};; esac
+mkdir -p "${prefix}"
+cd "${prefix}"
 prefix=$(pwd)
 cd - >/dev/null
 
