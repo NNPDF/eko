@@ -20,32 +20,28 @@ pub extern "C" fn ad_ps_gamma_ns_qcd_result_len(order_qcd: usize) -> usize {
 /// Compute the tower of non-singlet anomalous dimensions.
 ///
 /// # Safety
-/// * `c` must be a valid, non-null pointer to an initialized `Cache`.
-/// * `n3lo_variation` must be a valid, non-null pointer to a buffer of three `u8` elements.
+/// * `cache` must be a valid, non-null pointer to an initialized `Cache`.
 /// * `result` must be a valid, non-null pointer to a contiguous, properly aligned buffer of `ComplexF64`.
 ///
 /// # Parameters
 /// * `order_qcd`: The QCD coupling power (supported range: < 3).
 /// * `mode`: The specific non-singlet sector.
-/// * `c`: Pointer to the harmonic cache.
+/// * `cache`: Pointer to the harmonic cache.
 /// * `nf`: Number of active flavors.
-/// * `n3lo_variation`: Pointer to the buffer containing N3LO variations.
 /// * `result`: Pointer to the output buffer.
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn ad_ps_gamma_ns_qcd(
     order_qcd: usize,
     mode: u16,
-    c: *mut Cache,
+    cache: *mut Cache,
     nf: u8,
-    n3lo_variation: *const u8,
     result: *mut ComplexF64,
 ) {
     gamma_ns_qcd_body!(
         order_qcd,
         mode,
-        c,
+        cache,
         nf,
-        n3lo_variation,
         result,
         order_qcd >= 3,
         spacelike::gamma_ns_qcd
@@ -68,29 +64,25 @@ pub extern "C" fn ad_ps_gamma_singlet_qcd_result_len(order_qcd: usize) -> usize 
 /// Compute the tower of singlet anomalous dimension matrices.
 ///
 /// # Safety
-/// * `c` must be a valid, non-null pointer to an initialized `Cache`.
-/// * `n3lo_variation` must be a valid, non-null pointer to a buffer of four `u8` elements.
+/// * `cache` must be a valid, non-null pointer to an initialized `Cache`.
 /// * `result` must be a valid, non-null pointer to a contiguous, properly aligned buffer of `ComplexF64`.
 ///
 /// # Parameters
 /// * `order_qcd`: The QCD coupling power (supported range: < 3).
-/// * `c`: Pointer to the harmonic cache.
+/// * `cache`: Pointer to the harmonic cache.
 /// * `nf`: Number of active flavors.
-/// * `n3lo_variation`: Pointer to the buffer containing N3LO variations.
 /// * `result`: Pointer to the output buffer.
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn ad_ps_gamma_singlet_qcd(
     order_qcd: usize,
-    c: *mut Cache,
+    cache: *mut Cache,
     nf: u8,
-    n3lo_variation: *const u8,
     result: *mut ComplexF64,
 ) {
     gamma_singlet_qcd_body!(
         order_qcd,
-        c,
+        cache,
         nf,
-        n3lo_variation,
         result,
         order_qcd >= 3,
         spacelike::gamma_singlet_qcd

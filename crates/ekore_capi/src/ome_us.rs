@@ -20,27 +20,27 @@ pub extern "C" fn ome_us_A_singlet_result_len(matching_order_qcd: usize) -> usiz
 /// Compute the tower of the singlet |OME|.
 ///
 /// # Safety
-/// * `c` must be a valid, non-null pointer to an initialized `Cache`.
+/// * `cache` must be a valid, non-null pointer to an initialized `Cache`.
 /// * `result` must be a valid, non-null pointer to a contiguous, properly aligned buffer of `ComplexF64`.
 /// * The `result` buffer must have a capacity of at least `matching_order_qcd * 9` elements.
 ///
 /// # Parameters
 /// * `matching_order_qcd`: The QCD matching order (supported range: < 3).
-/// * `c`: Pointer to the harmonic cache.
+/// * `cache`: Pointer to the harmonic cache.
 /// * `nf`: Number of active flavors.
 /// * `L`: The logarithm parameter.
 /// * `result`: Pointer to the output buffer.
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn ome_us_A_singlet(
     matching_order_qcd: usize,
-    c: *mut Cache,
+    cache: *mut Cache,
     nf: u8,
     L: f64,
     result: *mut ComplexF64,
 ) {
     ome_matrix_body!(
         matching_order_qcd,
-        c,
+        cache,
         nf,
         L,
         result,
@@ -67,27 +67,27 @@ pub extern "C" fn ome_us_A_non_singlet_result_len(matching_order_qcd: usize) -> 
 /// Compute the tower of the non-singlet |OME|.
 ///
 /// # Safety
-/// * `c` must be a valid, non-null pointer to an initialized `Cache`.
+/// * `cache` must be a valid, non-null pointer to an initialized `Cache`.
 /// * `result` must be a valid, non-null pointer to a contiguous, properly aligned buffer of `ComplexF64`.
 /// * The `result` buffer must have a capacity of at least `matching_order_qcd * 4` elements.
 ///
 /// # Parameters
 /// * `matching_order_qcd`: The QCD matching order (supported range: < 3).
-/// * `c`: Pointer to the harmonic cache.
+/// * `cache`: Pointer to the harmonic cache.
 /// * `nf`: Number of active flavors.
 /// * `L`: The logarithm parameter.
 /// * `result`: Pointer to the output buffer.
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn ome_us_A_non_singlet(
     matching_order_qcd: usize,
-    c: *mut Cache,
+    cache: *mut Cache,
     nf: u8,
     L: f64,
     result: *mut ComplexF64,
 ) {
     ome_matrix_body!(
         matching_order_qcd,
-        c,
+        cache,
         nf,
         L,
         result,
