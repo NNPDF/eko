@@ -53,8 +53,13 @@
 //!
 //! * `<name>_result_len(order, ...) -> usize`: the number of [`ComplexF64`] elements `result`
 //!   must hold, or `0` if the order is out of range.
-//! * `<name>(order, ..., result, result_len)`: fills `result` buffer up to `order`. A no-op if
-//!   `result_len` is too small, `result` is null, or the order/mode is invalid.
+//! * `<name>(order, ..., result)`: fills `result` buffer up to `order`. A no-op if
+//!   `result` is null, or the order/mode is invalid.
+//!
+//! # Available perturbative orders
+//!
+//! For the list of available perturbative orders and their associated references check the
+//! [ekore docs](https://docs.rs/ekore/latest/ekore).
 
 #[macro_use]
 mod macros;
