@@ -1,0 +1,25 @@
+name: C-API unit tests
+
+on: push
+
+jobs:
+  test-capi:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ vars.PYTHON_VERSION_WORKFLOWS }}
+      - name: Install task runner
+        run: pip install poethepoet
+      - name: Setup Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+      - name: Install cargo-c (Pre-built)
+        uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-c
+      - name: Run C-API tests
+        run: |
+          poe build-capi
+          poe ctest
