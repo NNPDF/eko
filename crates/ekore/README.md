@@ -18,6 +18,7 @@ When using our code please cite
 - [eko](https://crates.io/crates/eko) - Core EKO utilities
 - [ekore](https://crates.io/crates/ekore) - Anomalous dimensions and operator matrix elements
 - [ekore_capi](https://crates.io/crates/ekore_capi) - C API for ekore
+- [ekore_py](https://crates.io/crates/ekore_py) - Python API for ekore
 
 ## License
 
