@@ -90,7 +90,7 @@ echo "target:  '${target}'"
 echo "version: '${version}'"
 echo "URL:     '${url}'"
 
-curl -s -LJ "${url}" | tar xzf - -C "${prefix}"
+curl -fsSL "${url}" | tar xzf - -C "${prefix}"
 
 # Patch the pkg-config file
 sed "s:prefix=/:prefix=${prefix}/:" "${prefix}"/lib/pkgconfig/ekore_capi.pc > \
