@@ -110,8 +110,8 @@ echo "URL:     '${url}'"
 curl -fsSL "${url}" | tar xzf - -C "${prefix}"
 
 # Patch the pkg-config file
-sed "s:prefix=/:prefix=${prefix}/:" "${prefix}"/lib/pkgconfig/ekore_capi.pc > \
-    "${prefix}"/lib/pkgconfig/ekore_capi.pc.new
+escaped_prefix=$(printf %s "${prefix}" | sed 's:[\\/&]:\\&:g')
+sed "s:prefix=/:prefix=${escaped_prefix}/:" "${prefix}/lib/pkgconfig/ekore_capi.pc" > "${prefix}/lib/pkgconfig/ekore_capi.pc.new"
 mv "${prefix}"/lib/pkgconfig/ekore_capi.pc.new "${prefix}"/lib/pkgconfig/ekore_capi.pc
 
 pcbin=
