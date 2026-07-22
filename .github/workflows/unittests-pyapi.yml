@@ -1,0 +1,25 @@
+name: Python-API unit tests
+
+on: push
+
+jobs:
+  test-pyapi:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ vars.PYTHON_VERSION_WORKFLOWS }}
+      - name: Setup Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+      - name: Create virtual environment
+        run: python -m venv .venv
+      - name: Add venv to PATH
+        run: echo "$PWD/.venv/bin" >> "$GITHUB_PATH"
+      - name: Install task runner and test deps
+        run: pip install poethepoet maturin pytest
+      - name: Run Python-API tests
+        run: |
+          poe build-pyapi
+          poe ptest
