@@ -22,4 +22,5 @@ crate-type = ["cdylib"]
 
 [dependencies]
 ekore.workspace = true
-pyo3 = { workspace = true, features = ["extension-module"] }
+numpy.workspace = true
+pyo3 = { workspace = true, features = ["extension-module", "num-complex"] }
