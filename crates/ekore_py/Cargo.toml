@@ -21,4 +21,5 @@ name = "ekore_py"
 crate-type = ["cdylib"]
 
 [dependencies]
-pyo3.workspace = true
+ekore.workspace = true
+pyo3 = { workspace = true, features = ["extension-module"] }

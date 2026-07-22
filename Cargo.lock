@@ -243,6 +243,7 @@ dependencies = [
 name = "ekore_py"
 version = "0.0.1"
 dependencies = [
+ "ekore",
  "pyo3",
 ]
 
