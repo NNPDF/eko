@@ -154,7 +154,7 @@ rtest = "cargo test --workspace"
 fmtcheck = "cargo fmt --all -- --check"
 clippy = "cargo clippy --no-deps"
 rbib = { "shell" = "python crates/make_bib.py > crates/ekore/src/bib.rs" }
-build-capi = "cargo cinstall --release -p ekore_capi --destdir=./crates/ekore_capi/dist --prefix=/ --libdir=/lib --includedir=/include"
+build-capi = "cargo cinstall --release --library-type cdylib -p ekore_capi --destdir=./crates/ekore_capi/dist --prefix=/ --libdir=/lib --includedir=/include"
 ctest = "./crates/ekore_capi/tests/run_tests.sh"
 
 [tool.pytest.ini_options]
