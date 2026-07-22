@@ -1,4 +1,4 @@
-# ekore
+# ekore_py
 
 Python API for the [ekore](https://crates.io/crates/ekore) crate which is a part of the [EKO](https://github.com/NNPDF/eko) framework.
 
