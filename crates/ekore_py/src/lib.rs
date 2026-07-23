@@ -1,4 +1,5 @@
 pub mod ad_ps;
+pub mod ad_us;
 pub mod cache;
 pub mod constants;
 
@@ -34,6 +35,15 @@ mod ekore_py {
         py.import("sys")?
             .getattr("modules")?
             .set_item("ekore_py.ad_ps", &ad_ps_mod)?;
+
+        // ad_us submodule
+        let ad_us_mod = PyModule::new(py, "ad_us")?;
+        crate::ad_us::register(&ad_us_mod)?;
+        m.add_submodule(&ad_us_mod)?;
+        // for `from ekore_py.ad_us import X` to work:
+        py.import("sys")?
+            .getattr("modules")?
+            .set_item("ekore_py.ad_us", &ad_us_mod)?;
 
         Ok(())
     }
