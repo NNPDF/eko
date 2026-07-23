@@ -2,6 +2,7 @@ pub mod ad_ps;
 pub mod ad_us;
 pub mod cache;
 pub mod constants;
+pub mod ome_us;
 
 use pyo3::prelude::*;
 
@@ -44,6 +45,15 @@ mod ekore_py {
         py.import("sys")?
             .getattr("modules")?
             .set_item("ekore_py.ad_us", &ad_us_mod)?;
+
+        // ome_us submodule
+        let ome_us_mod = PyModule::new(py, "ome_us")?;
+        crate::ome_us::register(&ome_us_mod)?;
+        m.add_submodule(&ome_us_mod)?;
+        // for `from ekore_py.ome_us import X` to work:
+        py.import("sys")?
+            .getattr("modules")?
+            .set_item("ekore_py.ome_us", &ome_us_mod)?;
 
         Ok(())
     }

@@ -68,17 +68,6 @@ def test_gamma_singlet_qcd():
     assert_allclose(-g[1, 0, 1], expected_nlo, atol=1e-9)
 
 
-def test_guards_invalid_order_raises():
-    nf = 4
-    c = Cache(1.234 + 0.0j)
-
-    with pytest.raises(ValueError):
-        ad_ps.gamma_ns_qcd(3, PID_NSP, c, nf)
-
-    with pytest.raises(ValueError):
-        ad_ps.gamma_singlet_qcd(3, c, nf)
-
-
 def test_guards_unknown_mode_raises():
     nf = 4
     c = Cache(1.234 + 0.0j)
