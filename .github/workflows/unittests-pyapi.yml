@@ -18,7 +18,7 @@ jobs:
       - name: Add venv to PATH
         run: echo "$PWD/.venv/bin" >> "$GITHUB_PATH"
       - name: Install task runner and test deps
-        run: pip install poethepoet maturin pytest
+        run: pip install maturin numpy poethepoet pytest
       - name: Run Python-API tests
         run: |
           poe build-pyapi
