@@ -28,27 +28,16 @@ pub fn A_singlet<'py>(
     nf: u8,
     L: f64,
 ) -> PyResult<Bound<'py, PyArray3<Complex64>>> {
-    if matching_order_qcd >= 3 {
-        return Err(PyValueError::new_err(format!(
-            "matching_order_qcd must be < 3, got {matching_order_qcd}"
-        )));
-    }
-
-    let mut cache = cache.borrow_mut();
-    let ome = spacelike::A_singlet(matching_order_qcd, &mut cache.inner, nf, L);
-
-    let mut data: Vec<Complex64> = Vec::with_capacity(matching_order_qcd * 9);
-    for mat in ome.into_iter().take(matching_order_qcd) {
-        for row in mat.iter() {
-            for v in row.iter() {
-                data.push(Complex64::new(v.re, v.im));
-            }
-        }
-    }
-
-    PyArray1::from_vec(py, data)
-        .reshape([matching_order_qcd, 3, 3])
-        .map_err(|e| PyValueError::new_err(e.to_string()))
+    ome_matrix_body!(
+        py,
+        matching_order_qcd,
+        cache,
+        nf,
+        L,
+        matching_order_qcd >= 3,
+        spacelike::A_singlet,
+        3
+    )
 }
 
 /// Compute the tower of the non-singlet |OME|.
@@ -70,27 +59,16 @@ pub fn A_non_singlet<'py>(
     nf: u8,
     L: f64,
 ) -> PyResult<Bound<'py, PyArray3<Complex64>>> {
-    if matching_order_qcd >= 3 {
-        return Err(PyValueError::new_err(format!(
-            "matching_order_qcd must be < 3, got {matching_order_qcd}"
-        )));
-    }
-
-    let mut cache = cache.borrow_mut();
-    let ome = spacelike::A_non_singlet(matching_order_qcd, &mut cache.inner, nf, L);
-
-    let mut data: Vec<Complex64> = Vec::with_capacity(matching_order_qcd * 4);
-    for mat in ome.into_iter().take(matching_order_qcd) {
-        for row in mat.iter() {
-            for v in row.iter() {
-                data.push(Complex64::new(v.re, v.im));
-            }
-        }
-    }
-
-    PyArray1::from_vec(py, data)
-        .reshape([matching_order_qcd, 2, 2])
-        .map_err(|e| PyValueError::new_err(e.to_string()))
+    ome_matrix_body!(
+        py,
+        matching_order_qcd,
+        cache,
+        nf,
+        L,
+        matching_order_qcd >= 3,
+        spacelike::A_non_singlet,
+        2
+    )
 }
 
 pub(super) fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {

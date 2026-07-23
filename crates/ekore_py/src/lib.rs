@@ -43,6 +43,9 @@
 //! For the list of available perturbative orders and their associated references check the
 //! [ekore docs](https://docs.rs/ekore/latest/ekore).
 
+#[macro_use]
+mod macros;
+
 pub mod ad_ps;
 pub mod ad_us;
 pub mod cache;

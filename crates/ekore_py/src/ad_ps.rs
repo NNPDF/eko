@@ -1,7 +1,6 @@
 //! The polarized, space-like anomalous dimensions.
 
 use ekore::anomalous_dimensions::polarized::spacelike;
-use ekore::constants::{PID_NSM, PID_NSP, PID_NSV};
 use numpy::{Complex64, PyArray1, PyArray3, PyArrayMethods};
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
@@ -28,27 +27,15 @@ pub fn gamma_ns_qcd<'py>(
     cache: &Bound<'py, Cache>,
     nf: u8,
 ) -> PyResult<Bound<'py, PyArray1<Complex64>>> {
-    if order_qcd >= 3 {
-        return Err(PyValueError::new_err(format!(
-            "order_qcd must be < 3, got {order_qcd}"
-        )));
-    }
-
-    if !matches!(mode, PID_NSP | PID_NSM | PID_NSV) {
-        return Err(PyValueError::new_err(format!(
-            "invalid non-singlet mode: {mode}"
-        )));
-    }
-
-    let mut cache = cache.borrow_mut();
-    let gamma = spacelike::gamma_ns_qcd(order_qcd, mode, &mut cache.inner, nf);
-
-    let data: Vec<Complex64> = gamma
-        .into_iter()
-        .take(order_qcd)
-        .map(|c| Complex64::new(c.re, c.im))
-        .collect();
-    Ok(PyArray1::from_vec(py, data))
+    gamma_ns_qcd_body!(
+        py,
+        order_qcd,
+        mode,
+        cache,
+        nf,
+        order_qcd >= 3,
+        spacelike::gamma_ns_qcd
+    )
 }
 
 /// Compute the tower of singlet |QCD| anomalous dimension matrices.
@@ -68,27 +55,15 @@ pub fn gamma_singlet_qcd<'py>(
     cache: &Bound<'py, Cache>,
     nf: u8,
 ) -> PyResult<Bound<'py, PyArray3<Complex64>>> {
-    if order_qcd >= 3 {
-        return Err(PyValueError::new_err(format!(
-            "order_qcd must be < 3, got {order_qcd}"
-        )));
-    }
-
-    let mut cache = cache.borrow_mut();
-    let gamma = spacelike::gamma_singlet_qcd(order_qcd, &mut cache.inner, nf);
-
-    let mut data: Vec<Complex64> = Vec::with_capacity(order_qcd * 4);
-    for mat in gamma.into_iter().take(order_qcd) {
-        for row in mat.iter() {
-            for v in row.iter() {
-                data.push(Complex64::new(v.re, v.im));
-            }
-        }
-    }
-
-    PyArray1::from_vec(py, data)
-        .reshape([order_qcd, 2, 2])
-        .map_err(|e| PyValueError::new_err(e.to_string()))
+    gamma_singlet_qcd_body!(
+        py,
+        order_qcd,
+        cache,
+        nf,
+        order_qcd >= 3,
+        spacelike::gamma_singlet_qcd,
+        2
+    )
 }
 
 pub(super) fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
