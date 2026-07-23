@@ -1,3 +1,48 @@
+//! Python bindings for [`ekore`], the crate providing the anomalous dimensions and operator
+//! matrix elements of the [EKO](https://github.com/NNPDF/eko) framework.
+//!
+//! This crate re-exposes those quantities as a native Python extension module, built with
+//! [PyO3](https://pyo3.rs) and packaged with [maturin](https://www.maturin.rs). See the main
+//! [EKO documentation](https://eko.readthedocs.io/en/latest/) for the physics behind the
+//! computed quantities, and the [ekore docs](https://docs.rs/ekore/latest/ekore) for the
+//! underlying Rust API.
+//!
+//! # Building & consuming
+//!
+//! ```sh
+//! pip install maturin
+//! maturin develop --release --manifest-path crates/ekore_py/Cargo.toml
+//! ```
+//!
+//! ```python
+//! import ekore_py
+//!
+//! cache = ekore_py.Cache(2.0 + 0.0j)
+//! print(ekore_py.ad_ps.gamma_ns_qcd(2, ekore_py.constants.PID_NSP, cache, nf=4))
+//! ```
+//!
+//! # Naming convention
+//!
+//! Every function lives in a submodule named `<family>_<sector>`:
+//!
+//! * `ad_us` - **a**nomalous **d**imensions, **u**npolarized, **s**pace-like
+//! * `ad_ps` - **a**nomalous **d**imensions, **p**olarized, **s**pace-like
+//! * `ome_us` - **o**perator **m**atrix **e**lements, **u**npolarized, **s**pace-like
+//!
+//! e.g. `ekore_py.ad_us.gamma_ns_qcd` is the non-singlet |QCD| anomalous dimension from the
+//! unpolarized, space-like sector.
+//!
+//! # Result shape convention
+//!
+//! Quantities depending on a perturbative order are returned as a NumPy array of complex128:
+//! one entry per order along the leading axis(es), matrix-valued quantities carry their
+//! `(dim, dim)` on the trailing axes.
+//!
+//! # Available perturbative orders
+//!
+//! For the list of available perturbative orders and their associated references check the
+//! [ekore docs](https://docs.rs/ekore/latest/ekore).
+
 pub mod ad_ps;
 pub mod ad_us;
 pub mod cache;
