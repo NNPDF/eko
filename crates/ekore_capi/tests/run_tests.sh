@@ -35,8 +35,10 @@ run_section() {
             -L"$LIB_DIR" -lekore_capi -o "$bin" -Wl,-rpath,"$RPATH"
 
         # macOS: cargo-c bakes an absolute /lib/... install name; fix it to @rpath
-        [ "$(uname)" = "Darwin" ] && install_name_tool -change \
-            "/lib/libekore_capi.0.0.1.dylib" "@rpath/libekore_capi.0.0.1.dylib" "$bin" 2>/dev/null || true
+        if [ "$(uname)" = "Darwin" ]; then
+            old="$(otool -L "$bin" | awk '/\/lib\/libekore_capi/{print $1; exit}')"
+            [ -n "$old" ] && install_name_tool -change "$old" "@rpath/$(basename "$old")" "$bin"
+        fi
 
         echo "  Running $name..."
         "$bin"
