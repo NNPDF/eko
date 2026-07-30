@@ -88,7 +88,7 @@ if [ -z "${prefix}" ]; then
 fi
 
 # we need the absolute path; expand a leading "~" (POSIX) and canonicalize
-case ${prefix} in "~"|"~/"*) prefix=${HOME}${prefix#\~};; esac
+case ${prefix} in "~"|"$HOME/"*) prefix=${HOME}${prefix#\~};; esac
 mkdir -p "${prefix}"
 cd "${prefix}"
 prefix=$(pwd)
