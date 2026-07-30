@@ -107,7 +107,18 @@ echo "target:  '${target}'"
 echo "version: '${version}'"
 echo "URL:     '${url}'"
 
-curl -fsSL "${url}" | tar xzf - -C "${prefix}"
+tmp_dir=$(mktemp -d)
+tarball="${tmp_dir}/ekore_capi.tar.gz"
+
+if curl -fsSL "${url}" -o "${tarball}"; then
+    tar xzf "${tarball}" -C "${prefix}"
+else
+    echo "Error: Failed to download the file." >&2
+    rm -rf "${tmp_dir}"
+    exit 1
+fi
+
+rm -rf "${tmp_dir}"
 
 # Patch the pkg-config file
 escaped_prefix=$(printf %s "${prefix}" | sed 's:[\\/&]:\\&:g')
