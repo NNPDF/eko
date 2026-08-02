@@ -108,17 +108,18 @@ echo "version: '${version}'"
 echo "URL:     '${url}'"
 
 tmp_dir=$(mktemp -d)
+trap 'rm -rf "${tmp_dir}"' EXIT
 tarball="${tmp_dir}/ekore_capi.tar.gz"
+extract_dir="${tmp_dir}/extract"
 
 if curl -fsSL "${url}" -o "${tarball}"; then
-    tar xzf "${tarball}" -C "${prefix}"
+    mkdir -p "${extract_dir}"
+    tar xzf "${tarball}" -C "${extract_dir}"
+    cp -R "${extract_dir}"/* "${prefix}/"
 else
     echo "Error: Failed to download the file." >&2
-    rm -rf "${tmp_dir}"
     exit 1
 fi
-
-rm -rf "${tmp_dir}"
 
 # Patch the pkg-config file
 escaped_prefix=$(printf %s "${prefix}" | sed 's:[\\/&]:\\&:g')
