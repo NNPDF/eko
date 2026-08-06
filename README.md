@@ -26,13 +26,19 @@ These are collected from various references (see our documentation) and provide 
 
 In Python you can access these elements through the `ekore` module installed together with the main Python library - [see our documentation](https://eko.readthedocs.io/en/latest/modules/ekore/ekore.html).
 
+This module is scheduled for removal once we move the ekore content to Rust (see below).
+
 ### Rust
 
-In Rust you can access these elements through the `ekore` crate <img alt="crates.io" src="https://img.shields.io/crates/v/ekore"></a>
+In Rust you can access these elements through the `ekore` crate <a href="https://crates.io/crates/ekore" ><img alt="crates.io" src="https://img.shields.io/crates/v/ekore"></a>
 
 ### C
 
-In C you can access these elements through the `ekore_capi` crate <img alt="crates.io" src="https://img.shields.io/crates/v/ekore_capi"></a>
+In C you can access these elements through the `ekore_capi` crate <a href="https://crates.io/crates/ekore_capi" ><img alt="crates.io" src="https://img.shields.io/crates/v/ekore_capi"></a>
+
+### Python (via Rust)
+
+In Python you can access these elements through the `ekore-py` module <a href="https://pypi.org/project/ekore-py/"><img alt="PyPI" src="https://img.shields.io/pypi/v/eko-py"/></a>: `$ pip install ekore-py`
 
 ## Citation policy
 When using our code please cite
