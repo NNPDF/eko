@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
-from ekore_py import Cache, ad_us
-from ekore_py.constants import (
+from ekore_rs import Cache, ad_us
+from ekore_rs.constants import (
     PID_NSM,
     PID_NSM_D,
     PID_NSM_U,

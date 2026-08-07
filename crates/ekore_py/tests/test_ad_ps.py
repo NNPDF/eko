@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
-from ekore_py import Cache, ad_ps
-from ekore_py.constants import PID_NSM_U, PID_NSP
+from ekore_rs import Cache, ad_ps
+from ekore_rs.constants import PID_NSM_U, PID_NSP
 from numpy.testing import assert_allclose
 
 CF = 4.0 / 3.0

@@ -13,7 +13,7 @@ use pyo3::prelude::*;
 ///
 /// # Returns
 /// * Returns a `Cache` at the given parameter.
-#[pyclass(name = "Cache", module = "ekore_py")]
+#[pyclass(name = "Cache", module = "ekore_rs")]
 pub struct Cache {
     pub(crate) inner: EkoreCache,
     n: Complex64,

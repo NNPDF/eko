@@ -1,6 +1,6 @@
 import numpy as np
 import pytest
-from ekore_py import Cache, ome_us
+from ekore_rs import Cache, ome_us
 from numpy.testing import assert_allclose
 
 

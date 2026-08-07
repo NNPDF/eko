@@ -17,7 +17,7 @@ exclude = ["tests"]
 rustdoc-args = ["--html-in-header", "doc-header.html"]
 
 [lib]
-name = "ekore_py"
+name = "ekore_rs"
 crate-type = ["cdylib"]
 
 [dependencies]
