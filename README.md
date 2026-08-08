@@ -38,7 +38,7 @@ In C you can access these elements through the `ekore_capi` crate <a href="https
 
 ### Python (via Rust)
 
-In Python you can access these elements through the `ekore-py` module <a href="https://pypi.org/project/ekore-py/"><img alt="PyPI" src="https://img.shields.io/pypi/v/eko-py"/></a>: `$ pip install ekore-py`
+In Python you can access these elements through the `ekore-rs` module <a href="https://pypi.org/project/ekore-rs/"><img alt="PyPI" src="https://img.shields.io/pypi/v/ekore-rs"/></a>: `$ pip install ekore-rs`
 
 ## Citation policy
 When using our code please cite
