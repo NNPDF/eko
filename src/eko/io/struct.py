@@ -387,7 +387,7 @@ class EKO:
         already extracted folder.
         """
         if isinstance(path, str):
-            path = Path(path)   
+            path = Path(path)
         # Take the absolute path in case we need to modify the eko in-place
         path = path.resolve()
         if extract:

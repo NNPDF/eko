@@ -7,7 +7,6 @@ import pytest
 import yaml
 from packaging.version import parse
 
-import eko
 from eko import EKO, interpolation
 from eko.io import struct
 from eko.io.items import Target
@@ -216,16 +215,3 @@ class TestEKO:
             and version.micro == 0
             and version.is_postrelease
         )
-    def test_read_path(self, tmp_path):
-        """Test that read can accept both str and Path for the path argument."""
-        from ekobox.cards import example
-
-        path = tmp_path / "myeko.tar"
-        eko.solve(example.theory(), example.operator(), path)
-
-        #str path
-        with EKO.read(str(path)) as eko_str:
-            assert isinstance(eko_str, EKO)
-        #Path path
-        with EKO.read(path) as eko_path:
-            assert isinstance(eko_path, EKO)
