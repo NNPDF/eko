@@ -8,7 +8,7 @@ import tarfile
 import tempfile
 from dataclasses import dataclass
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Optional, Union
 
 import numpy as np
 import yaml
@@ -375,7 +375,7 @@ class EKO:
     @classmethod
     def read(
         cls,
-        path: Path,
+        path: Union[str, Path],
         extract: bool = True,
         dest: Optional[Path] = None,
         readonly: bool = True,
@@ -386,6 +386,8 @@ class EKO:
         format. Otherwise, the `path` is interpreted as the location of an
         already extracted folder.
         """
+        if isinstance(path, str):
+            path = Path(path)
         # Take the absolute path in case we need to modify the eko in-place
         path = path.resolve()
         if extract:

@@ -15,6 +15,9 @@ def test_raw(theory_card, operator_card, tmp_path):
     solve(tc, oc, path=path)
     with EKO.read(path) as eko_:
         check_shapes(eko_, eko_.xgrid, eko_.xgrid, tc, oc)
+    # EKO.read(path) should also accept a string path
+    with EKO.read(str(path)) as eko_str:
+        assert isinstance(eko_str, EKO)
 
 
 def test_vfns(theory_ffns, operator_card, tmp_path):
