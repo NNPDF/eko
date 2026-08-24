@@ -15,6 +15,9 @@ Items without prefix refer to a global change.
 
 ## [Unreleased](https://github.com/NNPDF/eko/compare/v0.15.5...HEAD)
 
+### Fixed
+- Fix bug in ad.u.s.as1aem1. Thank you Giovanni Stagnitto (@gstagnit). ([#558](https://github.com/NNPDF/eko/pull/558))
+
 ## [0.15.5](https://github.com/NNPDF/eko/compare/v0.15.4...v0.15.5) - 2026-07-22
 
 ### Added

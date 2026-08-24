@@ -290,7 +290,7 @@ def n3lo_decompose_expanded(gamma_singlet, a1, a0, nf):
         beta.b_qcd((4, 0), nf),
         beta.b_qcd((5, 0), nf),
     ]
-    j12 = ei.j12(a1, a0, nf)
+    j12 = ei.j12(a1, a0, beta0)
     j13 = as4_ei.j13_expanded(a1, a0, beta0, b_list)
     j23 = as4_ei.j23_expanded(a1, a0, beta0, b_list)
     j33 = as4_ei.j33_expanded(a1, a0, beta0)
