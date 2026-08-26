@@ -33,6 +33,13 @@ run_section() {
         echo "  Compiling $name.$ext..."
         "$compiler" "$src" "${extra[@]}" \
             -L"$LIB_DIR" -lekore_capi -o "$bin" -Wl,-rpath,"$RPATH"
+
+        # macOS: cargo-c bakes an absolute /lib/... install name; fix it to @rpath
+        if [ "$(uname)" = "Darwin" ]; then
+            old="$(otool -L "$bin" | awk '/\/lib\/libekore_capi/{print $1; exit}')"
+            [ -n "$old" ] && install_name_tool -change "$old" "@rpath/$(basename "$old")" "$bin"
+        fi
+
         echo "  Running $name..."
         "$bin"
         rm -f "$bin"

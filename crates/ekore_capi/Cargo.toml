@@ -17,7 +17,7 @@ exclude = ["tests"]
 rustdoc-args = ["--html-in-header", "doc-header.html"]
 
 [lib]
-crate-type = ["cdylib", "staticlib"]
+crate-type = ["cdylib"]
 
 [features]
 capi = []

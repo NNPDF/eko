@@ -4,7 +4,11 @@ on: push
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
       - name: Get test data
@@ -26,8 +30,12 @@ jobs:
       - name: Run clippy
         run: |
           poe clippy
-      - name: Install gsl
-        run: sudo apt-get install libgsl0-dev
+      - name: Install gsl (Linux)
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y libgsl0-dev
+      - name: Install gsl (macOS)
+        if: runner.os == 'macOS'
+        run: brew install gsl
       - name: Run Rust unit tests
         run: |
           poe rtest
