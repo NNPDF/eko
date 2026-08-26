@@ -17,13 +17,18 @@ jobs:
           python-version: ${{ vars.PYTHON_VERSION_WORKFLOWS }}
       - name: Setup Rust toolchain
         uses: dtolnay/rust-toolchain@stable
-      - name: Create virtual environment
-        run: python -m venv .venv
-      - name: Add venv to PATH
-        run: echo "$PWD/.venv/bin" >> "$GITHUB_PATH"
-      - name: Install task runner and test deps
-        run: pip install maturin numpy poethepoet pytest
+      - name: Install and configure Poetry
+        uses: snok/install-poetry@v1
+        with:
+          virtualenvs-create: false
+          installer-parallel: true
+      - name: Install dependencies
+        run: poetry install --no-interaction --no-root --with test
+      - name: Install task runner
+        run: pip install poethepoet
       - name: Run Python-API tests
+        env:
+          VIRTUAL_ENV: ${{ env.pythonLocation }}
         run: |
           poe build-pyapi
           poe ptest
