@@ -28,11 +28,13 @@ In Python you can access these elements through the `ekore` module installed tog
 
 ### Rust
 
-In Rust you can access these elements through the `ekore` crate <img alt="crates.io" src="https://img.shields.io/crates/v/ekore"></a>
+In Rust you can access these elements through the `ekore` crate <a href="https://crates.io/crates/ekore"><img alt="crates.io" src="https://img.shields.io/crates/v/ekore"></a>
 
 ### C
 
-In C you can access these elements through the `ekore_capi` crate <img alt="crates.io" src="https://img.shields.io/crates/v/ekore_capi"></a>
+In C you can access these elements through the `ekore_capi` crate <a href="https://crates.io/crates/ekore_capi"><img alt="crates.io" src="https://img.shields.io/crates/v/ekore_capi"></a>
+
+For installation instructions and usage see the documentation: <a href="https://docs.rs/ekore_capi/"><img alt="Docs" src="https://docs.rs/ekore_capi/badge.svg"></a>
 
 ## Citation policy
 When using our code please cite

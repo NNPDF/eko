@@ -4,34 +4,64 @@
 //! This crate re-exposes those quantities through a `#[no_mangle]` C ABI, so they can be
 //! called from C, C++, or any other language with a C FFI. See the main
 //! [EKO documentation](https://eko.readthedocs.io/en/latest/) for the physics behind the
-//! computed quantities, and the [ekore docs](https://docs.rs/ekore/latest/ekore) for the
-//! underlying Rust API.
+//! computed quantities, and [`ekore`] for the underlying Rust API.
 //!
-//! # Building & consuming
+//! # Installation of pre-built library
 //!
-//! The crate is built with [`cargo-c`](https://crates.io/crates/cargo-c), which compiles the
-//! `cdylib`/`staticlib` with the generation of a C header file using
-//! [`cbindgen`](https://github.com/mozilla/cbindgen) configured in `cbindgen.toml`, and
-//! a `pkg-config` file:
+//! Instead of building from source, you can install a pre-built version of the library
+//! (for Linux and macOS, on x86_64 and aarch64) by running
 //!
 //! ```sh
-//! cargo cinstall --release -p ekore_capi --destdir=./dist --prefix=/ --libdir=/lib --includedir=/include
+//! curl --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/NNPDF/eko/master/crates/ekore_capi/install-capi.sh | sh
 //! ```
 //!
-//! This generates `dist/lib/libekore_capi.{a,so}`, `dist/include/ekore_capi/ekore_capi.h`, and
-//! `dist/lib/pkgconfig/ekore_capi.pc`. Note that the above compilation hardcodes a system-root prefix
-//! into `ekore_capi.pc`. To exercise the built `dist/` tree without installing it in system, point
-//! `pkg-config` at it, override the `prefix` variable back to `dist/`, and tell the linker where
-//! to find the shared library at runtime too:
+//! You'll be prompted for an installation prefix (or pass one non-interactively with
+//! `--prefix`). This installs the shared/static library, the C header, and a `pkg-config`
+//! file, already patched with the chosen prefix. See [Consuming](#consuming) below for
+//! how to use it.
+//!
+//! # Building from source
+//!
+//! Alternatively, you can build the crate from source:
+//!
+//! 1. Install [`cargo-c`](https://crates.io/crates/cargo-c), which is required to generate
+//!    the C header and `pkg-config` file alongside the library:
+//!
+//!    ```sh
+//!    cargo install cargo-c
+//!    ```
+//!
+//! 2. Check out the [EKO repository](https://github.com/NNPDF/eko), then from its root run
+//!
+//!    ```sh
+//!    cargo cinstall --release -p ekore_capi --prefix=${prefix} --libdir=${prefix}/lib
+//!    ```
+//!
+//!    where `${prefix}` is the desired installation directory. This creates
+//!    `${prefix}/lib/libekore_capi.{a,so}`, `${prefix}/include/ekore_capi/ekore_capi.h`, and
+//!    `${prefix}/lib/pkgconfig/ekore_capi.pc`.
+//!
+//! 3. If you installed into a non-standard prefix, point `PKG_CONFIG_PATH` (and, for the
+//!    shared library at runtime, `LD_LIBRARY_PATH`) at it, e.g. by adding
+//!
+//!    ```sh
+//!    export PKG_CONFIG_PATH=${prefix}/lib/pkgconfig:${PKG_CONFIG_PATH}
+//!    export LD_LIBRARY_PATH=${prefix}/lib:${LD_LIBRARY_PATH}
+//!    ```
+//!
+//!    to your shell configuration (replacing `${prefix}` with the actual directory).
+//!
+//! # Consuming
+//!
+//! Once installed the library can be used through `pkg-config` in the usual way:
 //!
 //! ```sh
-//! PREFIX="$(realpath dist)"
-//! export PKG_CONFIG_PATH="$PREFIX/lib/pkgconfig"
-//!
-//! cc program.c -o program \
-//!     $(pkg-config --define-variable=prefix="$PREFIX" --cflags --libs ekore_capi) \
-//!     -Wl,-rpath,"$(pkg-config --define-variable=prefix="$PREFIX" --variable=libdir ekore_capi)"
+//! pkg-config --cflags --libs ekore_capi
 //! ```
+//!
+//! It should print the compiler/linker flags needed to build against the C API. If there's no
+//! output or an error, double-check that `PKG_CONFIG_PATH` is set and points to a directory
+//! containing `ekore_capi.pc`.
 //!
 //! # Naming convention
 //!
@@ -58,8 +88,8 @@
 //!
 //! # Available perturbative orders
 //!
-//! For the list of available perturbative orders and their associated references check the
-//! [ekore docs](https://docs.rs/ekore/latest/ekore).
+//! For the list of available perturbative orders and their associated references check
+//! [`ekore`].
 
 #[macro_use]
 mod macros;
