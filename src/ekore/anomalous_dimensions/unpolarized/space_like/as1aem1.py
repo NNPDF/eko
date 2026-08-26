@@ -147,7 +147,7 @@ def gamma_phg(N):
     complex
         :math:`O(a_s^1a_{em}^1)` photon-gluon anomalous dimension :math:`\\gamma_{\\gamma g}^{(1,1)}(N)`
     """
-    return constants.TR / constants.CF / constants.CA * constants.NC * gamma_gph(N)
+    return constants.TR / constants.CF / constants.CA * gamma_gph(N)
 
 
 @nb.njit(cache=True)
@@ -173,13 +173,7 @@ def gamma_qg(N, nf, cache):
         :math:`O(a_s^1a_{em}^1)` quark-gluon singlet anomalous dimension
         :math:`\\gamma_{qg}^{(1,1)}(N)`
     """
-    return (
-        constants.TR
-        / constants.CF
-        / constants.CA
-        * constants.NC
-        * gamma_qph(N, nf, cache)
-    )
+    return constants.TR / constants.CF / constants.CA * gamma_qph(N, nf, cache)
 
 
 @nb.njit(cache=True)
@@ -241,7 +235,7 @@ def gamma_gg():
         :math:`O(a_s^1a_{em}^1)` gluon-gluon singlet anomalous dimension
         :math:`\\gamma_{gg}^{(1,1)}(N)`
     """
-    return 4.0 * constants.TR * constants.NC
+    return 4.0 * constants.TR
 
 
 @nb.njit(cache=True)

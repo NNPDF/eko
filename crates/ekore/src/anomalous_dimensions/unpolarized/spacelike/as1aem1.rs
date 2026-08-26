@@ -2,7 +2,7 @@
 use crate::cmplx;
 use num::complex::Complex;
 
-use crate::constants::{CA, CF, ChargeCombinations, ED2, EU2, NC, TR, ZETA2, ZETA3};
+use crate::constants::{CA, CF, ChargeCombinations, ED2, EU2, TR, ZETA2, ZETA3};
 use crate::harmonics::cache::{Cache, K, recursive_harmonic_sum};
 use std::f64::consts::PI;
 
@@ -78,14 +78,14 @@ pub(super) fn gamma_gph(c: &mut Cache, _nf: u8) -> Complex<f64> {
 ///
 /// Implements Eq. (30) of [\[deFlorian:2015ujt\]][crate::bib::deFlorian2015ujt].
 pub(super) fn gamma_phg(c: &mut Cache, nf: u8) -> Complex<f64> {
-    TR / CF / CA * (NC as f64) * gamma_gph(c, nf)
+    TR / CF / CA * gamma_gph(c, nf)
 }
 
 /// Compute the quark-gluon singlet anomalous dimension.
 ///
 /// Implements Eq. (29) of [\[deFlorian:2015ujt\]][crate::bib::deFlorian2015ujt].
 pub(super) fn gamma_qg(c: &mut Cache, nf: u8) -> Complex<f64> {
-    TR / CF / CA * (NC as f64) * gamma_qph(c, nf)
+    TR / CF / CA * gamma_qph(c, nf)
 }
 
 /// Compute the gluon-quark singlet anomalous dimension.
@@ -110,7 +110,7 @@ pub(super) fn gamma_phph(_c: &mut Cache, nf: u8) -> Complex<f64> {
 ///
 /// Implements Eq. (31) of [\[deFlorian:2015ujt\]][crate::bib::deFlorian2015ujt].
 pub(super) fn gamma_gg(_c: &mut Cache, _nf: u8) -> Complex<f64> {
-    cmplx!(4.0 * TR * (NC as f64), 0.)
+    cmplx!(4.0 * TR, 0.)
 }
 
 /// Shift for $g_3(N)$ by 2.
