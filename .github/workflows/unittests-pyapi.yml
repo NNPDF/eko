@@ -11,17 +11,18 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ vars.PYTHON_VERSION_WORKFLOWS }}
-      - name: Setup Rust toolchain
-        uses: dtolnay/rust-toolchain@stable
       - name: Install and configure Poetry
         uses: snok/install-poetry@v1
         with:
           virtualenvs-create: false
           installer-parallel: true
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ vars.PYTHON_VERSION_WORKFLOWS }}
+          cache: 'poetry'
+      - name: Setup Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
       - name: Install dependencies
         run: poetry install --no-interaction --no-root --with test
       - name: Install task runner
