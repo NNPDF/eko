@@ -15,6 +15,9 @@ Items without prefix refer to a global change.
 
 ## [Unreleased](https://github.com/NNPDF/eko/compare/v0.15.5...HEAD)
 
+### Added
+- rust: `ekore_py` crate, which exposes `ekore` crate as a Python bindings ([#554](https://github.com/NNPDF/eko/pull/554))
+
 ### Fixed
 - Fix bug in ad.u.s.as1aem1. Thank you Giovanni Stagnitto (@gstagnit). ([#558](https://github.com/NNPDF/eko/pull/558))
 

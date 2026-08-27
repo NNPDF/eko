@@ -156,6 +156,8 @@ clippy = "cargo clippy --no-deps"
 rbib = { "shell" = "python crates/make_bib.py > crates/ekore/src/bib.rs" }
 build-capi = "cargo cinstall --release --library-type cdylib -p ekore_capi --destdir=./crates/ekore_capi/dist --prefix=/ --libdir=/lib --includedir=/include"
 ctest = "./crates/ekore_capi/tests/run_tests.sh"
+build-pyapi = "maturin develop --release --manifest-path crates/ekore_py/Cargo.toml"
+ptest = { "shell" = "cd crates/ekore_py && pytest" }
 
 [tool.pytest.ini_options]
 testpaths = ['tests/', 'benchmarks/']

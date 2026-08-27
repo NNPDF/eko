@@ -1,9 +1,8 @@
-# ekore
+# ekore_py
 
-Rust crate containing the core expressions used in the [EKO](https://github.com/NNPDF/eko) library.
+Python API for the [ekore](https://crates.io/crates/ekore) crate which is a part of the [EKO](https://github.com/NNPDF/eko) framework.
 
-This crate collects the anomalous dimensions and operator matrix elements currently available in the literature - please see our [list of references](https://eko.readthedocs.io/en/latest/zzz-refs.html).
-The crate also provides the necessary mathematical tools, such as harmonic sums, to deal with the relevant expressions.
+This crate exposes the anomalous dimensions and operator matrix elements from `ekore` through PyO3, making them callable from Python. The Python extension module is built and packaged using [maturin](https://github.com/PyO3/maturin).
 
 ## Citation policy
 
