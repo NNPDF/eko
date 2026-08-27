@@ -196,7 +196,7 @@ This internal crate exports C function pointers (such as `rust_quad_ker`) that `
 
 #### Architecture & Design
 
-- **C-Compatible Types:** Complex numbers are exposed using `#[repr(C)] ComplexF64` (consisting of adjacent `re` and `im` double-precision floats), matching standard C99 `double complex` and `num::Complex<f64>`.
+- **C-Compatible Types:** Complex numbers are exposed using `#[repr(C)] ComplexF64` (consisting of adjacent `re` and `im` double-precision floats), matching `num::Complex<f64>` and a C struct layout `{ double re; double im; }` (not necessarily C99 `double complex`).
 - **Opaque Handles:** The Mellin-space harmonic cache is managed through opaque heap pointers (`Cache`), initialized with `cache_new(n_re, n_im)` and explicitly freed with `cache_delete(c)`.
 - **Buffer Convention:** Functions return perturbative series as flattened arrays. Each calculation `<name>` is paired with `<name>_result_len(...)` returning the required buffer size, and `<name>(..., result)` which writes into the caller-allocated array.
 - **Header & Metadata Generation:** Uses [`cargo-c`](https://crates.io/crates/cargo-c) and [`cbindgen`](https://github.com/mozilla/cbindgen) to generate the C header (`ekore_capi.h`) and `pkg-config` file (`ekore_capi.pc`).
