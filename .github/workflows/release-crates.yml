@@ -15,6 +15,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/') || github.event.inputs.tag != ''
 
     steps:
       - uses: actions/checkout@v4
@@ -24,9 +25,11 @@ jobs:
       - name: Install task runner
         run: pip install poethepoet
       - name: Bump versions
+        env:
+          TAG: ${{ github.event.inputs.tag || github.ref_name }}
         run: |
           poetry install --only version
-          poe bump-version
+          python crates/bump-versions.py ${{ env.TAG }}
       - name: Publish crates
         run: |
           jq '.[]' crates/release.json | xargs -I _ cargo publish -p _ --allow-dirty

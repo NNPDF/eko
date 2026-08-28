@@ -24,9 +24,13 @@ jobs:
         with:
           python-version: ${{ vars.PYTHON_VERSION_WORKFLOWS }}
       - name: Install tomlkit
+        if: startsWith(github.ref, 'refs/tags/') || github.event.inputs.tag != ''
         run: pip install tomlkit
       - name: Bump versions
-        run: python crates/bump-versions.py ${{ github.ref_name }}
+        if: startsWith(github.ref, 'refs/tags/') || github.event.inputs.tag != ''
+        env:
+          TAG: ${{ github.event.inputs.tag || github.ref_name }}
+        run: python crates/bump-versions.py ${{ env.TAG }}
       - name: Upload patched Cargo files
         uses: actions/upload-artifact@v4
         with:
@@ -170,7 +174,7 @@ jobs:
   release:
     name: Release
     runs-on: ubuntu-latest
-    if: "startsWith(github.ref, 'refs/tags/')"
+    if: startsWith(github.ref, 'refs/tags/') || github.event.inputs.tag != ''
     needs: [linux, windows, macos, sdist]
     steps:
       - uses: actions/download-artifact@v4
