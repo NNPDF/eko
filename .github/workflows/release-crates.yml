@@ -5,6 +5,12 @@ on:
     tags:
       - 'v[0-9]+*'
   workflow_dispatch:
+    inputs:
+      tag:
+        description: >-
+          Existing release tag to (re)publish. Use this to complete a release
+          whose tag-triggered run failed partway.
+        required: false
 
 jobs:
   deploy:
