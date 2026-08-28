@@ -345,15 +345,17 @@ files = ["src/eko/version.py", "src/ekomark/version.py", "src/ekobox/version.py"
 
 ### 9.2 bump-versions.py
 
-The Rust workspace and all crates inside `crates/` have their own `version` fields in their respective `Cargo.toml` files. They must be bumped manually before a release using:
+The Rust workspace version and internal cross-dependencies in `Cargo.toml` are bumped using:
 
 ```bash
 poe bump-version   # runs: python crates/bump-versions.py $(git describe --tags)
 ```
 
-`bump-versions.py` does two things:
+`bump-versions.py` updates `workspace.package.version` and internal dependency versions, stripping the leading `v` from the git tag.
 
-1. Sets `workspace.package.version` to the new version.
-2. Updates the `version` field of any internal cross-dependencies (e.g. ekore inside eko's dependencies) to the same version string.
+#### CI publishing trick
 
-The script strips the leading `v` from the git tag since Cargo does not use the `v` prefix.
+Cargo requires concrete versions in `Cargo.toml`. To avoid manual version bump commits in git, CI dynamically patches `Cargo.toml` on tag push:
+
+- **`crates.yml`**: Runs `poe bump-version` and publishes using `cargo publish --allow-dirty`.
+- **`maturin.yml` & `release-capi.yml`**: A `set-version` job patches `Cargo.toml` and uploads it as an artifact (`patched-cargo`), which matrix build jobs download before compiling.
