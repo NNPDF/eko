@@ -172,15 +172,15 @@ In the master architecture, QUADPACK calls a pure Rust C function directly via L
 
 To make `ekore` accessible across various ecosystems and languages without reimplementing the physics kernels, the repository provides dedicated interface crates:
 
-- **`eko` (Rust crate):** The internal bridge connecting Python EKO to `ekore` during operator integration (`rust_quad_ker`).
+- **`eko-rs` (`ekors`):** The internal bridge connecting Python EKO to `ekore` during operator integration (`rust_quad_ker`).
 - **`ekore_capi`:** Exposes `ekore` via a C-compatible ABI for C, C++, and Fortran callers.
-- **`ekore_py`:** Exposes `ekore` directly to Python using PyO3 bindings.
+- **`ekore_rs` (`ekore-rs`):** Exposes `ekore` directly to Python using PyO3 bindings.
 
 ---
 
-### 6.1 eko crate (Internal Python/Rust bridge)
+### 6.1 eko crate / eko-rs (Internal Python/Rust bridge)
 
-**Directory:** `crates/eko`
+**Directory:** `crates/eko` (packaged as `eko-rs` on PyPI, library `ekors`)
 
 The `eko` Python library accesses the `ekore` Rust library through the `eko` Rust library. In the Rust workflow, `lib.rs` acts as the bridge between Python and Rust, with the integrand selection delegated to Rust via `cfg`.
 
@@ -221,27 +221,28 @@ This internal crate exports C function pointers (such as `rust_quad_ker`) that `
 
 ---
 
-### 6.3 ekore_py (Python Bindings via PyO3)
+### 6.3 ekore_rs (Python Bindings via PyO3)
 
-**Directory:** `crates/ekore_py`
+**Directory:** `crates/ekore_py` (packaged as `ekore-rs` on PyPI, imported as `ekore_rs`)
 
-`ekore_py` provides direct, idiomatic Python bindings to `ekore` built using [PyO3](https://pyo3.rs/) and [Maturin](https://www.maturin.rs/).
+`ekore_rs` provides direct, idiomatic Python bindings to `ekore` built using [PyO3](https://pyo3.rs/) and [Maturin](https://www.maturin.rs/).
 
 #### Purpose & Distinctions
 
-- **Standalone Python Access:** Unlike the internal `eko` crate (`crates/eko`), which serves as a specialized integration bridge for EKO's evolution runner and `scipy.integrate.quad` callbacks (`rust_quad_ker`), `ekore_py` provides direct, general-purpose Python access to the raw anomalous dimensions, operator matrix elements, and harmonic cache.
+- **Standalone Physics API:** Unlike the internal `eko-rs` (`ekors`) crate, which serves as a specialized integration bridge for `scipy.integrate.quad` callbacks (`rust_quad_ker`), `ekore_rs` provides direct, general-purpose Python access to the raw anomalous dimensions, operator matrix elements, and harmonic cache.
+- **Distinct from Main `eko` Package:** This is not to be confused with the main `eko` Python package, which has a different objective (high-level DGLAP evolution operator solving, theory/operator card handling, and atlas management). `ekore_rs` is solely a lightweight physics calculation library.
 - **Native Types:** Functions automatically convert between Rust and Python numeric and array types (e.g., returning NumPy-compatible arrays or Python complex types) with minimal overhead.
 
 ---
 
 ### 6.4 Summary of Physics Engine Crates
 
-| Crate | Directory | Target Audience / Language | Interface Mechanism |
+| Crate / Package | Directory | Target Audience / Language | Interface Mechanism |
 | --- | --- | --- | --- |
 | `ekore` | `crates/ekore` | Pure Rust | Native Rust API |
-| `eko` | `crates/eko` | Python (`eko` evolution runner) | Internal C FFI / `LowLevelCallable` bridge |
+| `eko-rs` (`ekors`) | `crates/eko` | Python (`eko` evolution runner) | Internal C FFI / `LowLevelCallable` bridge |
 | `ekore_capi` | `crates/ekore_capi` | C, C++, Fortran, FFI consumers | C ABI (`extern "C"`, `cbindgen`, `cargo-c`) |
-| `ekore_py` | `crates/ekore_py` | Python (standalone physics API) | PyO3 / Maturin extension module |
+| `ekore_rs` (`ekore-rs`) | `crates/ekore_py` | Python (standalone physics API) | PyO3 / Maturin extension module |
 
 ---
 
