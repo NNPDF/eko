@@ -3,7 +3,7 @@ name: Deploy Maturin wheels
 on:
   push:
     tags:
-      - "*"
+      - 'v[0-9]+*'
   workflow_dispatch:
 
 permissions:
