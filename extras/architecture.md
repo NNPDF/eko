@@ -282,19 +282,28 @@ During the integral, `evaluate_grid` computes $p_j(N)$ analytically piece by pie
 
 ### 8.1 EKO on-disk archive format
 
-When `eko` finishes computation, the result is written into an uncompressed `.tar` archive containing metadata headers and operator tensors. The archive unpacks to the following layout:
+When `eko` finishes computation, the result is written into an uncompressed `.tar` archive containing metadata, runcards, intermediate computation parts, and operator tensors. The archive unpacks to the following layout:
 
 ```text
 <eko_output.tar>/
-├── metadata.yaml
-└── operators/
+├── metadata.yaml                # global metadata (version, origin scale/nf, x-grid)
+├── theory.yaml                  # theory runcard
+├── operator.yaml                # operator runcard
+├── recipes/                     # evolution recipes
+│   ├── matching/                # matching recipes
+│   └── <recipe_hash>.yaml
+├── parts/                       # intermediate evolution segments / parts
+│   ├── matching/                # intermediate matching parts
+│   ├── <part_hash>.yaml         # header
+│   └── <part_hash>.npz.lz4      # operator and error tensors
+└── operators/                   # final evolution kernel operators
     ├── <evolution_point_1>.yaml     # header: target scale + active flavor count (nf)
     ├── <evolution_point_1>.npz.lz4  # LZ4-compressed operator and error tensors
     ├── <evolution_point_2>.yaml
     └── <evolution_point_2>.npz.lz4
 ```
 
-Inside each `<evolution_point>.npz.lz4`, two rank-4 NumPy arrays are stored:
+Inside each `.npz.lz4` archive in `operators/` (and `parts/`), two rank-4 NumPy arrays are stored:
 
 | Array | Description |
 | --- | --- |
