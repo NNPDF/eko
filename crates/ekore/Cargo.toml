@@ -20,6 +20,9 @@ rustdoc-args = ["--html-in-header", "doc-header.html"]
 [dependencies]
 num.workspace = true
 
+[build-dependencies]
+cc.workspace = true
+
 [dev-dependencies]
 float-cmp.workspace = true
 GSL.workspace = true
