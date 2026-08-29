@@ -1,5 +1,7 @@
 //! |N3LO| unpolarized, space-like |OME| via external `libome` C ABI.
 
+use std::ffi::{c_int, c_uint};
+
 use num::Zero;
 use num::complex::Complex;
 
@@ -25,27 +27,27 @@ impl From<OmeComplex> for Complex<f64> {
 }
 
 unsafe extern "C" {
-    fn ome_as3_Agg(n: OmeComplex, nf: u32, L: f64) -> OmeComplex;
-    fn ome_as3_Agq(n: OmeComplex, nf: u32, L: f64) -> OmeComplex;
-    fn ome_as3_Aqg(n: OmeComplex, nf: u32, L: f64) -> OmeComplex;
-    fn ome_as3_AHg(n: OmeComplex, nf: u32, L: f64) -> OmeComplex;
-    fn ome_as3_AHq(n: OmeComplex, nf: u32, L: f64) -> OmeComplex;
-    fn ome_as3_AqqPS(n: OmeComplex, nf: u32, L: f64) -> OmeComplex;
-    fn ome_as3_AqqNS(n: OmeComplex, nf: u32, L: f64, eta: i32) -> OmeComplex;
+    fn ome_as3_Agg(n: OmeComplex, nf: c_uint, L: f64) -> OmeComplex;
+    fn ome_as3_Agq(n: OmeComplex, nf: c_uint, L: f64) -> OmeComplex;
+    fn ome_as3_Aqg(n: OmeComplex, nf: c_uint, L: f64) -> OmeComplex;
+    fn ome_as3_AHg(n: OmeComplex, nf: c_uint, L: f64) -> OmeComplex;
+    fn ome_as3_AHq(n: OmeComplex, nf: c_uint, L: f64) -> OmeComplex;
+    fn ome_as3_AqqPS(n: OmeComplex, nf: c_uint, L: f64) -> OmeComplex;
+    fn ome_as3_AqqNS(n: OmeComplex, nf: c_uint, L: f64, eta: c_int) -> OmeComplex;
 }
 
 /// Compute the |N3LO| singlet |OME|.
 pub(super) fn A_singlet(c: &mut Cache, nf: u8, L: f64) -> [[Complex<f64>; 3]; 3] {
     let n: OmeComplex = c.n().into();
-    let nf_u32 = u32::from(nf);
+    let nf_c = c_uint::from(nf);
 
-    let a_gg = unsafe { Complex::from(ome_as3_Agg(n, nf_u32, L)) };
-    let a_gq = unsafe { Complex::from(ome_as3_Agq(n, nf_u32, L)) };
-    let a_qg = unsafe { Complex::from(ome_as3_Aqg(n, nf_u32, L)) };
-    let a_hg = unsafe { Complex::from(ome_as3_AHg(n, nf_u32, L)) };
-    let a_hq = unsafe { Complex::from(ome_as3_AHq(n, nf_u32, L)) };
-    let a_qq_ps = unsafe { Complex::from(ome_as3_AqqPS(n, nf_u32, L)) };
-    let a_qq_ns = unsafe { Complex::from(ome_as3_AqqNS(n, nf_u32, L, 1)) };
+    let a_gg = unsafe { Complex::from(ome_as3_Agg(n, nf_c, L)) };
+    let a_gq = unsafe { Complex::from(ome_as3_Agq(n, nf_c, L)) };
+    let a_qg = unsafe { Complex::from(ome_as3_Aqg(n, nf_c, L)) };
+    let a_hg = unsafe { Complex::from(ome_as3_AHg(n, nf_c, L)) };
+    let a_hq = unsafe { Complex::from(ome_as3_AHq(n, nf_c, L)) };
+    let a_qq_ps = unsafe { Complex::from(ome_as3_AqqPS(n, nf_c, L)) };
+    let a_qq_ns = unsafe { Complex::from(ome_as3_AqqNS(n, nf_c, L, 1 as c_int)) };
 
     [
         [a_gg, a_gq, Complex::<f64>::zero()],
@@ -57,8 +59,8 @@ pub(super) fn A_singlet(c: &mut Cache, nf: u8, L: f64) -> [[Complex<f64>; 3]; 3]
 /// Compute the |N3LO| non-singlet |OME|.
 pub(super) fn A_ns(c: &mut Cache, nf: u8, L: f64) -> [[Complex<f64>; 2]; 2] {
     let n: OmeComplex = c.n().into();
-    let nf_u32 = u32::from(nf);
-    let a_qq_ns = unsafe { Complex::from(ome_as3_AqqNS(n, nf_u32, L, -1)) };
+    let nf_c = c_uint::from(nf);
+    let a_qq_ns = unsafe { Complex::from(ome_as3_AqqNS(n, nf_c, L, -1 as c_int)) };
 
     [
         [a_qq_ns, Complex::<f64>::zero()],
