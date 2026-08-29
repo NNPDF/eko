@@ -7,14 +7,14 @@ use ekore::operator_matrix_elements::unpolarized::spacelike;
 /// Required length of `result` for [`ome_us_A_singlet`] at the given `matching_order_qcd`.
 ///
 /// # Parameters
-/// * `matching_order_qcd`: The QCD matching order (must be < 3).
+/// * `matching_order_qcd`: The QCD matching order (must be < 4).
 ///
 /// # Returns
 /// * Returns the required buffer size (number of `ComplexF64` elements).
 /// * Returns `0` if `matching_order_qcd` is out of the supported range.
 #[unsafe(no_mangle)]
 pub extern "C" fn ome_us_A_singlet_result_len(matching_order_qcd: usize) -> usize {
-    result_len_body!(matching_order_qcd >= 3, matching_order_qcd * 9)
+    result_len_body!(matching_order_qcd >= 4, matching_order_qcd * 9)
 }
 
 /// Compute the tower of the singlet |OME|.
@@ -25,7 +25,7 @@ pub extern "C" fn ome_us_A_singlet_result_len(matching_order_qcd: usize) -> usiz
 /// * The `result` buffer must have a capacity of at least `matching_order_qcd * 9` elements.
 ///
 /// # Parameters
-/// * `matching_order_qcd`: The QCD matching order (supported range: < 3).
+/// * `matching_order_qcd`: The QCD matching order (supported range: < 4).
 /// * `cache`: Pointer to the harmonic cache.
 /// * `nf`: Number of active flavors.
 /// * `L`: The logarithm parameter.
@@ -44,7 +44,7 @@ pub unsafe extern "C" fn ome_us_A_singlet(
         nf,
         L,
         result,
-        matching_order_qcd >= 3,
+        matching_order_qcd >= 4,
         spacelike::A_singlet,
         3,
         9
@@ -54,14 +54,14 @@ pub unsafe extern "C" fn ome_us_A_singlet(
 /// Required length of `result` for [`ome_us_A_non_singlet`] at the given `matching_order_qcd`.
 ///
 /// # Parameters
-/// * `matching_order_qcd`: The QCD matching order (must be < 3).
+/// * `matching_order_qcd`: The QCD matching order (must be < 4).
 ///
 /// # Returns
 /// * Returns the required buffer size (number of `ComplexF64` elements).
 /// * Returns `0` if `matching_order_qcd` is out of the supported range.
 #[unsafe(no_mangle)]
 pub extern "C" fn ome_us_A_non_singlet_result_len(matching_order_qcd: usize) -> usize {
-    result_len_body!(matching_order_qcd >= 3, matching_order_qcd * 4)
+    result_len_body!(matching_order_qcd >= 4, matching_order_qcd * 4)
 }
 
 /// Compute the tower of the non-singlet |OME|.
@@ -72,7 +72,7 @@ pub extern "C" fn ome_us_A_non_singlet_result_len(matching_order_qcd: usize) -> 
 /// * The `result` buffer must have a capacity of at least `matching_order_qcd * 4` elements.
 ///
 /// # Parameters
-/// * `matching_order_qcd`: The QCD matching order (supported range: < 3).
+/// * `matching_order_qcd`: The QCD matching order (supported range: < 4).
 /// * `cache`: Pointer to the harmonic cache.
 /// * `nf`: Number of active flavors.
 /// * `L`: The logarithm parameter.
@@ -91,7 +91,7 @@ pub unsafe extern "C" fn ome_us_A_non_singlet(
         nf,
         L,
         result,
-        matching_order_qcd >= 3,
+        matching_order_qcd >= 4,
         spacelike::A_non_singlet,
         2,
         4
