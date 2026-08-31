@@ -77,6 +77,11 @@ class Metadata(DictLike):
         content = cls.from_dict(raw)
         content._path = path
         return content
+    
+    @classmethod
+    def from_raw(cls, raw: dict) -> "Metadata":
+        """Build a metadata from a raw yaml."""
+        return cls.from_dict(raw)
 
     def update(self):
         """Update the disk copy of metadata."""

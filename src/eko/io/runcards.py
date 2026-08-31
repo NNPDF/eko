@@ -31,7 +31,13 @@ from .types import (
     T,
 )
 from .types import EvolutionPoint as EPoint
+from . import v1,v2
 
+import pathlib
+import tarfile
+import yaml
+from .metadata import Metadata
+from .paths import METADATAFILE, OPERATORFILE, THEORYFILE
 
 # TODO: add frozen
 @dataclass
@@ -77,6 +83,15 @@ class TheoryCard(DictLike):
         """Enforce defaults."""
         if self.matching_order is None:
             self.matching_order = (self.order[0] - 1, 0)
+
+    @classmethod
+    def from_raw(cls, raw: dict, data_version: int)-> "TheoryCard":
+        """Build a theory card from a raw dictionary."""
+        if data_version == 1:
+            raw =v1.update_theory(raw)
+        if data_version == 2:
+            raw =v2.update_theory(raw)
+        return cls.from_dict(raw)
 
 
 @dataclass
@@ -169,6 +184,15 @@ class OperatorCard(DictLike):
     def pids(self):
         """Internal flavor basis, used for computation."""
         return np.array(br.flavor_basis_pids)
+    
+    @classmethod
+    def from_raw(cls, raw: dict, data_version: int, theory_raw)-> "OperatorCard":
+        """Build an operator card from a raw dictionary."""
+        if data_version == 1:
+            raw =v1.update_operator(raw)
+        if data_version == 2:
+            raw =v2.update_operator(raw)
+        return cls.from_dict(raw)
 
 
 Card = Union[TheoryCard, OperatorCard]
@@ -343,3 +367,32 @@ def masses(theory: TheoryCard, evmeth: EvolutionMethod) -> List[SquaredScale]:
         return [mq.value**2 for mq in theory.heavy.masses]
 
     raise ValueError(f"Unknown mass scheme '{theory.heavy.masses_scheme}'")
+
+def _read_yaml_member(tar: tarfile.TarFile, filename: str) -> dict:
+    """Extract and parse a single yaml file from the archive by name.
+
+    Only this member's bytes are read; nothing else is extracted.
+    """
+    for member in tar.getmembers():
+        if pathlib.Path(member.name).name == filename:
+            extracted = tar.extractfile(member)
+            if extracted is not None:
+                return yaml.safe_load(extracted.read())
+    raise KeyError(f"'{filename}' not found in {tar.name}")
+
+
+def load_meta_and_cards_from_tar(path):
+    """Read metadata, theory and operator cards from an EKO archive.
+
+    The (large) operators are never extracted, only the small yaml files.
+    """
+    with tarfile.open(path) as tar:
+        raw_meta = _read_yaml_member(tar, METADATAFILE)
+        raw_theory = _read_yaml_member(tar, THEORYFILE)
+        raw_operator = _read_yaml_member(tar, OPERATORFILE)
+
+    metadata = Metadata.from_raw(raw_meta)
+    data_version = metadata.data_version
+    theory = TheoryCard.from_raw(raw_theory, data_version)
+    operator = OperatorCard.from_raw(raw_operator, data_version, raw_theory)
+    return metadata, theory, operator
