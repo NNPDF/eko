@@ -10,6 +10,8 @@ from packaging.version import parse
 from eko import EKO, interpolation
 from eko.io import struct
 from eko.io.items import Target
+from eko.io.metadata import Metadata
+from eko.io.runcards import OperatorCard, TheoryCard, load_meta_and_cards_from_tar
 from tests.conftest import EKOFactory
 
 
@@ -196,6 +198,19 @@ class TestEKO:
         read_opened = EKO.read(tmp_path, extract=False)
 
         assert read_closed.metadata == read_opened.metadata
+
+    def test_load_meta_and_cards_from_tar(self, eko_factory: EKOFactory):
+        """Load metadata and both YAML cards from a real EKO archive."""
+        eko = eko_factory.get()
+        eko.close()
+        eko_factory.cache = None
+
+        assert eko.access.path is not None
+        metadata, theory, operator = load_meta_and_cards_from_tar(eko.access.path)
+
+        assert isinstance(metadata, Metadata)
+        assert isinstance(theory, TheoryCard)
+        assert isinstance(operator, OperatorCard)
 
     def test_version(self, tmp_path: pathlib.Path, eko_factory: EKOFactory):
         """Test asserted version. Should either be supported version, or have a postrelease addition"""
