@@ -217,7 +217,7 @@ This internal crate exports C function pointers (such as `rust_quad_ker`) that `
 #### Testing Status
 
 - **C Tests:** A suite of C tests exists under `crates/ekore_capi/tests/c/` (covering unpolarized anomalous dimensions, polarized anomalous dimensions, OMEs, and constants), compiled and verified via `run_tests.sh`.
-- **Fortran / C++ Tests:** While Fortran and C++ interoperability is architecturally supported via the C ABI, dedicated automated test suites (especially for Fortran) are not yet present in the repository (tracked under [#519](https://github.com/NNPDF/eko/issues/519)).
+- **Fortran / C++ Tests:** While Fortran and C++ interoperability is architecturally supported via the C ABI, dedicated automated test suites (especially for Fortran) are not yet present in the repository (tracked under [#566](https://github.com/NNPDF/eko/issues/566)).
 
 ---
 
