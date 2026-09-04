@@ -10,12 +10,14 @@ static int test_lengths(void)
     fail |= check_len("ome_us_A_singlet_result_len(0)", ome_us_A_singlet_result_len(0), 0);
     fail |= check_len("ome_us_A_singlet_result_len(1)", ome_us_A_singlet_result_len(1), 9);
     fail |= check_len("ome_us_A_singlet_result_len(2)", ome_us_A_singlet_result_len(2), 18);
-    fail |= check_len("ome_us_A_singlet_result_len(3)", ome_us_A_singlet_result_len(3), 0);
+    fail |= check_len("ome_us_A_singlet_result_len(3)", ome_us_A_singlet_result_len(3), 27);
+    fail |= check_len("ome_us_A_singlet_result_len(4)", ome_us_A_singlet_result_len(4), 0);
 
     fail |= check_len("ome_us_A_non_singlet_result_len(0)", ome_us_A_non_singlet_result_len(0), 0);
     fail |= check_len("ome_us_A_non_singlet_result_len(1)", ome_us_A_non_singlet_result_len(1), 4);
     fail |= check_len("ome_us_A_non_singlet_result_len(2)", ome_us_A_non_singlet_result_len(2), 8);
-    fail |= check_len("ome_us_A_non_singlet_result_len(3)", ome_us_A_non_singlet_result_len(3), 0);
+    fail |= check_len("ome_us_A_non_singlet_result_len(3)", ome_us_A_non_singlet_result_len(3), 12);
+    fail |= check_len("ome_us_A_non_singlet_result_len(4)", ome_us_A_non_singlet_result_len(4), 0);
 
     if (!fail) printf("PASS test_lengths\n");
     return fail;
@@ -28,10 +30,10 @@ static int test_a_non_singlet(void)
     const double L = 0.0;
     Cache *c = cache_new(1.0, 0.0);
 
-    const size_t len = ome_us_A_non_singlet_result_len(2);
+    const size_t len = ome_us_A_non_singlet_result_len(3);
     ComplexF64 a[len];
 
-    ome_us_A_non_singlet(2, c, nf, L, a);
+    ome_us_A_non_singlet(3, c, nf, L, a);
 
     /* LO */
     for (int k = 0; k < 4; k++)
@@ -39,6 +41,9 @@ static int test_a_non_singlet(void)
     /* NNLO */
     for (int k = 4; k < 8; k++)
         fail |= check("a_non_singlet", "NNLO", a[k].re, a[k].im, 0., 0., 1e-14);
+    /* N3LO */
+    for (int k = 8; k < 12; k++)
+        fail |= check("a_non_singlet", "N3LO", a[k].re, a[k].im, 0., 0., 1e-14);
 
     cache_delete(c);
     if (!fail) printf("PASS test_a_non_singlet\n");
@@ -52,10 +57,10 @@ static int test_a_singlet(void)
     const double L = 100.0;
     Cache *c = cache_new(2.0, 0.0);
 
-    const size_t len = ome_us_A_singlet_result_len(2);
+    const size_t len = ome_us_A_singlet_result_len(3);
     ComplexF64 a[len];
 
-    ome_us_A_singlet(2, c, nf, L, a);
+    ome_us_A_singlet(3, c, nf, L, a);
 
     /* LO */
     fail |= check("a_singlet", "LO col2 sum",
@@ -69,10 +74,15 @@ static int test_a_singlet(void)
     fail |= check("a_singlet", "NNLO col1 sum",
                   a[10].re + a[13].re + a[16].re, a[10].im + a[13].im + a[16].im, 0., 0., 1e-11);
 
+    /* N3LO */
+    for (int k = 18; k < 27; k++)
+        fail |= check("a_singlet", "N3LO", a[k].re, a[k].im, 0., 0., 1e-14);
+
     cache_delete(c);
     if (!fail) printf("PASS test_a_singlet\n");
     return fail;
 }
+
 
 static int test_guards(void)
 {
@@ -84,14 +94,14 @@ static int test_guards(void)
 
     ComplexF64 a_s[9];
     for (int i = 0; i < 9; i++) a_s[i] = sentinel;
-    ome_us_A_singlet(3, c, nf, L, a_s);
+    ome_us_A_singlet(4, c, nf, L, a_s);
     for (int i = 0; i < 9; i++)
-        fail |= check("guards", "A_singlet order3 untouched", a_s[i].re, a_s[i].im, sentinel.re, sentinel.im, 0.);
+        fail |= check("guards", "A_singlet order4 untouched", a_s[i].re, a_s[i].im, sentinel.re, sentinel.im, 0.);
 
     ComplexF64 a_ns[4] = {sentinel, sentinel, sentinel, sentinel};
-    ome_us_A_non_singlet(3, c, nf, L, a_ns);
+    ome_us_A_non_singlet(4, c, nf, L, a_ns);
     for (int i = 0; i < 4; i++)
-        fail |= check("guards", "A_non_singlet order3 untouched", a_ns[i].re, a_ns[i].im, sentinel.re, sentinel.im, 0.);
+        fail |= check("guards", "A_non_singlet order4 untouched", a_ns[i].re, a_ns[i].im, sentinel.re, sentinel.im, 0.);
 
     cache_delete(c);
     if (!fail) printf("PASS test_guards\n");

@@ -12,7 +12,7 @@ use crate::cache::Cache;
 /// Compute the tower of the singlet |OME|.
 ///
 /// # Parameters
-/// * `matching_order_qcd`: The QCD matching order (supported range: < 3).
+/// * `matching_order_qcd`: The QCD matching order (supported range: < 4).
 /// * `cache`: Harmonic sums cache.
 /// * `nf`: Number of active flavors.
 /// * `L`: The logarithm parameter.
@@ -34,7 +34,7 @@ pub fn A_singlet<'py>(
         cache,
         nf,
         L,
-        matching_order_qcd >= 3,
+        matching_order_qcd >= 4,
         spacelike::A_singlet,
         3
     )
@@ -43,7 +43,7 @@ pub fn A_singlet<'py>(
 /// Compute the tower of the non-singlet |OME|.
 ///
 /// # Parameters
-/// * `matching_order_qcd`: The QCD matching order (supported range: < 3).
+/// * `matching_order_qcd`: The QCD matching order (supported range: < 4).
 /// * `cache`: Harmonic sums cache.
 /// * `nf`: Number of active flavors.
 /// * `L`: The logarithm parameter.
@@ -65,7 +65,7 @@ pub fn A_non_singlet<'py>(
         cache,
         nf,
         L,
-        matching_order_qcd >= 3,
+        matching_order_qcd >= 4,
         spacelike::A_non_singlet,
         2
     )
