@@ -30,7 +30,7 @@ jobs:
           TAG: ${{ github.event.inputs.tag || github.ref_name }}
         run: |
           poetry install --only version
-          python crates/bump-versions.py ${{ env.TAG }}
+          poe bump-version
       - name: Publish crates
         run: |
           jq '.[]' crates/release.json | xargs -I _ cargo publish -p _ --allow-dirty

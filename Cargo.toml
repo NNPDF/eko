@@ -19,12 +19,12 @@ keywords = ["physics"]
 license = "GPL-3.0-or-later"
 repository = "https://github.com/NNPDF/eko"
 rust-version = "1.85.0"
-version = "0.0.1"
+version = "0.0.0"
 
 # all dependencies should be collected here in the workspace
 [workspace.dependencies]
 # Internal crates
-ekore = { path = "crates/ekore", version = "0.0.1" }
+ekore = { path = "crates/ekore", version = "0.0.0" }
 
 # External dependencies
 lz4_flex = "0.11.6"

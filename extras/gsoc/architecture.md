@@ -237,7 +237,7 @@ files = ["src/eko/version.py", "src/ekomark/version.py", "src/ekobox/version.py"
 The Rust workspace and all crates inside `crates/` have their own `version` fields in their respective `Cargo.toml` files. They must be bumped manually before a release using:
 
 ```bash
-poe bump-version   # runs: python crates/bump-versions.py $(git describe --tags)
+poe bump-version   # runs: python crates/bump-versions.py ${TAG:-$(git describe --tags)}
 ```
 
 `bump-versions.py` does two things:
