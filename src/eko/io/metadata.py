@@ -69,18 +69,25 @@ class Metadata(DictLike):
         # patch if necessary
         if data_version == 1:
             if version.major == 0 and version.minor == 13:
-                raw = v1.update_metadata(paths, raw)
+                raw = v1.update_metadata(raw)
             elif version.major == 0 and version.minor == 14:
-                raw = v2.update_metadata(paths, raw)
+                raw = v2.update_metadata(raw)
 
         # now we are ready
         content = cls.from_dict(raw)
         content._path = path
         return content
-    
+
     @classmethod
     def from_raw(cls, raw: dict) -> "Metadata":
-        """Build a metadata from a raw yaml."""
+        """Build metadata from raw yaml, applying legacy patches."""
+        version = parse(raw["version"])
+        data_version = int(raw["data_version"])
+        if data_version == 1:
+            if version.major == 0 and version.minor == 13:
+                raw = v1.update_metadata(raw)
+            elif version.major == 0 and version.minor == 14:
+                raw = v2.update_metadata(raw)
         return cls.from_dict(raw)
 
     def update(self):

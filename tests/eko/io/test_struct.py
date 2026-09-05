@@ -11,7 +11,7 @@ from eko import EKO, interpolation
 from eko.io import struct
 from eko.io.items import Target
 from eko.io.metadata import Metadata
-from eko.io.runcards import OperatorCard, TheoryCard, load_meta_and_cards_from_tar
+from eko.io.runcards import OperatorCard, TheoryCard, read_eko_cards
 from tests.conftest import EKOFactory
 
 
@@ -199,18 +199,17 @@ class TestEKO:
 
         assert read_closed.metadata == read_opened.metadata
 
-    def test_load_meta_and_cards_from_tar(self, eko_factory: EKOFactory):
-        """Load metadata and both YAML cards from a real EKO archive."""
-        eko = eko_factory.get()
-        eko.close()
-        eko_factory.cache = None
+    def test_read_eko_cards(self, legacy_eko_filenames):
+        """Load metadata and both YAML cards from legacy EKO archives."""
+        data_dir = pathlib.Path(__file__).parents[2] / "data"
+        for filename in legacy_eko_filenames:
+            metadata, theory, operator = read_eko_cards(
+                data_dir / filename
+            )
 
-        assert eko.access.path is not None
-        metadata, theory, operator = load_meta_and_cards_from_tar(eko.access.path)
-
-        assert isinstance(metadata, Metadata)
-        assert isinstance(theory, TheoryCard)
-        assert isinstance(operator, OperatorCard)
+            assert isinstance(metadata, Metadata)
+            assert isinstance(theory, TheoryCard)
+            assert isinstance(operator, OperatorCard)
 
     def test_version(self, tmp_path: pathlib.Path, eko_factory: EKOFactory):
         """Test asserted version. Should either be supported version, or have a postrelease addition"""
