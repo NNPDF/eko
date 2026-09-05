@@ -4,10 +4,8 @@ Although the data version v1 was already before v0.13.5 we only support
 that API version.
 """
 
-from .paths import InternalPaths
 
-
-def update_metadata(paths: InternalPaths, raw: dict) -> dict:
+def update_metadata(raw: dict) -> dict:
     """Modify the raw metadata to the new format.
 
     Parameters

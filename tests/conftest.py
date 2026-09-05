@@ -68,6 +68,11 @@ def operator_card():
     return card
 
 
+@pytest.fixture
+def legacy_eko_filenames():
+    return ["v1-0.13.tar", "v1-0.14.tar", "v3.tar"]
+
+
 class EKOFactory:
     def __init__(self, theory: TheoryCard, operator: OperatorCard, path: os.PathLike):
         self.path = path

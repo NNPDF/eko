@@ -14,7 +14,7 @@ import numpy as np
 import yaml
 
 from .. import interpolation
-from . import exceptions, raw, v1, v2
+from . import exceptions, raw
 from .access import AccessConfigs
 from .inventory import Inventory
 from .items import Evolution, Matching, Operator, Recipe, Target
