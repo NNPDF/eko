@@ -168,11 +168,81 @@ In the master architecture, QUADPACK calls a pure Rust C function directly via L
 
 ## 6. ekore
 
-`ekore` provides user-facing entry points into the anomalous dimensions and operator matrix elements, for example [`ad.u.s.gamma_ns_qcd`](https://github.com/NNPDF/eko/blob/ba40d2be721b647b82259bb998c69bc7feedd1dd/crates/ekore/src/anomalous_dimensions/unpolarized/spacelike.rs#L22), which assembles the underlying mathematical ingredients (the "bottom" layer of actual math implementations).
+`ekore` is the core computational engine in Rust providing the underlying physics calculations for anomalous dimensions and operator matrix elements (OMEs), along with Mellin-space harmonic sum evaluation and caching. For example, [`ad.u.s.gamma_ns_qcd`](https://github.com/NNPDF/eko/blob/ba40d2be721b647b82259bb998c69bc7feedd1dd/crates/ekore/src/anomalous_dimensions/unpolarized/spacelike.rs#L22) assembles the analytical and numerical formulas for non-singlet QCD anomalous dimensions.
+
+To make `ekore` accessible across various ecosystems and languages without reimplementing the physics kernels, the repository provides dedicated interface crates:
+
+- **`eko-rs` (`ekors`):** The internal bridge connecting Python EKO to `ekore` during operator integration (`rust_quad_ker`).
+- **`ekore_capi`:** Exposes `ekore` via a C-compatible ABI for C, C++, and Fortran callers.
+- **`ekore_rs` (`ekore-rs`):** Exposes `ekore` directly to Python using PyO3 bindings.
+
+---
+
+### 6.1 eko crate / eko-rs (Internal Python/Rust bridge)
+
+**Directory:** `crates/eko` (packaged as `eko-rs` on PyPI, library `ekors`)
 
 The `eko` Python library accesses the `ekore` Rust library through the `eko` Rust library. In the Rust workflow, `lib.rs` acts as the bridge between Python and Rust, with the integrand selection delegated to Rust via `cfg`.
 
-The user-facing entry points of `ekore` are the primary focus of [#519](https://github.com/NNPDF/eko/issues/519), which tracks adding and testing C/C++ and Fortran interfaces to the Rust library.
+This internal crate exports C function pointers (such as `rust_quad_ker`) that `scipy.integrate.quad` calls via `LowLevelCallable` without interpreter overhead at every quadrature node. It coordinates between `ekore` (for anomalous dimensions) and Numba callbacks (for the evolution operator matrix).
+
+---
+
+### 6.2 ekore_capi (C, C++, and Fortran Interface)
+
+**Directory:** `crates/ekore_capi`
+
+`ekore_capi` exposes `ekore`'s anomalous dimensions and operator matrix elements through a stable, standard C Application Binary Interface (ABI) (`#[no_mangle]`, `extern "C"`).
+
+#### Architecture & Design
+
+- **C-Compatible Types:** Complex numbers are exposed using `#[repr(C)] ComplexF64` (consisting of adjacent `re` and `im` double-precision floats), matching `num::Complex<f64>` and a C struct layout `{ double re; double im; }` (not necessarily C99 `double complex`).
+- **Opaque Handles:** The Mellin-space harmonic cache is managed through opaque heap pointers (`Cache`), initialized with `cache_new(n_re, n_im)` and explicitly freed with `cache_delete(c)`.
+- **Buffer Convention:** Functions return perturbative series as flattened arrays. Each calculation `<name>` is paired with `<name>_result_len(...)` returning the required buffer size, and `<name>(..., result)` which writes into the caller-allocated array.
+- **Header & Metadata Generation:** Uses [`cargo-c`](https://crates.io/crates/cargo-c) and [`cbindgen`](https://github.com/mozilla/cbindgen) to generate the C header (`ekore_capi.h`) and `pkg-config` file (`ekore_capi.pc`).
+
+#### Multi-Language Support
+
+- **C & C++:** Directly includable via `#include <ekore_capi/ekore_capi.h>` and linkable via `pkg-config --cflags --libs ekore_capi`.
+- **Fortran:** Consumable via Fortran 2003+ `iso_c_binding` interoperability definitions, allowing Fortran codes to bind to C function symbols and struct memory layouts.
+- **Other FFI Consumers:** Usable in any language or environment supporting C dynamic library loading (e.g., Julia, Python `ctypes`/`cffi`, Mathematica).
+
+#### Distribution & Tooling
+
+- **Pre-built binaries:** An installer script `crates/ekore_capi/install-capi.sh` allows downloading and installing pre-built shared/static libraries for Linux and macOS.
+- **Poe tasks:**
+  - `poe build-capi`: Compiles and packages the C library into `crates/ekore_capi/dist/`.
+  - `poe ctest`: Runs the C test runner script (`crates/ekore_capi/tests/run_tests.sh`).
+
+#### Testing Status
+
+- **C Tests:** A suite of C tests exists under `crates/ekore_capi/tests/c/` (covering unpolarized anomalous dimensions, polarized anomalous dimensions, OMEs, and constants), compiled and verified via `run_tests.sh`.
+- **Fortran / C++ Tests:** While Fortran and C++ interoperability is architecturally supported via the C ABI, dedicated automated test suites (especially for Fortran) are not yet present in the repository (tracked under [#566](https://github.com/NNPDF/eko/issues/566)).
+
+---
+
+### 6.3 ekore_rs (Python Bindings via PyO3)
+
+**Directory:** `crates/ekore_py` (packaged as `ekore-rs` on PyPI, imported as `ekore_rs`)
+
+`ekore_rs` provides direct, idiomatic Python bindings to `ekore` built using [PyO3](https://pyo3.rs/) and [Maturin](https://www.maturin.rs/).
+
+#### Purpose & Distinctions
+
+- **Standalone Physics API:** Unlike the internal `eko-rs` (`ekors`) crate, which serves as a specialized integration bridge for `scipy.integrate.quad` callbacks (`rust_quad_ker`), `ekore_rs` provides direct, general-purpose Python access to the raw anomalous dimensions, operator matrix elements, and harmonic cache.
+- **Distinct from Main `eko` Package:** This is not to be confused with the main `eko` Python package, which has a different objective (high-level DGLAP evolution operator solving, theory/operator card handling, and atlas management). `ekore_rs` is solely a lightweight physics calculation library.
+- **Native Types:** Functions automatically convert between Rust and Python numeric and array types (e.g., returning NumPy-compatible arrays or Python complex types) with minimal overhead.
+
+---
+
+### 6.4 Summary of Physics Engine Crates
+
+| Crate / Package | Directory | Target Audience / Language | Interface Mechanism |
+| --- | --- | --- | --- |
+| `ekore` | `crates/ekore` | Pure Rust | Native Rust API |
+| `eko-rs` (`ekors`) | `crates/eko` | Python (`eko` evolution runner) | Internal C FFI / `LowLevelCallable` bridge |
+| `ekore_capi` | `crates/ekore_capi` | C, C++, Fortran, FFI consumers | C ABI (`extern "C"`, `cbindgen`, `cargo-c`) |
+| `ekore_rs` (`ekore-rs`) | `crates/ekore_py` | Python (standalone physics API) | PyO3 / Maturin extension module |
 
 ---
 
@@ -207,11 +277,62 @@ During the integral, `evaluate_grid` computes $p_j(N)$ analytically piece by pie
 - **`log_evaluate_Nx`** for logarithmic interpolation.
 - **`evaluate_Nx`** for linear interpolation.
 
-## 8. Versioning
+---
+
+## 8. Output format and dekoder
+
+### 8.1 EKO on-disk archive format
+
+When `eko` finishes computation, the result is written into an uncompressed `.tar` archive containing metadata, runcards, intermediate computation parts, and operator tensors. The archive unpacks to the following layout:
+
+```text
+<eko_output.tar>/
+├── metadata.yaml                # global metadata (version, origin scale/nf, x-grid)
+├── theory.yaml                  # theory runcard
+├── operator.yaml                # operator runcard
+├── recipes/                     # evolution recipes
+│   ├── matching/                # matching recipes
+│   └── <recipe_hash>.yaml
+├── parts/                       # intermediate evolution segments / parts
+│   ├── matching/                # intermediate matching parts
+│   ├── <part_hash>.yaml         # header
+│   └── <part_hash>.npz.lz4      # operator and error tensors
+└── operators/                   # final evolution kernel operators
+    ├── <evolution_point_1>.yaml     # header: target scale + active flavor count (nf)
+    ├── <evolution_point_1>.npz.lz4  # LZ4-compressed operator and error tensors
+    ├── <evolution_point_2>.yaml
+    └── <evolution_point_2>.npz.lz4
+```
+
+Inside each `.npz.lz4` archive in `operators/` (and `parts/`), two rank-4 NumPy arrays are stored:
+
+| Array | Description |
+| --- | --- |
+| `operator.npy` | The evolution kernel operator (rank-4 tensor: $E_{ij,kl}$) |
+| `error.npy` | Element-wise numerical error estimates from the quadrature integration |
+
+### 8.2 dekoder crate
+
+**Directory:** `crates/dekoder`
+
+`dekoder` is a standalone, pure-Rust I/O crate for reading, inspecting, and writing EKO output files.
+
+#### Architecture & Role
+
+- **Independent I/O Layer:** Unlike `ekore` or `eko`, `dekoder` does not participate in the physics computation or numerical integration. It has no dependency on `ekore`, depending solely on I/O and serialization crates (`tar`, `lz4_flex`, `ndarray`, `ndarray-npy`, `yaml-rust2`).
+- **Downstream Interoperability:** It allows downstream physics tools and frameworks (such as [PineAPPL](https://github.com/NNPDF/pineappl) or external C++/Rust tools) to natively load, manipulate, and write EKO evolution operators without requiring a Python runtime or the full EKO framework.
+- **Key API Constructs:**
+  - `EKO`: Represents an extracted EKO archive in a working directory; provides methods like `EKO::extract`, `EKO::load_opened`, `load_operator`, `write`, and `write_and_destroy`.
+  - `EvolutionPoint`: Defines a query point with target `scale` ($\mu^2$) and active flavor count `nf`.
+  - `Operator`: Holds the loaded 4D `ndarray::Array4<f64>` operator and error tensors.
+
+---
+
+## 9. Versioning
 
 The project has two parallel version streams, the Python package and the Rust crates.
 
-### 8.1 poetry-dynamic-versioning
+### 9.1 poetry-dynamic-versioning
 
 ```toml
 # pyproject.toml
@@ -232,17 +353,19 @@ The version string is also written into three Python source files at build time 
 files = ["src/eko/version.py", "src/ekomark/version.py", "src/ekobox/version.py"]
 ```
 
-### 8.2 bump-versions.py
+### 9.2 bump-versions.py
 
-The Rust workspace and all crates inside `crates/` have their own `version` fields in their respective `Cargo.toml` files. They must be bumped manually before a release using:
+The Rust workspace version and internal cross-dependencies in `Cargo.toml` are bumped using:
 
 ```bash
 poe bump-version   # runs: python crates/bump-versions.py ${TAG:-$(git describe --tags)}
 ```
 
-`bump-versions.py` does two things:
+`bump-versions.py` updates `workspace.package.version` and internal dependency versions, stripping the leading `v` from the git tag.
 
-1. Sets `workspace.package.version` to the new version.
-2. Updates the `version` field of any internal cross-dependencies (e.g. ekore inside eko's dependencies) to the same version string.
+#### CI publishing trick
 
-The script strips the leading `v` from the git tag since Cargo does not use the `v` prefix.
+Cargo requires concrete versions in `Cargo.toml`. To avoid manual version bump commits in git, CI dynamically patches `Cargo.toml` on tag push:
+
+- **`crates.yml`**: Runs `poe bump-version` and publishes using `cargo publish --allow-dirty`.
+- **`maturin.yml` & `release-capi.yml`**: A `set-version` job patches `Cargo.toml` and uploads it as an artifact (`patched-cargo`), which matrix build jobs download before compiling.
