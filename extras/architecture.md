@@ -367,5 +367,5 @@ poe bump-version   # runs: python crates/bump-versions.py ${TAG:-$(git describe 
 
 Cargo requires concrete versions in `Cargo.toml`. To avoid manual version bump commits in git, CI dynamically patches `Cargo.toml` on tag push:
 
-- **`crates.yml`**: Runs `poe bump-version` and publishes using `cargo publish --allow-dirty`.
-- **`maturin.yml` & `release-capi.yml`**: A `set-version` job patches `Cargo.toml` and uploads it as an artifact (`patched-cargo`), which matrix build jobs download before compiling.
+- **`release-crates.yml`**: Runs `poe bump-version` and publishes using `cargo publish --allow-dirty`.
+- **`release-ekors.yml`, `release-capi.yml` & `release-pyapi.yml`**: A `set-version` job patches `Cargo.toml` and uploads it as an artifact (`patched-cargo`), which matrix build jobs download before compiling.
