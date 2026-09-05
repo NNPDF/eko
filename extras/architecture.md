@@ -358,7 +358,7 @@ files = ["src/eko/version.py", "src/ekomark/version.py", "src/ekobox/version.py"
 The Rust workspace version and internal cross-dependencies in `Cargo.toml` are bumped using:
 
 ```bash
-poe bump-version   # runs: python crates/bump-versions.py $(git describe --tags)
+poe bump-version   # runs: python crates/bump-versions.py ${TAG:-$(git describe --tags)}
 ```
 
 `bump-versions.py` updates `workspace.package.version` and internal dependency versions, stripping the leading `v` from the git tag.
@@ -367,5 +367,5 @@ poe bump-version   # runs: python crates/bump-versions.py $(git describe --tags)
 
 Cargo requires concrete versions in `Cargo.toml`. To avoid manual version bump commits in git, CI dynamically patches `Cargo.toml` on tag push:
 
-- **`crates.yml`**: Runs `poe bump-version` and publishes using `cargo publish --allow-dirty`.
-- **`maturin.yml` & `release-capi.yml`**: A `set-version` job patches `Cargo.toml` and uploads it as an artifact (`patched-cargo`), which matrix build jobs download before compiling.
+- **`release-crates.yml`**: Runs `poe bump-version` and publishes using `cargo publish --allow-dirty`.
+- **`release-ekors.yml`, `release-capi.yml` & `release-pyapi.yml`**: A `set-version` job patches `Cargo.toml` and uploads it as an artifact (`patched-cargo`), which matrix build jobs download before compiling.

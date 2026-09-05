@@ -3,8 +3,15 @@ name: Deploy C-API
 on:
   push:
     tags:
-      - "*"
+      - 'v[0-9]*.[0-9]*.[0-9]*'
+      - 'v[0-9]*.[0-9]*.[0-9]*-*'
   workflow_dispatch:
+    inputs:
+      tag:
+        description: >-
+          Existing release tag to (re)publish. Use this to complete a release
+          whose tag-triggered run failed partway.
+        required: false
 
 permissions:
   contents: write
@@ -14,12 +21,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Install tomlkit
-        if: startsWith(github.ref, 'refs/tags/')
-        run: pip install tomlkit
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ vars.PYTHON_VERSION_WORKFLOWS }}
+      - name: Install and configure Poetry
+        if: startsWith(github.ref, 'refs/tags/') || github.event.inputs.tag != ''
+        uses: snok/install-poetry@v1
+      - name: Install task runner
+        if: startsWith(github.ref, 'refs/tags/') || github.event.inputs.tag != ''
+        run: pip install poethepoet
       - name: Bump versions
-        if: startsWith(github.ref, 'refs/tags/')
-        run: python crates/bump-versions.py ${{ github.ref_name }}
+        if: startsWith(github.ref, 'refs/tags/') || github.event.inputs.tag != ''
+        env:
+          TAG: ${{ github.event.inputs.tag || github.ref_name }}
+        run: |
+          poetry install --only version
+          poe bump-version
       - name: Upload patched Cargo files
         uses: actions/upload-artifact@v4
         with:
@@ -41,7 +58,7 @@ jobs:
           - name: linux-aarch64
             runner: ubuntu-24.04-arm
           - name: macos-x86_64
-            runner: macos-13
+            runner: macos-latest
           - name: macos-aarch64
             runner: macos-14
     steps:
@@ -64,8 +81,10 @@ jobs:
         run: ./crates/ekore_capi/tests/run_tests.sh
       - name: Package dist
         id: package
+        env:
+          TAG: ${{ github.event.inputs.tag || github.ref_name }}
         run: |
-          archive="ekore_capi-${{ github.ref_name }}-${{ matrix.platform.name }}.tar.gz"
+          archive="ekore_capi-${TAG}-${{ matrix.platform.name }}.tar.gz"
           tar -C crates/ekore_capi/dist -czf "$archive" .
           echo "archive=$archive" >> "$GITHUB_OUTPUT"
       - name: Upload archive
@@ -78,7 +97,7 @@ jobs:
     name: Publish release
     runs-on: ubuntu-latest
     needs: [build]
-    if: startsWith(github.ref, 'refs/tags/')
+    if: startsWith(github.ref, 'refs/tags/') || github.event.inputs.tag != ''
     steps:
       - name: Download archives
         uses: actions/download-artifact@v4
@@ -92,6 +111,7 @@ jobs:
       - name: Publish to GitHub Releases
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ github.event.inputs.tag || github.ref_name }}
           files: |
             dist-artifacts/*.tar.gz
             dist-artifacts/SHA256SUMS.txt

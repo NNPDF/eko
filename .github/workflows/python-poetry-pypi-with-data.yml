@@ -24,15 +24,13 @@ on:
         required: false
         description: >
           Extras to be installed, in poetry format (e.g. "-E extra1 extra2")
-    secrets:
-      PYPI_TOKEN:
-        required: true
-        description: "Token used to deploy package on PyPI"
 
 jobs:
   publish:
     name: 📦 PyPI (🐍 ${{ inputs.python-version }})
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
 
     steps:
       - uses: actions/checkout@v4
@@ -89,5 +87,3 @@ jobs:
           poetry build
       - name: Publish distribution 📦 to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          password: ${{ secrets.PYPI_TOKEN }}
