@@ -13,12 +13,14 @@ on:
           whose tag-triggered run failed partway.
         required: false
 
+permissions:
+  contents: read
+  id-token: write
+
 jobs:
   publish:
     if: startsWith(github.ref, 'refs/tags/') || github.event.inputs.tag != ''
     uses: ./.github/workflows/python-poetry-pypi-with-data.yml
-    secrets:
-      PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
     with:
       poetry-extras: "-E mark -E box"
       data-version: "v2"
