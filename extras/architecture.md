@@ -246,6 +246,16 @@ This internal crate exports C function pointers (such as `rust_quad_ker`) that `
 
 ---
 
+### 6.5 External C++ `libome` Integration for $\mathcal{O}(\alpha_s^3)$ OMEs (`extern-libome`)
+
+Operator matrix elements (OMEs) in `ekore` currently implement analytical Mellin $N$-space formulas up to $\mathcal{O}(\alpha_s^2)$ (`as2`). For the $\mathcal{O}(\alpha_s^3)$ (`as3`) corrections, work was initiated to allow the `ekore` crate to evaluate operator matrix elements using an external C++ library.
+
+However, direct integration is currently not possible because the underlying [libome](https://gitlab.com/libome/libome) library evaluates OMEs in Bjorken $x$-space rather than Mellin $N$-space.
+
+Pull Request [#562](https://github.com/NNPDF/eko/pull/562) was originally opened for the `extern-libome` branch to prototype C++ FFI bindings and build machinery, but was closed without deleting the branch. In the future, once Mellin $N$-space support is addressed, changes will be made on the `extern-libome` branch and a separate PR will be opened.
+
+---
+
 ## 7. Linear algebra and interpolation
 
 ### 7.1 Linear algebra for the singlet evolution solution
