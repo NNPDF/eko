@@ -4,12 +4,15 @@ All energy scales in the runcards should be saved linearly, not the
 squared value, for consistency. Squares are consistently taken inside.
 """
 
+import pathlib
+import tarfile
 from dataclasses import dataclass
 from math import nan
 from typing import List, Optional, Union
 
 import numpy as np
 import numpy.typing as npt
+import yaml
 
 from .. import basis_rotation as br
 from .. import interpolation, msbar_masses
@@ -19,7 +22,10 @@ from ..matchings import Atlas, nf_default
 from ..quantities import heavy_quarks as hq
 from ..quantities.couplings import CouplingsInfo
 from ..quantities.heavy_quarks import HeavyInfo, QuarkMassScheme
+from . import v1, v2
 from .dictlike import DictLike
+from .metadata import Metadata
+from .paths import METADATAFILE, OPERATORFILE, THEORYFILE
 from .types import (
     EvolutionMethod,
     InversionMethod,
@@ -77,6 +83,15 @@ class TheoryCard(DictLike):
         """Enforce defaults."""
         if self.matching_order is None:
             self.matching_order = (self.order[0] - 1, 0)
+
+    @classmethod
+    def from_raw(cls, raw: dict, data_version: int) -> "TheoryCard":
+        """Build a theory card from a raw dictionary."""
+        if data_version == 1:
+            raw = v1.update_theory(raw)
+        if data_version == 2:
+            raw = v2.update_theory(raw)
+        return cls.from_dict(raw)
 
 
 @dataclass
@@ -169,6 +184,15 @@ class OperatorCard(DictLike):
     def pids(self):
         """Internal flavor basis, used for computation."""
         return np.array(br.flavor_basis_pids)
+
+    @classmethod
+    def from_raw(cls, raw: dict, data_version: int, theory_raw) -> "OperatorCard":
+        """Build an operator card from a raw dictionary."""
+        if data_version == 1:
+            raw = v1.update_operator(raw, theory_raw)
+        if data_version == 2:
+            raw = v2.update_operator(raw, theory_raw)
+        return cls.from_dict(raw)
 
 
 Card = Union[TheoryCard, OperatorCard]
@@ -343,3 +367,37 @@ def masses(theory: TheoryCard, evmeth: EvolutionMethod) -> List[SquaredScale]:
         return [mq.value**2 for mq in theory.heavy.masses]
 
     raise ValueError(f"Unknown mass scheme '{theory.heavy.masses_scheme}'")
+
+
+def _read_yaml_members(tar, filenames):
+    """Extract and parse several yaml files in a single pass."""
+    wanted = set(filenames)
+    found = {}
+    for member in tar.getmembers():
+        name = pathlib.Path(member.name).name
+        if name in wanted:
+            extracted = tar.extractfile(member)
+            if extracted is not None:
+                found[name] = yaml.safe_load(extracted.read())
+    missing = wanted - found.keys()
+    if missing:
+        raise KeyError(f"{missing} not found in {tar.name}")
+    return found
+
+
+def read_eko_cards(eko_path):
+    """Read metadata, theory and operator cards from an EKO archive.
+
+    The (large) operators are never extracted, only the small yaml files.
+    """
+    with tarfile.open(eko_path) as tar:
+        raw_files = _read_yaml_members(tar, [METADATAFILE, THEORYFILE, OPERATORFILE])
+
+    raw_meta = raw_files[METADATAFILE]
+    raw_theory = raw_files[THEORYFILE]
+    raw_operator = raw_files[OPERATORFILE]
+    metadata = Metadata.from_raw(raw_meta)
+    data_version = metadata.data_version
+    operator = OperatorCard.from_raw(raw_operator, data_version, raw_theory)
+    theory = TheoryCard.from_raw(raw_theory, data_version)
+    return metadata, theory, operator
