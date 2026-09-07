@@ -174,7 +174,7 @@ To make `ekore` accessible across various ecosystems and languages without reimp
 
 - **`eko-rs` (`ekors`):** The internal bridge connecting Python EKO to `ekore` during operator integration (`rust_quad_ker`).
 - **`ekore_capi`:** Exposes `ekore` via a C-compatible ABI for C, C++, and Fortran callers.
-- **`ekore_rs` (`ekore-rs`):** Exposes `ekore` directly to Python using PyO3 bindings.
+- **`ekore-rs` (`ekore_rs`):** Exposes `ekore` directly to Python using PyO3 bindings.
 
 ---
 
@@ -221,7 +221,7 @@ This internal crate exports C function pointers (such as `rust_quad_ker`) that `
 
 ---
 
-### 6.3 ekore_rs (Python Bindings via PyO3)
+### 6.3 ekore-rs (Python Bindings via PyO3)
 
 **Directory:** `crates/ekore_py` (packaged as `ekore-rs` on PyPI, imported as `ekore_rs`)
 
@@ -242,7 +242,7 @@ This internal crate exports C function pointers (such as `rust_quad_ker`) that `
 | `ekore` | `crates/ekore` | Pure Rust | Native Rust API |
 | `eko-rs` (`ekors`) | `crates/eko` | Python (`eko` evolution runner) | Internal C FFI / `LowLevelCallable` bridge |
 | `ekore_capi` | `crates/ekore_capi` | C, C++, Fortran, FFI consumers | C ABI (`extern "C"`, `cbindgen`, `cargo-c`) |
-| `ekore_rs` (`ekore-rs`) | `crates/ekore_py` | Python (standalone physics API) | PyO3 / Maturin extension module |
+| `ekore-rs` (`ekore_rs`) | `crates/ekore_py` | Python (standalone physics API) | PyO3 / Maturin extension module |
 
 ---
 
