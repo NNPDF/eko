@@ -144,7 +144,7 @@ docs-server = { "shell" = "cd doc; make server" }
 docs-clean = { "shell" = "cd doc; make clean" }
 docs-cleanall = { "shell" = "cd doc; make cleanall" }
 docs-install-nb = { "shell" = "python -m ipykernel install --user --name=$(basename $(poetry env info -p))" }
-bump-version = { "shell" = "python crates/bump-versions.py $(git describe --tags)" }
+bump-version = { "shell" = "python crates/bump-versions.py ${TAG:-$(git describe --tags)}" }
 compile = "maturin develop --release --manifest-path crates/eko/Cargo.toml"
 rdocs.cmd = "cargo doc --workspace --no-deps"
 rdocs.env = { RUSTDOCFLAGS = "--html-in-header crates/doc-header.html" }

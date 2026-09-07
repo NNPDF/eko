@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           # tags needed for dynamic versioning
           fetch-depth: 0
@@ -39,7 +39,7 @@ jobs:
         run: |
           poe bench-iso
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v2
+        uses: codecov/codecov-action@v4
         with:
           files: ./coverage.xml
           flags: isobench

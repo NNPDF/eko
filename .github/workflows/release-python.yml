@@ -1,0 +1,27 @@
+name: deploy
+
+on:
+  push:
+    tags:
+      - 'v[0-9]*.[0-9]*.[0-9]*'
+      - 'v[0-9]*.[0-9]*.[0-9]*-*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: >-
+          Existing release tag to (re)publish. Use this to complete a release
+          whose tag-triggered run failed partway.
+        required: false
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  publish:
+    if: startsWith(github.ref, 'refs/tags/') || github.event.inputs.tag != ''
+    uses: ./.github/workflows/python-poetry-pypi-with-data.yml
+    with:
+      poetry-extras: "-E mark -E box"
+      data-version: "v2"
+      data-download: "./tests/data/assets.sh"
