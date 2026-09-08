@@ -13,7 +13,9 @@ We may prefix the items to signal the scope:
 
 Items without prefix refer to a global change.
 
-## [Unreleased](https://github.com/NNPDF/eko/compare/v0.15.5...HEAD)
+## [Unreleased](https://github.com/NNPDF/eko/compare/v0.15.6...HEAD)
+
+## [0.15.6](https://github.com/NNPDF/eko/compare/v0.15.5...v0.15.6) - 2026-09-08
 
 ### Added
 - rust: `ekore_py` crate, which exposes `ekore` crate as a Python bindings ([#554](https://github.com/NNPDF/eko/pull/554))
