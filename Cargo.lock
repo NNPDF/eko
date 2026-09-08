@@ -180,7 +180,7 @@ dependencies = [
 
 [[package]]
 name = "dekoder"
-version = "0.0.1"
+version = "0.0.0"
 dependencies = [
  "assert_fs",
  "lz4_flex",
@@ -216,7 +216,7 @@ checksum = "fea41bba32d969b513997752735605054bc0dfa92b4c56bf1189f2e174be7a10"
 
 [[package]]
 name = "eko"
-version = "0.0.1"
+version = "0.0.0"
 dependencies = [
  "ekore",
  "num",
@@ -224,7 +224,7 @@ dependencies = [
 
 [[package]]
 name = "ekore"
-version = "0.0.1"
+version = "0.0.0"
 dependencies = [
  "GSL",
  "float-cmp 0.9.0",
@@ -233,7 +233,7 @@ dependencies = [
 
 [[package]]
 name = "ekore_capi"
-version = "0.0.1"
+version = "0.0.0"
 dependencies = [
  "ekore",
  "num",
@@ -241,7 +241,7 @@ dependencies = [
 
 [[package]]
 name = "ekore_py"
-version = "0.0.1"
+version = "0.0.0"
 dependencies = [
  "ekore",
  "numpy",
