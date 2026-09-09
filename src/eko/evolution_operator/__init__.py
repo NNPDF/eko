@@ -22,6 +22,7 @@ from ..io.types import EvolutionMethod, OperatorLabel
 from ..kernels import ev_method
 from ..matchings import Atlas, Segment
 from ..member import OpMember
+from .. import hell
 from .quad_ker import quad_ker_ad as quad_ker
 
 logger = logging.getLogger(__name__)
@@ -90,6 +91,22 @@ class Operator(sv.ScaleVariationModeMixin):
         if self.log_label == "Evolution":
             self.a = self.compute_a()
             self.as_list, self.a_half_list = self.compute_aem_list()
+
+    @property
+    def use_hell(self):
+        """Whether small-x (|NLL|) resummation via |HELL| is requested.
+
+        Driven by the theory card (``theory.smallx_res``); raises when the
+        card requests resummation but the :mod:`eko.hell` bridge has not
+        been configured in this process.
+        """
+        smallx = self.config.get("smallx_res", 0)
+        if smallx and not hell.is_active():
+            raise RuntimeError(
+                "theory.smallx_res > 0 requires eko.hell.configure(...) "
+                "before running"
+            )
+        return bool(smallx)
 
     @property
     def n_pools(self):
@@ -270,6 +287,10 @@ class Operator(sv.ScaleVariationModeMixin):
             is_polarized=self.config["polarized"],
             is_time_like=self.config["time_like"],
             use_fhmruvv=self.config["use_fhmruvv"],
+            # NOTE (HELL): small-x resummation switch, driven by the
+            # theory card (theory.smallx_res); the use_hell property also
+            # verifies that the eko.hell bridge has been configured.
+            use_hell=self.use_hell,
         )
 
     def initialize_op_members(self):
@@ -408,6 +429,15 @@ class Operator(sv.ScaleVariationModeMixin):
     ):
         """Run the integration."""
         tot_start_time = time.perf_counter()
+
+        # NOTE (HELL): make sure the HELLN tables for this segment's nf
+        # are loaded BEFORE the worker pool below forks, so every worker
+        # inherits them (the shim caches one table set per nf).  For a
+        # matching operator self.nf is the number of flavours below the
+        # threshold, which is the correct table both for the last
+        # evolution segment and for the resummed matching functions.
+        if self.use_hell:
+            hell.init_nf(self.nf)
 
         # run integration in parallel for each grid point
         # or avoid opening a single pool

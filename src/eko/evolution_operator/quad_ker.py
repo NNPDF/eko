@@ -6,6 +6,8 @@ import logging
 import numba as nb
 import numpy as np
 
+from .. import hell
+
 import ekore.anomalous_dimensions.polarized.space_like as ad_ps
 import ekore.anomalous_dimensions.unpolarized.space_like as ad_us
 import ekore.anomalous_dimensions.unpolarized.time_like as ad_ut
@@ -240,6 +242,9 @@ class QuadKerBase:
         return self.path.prefactor * pj * self.path.jac
 
 
+# NOTE (HELL): caching stays ON -- the small-x bridge uses numba
+# ExternalFunction symbols, which are cache-compatible (see eko/hell.py,
+# including the cache-consistency caveat).
 @nb.njit(cache=True)
 def quad_ker_ad(
     u,
@@ -265,6 +270,7 @@ def quad_ker_ad(
     is_polarized,
     is_time_like,
     use_fhmruvv,
+    use_hell=False,
 ):
     """Raw evolution kernel inside quad.
 
@@ -345,6 +351,7 @@ def quad_ker_ad(
             is_time_like,
             n3lo_ad_variation,
             use_fhmruvv,
+            use_hell,
         )
     else:
         ker = quad_ker_qed(
@@ -366,12 +373,14 @@ def quad_ker_ad(
             is_threshold,
             n3lo_ad_variation,
             use_fhmruvv,
+            use_hell,
         )
 
     # recombine everything
     return np.real(ker * integrand)
 
 
+# NOTE (HELL): cache stays ON -- see quad_ker_ad above.
 @nb.njit(cache=True)
 def quad_ker_qcd(
     ker_base,
@@ -391,6 +400,7 @@ def quad_ker_qcd(
     is_time_like,
     n3lo_ad_variation,
     use_fhmruvv,
+    use_hell,
 ):
     """Raw evolution kernel inside quad.
 
@@ -451,6 +461,13 @@ def quad_ker_qcd(
             gamma_singlet = sv_exponentiated.gamma_variation(
                 gamma_singlet, order, nf, Lsv
             )
+        # NOTE (HELL): the Mellin variable and the resummation switch are
+        # forwarded so the a_s-dependent resummed correction can be
+        # evaluated inside the iterated exponentiation (see
+        # eko.kernels.singlet.eko_iterate).  The NON-SINGLET sectors below
+        # need no counterpart: the HELL corrections are of pure-singlet
+        # nature (Delta P_qq = CF/CA Delta P_qg acts democratically), so
+        # the exact NS solutions remain valid unchanged.
         ker = s.dispatcher(
             order,
             ev_method,
@@ -460,6 +477,8 @@ def quad_ker_qcd(
             nf,
             ev_op_iterations,
             ev_op_max_order,
+            ker_base.n,
+            use_hell,
         )
         # scale var expanded is applied on the kernel
         if sv_mode == sv.Modes.expanded and not is_threshold:
@@ -515,6 +534,7 @@ def quad_ker_qed(
     is_threshold,
     n3lo_ad_variation,
     use_fhmruvv,
+    use_hell=False,
 ):
     """Raw evolution kernel inside quad.
 
@@ -574,6 +594,12 @@ def quad_ker_qed(
             gamma_s = sv_exponentiated.gamma_variation_qed(
                 gamma_s, order, nf, lepton_number(mu2_to), Lsv, alphaem_running
             )
+        # NOTE (HELL): the Mellin variable and the resummation switch are
+        # forwarded so the a_s-dependent resummed correction can be
+        # embedded in the (g, gamma, Sigma, Sigma_Delta) block inside the
+        # iterated exponentiation (see eko.kernels.singlet_qed).  The
+        # QED valence and non-singlet sectors below need no counterpart
+        # (the HELL corrections are pure-singlet).
         ker = qed_s.dispatcher(
             order,
             ev_method,
@@ -583,6 +609,8 @@ def quad_ker_qed(
             nf,
             ev_op_iterations,
             ev_op_max_order,
+            ker_base.n,
+            use_hell,
         )
         # scale var expanded is applied on the kernel
         # TODO : in this way a_half[-1][1] is the aem value computed in
@@ -659,6 +687,7 @@ def quad_ker_qed(
     return ker
 
 
+# NOTE (HELL): cache stays ON -- see quad_ker_ad above.
 @nb.njit(cache=True)
 def quad_ker_ome(
     u,
@@ -677,6 +706,7 @@ def quad_ker_ome(
     is_msbar,
     is_polarized,
     is_time_like,
+    use_hell=False,
 ):
     r"""Raw kernel inside quad.
 
@@ -750,6 +780,54 @@ def quad_ker_ome(
 
     # build the expansion in alpha_s depending on the strategy
     ker = build_ome(A, order, a_s, backward_method)
+
+    # NOTE (HELL): add the NLL resummed heavy-quark matching functions,
+    # Delta K_hg and Delta K_hq = CF/CA Delta K_hg (1708.07510 eqs.
+    # 2.26/2.28), on top of the fixed-order OME.  Conventions:
+    #  * they are all-orders functions of the PHYSICAL alpha_s, matched
+    #    to fo = 1 (NLO) / 2 (NNLO) according to the matching order;
+    #  * HELL's Mellin variable is shifted by one unit (pole at N = 0),
+    #    exactly as in the evolution hook: evaluate at n - 1;
+    #  * they match the h+ = h + hbar combination, i.e. eko's
+    #    matching_hplus row (index 2), fed by g (index 0) and Sigma
+    #    (index 1);
+    #  * the resummed expressions hold at the matching scale equal to
+    #    the heavy-quark mass (L = 0) and for FORWARD matching only --
+    #    other configurations raise.
+    if use_hell and (ker_base.is_singlet or ker_base.is_QEDsinglet):
+        if L != 0.0:
+            # The HELLN tables provide DeltaK at the matching scale equal
+            # to the heavy-quark mass only.  For muF != mh the resummed
+            # matching is well-defined but has to be built by operator
+            # composition (matching at mh + resummed evolution mh -> muF),
+            # which belongs at the runner level, not inside this
+            # integrand -- see the interface notes.
+            raise NotImplementedError(
+                "resummed matching functions are only available at muF = mh (L = 0)"
+            )
+        if backward_method == MatchingMethods.BACKWARD_EXPANDED:
+            # The expanded (order-by-order) inverse is defined for the
+            # fixed-order expansion only; an all-orders resummed piece
+            # does not fit that truncation.  Use backward-exact instead.
+            raise NotImplementedError(
+                "resummed matching does not support the expanded backward "
+                "inversion (use backward-exact)"
+            )
+        fo = 2 if order[0] >= 2 else 1
+        dp_vec = hell.dp(fo, 4.0 * np.pi * a_s, ker_base.n.real - 1.0, ker_base.n.imag)
+        if backward_method == MatchingMethods.BACKWARD_EXACT:
+            # build_ome has already inverted the fixed-order matching;
+            # redo the inversion on the resummed forward operator: the
+            # exact inverse of (FO + DeltaK) is simply the matrix inverse
+            # of the resummed forward matching -- no additional HELL
+            # ingredients required.
+            fwd = build_ome(A, order, a_s, MatchingMethods.FORWARD)
+            fwd[2, 0] += dp_vec[4]  # Delta K_hg:  h+ <- g
+            fwd[2, 1] += dp_vec[5]  # Delta K_hq:  h+ <- Sigma
+            ker = np.linalg.inv(fwd)
+        else:
+            ker[2, 0] += dp_vec[4]  # Delta K_hg:  h+ <- g
+            ker[2, 1] += dp_vec[5]  # Delta K_hq:  h+ <- Sigma
 
     # select the needed matrix element
     ker = ker[indices[mode0], indices[mode1]]

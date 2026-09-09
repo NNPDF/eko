@@ -9,6 +9,7 @@ from typing import Optional
 import numpy as np
 
 from .. import basis_rotation as br
+from .. import hell
 from .. import scale_variations as sv
 from ..io.types import InversionMethod
 from ..matchings import Segment
@@ -169,6 +170,10 @@ class OperatorMatrixElement(Operator):
             is_msbar=self.is_msbar,
             is_polarized=self.config["polarized"],
             is_time_like=self.config["time_like"],
+            # NOTE (HELL): resummed matching functions switch, driven by
+            # the theory card via the inherited use_hell property (see
+            # eko.hell and the hook in quad_ker_ome).
+            use_hell=self.use_hell,
         )
 
     @property

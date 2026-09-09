@@ -3,6 +3,8 @@
 import numba as nb
 import numpy as np
 
+from .. import hell
+
 from ekore import anomalous_dimensions as ad
 
 from .. import beta
@@ -299,8 +301,15 @@ def n3lo_decompose_expanded(gamma_singlet, a1, a0, nf):
     )
 
 
+# NOTE (HELL): caching stays ON -- the small-x bridge (eko.hell) reaches
+# HELLN through numba ExternalFunction symbols (resolved by name at
+# library-load time), which, unlike ctypes/cffi-ABI pointers, are fully
+# compatible with numba's on-disk cache.  Caveat: the cache must not be
+# shared between HELL-enabled and HELL-less processes (see eko/hell.py).
 @nb.njit(cache=True)
-def eko_iterate(gamma_singlet, a1, a0, beta_vec, order, ev_op_iterations):
+def eko_iterate(
+    gamma_singlet, a1, a0, beta_vec, order, ev_op_iterations, n=0j, nf=0, use_hell=False
+):
     """Singlet |NLO|, |NNLO| or |N3LO| iterated (exact) EKO.
 
     Parameters
@@ -317,6 +326,15 @@ def eko_iterate(gamma_singlet, a1, a0, beta_vec, order, ev_op_iterations):
         perturbative order
     ev_op_iterations : int
         number of evolution steps
+    n : complex
+        Mellin variable (standard eko convention; needed to evaluate the
+        a_s-dependent |HELL| correction inside the iteration)
+    nf : int
+        number of active flavors (table selection is done at
+        initialisation, the value here is informational)
+    use_hell : bool
+        add the |NLL| small-x resummed correction from |HELL| (see
+        :mod:`eko.hell`)
 
     Returns
     -------
@@ -334,6 +352,28 @@ def eko_iterate(gamma_singlet, a1, a0, beta_vec, order, ev_op_iterations):
         for i in range(order[0]):
             gamma_summed += gamma_singlet[i] * a_half**i
             beta_summed += beta_vec[i] * a_half ** (i + 1)
+        if use_hell:
+            # HELL provides the resummed-minus-expanded remainder
+            # Delta_n P(N, a_s) matched to fo = order[0]-1 (1 = NLO,
+            # 2 = NNLO), as a function of the PHYSICAL alpha_s (all
+            # orders included, hence inside the a_s loop).  Conventions:
+            #  * HELL's Mellin variable has the small-x pole at N = 0,
+            #    one unit below eko's (1708.07510 eqs. 2.40/4.28):
+            #    evaluate at n - 1;
+            #  * dp returns (dPgg, dPgq, dPqg, dPqq, dKhg, dKhq) as
+            #    physical splitting-function corrections, i.e.
+            #    df/dlnmu2 += dP.f, while eko's gamma is defined by
+            #    df/dlnmu2 = -gamma(a).f: subtract;
+            #  * gamma_summed here is gamma(a)/a (one power of a is
+            #    cancelled against beta_summed): divide dP by a_half.
+            dp_vec = hell.dp(order[0] - 1, 4.0 * np.pi * a_half, n.real - 1.0, n.imag)
+            delta_p = np.empty((2, 2), dtype=np.complex128)
+            # eko singlet ordering: 0 = q (Sigma), 1 = g
+            delta_p[0, 0] = dp_vec[3]  # dPqq
+            delta_p[0, 1] = dp_vec[2]  # dPqg
+            delta_p[1, 0] = dp_vec[1]  # dPgq
+            delta_p[1, 1] = dp_vec[0]  # dPgg
+            gamma_summed -= delta_p / a_half
         ln = gamma_summed / beta_summed * delta_a
         ek = np.ascontiguousarray(ad.exp_matrix_2D(ln)[0])
         e = ek @ e
@@ -557,13 +597,22 @@ def eko_truncated(gamma_singlet, a1, a0, beta, order):
     return e
 
 
+# NOTE (HELL): cache stays ON -- see eko_iterate above.
 @nb.njit(cache=True)
 def dispatcher(  # pylint: disable=too-many-return-statements
-    order, method, gamma_singlet, a1, a0, nf, ev_op_iterations, ev_op_max_order
+    order, method, gamma_singlet, a1, a0, nf, ev_op_iterations, ev_op_max_order,
+    n=0j, use_hell=False,
 ):
     """Determine used kernel and call it.
 
     In LO we always use the exact solution.
+
+    Small-x resummation (``use_hell``, see :mod:`eko.hell`) is only
+    available for the ``iterate-*`` methods: the resummed correction
+    depends on :math:`a_s` to all orders, so it must be evaluated inside
+    a discretized path-ordering; the closed-form and expanded methods
+    cannot accommodate it and raise.  It also requires order >= NLO
+    (the |NLL| resummation is matched to (N)NLO).
 
     Parameters
     ----------
@@ -594,13 +643,27 @@ def dispatcher(  # pylint: disable=too-many-return-statements
     if a1 == a0:
         return np.eye(len(gamma_singlet[0]), dtype=np.complex128)
 
+    if use_hell and method not in [
+        EvoMethods.ITERATE_EXACT,
+        EvoMethods.ITERATE_EXPANDED,
+    ]:
+        raise NotImplementedError(
+            "small-x resummation is only implemented for iterate-* methods"
+        )
+    if use_hell and order[0] == 1:
+        raise NotImplementedError(
+            "small-x resummation requires at least NLO evolution"
+        )
+
     # use always exact in LO
     if order[0] == 1:
         return lo_exact(gamma_singlet, a1, a0, betalist)
 
     # Common method for NLO and NNLO
     if method in [EvoMethods.ITERATE_EXACT, EvoMethods.ITERATE_EXPANDED]:
-        return eko_iterate(gamma_singlet, a1, a0, betalist, order, ev_op_iterations)
+        return eko_iterate(
+            gamma_singlet, a1, a0, betalist, order, ev_op_iterations, n, nf, use_hell
+        )
     if method == EvoMethods.PERTURBATIVE_EXACT:
         return eko_perturbative(
             gamma_singlet,

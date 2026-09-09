@@ -60,6 +60,9 @@ def _evolve_configs(eko: EKO) -> dict:
         ModSV=ocard.configs.scvar_method,
         n3lo_ad_variation=tcard.n3lo_ad_variation,
         use_fhmruvv=tcard.use_fhmruvv,
+        # NOTE (HELL): physics switch for small-x resummation; the bridge
+        # itself (shim/data paths) is configured via eko.hell.configure.
+        smallx_res=tcard.smallx_res,
         # Here order is shifted by one, no QED matching is available so far.
         matching_order=tcard.matching_order,
     )

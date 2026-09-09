@@ -62,6 +62,12 @@ class TheoryCard(DictLike):
     nsv)``."""
     use_fhmruvv: Optional[bool] = True
     """If True use the |FHMRUVV| |N3LO| anomalous dimensions."""
+    smallx_res: Optional[int] = 0
+    """Small-x resummation of the (QCD) singlet evolution and of the
+    heavy-quark matching functions: 0 = off, 1 = |NLL| via the |HELL|
+    bridge (:mod:`eko.hell`).  Requires ``eko.hell.configure(...)`` to be
+    called before running (the runcard carries the *physics* switch, the
+    library location is process configuration)."""
     matching_order: Optional[Order] = None
     """Matching conditions perturbative order tuple, ``(QCD, QED)``.
 
