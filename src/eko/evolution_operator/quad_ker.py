@@ -785,7 +785,7 @@ def quad_ker_ome(
     # Delta K_hg and Delta K_hq = CF/CA Delta K_hg (1708.07510 eqs.
     # 2.26/2.28), on top of the fixed-order OME.  Conventions:
     #  * they are all-orders functions of the PHYSICAL alpha_s, matched
-    #    to fo = 1 (NLO) / 2 (NNLO) according to the matching order;
+    #    to fo = matching order (1 = NLO, 2 = NNLO, 3 = N3LO);
     #  * HELL's Mellin variable is shifted by one unit (pole at N = 0),
     #    exactly as in the evolution hook: evaluate at n - 1;
     #  * they match the h+ = h + hbar combination, i.e. eko's
@@ -813,7 +813,11 @@ def quad_ker_ome(
                 "resummed matching does not support the expanded backward "
                 "inversion (use backward-exact)"
             )
-        fo = 2 if order[0] >= 2 else 1
+        if order[0] < 1 or order[0] > 3:
+            raise NotImplementedError(
+                "resummed matching requires a QCD matching order between 1 and 3"
+            )
+        fo = order[0]
         dp_vec = hell.dp(fo, 4.0 * np.pi * a_s, ker_base.n.real - 1.0, ker_base.n.imag)
         if backward_method == MatchingMethods.BACKWARD_EXACT:
             # build_ome has already inverted the fixed-order matching;

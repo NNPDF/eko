@@ -3,7 +3,7 @@
 // and the HELLN library (small-x resummed splitting functions and
 // heavy-quark matching functions, arXiv:1708.07510).
 //
-// Design constraints (see mytests/HELL_EKO_INTERFACE.md):
+// Design constraints (see extras/hell/README.md):
 //  * numba can call ctypes functions from nopython code ONLY with
 //    scalar arguments/returns -- no complex numbers, no strings, no
 //    arrays.  Hence the compute-then-get pattern: hell_shim_dp()
@@ -28,6 +28,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #include <complex>
+#include <limits>
 #include <map>
 #include <memory>
 #include <string>
@@ -73,9 +74,11 @@ int hell_shim_init_nf(int nf) {
   return g_cur ? 0 : 1;
 }
 
-// Evaluate DeltaP (2x2, matched to fixed order fo: 1 = NLO, 2 = NNLO)
-// and the heavy-quark matching functions DeltaKhg / DeltaKhq at
-// (a_s, N), storing the six complex results for hell_shim_get().
+// Evaluate DeltaP (2x2, matched to fixed order fo: 1 = NLO, 2 = NNLO,
+// 3 = N3LO) and the heavy-quark matching functions DeltaKhg / DeltaKhq
+// at (a_s, N), storing the six complex results for hell_shim_get().
+// Returns 0 on success, 1 for an unsupported fo (results set to NaN
+// instead of letting HELLN exit() the process).
 //
 //  * as is the PHYSICAL alpha_s (not a_s/4pi).
 //  * (n_re, n_im) is the Mellin variable IN HELL'S CONVENTION: the
@@ -85,8 +88,13 @@ int hell_shim_init_nf(int nf) {
 //  * DeltaP column-charge structure: dPgq = CF/CA dPgg,
 //    dPqq = CF/CA dPqg (ibid. eq. (4.41)); dKhq = CF/CA dKhg
 //    (ibid. eq. (2.28)) -- as returned by HELLN itself.
-void hell_shim_dp(int fo, double as, double n_re, double n_im) {
+int hell_shim_dp(int fo, double as, double n_re, double n_im) {
   const dcomplex N(n_re, n_im);
+  if (fo < 0 || fo > 3 || !g_cur) {
+    const double nan = std::numeric_limits<double>::quiet_NaN();
+    for (int i = 0; i < 6; i++) g_val[i] = dcomplex(nan, nan);
+    return 1;
+  }
   dcomplex dKhg;
   HELLN::Order ord = static_cast<HELLN::Order>(fo);
   HELLN::sqmatrix<dcomplex> m = g_cur->DeltaP(as, N, ord, &dKhg);
@@ -96,6 +104,7 @@ void hell_shim_dp(int fo, double as, double n_re, double n_im) {
   g_val[3] = m.qq();
   g_val[4] = dKhg;
   g_val[5] = 4.0 / 9.0 * dKhg;  // CF/CA for SU(3)
+  return 0;
 }
 
 // Return one real scalar of the last hell_shim_dp evaluation.

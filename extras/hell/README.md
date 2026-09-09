@@ -16,7 +16,7 @@ strong coupling and a complex Mellin variable, HELLN returns
 
 - the NLL-resummed corrections to the singlet splitting-function
   matrix, `Delta P_ij(N, alpha_s)`, i.e. the resummed result *minus*
-  its fixed-order expansion, matched to NLO or NNLO.
+  its fixed-order expansion, matched to NLO, NNLO or N3LO.
 - the resummed correction to the heavy-quark matching function,
   `Delta K_hg` (with `Delta K_hq = CF/CA Delta K_hg`),
   normalised to the heavy-quark **pair** `h + hbar` and defined at the
@@ -65,8 +65,8 @@ eko.hell.configure(
 # 2) request the resummation in the theory card
 th = example.theory()
 op = example.operator()
-th.order = (2, 0)                 # NLO (or (3, 0): NNLO) + NLL
-th.matching_order = (1, 0)
+th.order = (2, 0)                 # NLO (or (3, 0): NNLO, (4, 0): N3LO) + NLL
+th.matching_order = (1, 0)        # resp. (2, 0), (3, 0)
 th.smallx_res = 1
 op.configs.evolution_method = "iterate-exact"
 op.configs.ev_op_iterations = 240   # see "Discretisation" below
@@ -82,8 +82,8 @@ and is the recommended setup when eko is used from several scripts.
 
 Supported configurations:
 
-- QCD orders NLO and NNLO (`order[0] = 2, 3`), matched resummation
-  `fo = order[0] - 1`; LO raises (nothing to match to);
+- QCD orders NLO, NNLO and N3LO (`order[0] = 2, 3, 4`), matched
+  resummation `fo = order[0] - 1`; LO raises (nothing to match to);
 - pure-QCD and unified QED x QCD evolution (`order[1] > 0`);
 - evolution methods `iterate-exact` and `iterate-expanded` only (the
   resummed correction depends on `alpha_s` to all orders, so it has to
@@ -116,7 +116,7 @@ compute-then-read pattern:
 |---|---|
 | `hell_shim_load(datapath, damping, dampingsqrt)` | stores the table directory and stamps HELLN's (file-scope, library-wide) damping parameters |
 | `hell_shim_init_nf(nf)` | constructs the `HELLNnf` object for `nf` flavours (cached per `nf`) and makes it current |
-| `hell_shim_dp(fo, alpha_s, n_re, n_im)` | evaluates `Delta P` (matched to `fo` = 1 NLO / 2 NNLO) and `Delta K` at one point and stores the six complex results |
+| `hell_shim_dp(fo, alpha_s, n_re, n_im)` | evaluates `Delta P` (matched to `fo` = 1 NLO / 2 NNLO / 3 N3LO) and `Delta K` at one point and stores the six complex results; returns 0, or 1 (all results NaN) for an unsupported `fo` |
 | `hell_shim_get(idx, im)` | returns one real scalar of the last evaluation: `idx` = 0 `Delta P_gg`, 1 `Delta P_gq`, 2 `Delta P_qg`, 3 `Delta P_qq`, 4 `Delta K_hg`, 5 `Delta K_hq`; `im` = 0 real, 1 imaginary part |
 
 The state is process-global and not thread safe; eko parallelises with
@@ -212,7 +212,7 @@ A[h+, g]     += Delta K_hg(N - 1, 4 pi a_s)
 A[h+, Sigma] += Delta K_hq = CF/CA Delta K_hg
 ```
 
-with `fo` chosen from the matching order.  `Delta K_hg` is normalised
+with `fo` equal to the QCD matching order (1, 2 or 3).  `Delta K_hg` is normalised
 to the pair (1708.07510 eq. 2.15; its `O(alpha_s)` term, eq. 2.40, is
 the pair matching kernel), which is precisely eko's `h+` row, so it
 enters with unit weight.  For the exact backward inversion the resummed
@@ -235,6 +235,49 @@ accommodate an all-orders piece and raises.
 - **Singlet ordering**: eko's QCD singlet is `(Sigma, g)`; the
   unified block is `(g, gamma, Sigma, Sigma_Delta)`.
 
+## N3LO and the Q0MSbar scheme
+
+HELLN can match its NLL resummation to N3LO: `DeltaP(as, N, N3LO)`
+returns the NNLO-matched tables minus the `O(alpha_s^4)` expansion of
+the resummation (`gamma3NLL`, `gammaqg3NLL` in `expansionSFs.cc`, with
+`mcPgg3NLL` restoring momentum conservation), and analogously the
+`O(alpha_s^3)` term for `Delta K_hg`.  The interface simply forwards
+`fo = 3`.
+
+HELL performs the resummation in the Q0MSbar scheme
+(1708.07510, 1805.06460 sect. 2.3), and its fixed-order expansion is
+therefore the Q0MSbar one.  Up to NNLO the splitting functions
+coincide with MSbar, but at N3LO the two schemes differ at NLL: only
+`P_gg` is affected among the splitting functions (1805.06460 eq. 2.30),
+
+```
+gamma_gg^MSbar(N) = gamma_gg^Q0MSbar(N) + alpha_s^4 beta0 8 zeta3 gamma_0^3(N) + O(1/N^2),   gamma_0 = CA/(pi N)
+```
+
+and the `O(alpha_s^3)` heavy-quark matching function differs by the
+first term of the scheme-change factor `R(M) = 1 + 8/3 zeta3 M^3`
+entering through `Lambda_qg` (1708.07510 sect. 2.2.2 mentions that this
+conversion is needed to reproduce the MSbar three-loop OME):
+
+```
+K_hg^(3),MSbar(N) = K_hg^(3),Q0MSbar(N) - 8/3 zeta3 (CA/pi)^2 / (3 pi N^2) + O(1/N)
+```
+
+(pair normalisation, HELL's `N`).  eko's N3LO ingredients (FHMRUVV
+splitting functions, three-loop OMEs) are MSbar.  Consequently, an
+N3LO+NLL run with `smallx_res = 1` produces
+
+```
+P = P^MSbar_N3LO + [P_res - P_res^exp,Q0MSbar]_{O(as^4)}
+```
+
+which is neither MSbar nor Q0MSbar: the mismatch is an
+`O(alpha_s^4) ln^2(1/x)/x` term in `P_gg` (and `CF/CA` of it in `P_gq`)
+and an `O(alpha_s^3) ln(1/x)/x` term in the matching function -- i.e.
+NLL terms, formally within the claimed accuracy.  eko logs a warning
+(`eko.hell.warn_n3lo_scheme`).  A consistent N3LO+NLL evolution
+requires an MSbar implementation of the resummation, not available yet.
+
 ## Known limitations
 
 - Resummed matching at `mu_F != m_h` (`L != 0`) is not available: the
@@ -242,6 +285,7 @@ accommodate an all-orders piece and raises.
 - The expanded backward matching is not supported (see above).
 - Only NLL is available (the log order is fixed in the shim, matching
   the tables).
+- N3LO+NLL is in a mixed MSbar/Q0MSbar scheme (see above).
 - Developer note: numba's on-disk cache is not invalidated when a
   *callee* changes.  After editing any jitted kernel on this path,
   delete the `*.nbi`/`*.nbc` files under `src/`.

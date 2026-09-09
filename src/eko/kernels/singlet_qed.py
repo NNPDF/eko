@@ -76,7 +76,9 @@ def eko_iterate(
             #    Sigma_Delta.
             # Conventions: HELL's N has its pole at 0 (pass n-1) and dp
             # returns physical splitting-function corrections (subtract,
-            # gamma here is -P).  NOTE the normalization difference with
+            # gamma here is -P), matched to fo = order[0]-1 (1 = NLO,
+            # 2 = NNLO, 3 = N3LO).
+            # NOTE the normalization difference with
             # the pure-QCD eko_iterate: THERE the gamma tower carries one
             # power of a_s less (LO at a_s^0, so the correction is divided
             # by a_half); HERE the tower is the physical gamma(as, aem)

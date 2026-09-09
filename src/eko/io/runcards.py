@@ -65,8 +65,9 @@ class TheoryCard(DictLike):
     smallx_res: Optional[int] = 0
     """Small-x resummation of the (QCD) singlet evolution and of the
     heavy-quark matching functions: 0 = off, 1 = |NLL| via the |HELL|
-    bridge (:mod:`eko.hell`).  Requires ``eko.hell.configure(...)`` to be
-    called before running (the runcard carries the *physics* switch, the
+    bridge (:mod:`eko.hell`), matched to the QCD ``order`` (NLO, NNLO or
+    N3LO).  Requires ``eko.hell.configure(...)`` to be called
+    before running (the runcard carries the *physics* switch, the
     library location is process configuration)."""
     matching_order: Optional[Order] = None
     """Matching conditions perturbative order tuple, ``(QCD, QED)``.

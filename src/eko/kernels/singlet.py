@@ -355,8 +355,9 @@ def eko_iterate(
         if use_hell:
             # HELL provides the resummed-minus-expanded remainder
             # Delta_n P(N, a_s) matched to fo = order[0]-1 (1 = NLO,
-            # 2 = NNLO), as a function of the PHYSICAL alpha_s (all
-            # orders included, hence inside the a_s loop).  Conventions:
+            # 2 = NNLO, 3 = N3LO), as a function of the PHYSICAL alpha_s
+            # (all orders included, hence inside the a_s loop).
+            # Conventions:
             #  * HELL's Mellin variable has the small-x pole at N = 0,
             #    one unit below eko's (1708.07510 eqs. 2.40/4.28):
             #    evaluate at n - 1;
@@ -612,7 +613,7 @@ def dispatcher(  # pylint: disable=too-many-return-statements
     depends on :math:`a_s` to all orders, so it must be evaluated inside
     a discretized path-ordering; the closed-form and expanded methods
     cannot accommodate it and raise.  It also requires order >= NLO
-    (the |NLL| resummation is matched to (N)NLO).
+    (the |NLL| resummation is matched to NLO, NNLO or N3LO)
 
     Parameters
     ----------

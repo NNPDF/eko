@@ -77,7 +77,7 @@ _DSO = None
 # ---- numba-side externals (symbols resolved at load time by name) ----
 _c_dp = nbtypes.ExternalFunction(
     "hell_shim_dp",
-    nbtypes.void(nbtypes.intc, nbtypes.float64, nbtypes.float64, nbtypes.float64),
+    nbtypes.intc(nbtypes.intc, nbtypes.float64, nbtypes.float64, nbtypes.float64),
 )
 _c_get = nbtypes.ExternalFunction(
     "hell_shim_get", nbtypes.float64(nbtypes.intc, nbtypes.intc)
@@ -91,7 +91,9 @@ def _dp_real(fo, as_phys, n_re, n_im):  # pragma: no cover - needs the DSO
     Parameters
     ----------
     fo : int
-        matched fixed order (1 = |NLO|, 2 = |NNLO|)
+        matched fixed order (1 = |NLO|, 2 = |NNLO|, 3 = |N3LO|); an
+        unsupported value yields NaN (the shim refuses it instead of
+        letting HELLN terminate the process)
     as_phys : float
         physical strong coupling :math:`\\alpha_s` (NOT :math:`a_s/4\\pi`)
     n_re : float
