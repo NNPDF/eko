@@ -163,9 +163,12 @@ class OperatorMatrixElement(Operator):
             a_s=self.a_s,
             nf=self.nf,
             L=self.L,
-            sv_mode=self.sv_mode,
+            # pass plain int across the numba boundary, to avoid leaking
+            # a fresh enum type into the numba type registry at each call
+            # (see https://github.com/NNPDF/eko/issues/524)
+            sv_mode=int(self.sv_mode),
             Lsv=np.log(self.xif2),
-            backward_method=self.backward_method,
+            backward_method=int(self.backward_method),
             is_msbar=self.is_msbar,
             is_polarized=self.config["polarized"],
             is_time_like=self.config["time_like"],

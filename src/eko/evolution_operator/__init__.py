@@ -251,7 +251,10 @@ class Operator(sv.ScaleVariationModeMixin):
             order=self.order,
             mode0=label[0],
             mode1=label[1],
-            ev_method=self.ev_method,
+            # pass plain ints across the numba boundary, to avoid leaking
+            # fresh enum types into the numba type registry at each call
+            # (see https://github.com/NNPDF/eko/issues/524)
+            ev_method=int(self.ev_method),
             is_log=self.int_disp.log,
             logx=logx,
             areas=areas,
@@ -264,7 +267,7 @@ class Operator(sv.ScaleVariationModeMixin):
             Lsv=np.log(self.xif2),
             ev_op_iterations=self.config["ev_op_iterations"],
             ev_op_max_order=tuple(self.config["ev_op_max_order"]),
-            sv_mode=self.sv_mode,
+            sv_mode=int(self.sv_mode),
             is_threshold=self.is_threshold,
             n3lo_ad_variation=self.config["n3lo_ad_variation"],
             is_polarized=self.config["polarized"],
