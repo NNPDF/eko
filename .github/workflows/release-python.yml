@@ -26,13 +26,20 @@ jobs:
     if: startsWith(github.ref, 'refs/tags/') || github.event.inputs.tag != ''
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
+          ref: ${{ github.event.inputs.tag || github.ref }}
           # tags needed for dynamic versioning
           fetch-depth: 0
+      - name: Set release version
+        run: |
+          TAG="${{ github.event.inputs.tag || github.ref_name }}"
+          # Strip leading 'v' if present
+          VERSION="${TAG#v}"
+          echo "POETRY_DYNAMIC_VERSIONING_BYPASS=${VERSION}" >> $GITHUB_ENV
       - name: Set up Python ${{ vars.PYTHON_VERSION_WORKFLOWS }} 🐍
         id: setup-python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: ${{ vars.PYTHON_VERSION_WORKFLOWS }}
       - name: Install and configure Poetry
@@ -41,7 +48,7 @@ jobs:
           virtualenvs-path: ~/.virtualenvs
           installer-parallel: true
       - name: Cache Poetry virtualenv
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         id: cache
         with:
           path: ~/.virtualenvs
@@ -62,7 +69,7 @@ jobs:
         run: pip install poethepoet
       - name: Get test data
         id: cache-test-data
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: test-data
           key: test-data-v2
@@ -80,3 +87,5 @@ jobs:
           poetry build
       - name: Publish distribution 📦 to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          skip-existing: true
