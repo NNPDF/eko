@@ -369,7 +369,7 @@ def masses(theory: TheoryCard, evmeth: EvolutionMethod) -> List[SquaredScale]:
     raise ValueError(f"Unknown mass scheme '{theory.heavy.masses_scheme}'")
 
 
-def _read_yaml_members(tar, filenames):
+def _read_yaml_members(tar, filenames) -> dict[str, dict]:
     """Extract and parse several yaml files in a single pass."""
     wanted = set(filenames)
     found = {}
@@ -385,7 +385,9 @@ def _read_yaml_members(tar, filenames):
     return found
 
 
-def read_eko_cards(eko_path):
+def read_eko_cards(
+    eko_path: pathlib.Path | str,
+) -> tuple[Metadata, TheoryCard, OperatorCard]:
     """Read metadata, theory and operator cards from an EKO archive.
 
     The (large) operators are never extracted, only the small yaml files.
