@@ -69,8 +69,13 @@ def operator_card():
 
 
 @pytest.fixture
-def legacy_eko_filenames():
-    return ["v1-0.13.tar", "v1-0.14.tar", "v3.tar"]
+def eko_test_paths():
+    data_dir = pathlib.Path(__file__).parent / "data"
+    return [
+        data_dir / "v1-0.13.tar",
+        data_dir / "v1-0.14.tar",
+        data_dir / "v3.tar",
+    ]
 
 
 class EKOFactory:

@@ -199,13 +199,10 @@ class TestEKO:
 
         assert read_closed.metadata == read_opened.metadata
 
-    def test_read_eko_cards(self, legacy_eko_filenames):
+    def test_read_eko_cards(self, eko_test_paths):
         """Load metadata and both YAML cards from legacy EKO archives."""
-        data_dir = pathlib.Path(__file__).parents[2] / "data"
-        for filename in legacy_eko_filenames:
-            metadata, theory, operator = read_eko_cards(
-                data_dir / filename
-            )
+        for path in eko_test_paths:
+            metadata, theory, operator = read_eko_cards(path)
 
             assert isinstance(metadata, Metadata)
             assert isinstance(theory, TheoryCard)
