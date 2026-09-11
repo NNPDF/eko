@@ -20,8 +20,8 @@ jobs:
   set-version:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: ${{ vars.PYTHON_VERSION_WORKFLOWS }}
       - name: Install and configure Poetry
@@ -62,7 +62,7 @@ jobs:
           - name: macos-aarch64
             runner: macos-14
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Download patched Cargo files
         uses: actions/download-artifact@v4
         with:
@@ -109,7 +109,7 @@ jobs:
         working-directory: dist-artifacts
         run: sha256sum *.tar.gz > SHA256SUMS.txt
       - name: Publish to GitHub Releases
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ github.event.inputs.tag || github.ref_name }}
           files: |

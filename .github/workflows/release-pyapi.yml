@@ -21,8 +21,8 @@ jobs:
   set-version:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: ${{ vars.PYTHON_VERSION_WORKFLOWS }}
       - name: Install and configure Poetry
@@ -59,7 +59,7 @@ jobs:
           - runner: ubuntu-latest
             target: aarch64
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Download patched Cargo files
         uses: actions/download-artifact@v4
         with:
@@ -70,7 +70,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y gcc-multilib
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: ${{ vars.PYTHON_VERSION_WORKFLOWS }}
       - name: Install Rust
@@ -99,13 +99,13 @@ jobs:
           - runner: windows-latest
             target: x86
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Download patched Cargo files
         uses: actions/download-artifact@v4
         with:
           name: patched-cargo
           path: .
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: ${{ vars.PYTHON_VERSION_WORKFLOWS }}
           architecture: ${{ matrix.platform.target }}
@@ -134,13 +134,13 @@ jobs:
           - runner: macos-14
             target: aarch64
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Download patched Cargo files
         uses: actions/download-artifact@v4
         with:
           name: patched-cargo
           path: .
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: ${{ vars.PYTHON_VERSION_WORKFLOWS }}
       - name: Install Rust
@@ -161,7 +161,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [set-version]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Download patched Cargo files
         uses: actions/download-artifact@v4
         with:
