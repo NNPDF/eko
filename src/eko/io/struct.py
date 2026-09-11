@@ -14,7 +14,7 @@ import numpy as np
 import yaml
 
 from .. import interpolation
-from . import exceptions, raw, v1, v2
+from . import exceptions, raw
 from .access import AccessConfigs
 from .inventory import Inventory
 from .items import Evolution, Matching, Operator, Recipe, Target
@@ -133,25 +133,14 @@ class EKO:
     def theory_card(self):
         """Provide theory card, retrieving from the dump."""
         raw_th = yaml.safe_load(self.paths.theory_card.read_text(encoding="utf-8"))
-        if self.metadata.data_version in [1]:
-            raw_th = v1.update_theory(raw_th)
-        if self.metadata.data_version in [2]:
-            raw_th = v2.update_theory(raw_th)
-        return TheoryCard.from_dict(raw_th)
+        return TheoryCard.from_raw(raw_th, self.metadata.data_version)
 
     @property
     def operator_card(self):
         """Provide operator card, retrieving from the dump."""
         raw_op = yaml.safe_load(self.paths.operator_card.read_text(encoding="utf-8"))
-        if self.metadata.data_version in [1]:
-            # here we need to read also the theory card
-            raw_th = yaml.safe_load(self.paths.theory_card.read_text(encoding="utf-8"))
-            raw_op = v1.update_operator(raw_op, raw_th)
-        if self.metadata.data_version in [2]:
-            # here we need to read also the theory card
-            raw_th = yaml.safe_load(self.paths.theory_card.read_text(encoding="utf-8"))
-            raw_op = v2.update_operator(raw_op, raw_th)
-        return OperatorCard.from_dict(raw_op)
+        raw_th = yaml.safe_load(self.paths.theory_card.read_text(encoding="utf-8"))
+        return OperatorCard.from_raw(raw_op, self.metadata.data_version, raw_th)
 
     # persistency control
     # -------------------

@@ -1,5 +1,3 @@
-import pathlib
-
 import numpy as np
 import numpy.testing
 from banana import toy
@@ -9,18 +7,15 @@ import eko.basis_rotation as br
 from ekobox.apply import apply_pdf
 from ekomark.benchmark.external import LHA_utils
 
-TEST_DATA_DIR = (
-    pathlib.Path(__file__).parents[2] / "data"
-)  # directory of the EKO object
 pdf = toy.mkPDF("", 0)
 
 x_grid = LHA_utils.toy_xgrid
 EP = (10000.0, 4)
 
 
-def test_read_legacy():
-    for name in ["v1-0.13.tar", "v1-0.14.tar", "v3.tar"]:
-        with eko.EKO.read(TEST_DATA_DIR / name) as evolution_operator:
+def test_read_legacy(eko_test_paths):
+    for path in eko_test_paths:
+        with eko.EKO.read(path) as evolution_operator:
             # Check the cards
             assert isinstance(
                 evolution_operator.theory_card, eko.io.runcards.TheoryCard
