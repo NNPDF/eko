@@ -28,8 +28,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: ${{ github.event.inputs.tag || github.ref }}
           # tags needed for dynamic versioning
           fetch-depth: 0
+      - name: Set release version
+        run: |
+          TAG="${{ github.event.inputs.tag || github.ref_name }}"
+          # Strip leading 'v' if present
+          VERSION="${TAG#v}"
+          echo "POETRY_DYNAMIC_VERSIONING_BYPASS=${VERSION}" >> $GITHUB_ENV
       - name: Set up Python ${{ vars.PYTHON_VERSION_WORKFLOWS }} 🐍
         id: setup-python
         uses: actions/setup-python@v5
@@ -80,3 +87,5 @@ jobs:
           poetry build
       - name: Publish distribution 📦 to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          skip-existing: true
