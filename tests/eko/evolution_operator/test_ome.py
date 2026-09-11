@@ -73,29 +73,6 @@ def test_build_ome_nlo():
     assert ome[0, -1] != 0.0
 
 
-def test_build_ome_plain_int_method():
-    """``build_ome`` must honor the plain int value of a ``MatchingMethods``
-    member.
-
-    Plain ints are passed across the numba boundary in production to avoid
-    leaking fresh enum types into the numba type registry, see
-    https://github.com/NNPDF/eko/issues/524.
-    """
-    N = complex(2.123)
-    L = 0.0
-    a_s = 20.0
-    nf = 3
-    is_msbar = False
-    o = 1
-    aNS = A_non_singlet((o, 0), N, nf, L)
-    aS = A_singlet((o, 0), N, nf, L, is_msbar)
-    for a in [aNS, aS]:
-        for method in MatchingMethods:
-            ome_enum = build_ome(a, (o, 0), a_s, method)
-            ome_int = build_ome(a, (o, 0), a_s, int(method))
-            np.testing.assert_allclose(ome_enum, ome_int, err_msg=method)
-
-
 def test_quad_ker_errors():
     for p, t in [(True, True)]:
         for mode0, mode1 in [

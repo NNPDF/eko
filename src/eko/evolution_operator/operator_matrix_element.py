@@ -163,9 +163,6 @@ class OperatorMatrixElement(Operator):
             a_s=self.a_s,
             nf=self.nf,
             L=self.L,
-            # pass plain int across the numba boundary, to avoid leaking
-            # a fresh enum type into the numba type registry at each call
-            # (see https://github.com/NNPDF/eko/issues/524)
             sv_mode=int(self.sv_mode),
             Lsv=np.log(self.xif2),
             backward_method=int(self.backward_method),

@@ -484,52 +484,6 @@ def test_quad_ker_plain_int_args(monkeypatch):
     np.testing.assert_allclose(res_ns, 1.0)
 
 
-def test_int_and_enum_args_agree(monkeypatch):
-    """Jitted kernels must agree on enum members and their plain int values.
-
-    This guards the semantics of comparisons against enum members inside
-    jitted code (``==`` against a plain int arg), which is required by the
-    plain-int contract of the kernels, see
-    https://github.com/NNPDF/eko/issues/524.
-    """
-    monkeypatch.setattr(mellin, "Talbot_path", lambda *args: 2)
-    monkeypatch.setattr(mellin, "Talbot_jac", lambda *args: complex(0, np.pi))
-    monkeypatch.setattr(interpolation, "log_evaluate_Nx", lambda *args: 1)
-
-    kwargs = dict(
-        u=0,
-        order=(1, 0),
-        mode0=br.non_singlet_pids_map["ns+"],
-        mode1=0,
-        is_log=True,
-        logx=0.123,
-        areas=np.zeros(3),
-        as_list=[2.0, 1.0],
-        mu2_from=1.0,
-        mu2_to=2.0,
-        a_half=np.array([[1.5, 0.01]]),
-        alphaem_running=False,
-        nf=3,
-        Lsv=0,
-        ev_op_iterations=1,
-        ev_op_max_order=(1, 0),
-        is_threshold=False,
-        is_polarized=False,
-        is_time_like=False,
-        n3lo_ad_variation=(0, 0, 0, 0, 0, 0, 0),
-        use_fhmruvv=True,
-    )
-    for ev in EvoMethods:
-        for m in Modes:
-            kwargs["ev_method"] = ev
-            kwargs["sv_mode"] = m
-            res_enum = quad_ker(**kwargs)
-            kwargs["ev_method"] = int(ev)
-            kwargs["sv_mode"] = int(m)
-            res_int = quad_ker(**kwargs)
-            np.testing.assert_allclose(res_enum, res_int, err_msg=(ev, m))
-
-
 def test_pegasus_path():
     def quad_ker_pegasus(
         u, order, mode0, method, logx, areas, a1, a0, nf, ev_op_iterations

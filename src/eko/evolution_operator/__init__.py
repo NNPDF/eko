@@ -251,9 +251,6 @@ class Operator(sv.ScaleVariationModeMixin):
             order=self.order,
             mode0=label[0],
             mode1=label[1],
-            # pass plain ints across the numba boundary, to avoid leaking
-            # fresh enum types into the numba type registry at each call
-            # (see https://github.com/NNPDF/eko/issues/524)
             ev_method=int(self.ev_method),
             is_log=self.int_disp.log,
             logx=logx,

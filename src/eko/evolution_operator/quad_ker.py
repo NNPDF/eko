@@ -132,8 +132,7 @@ def build_ome(A, matching_order, a_s, backward_method):
     backward_method : int
         method for inverting the matching condition (exact or expanded),
         as the plain int value of the corresponding :class:`MatchingMethods`
-        member (passing the member itself is still supported, but plain ints
-        avoid leaking enum types into the numba type registry)
+        member
 
     Returns
     -------
