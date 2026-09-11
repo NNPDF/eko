@@ -129,8 +129,10 @@ def build_ome(A, matching_order, a_s, backward_method):
         perturbation matching order
     a_s : float
         strong coupling, needed only for the exact inverse
-    backward_method : MatchingMethods
-        empty or method for inverting the matching condition (exact or expanded)
+    backward_method : int
+        method for inverting the matching condition (exact or expanded),
+        as the plain int value of the corresponding :class:`MatchingMethods`
+        member
 
     Returns
     -------
@@ -147,7 +149,7 @@ def build_ome(A, matching_order, a_s, backward_method):
     ome = np.eye(len(A[0]), dtype=np.complex128)
     A = A[:, :, :]
     A = np.ascontiguousarray(A)
-    if backward_method is MatchingMethods.BACKWARD_EXPANDED:
+    if backward_method == MatchingMethods.BACKWARD_EXPANDED:
         # expended inverse
         if matching_order[0] >= 1:
             ome -= a_s * A[0]
@@ -164,7 +166,7 @@ def build_ome(A, matching_order, a_s, backward_method):
         if matching_order[0] >= 3:
             ome += a_s**3 * A[2]
         # need inverse exact ?  so add the missing pieces
-        if backward_method is MatchingMethods.BACKWARD_EXACT:
+        if backward_method == MatchingMethods.BACKWARD_EXACT:
             ome = np.linalg.inv(ome)
     return ome
 
@@ -278,8 +280,9 @@ def quad_ker_ad(
         pid for first sector element
     mode1 : int
         pid for second sector element
-    ev_method : str
-        ev_method
+    ev_method : int
+        evolution method, as the plain int value of the corresponding
+        :class:`eko.kernels.EvoMethods` member
     is_log : boolean
         is a logarithmic interpolation
     logx : float
@@ -304,8 +307,9 @@ def quad_ker_ad(
         number of evolution steps
     ev_op_max_order : int
         perturbative expansion order of U
-    sv_mode: int, `enum.IntEnum`
-        scale variation mode, see `eko.scale_variations.Modes`
+    sv_mode : int
+        scale variation mode, as the plain int value of the corresponding
+        :class:`eko.scale_variations.Modes` member
     is_threshold : boolean
         is this an intermediate threshold operator?
     n3lo_ad_variation : tuple
@@ -404,8 +408,9 @@ def quad_ker_qcd(
         pid for first sector element
     mode1 : int
         pid for second sector element
-    ev_method : str
-        ev_method
+    ev_method : int
+        evolution method, as the plain int value of the corresponding
+        :class:`eko.kernels.EvoMethods` member
     as1 : float
         target coupling value
     as0 : float
@@ -418,8 +423,9 @@ def quad_ker_qcd(
         number of evolution steps
     ev_op_max_order : int
         perturbative expansion order of U
-    sv_mode: int, `enum.IntEnum`
-        scale variation mode, see `eko.scale_variations.Modes`
+    sv_mode : int
+        scale variation mode, as the plain int value of the corresponding
+        :class:`eko.scale_variations.Modes` member
     is_threshold : boolean
         is this an itermediate threshold operator?
     n3lo_ad_variation : tuple
@@ -528,8 +534,9 @@ def quad_ker_qed(
         pid for first sector element
     mode1 : int
         pid for second sector element
-    ev_method : str
-        ev_method
+    ev_method : int
+        evolution method, as the plain int value of the corresponding
+        :class:`eko.kernels.EvoMethods` member
     as1 : float
         target coupling value
     as0 : float
@@ -550,8 +557,9 @@ def quad_ker_qed(
         number of evolution steps
     ev_op_max_order : int
         perturbative expansion order of U
-    sv_mode: int, `enum.IntEnum`
-        scale variation mode, see `eko.scale_variations.Modes`
+    sv_mode : int
+        scale variation mode, as the plain int value of the corresponding
+        :class:`eko.scale_variations.Modes` member
     is_threshold : boolean
         is this an itermediate threshold operator?
     n3lo_ad_variation : tuple
@@ -702,8 +710,10 @@ def quad_ker_ome(
         number of active flavor below threshold
     L : float
         :math:``\ln(\mu_F^2 / m_h^2)``
-    backward_method : MatchingMethods
-        empty or method for inverting the matching condition (exact or expanded)
+    backward_method : int
+        method for inverting the matching condition (exact or expanded),
+        as the plain int value of the corresponding :class:`MatchingMethods`
+        member
     is_msbar: bool
         add the |MSbar| contribution
     is_polarized : boolean
