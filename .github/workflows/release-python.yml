@@ -1,4 +1,4 @@
-name: deploy
+name: Deploy Python package
 
 on:
   push:
@@ -11,7 +11,8 @@ on:
         description: >-
           Existing release tag to (re)publish. Use this to complete a release
           whose tag-triggered run failed partway.
-        required: false
+        required: true
+        type: string
 
 permissions:
   contents: read
@@ -31,6 +32,31 @@ jobs:
           ref: ${{ github.event.inputs.tag || github.ref }}
           # tags needed for dynamic versioning
           fetch-depth: 0
+      - name: Validate tag
+        env:
+          TAG: ${{ github.event.inputs.tag || github.ref_name }}
+          IS_DISPATCH: ${{ github.event_name == 'workflow_dispatch' }}
+        run: |
+          if [ -z "$TAG" ]; then
+            echo "::error::Tag must be specified."
+            exit 1
+          fi
+          if [ "$IS_DISPATCH" = "true" ]; then
+            if ! git rev-parse --verify "refs/tags/$TAG" >/dev/null 2>&1; then
+              echo "::error::Tag '$TAG' does not exist in the repository."
+              exit 1
+            fi
+          fi
+      - name: Check if already published
+        env:
+          TAG: ${{ github.event.inputs.tag || github.ref_name }}
+        run: |
+          VERSION="${TAG#v}"
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://pypi.org/pypi/eko/${VERSION}/json")
+          if [ "$STATUS" = "200" ]; then
+            echo "::error::eko version '$VERSION' is already published on PyPI."
+            exit 1
+          fi
       - name: Set release version
         run: |
           TAG="${{ github.event.inputs.tag || github.ref_name }}"

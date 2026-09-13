@@ -1,4 +1,4 @@
-name: Deploy Maturin wheels
+name: Deploy Maturin wheels (ekore-rs)
 
 on:
   push:
@@ -11,7 +11,8 @@ on:
         description: >-
           Existing release tag to (re)publish. Use this to complete a release
           whose tag-triggered run failed partway.
-        required: false
+        required: true
+        type: string
 
 permissions:
   contents: read
@@ -22,17 +23,42 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.inputs.tag || github.ref }}
+          fetch-depth: 0
+      - name: Validate tag
+        env:
+          TAG: ${{ github.event.inputs.tag || github.ref_name }}
+          IS_DISPATCH: ${{ github.event_name == 'workflow_dispatch' }}
+        run: |
+          if [ -z "$TAG" ]; then
+            echo "::error::Tag must be specified."
+            exit 1
+          fi
+          if [ "$IS_DISPATCH" = "true" ]; then
+            if ! git rev-parse --verify "refs/tags/$TAG" >/dev/null 2>&1; then
+              echo "::error::Tag '$TAG' does not exist in the repository."
+              exit 1
+            fi
+          fi
+      - name: Check if already published
+        env:
+          TAG: ${{ github.event.inputs.tag || github.ref_name }}
+        run: |
+          VERSION="${TAG#v}"
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://pypi.org/pypi/ekore-rs/${VERSION}/json")
+          if [ "$STATUS" = "200" ]; then
+            echo "::error::ekore-rs version '$VERSION' is already published on PyPI."
+            exit 1
+          fi
       - uses: actions/setup-python@v7
         with:
           python-version: ${{ vars.PYTHON_VERSION_WORKFLOWS }}
       - name: Install and configure Poetry
-        if: startsWith(github.ref, 'refs/tags/') || github.event.inputs.tag != ''
         uses: snok/install-poetry@v1
       - name: Install task runner
-        if: startsWith(github.ref, 'refs/tags/') || github.event.inputs.tag != ''
         run: pip install poethepoet
       - name: Bump versions
-        if: startsWith(github.ref, 'refs/tags/') || github.event.inputs.tag != ''
         env:
           TAG: ${{ github.event.inputs.tag || github.ref_name }}
         run: |
@@ -60,6 +86,8 @@ jobs:
             target: aarch64
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.inputs.tag || github.ref }}
       - name: Download patched Cargo files
         uses: actions/download-artifact@v4
         with:
@@ -100,6 +128,8 @@ jobs:
             target: x86
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.inputs.tag || github.ref }}
       - name: Download patched Cargo files
         uses: actions/download-artifact@v4
         with:
@@ -135,6 +165,8 @@ jobs:
             target: aarch64
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.inputs.tag || github.ref }}
       - name: Download patched Cargo files
         uses: actions/download-artifact@v4
         with:
@@ -162,6 +194,8 @@ jobs:
     needs: [set-version]
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.inputs.tag || github.ref }}
       - name: Download patched Cargo files
         uses: actions/download-artifact@v4
         with:
