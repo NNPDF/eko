@@ -1,3 +1,4 @@
+import enum
 import os
 from dataclasses import dataclass
 
@@ -17,6 +18,7 @@ from eko.kernels import non_singlet_qed as qed_ns
 from eko.kernels import singlet as s
 from eko.matchings import Segment
 from eko.runner.parts import _evolve_configs, _managers
+from eko.scale_variations import Modes
 
 
 def test_quad_ker_errors():
@@ -304,6 +306,24 @@ class TestOperator:
         )
         assert sorted(o.labels) == []
 
+    def test_quad_ker_partial_passes_plain_ints(self, theory_ffns, operator_card):
+        """The quad_ker partial must pass plain ints across the numba boundary.
+
+        Passing enum members leaks a fresh enum type into the numba type
+        registry at every ``scipy.integrate.quad`` call, eventually hitting
+        numba's hard 2**32 types limit, see
+        https://github.com/NNPDF/eko/issues/524.
+        """
+        tcard: TheoryCard = theory_ffns(3)
+        ocard: OperatorCard = operator_card
+        f = FakeEKO(tcard, ocard)
+        o = Operator(_evolve_configs(f), _managers(f), Segment(2.0, 10.0, 3))
+        partial = o.quad_ker(label=(200, 0), logx=0.1, areas=np.zeros(3))
+        assert isinstance(partial.keywords["ev_method"], int)
+        assert not isinstance(partial.keywords["ev_method"], enum.Enum)
+        assert isinstance(partial.keywords["sv_mode"], int)
+        assert not isinstance(partial.keywords["sv_mode"], enum.Enum)
+
     def test_n_pools(self):
         excluded_cores = 3
         # make sure we actually have more the those cores (e.g. on github we don't)
@@ -420,6 +440,48 @@ class TestOperator:
                     np.testing.assert_allclose(
                         o1.op_members[k].value, np.eye(4), err_msg=k
                     )
+
+
+def test_quad_ker_plain_int_args(monkeypatch):
+    """Plain ints must be accepted across the numba boundary.
+
+    The production code paths pass the plain int value of the enum members
+    (and not the members themselves) to avoid leaking fresh enum types into
+    the numba type registry at every ``scipy.integrate.quad`` call, see
+    https://github.com/NNPDF/eko/issues/524.
+    """
+    monkeypatch.setattr(mellin, "Talbot_path", lambda *args: 2)
+    monkeypatch.setattr(mellin, "Talbot_jac", lambda *args: complex(0, np.pi))
+    monkeypatch.setattr(interpolation, "log_evaluate_Nx", lambda *args: 1)
+    monkeypatch.setattr(ns, "dispatcher", lambda *args: 1.0)
+    monkeypatch.setattr(s, "dispatcher", lambda *args: np.identity(2))
+
+    res_ns = quad_ker(
+        u=0,
+        order=(1, 0),
+        mode0=br.non_singlet_pids_map["ns+"],
+        mode1=0,
+        ev_method=int(EvoMethods.ITERATE_EXACT),
+        is_log=True,
+        logx=0.123,
+        areas=np.zeros(3),
+        as_list=[2.0, 1.0],
+        mu2_from=1.0,
+        mu2_to=2.0,
+        a_half=np.array([[1.5, 0.01]]),
+        alphaem_running=False,
+        nf=3,
+        Lsv=0,
+        ev_op_iterations=0,
+        ev_op_max_order=(0, 0),
+        sv_mode=int(Modes.expanded),
+        is_threshold=False,
+        is_polarized=False,
+        is_time_like=False,
+        n3lo_ad_variation=(0, 0, 0, 0, 0, 0, 0),
+        use_fhmruvv=True,
+    )
+    np.testing.assert_allclose(res_ns, 1.0)
 
 
 def test_pegasus_path():

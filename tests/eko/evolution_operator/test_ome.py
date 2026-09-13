@@ -1,3 +1,5 @@
+import enum
+
 import numpy as np
 import pytest
 
@@ -266,6 +268,30 @@ def test_quad_ker(monkeypatch):
 
 
 class TestOperatorMatrixElement:
+    def test_quad_ker_partial_passes_plain_ints(self, theory_ffns, operator_card):
+        """The quad_ker partial must pass plain ints across the numba boundary.
+
+        Passing enum members leaks a fresh enum type into the numba type
+        registry at every ``scipy.integrate.quad`` call, eventually hitting
+        numba's hard 2**32 types limit, see
+        https://github.com/NNPDF/eko/issues/524.
+        """
+        f = FakeEKO(theory_ffns(3), operator_card)
+        o = OperatorMatrixElement(
+            _matching_configs(f),
+            _managers(f),
+            nf=3,
+            q2=2.0,
+            is_backward=True,
+            L=0.0,
+            is_msbar=False,
+        )
+        partial = o.quad_ker(label=(200, 200), logx=0.1, areas=np.zeros(3))
+        assert isinstance(partial.keywords["sv_mode"], int)
+        assert not isinstance(partial.keywords["sv_mode"], enum.Enum)
+        assert isinstance(partial.keywords["backward_method"], int)
+        assert not isinstance(partial.keywords["backward_method"], enum.Enum)
+
     def test_labels(self, theory_ffns, operator_card):
         for skip_singlet in [True, False]:
             for skip_ns in [True, False]:

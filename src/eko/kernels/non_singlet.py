@@ -353,7 +353,7 @@ def dispatcher(order, method, gamma_ns, a1, a0, nf):  # pylint: disable=too-many
     # use always exact in LO
     if order[0] == 1:
         return lo_exact(gamma_ns, a1, a0, betalist)
-    if method is EvoMethods.ORDERED_TRUNCATED:
+    if method == EvoMethods.ORDERED_TRUNCATED:
         return eko_ordered_truncated(gamma_ns, a1, a0, betalist, order)
     if method == EvoMethods.TRUNCATED:
         return eko_truncated(gamma_ns, a1, a0, betalist, order)
