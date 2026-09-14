@@ -1,5 +1,5 @@
 diff --git a/src/eko/evolution_operator/__init__.py b/src/eko/evolution_operator/__init__.py
-index d25e6e4e..6c93b180 100644
+index 1c900594..6c93b180 100644
 --- a/src/eko/evolution_operator/__init__.py
 +++ b/src/eko/evolution_operator/__init__.py
 @@ -3,7 +3,6 @@ r"""Contains the central operator classes.
@@ -56,7 +56,7 @@ index d25e6e4e..6c93b180 100644
 -            order=self.order,
 -            mode0=label[0],
 -            mode1=label[1],
--            ev_method=self.ev_method,
+-            ev_method=int(self.ev_method),
 -            is_log=self.int_disp.log,
 -            logx=logx,
 -            areas=areas,
@@ -69,7 +69,7 @@ index d25e6e4e..6c93b180 100644
 -            Lsv=np.log(self.xif2),
 -            ev_op_iterations=self.config["ev_op_iterations"],
 -            ev_op_max_order=tuple(self.config["ev_op_max_order"]),
--            sv_mode=self.sv_mode,
+-            sv_mode=int(self.sv_mode),
 -            is_threshold=self.is_threshold,
 -            n3lo_ad_variation=self.config["n3lo_ad_variation"],
 -            is_polarized=self.config["polarized"],

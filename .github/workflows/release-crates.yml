@@ -11,7 +11,8 @@ on:
         description: >-
           Existing release tag to (re)publish. Use this to complete a release
           whose tag-triggered run failed partway.
-        required: false
+        required: true
+        type: string
 
 jobs:
   deploy:
@@ -19,8 +20,49 @@ jobs:
     if: startsWith(github.ref, 'refs/tags/') || github.event.inputs.tag != ''
 
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.inputs.tag || github.ref }}
+          fetch-depth: 0
+      - name: Validate tag
+        env:
+          TAG: ${{ github.event.inputs.tag || github.ref_name }}
+          IS_DISPATCH: ${{ github.event_name == 'workflow_dispatch' }}
+        run: |
+          if [ -z "$TAG" ]; then
+            echo "::error::Tag must be specified."
+            exit 1
+          fi
+          if [[ ! "$TAG" =~ ^v?[0-9]+(\.[0-9]+)*(-[a-zA-Z0-9.]+)?$ ]]; then
+            echo "::error::Invalid tag format: $TAG"
+            exit 1
+          fi
+          if [ "$IS_DISPATCH" = "true" ]; then
+            if ! git rev-parse --verify "refs/tags/$TAG" >/dev/null 2>&1; then
+              echo "::error::Tag '$TAG' does not exist in the repository."
+              exit 1
+            fi
+          fi
+      - name: Check if already published
+        env:
+          TAG: ${{ github.event.inputs.tag || github.ref_name }}
+        run: |
+          VERSION="${TAG#v}"
+          ALL_PUBLISHED=true
+          for crate in $(jq -r '.[]' crates/release.json); do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" -H "User-Agent: eko-release-ci" "https://crates.io/api/v1/crates/${crate}/${VERSION}")
+            if [ "$STATUS" != "200" ]; then
+              ALL_PUBLISHED=false
+              break
+            fi
+          done
+          if [ "$ALL_PUBLISHED" = "true" ]; then
+            echo "::error::All crates for version '$VERSION' are already published on crates.io."
+            exit 1
+          fi
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ vars.PYTHON_VERSION_WORKFLOWS }}
       - name: Install and configure Poetry
         uses: snok/install-poetry@v1
       - name: Install task runner

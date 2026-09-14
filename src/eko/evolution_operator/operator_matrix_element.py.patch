@@ -1,5 +1,5 @@
 diff --git a/src/eko/evolution_operator/operator_matrix_element.py b/src/eko/evolution_operator/operator_matrix_element.py
-index 9c41b1fa..c2e66e93 100644
+index 3bf847e5..c2e66e93 100644
 --- a/src/eko/evolution_operator/operator_matrix_element.py
 +++ b/src/eko/evolution_operator/operator_matrix_element.py
 @@ -2,10 +2,10 @@
@@ -56,9 +56,9 @@ index 9c41b1fa..c2e66e93 100644
 -            a_s=self.a_s,
 -            nf=self.nf,
 -            L=self.L,
--            sv_mode=self.sv_mode,
+-            sv_mode=int(self.sv_mode),
 -            Lsv=np.log(self.xif2),
--            backward_method=self.backward_method,
+-            backward_method=int(self.backward_method),
 -            is_msbar=self.is_msbar,
 -            is_polarized=self.config["polarized"],
 -            is_time_like=self.config["time_like"],

@@ -41,13 +41,13 @@ jobs:
     container: ${{ inputs.container-image }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           # tags needed for dynamic versioning
           fetch-depth: 0
       - name: Set up Python ${{ inputs.python-version }} 🐍
         id: setup-python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: ${{ inputs.python-version }}
       - name: Install and configure Poetry
@@ -56,7 +56,7 @@ jobs:
           virtualenvs-path: ~/.virtualenvs
           installer-parallel: true
       - name: Cache Poetry virtualenv
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         id: cache
         with:
           path: ~/.virtualenvs
@@ -77,7 +77,7 @@ jobs:
         run: pip install poethepoet
       - name: Get test data
         id: cache-test-data
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: test-data
           key: test-data-${{inputs.data-version}}
@@ -95,7 +95,7 @@ jobs:
         run: |
           poe test
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
           files: ./coverage.xml
           flags: unittests
