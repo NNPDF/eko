@@ -4,7 +4,7 @@ import logging
 import os
 import pathlib
 from dataclasses import dataclass
-from typing import Optional
+from typing import Optional, Self
 
 import yaml
 from packaging.version import parse
@@ -69,7 +69,7 @@ class Metadata(DictLike):
         return content
 
     @classmethod
-    def from_raw(cls, raw: dict) -> "Metadata":
+    def from_raw(cls, raw: dict) -> Self:
         """Build metadata from raw yaml, applying legacy patches."""
         version = parse(raw["version"])
         data_version = int(raw["data_version"])

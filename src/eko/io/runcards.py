@@ -8,7 +8,7 @@ import pathlib
 import tarfile
 from dataclasses import dataclass
 from math import nan
-from typing import List, Optional, Union
+from typing import List, Optional, Self, Union
 
 import numpy as np
 import numpy.typing as npt
@@ -85,7 +85,7 @@ class TheoryCard(DictLike):
             self.matching_order = (self.order[0] - 1, 0)
 
     @classmethod
-    def from_raw(cls, raw: dict, data_version: int) -> "TheoryCard":
+    def from_raw(cls, raw: dict, data_version: int) -> Self:
         """Build a theory card from a raw dictionary."""
         if data_version == 1:
             raw = v1.update_theory(raw)
@@ -186,7 +186,7 @@ class OperatorCard(DictLike):
         return np.array(br.flavor_basis_pids)
 
     @classmethod
-    def from_raw(cls, raw: dict, data_version: int, theory_raw) -> "OperatorCard":
+    def from_raw(cls, raw: dict, data_version: int, theory_raw) -> Self:
         """Build an operator card from a raw dictionary."""
         if data_version == 1:
             raw = v1.update_operator(raw, theory_raw)
