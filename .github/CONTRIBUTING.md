@@ -11,7 +11,7 @@ language, however, please read a "Please" in front of everything.
   Conduct](https://github.com/NNPDF/eko/blob/master/.github/CODE_OF_CONDUCT.md)
   and use the provided [Issue
   Templates](https://github.com/NNPDF/eko/issues/new/choose)
-- 🤖 Follow the policy for AI/LLM contributions of NNPDF - see [here](https://docs.nnpdf.science/contributing/rules.html#llm-usage-guideliens)  
+- 🤖 Follow the policy for AI/LLM contributions of NNPDF - see [here](https://docs.nnpdf.science/contributing/rules.html#llm-usage-guidelines)  
 - :1234: Use the _almost_ standard [SemVer](https://semver.org/) for version numbers
 
 ## Tools
