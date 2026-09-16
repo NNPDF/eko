@@ -13,7 +13,9 @@ We may prefix the items to signal the scope:
 
 Items without prefix refer to a global change.
 
-## [Unreleased](https://github.com/NNPDF/eko/compare/v0.15.6...HEAD)
+## [Unreleased](https://github.com/NNPDF/eko/compare/v0.15.7...HEAD)
+
+## [0.15.7](https://github.com/NNPDF/eko/compare/v0.15.6...v0.15.7) - 2026-09-16
 
 ### Added
 - py: Read metadata, theory and operator cards from an EKO archive without extracting operators ([#563](https://github.com/NNPDF/eko/pull/563))
