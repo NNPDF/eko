@@ -15,6 +15,9 @@ Items without prefix refer to a global change.
 
 ## [Unreleased](https://github.com/NNPDF/eko/compare/v0.15.6...HEAD)
 
+### Added
+- py: Read metadata, theory and operator cards from an EKO archive without extracting operators ([#563](https://github.com/NNPDF/eko/pull/563))
+
 ## [0.15.6](https://github.com/NNPDF/eko/compare/v0.15.5...v0.15.6) - 2026-09-08
 
 ### Added

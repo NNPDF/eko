@@ -4,7 +4,7 @@ import logging
 import os
 import pathlib
 from dataclasses import dataclass
-from typing import Optional
+from typing import Optional, Self
 
 import yaml
 from packaging.version import parse
@@ -64,19 +64,21 @@ class Metadata(DictLike):
         paths = InternalPaths(path)
         # read raw file first to catch version
         raw = yaml.safe_load(paths.metadata.read_text(encoding="utf-8"))
-        version = parse(raw["version"])
-        data_version = int(raw["data_version"])
-        # patch if necessary
-        if data_version == 1:
-            if version.major == 0 and version.minor == 13:
-                raw = v1.update_metadata(paths, raw)
-            elif version.major == 0 and version.minor == 14:
-                raw = v2.update_metadata(paths, raw)
-
-        # now we are ready
-        content = cls.from_dict(raw)
+        content = cls.from_raw(raw)
         content._path = path
         return content
+
+    @classmethod
+    def from_raw(cls, raw: dict) -> Self:
+        """Build metadata from raw yaml, applying legacy patches."""
+        version = parse(raw["version"])
+        data_version = int(raw["data_version"])
+        if data_version == 1:
+            if version.major == 0 and version.minor == 13:
+                raw = v1.update_metadata(raw)
+            elif version.major == 0 and version.minor == 14:
+                raw = v2.update_metadata(raw)
+        return cls.from_dict(raw)
 
     def update(self):
         """Update the disk copy of metadata."""
