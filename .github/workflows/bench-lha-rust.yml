@@ -25,11 +25,11 @@ jobs:
 
     steps:
       - uses: actions/checkout@v7
-      - name: Set up Python ${{ matrix.python-version }} 🐍
+      - name: Set up Python ${{ vars.PYTHON_VERSION_WORKFLOWS }} 🐍
         id: setup-python
         uses: actions/setup-python@v7
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: ${{ vars.PYTHON_VERSION_WORKFLOWS }}
       - name: Install and configure Poetry
         uses: snok/install-poetry@v1
         with:
