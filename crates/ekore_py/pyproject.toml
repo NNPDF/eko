@@ -4,7 +4,8 @@ build-backend = "maturin"
 
 [project]
 name = "ekore-rs"
-readme="README.md"
+description = "Anomalous dimensions and operator matrix elements for EKO"
+readme = "README.md"
 dynamic = ["version"]
 requires-python = ">=3.11"
 classifiers = [

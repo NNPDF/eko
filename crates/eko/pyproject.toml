@@ -4,7 +4,8 @@ build-backend = "maturin"
 
 [project]
 name = "eko-rs"
-readme="README.md"
+description = "Internal package for EKO to glue Python and Rust"
+readme = "README.md"
 dynamic = ["version"]
 requires-python = ">=3.11"
 classifiers = [
