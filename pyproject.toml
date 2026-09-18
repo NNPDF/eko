@@ -7,14 +7,7 @@ name = "eko"
 version = "0.0.0"
 description = "Evolution Kernel Operators"
 readme = "README.md"
-authors = [
-  "A. Barontini <andrea.barontini@mi.infn.it>",
-  "A. Candido <alessandro.candido@mi.infn.it>",
-  "F. Hekhorn <felix.hekhorn@mi.infn.it>",
-  "N. Laurenti <niccolo.laurenti@mi.infn.it>",
-  "G. Magni <gmagni@nikhef.nl>",
-  "T. Sharma <tanishq.sharma@alumni.cern>",
-]
+authors = ["EKO team"]
 classifiers = [
   "Programming Language :: Python",
   "Programming Language :: Python :: 3",
@@ -95,8 +88,16 @@ dirty = true
 format-jinja = "{% if distance == 0 %}{{ base }}{% else %}0.0.0-post.{{ distance }}+{{ commit }}{% endif %}"
 
 [tool.poetry-dynamic-versioning.substitution]
-files = ["src/eko/version.py", "src/ekomark/version.py", "src/ekobox/version.py"]
-folders = [{path = "src/eko"}, {path = "src/ekomark"}, {path = "src/ekobox"}]
+files = [
+  "src/eko/version.py",
+  "src/ekomark/version.py",
+  "src/ekobox/version.py",
+]
+folders = [
+  { path = "src/eko" },
+  { path = "src/ekomark" },
+  { path = "src/ekobox" },
+]
 
 [tool.poetry-dynamic-versioning.files."src/eko/version.py"]
 persistent-substitution = true
@@ -209,33 +210,33 @@ convention = "numpy"
 [tool.ruff]
 # Exclude a variety of commonly ignored directories.
 exclude = [
-    ".bzr",
-    ".direnv",
-    ".eggs",
-    ".git",
-    ".git-rewrite",
-    ".hg",
-    ".ipynb_checkpoints",
-    ".mypy_cache",
-    ".nox",
-    ".pants.d",
-    ".pyenv",
-    ".pytest_cache",
-    ".pytype",
-    ".ruff_cache",
-    ".svn",
-    ".tox",
-    ".venv",
-    ".vscode",
-    "__pypackages__",
-    "_build",
-    "buck-out",
-    "build",
-    "dist",
-    "node_modules",
-    "site-packages",
-    "venv",
-    "extras/"
+  ".bzr",
+  ".direnv",
+  ".eggs",
+  ".git",
+  ".git-rewrite",
+  ".hg",
+  ".ipynb_checkpoints",
+  ".mypy_cache",
+  ".nox",
+  ".pants.d",
+  ".pyenv",
+  ".pytest_cache",
+  ".pytype",
+  ".ruff_cache",
+  ".svn",
+  ".tox",
+  ".venv",
+  ".vscode",
+  "__pypackages__",
+  "_build",
+  "buck-out",
+  "build",
+  "dist",
+  "node_modules",
+  "site-packages",
+  "venv",
+  "extras/",
 ]
 
 [tool.ruff.format]

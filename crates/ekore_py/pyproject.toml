@@ -4,13 +4,18 @@ build-backend = "maturin"
 
 [project]
 name = "ekore-rs"
-readme="README.md"
+description = "Anomalous dimensions and operator matrix elements for EKO"
+readme = "README.md"
+authors = [{ name = "EKO team" }]
 dynamic = ["version"]
 requires-python = ">=3.11"
 classifiers = [
   "Programming Language :: Rust",
   "Programming Language :: Python :: Implementation :: CPython",
   "Programming Language :: Python :: Implementation :: PyPy",
+  "Topic :: Scientific/Engineering",
+  "Topic :: Scientific/Engineering :: Physics",
+  "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
 ]
 
 [tool.pytest.ini_options]
