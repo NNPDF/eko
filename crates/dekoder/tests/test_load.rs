@@ -85,3 +85,12 @@ fn load_operator() {
     assert!(op.dim().0 > 0);
     assert!(op.dim().0 == operator.err.unwrap().dim().0);
 }
+
+#[test]
+fn read_eko_cards() {
+    let src = v3tar();
+    let (metadata, theory, operator) = EKO::read_eko_cards(src).unwrap();
+    assert!(!metadata.is_empty());
+    assert!(!theory.is_empty());
+    assert!(!operator.is_empty());
+}
