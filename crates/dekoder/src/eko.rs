@@ -149,7 +149,7 @@ impl EKO {
         let mut operator: Option<String> = None;
 
         for entry in ar.entries()? {
-            let entry = entry?;  
+            let entry = entry?;
             // get the file name (last component of the path)
             let path = entry.path()?;
             let name = path.file_name();
@@ -168,8 +168,8 @@ impl EKO {
             } else {
                 continue;
             };
-            
-            let mut entry = entry;    // used shadowing to make entry mutable
+
+            let mut entry = entry; // used shadowing to make entry mutable
             let mut contents = String::new();
             entry.read_to_string(&mut contents)?;
             *target = Some(contents);
