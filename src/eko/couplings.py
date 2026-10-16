@@ -694,7 +694,9 @@ class Couplings:
         numpy.ndarray
             couplings at target scale :math:`a(Q^2)`
         """
-        key = (float(a_ref[0]), float(a_ref[1]), nf, nl, scale_from, float(scale_to))
+        scale_from = float(np.squeeze(scale_from))
+        scale_to = float(np.squeeze(scale_to))
+        key = (float(a_ref[0]), float(a_ref[1]), nf, nl, scale_from, scale_to)
         try:
             return self.cache[key].copy()
         except KeyError:
@@ -716,12 +718,12 @@ class Couplings:
                         nf,
                         nl,
                         scale_from,
-                        float(scale_to),
+                        scale_to,
                         self.decoupled_running,
                     )
                 else:
                     a_new = couplings_expanded_fixed_alphaem(
-                        self.order, a_ref.astype(float), nf, scale_from, float(scale_to)
+                        self.order, a_ref.astype(float), nf, scale_from, scale_to
                     )
             self.cache[key] = a_new.copy()
             return a_new
@@ -731,6 +733,7 @@ class Couplings:
         scale_to,
         nf_to=None,
     ):
+        scale_to = float(np.squeeze(scale_to))
         r"""Compute couplings :math:`a_i(\mu_R^2) =
         \frac{\alpha_i(\mu_R^2)}{4\pi}`.
 

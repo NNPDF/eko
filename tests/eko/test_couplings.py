@@ -317,3 +317,34 @@ class TestCouplings:
         np.testing.assert_allclose(
             mathematica_val, as_N3LO.a(Q2)[0] - as_NNLO.a(Q2)[0], rtol=5e-7
         )
+
+    def test_scale_types(self):
+        """Test that different scalar/array types for scale_to are safely handled (#371)."""
+        couplings = CouplingsInfo(
+            alphas=0.118,
+            alphaem=0.00781,
+            ref=(91.0, 5),
+        )
+        sc = Couplings(
+            couplings,
+            order=(2, 0),
+            method=CouplingEvolutionMethod.EXPANDED,
+            masses=masses,
+            hqm_scheme=QuarkMassScheme.POLE,
+            thresholds_ratios=(1.0, 1.0, 1.0),
+        )
+        # reference evaluation with float
+        ref = sc.a(100.0)
+
+        # test np.float64, 0d array, and 1d 1-element array
+        for scale in [np.float64(100.0), np.array(100.0), np.array([100.0])]:
+            res = sc.a(scale)
+            np.testing.assert_allclose(res, ref)
+
+        # compute() directly with array inputs
+        res_comp = sc.compute(sc.a_ref, 5, 3, np.array([91.0**2]), np.array([100.0]))
+        np.testing.assert_allclose(res_comp, ref)
+
+        # multi-element arrays should raise TypeError
+        with pytest.raises(TypeError):
+            sc.a(np.array([100.0, 200.0]))
