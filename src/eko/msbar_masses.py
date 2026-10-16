@@ -164,8 +164,8 @@ def ker_dispatcher(q2_to, q2m_ref, strong_coupling, xif2, nf):
     ker :
         Expanded or exact |MSbar| kernel
     """
-    a0 = strong_coupling.a(q2m_ref * xif2, nf)[0]
-    a1 = strong_coupling.a(q2_to * xif2, nf)[0]
+    a0 = strong_coupling.a(float(np.squeeze(q2m_ref * xif2)), nf)[0]
+    a1 = strong_coupling.a(float(np.squeeze(q2_to * xif2)), nf)[0]
     method = strong_coupling.method
     order = strong_coupling.order
     if method == "expanded":
@@ -252,15 +252,16 @@ def solve(m2_ref, q2m_ref, strong_coupling, nf_ref, xif2):
     """
 
     def rge(m2, q2m_ref, strong_coupling, xif2, nf_ref):
+        m2_val = float(np.squeeze(m2))
         return (
-            m2_ref * ker_dispatcher(m2, q2m_ref, strong_coupling, xif2, nf_ref) ** 2
-            - m2
+            m2_ref * ker_dispatcher(m2_val, q2m_ref, strong_coupling, xif2, nf_ref) ** 2
+            - m2_val
         )
 
     msbar_mass = optimize.fsolve(
         rge, q2m_ref, args=(q2m_ref, strong_coupling, xif2, nf_ref)
     )
-    return float(msbar_mass)
+    return float(np.squeeze(msbar_mass))
 
 
 def evolve(
