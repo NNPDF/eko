@@ -1,9 +1,9 @@
 //! Utilities for reading and writing an eko output.
+use serde::Deserialize;
 use std::ffi::OsStr;
-use std::fs::File;
-use std::fs::remove_dir_all;
+use std::fs::{File, read_to_string, remove_dir_all};
 use std::io::{BufWriter, Read};
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use yaml_rust2::Yaml;
 
 use crate::{EKOError, Operator, Result};
@@ -25,6 +25,26 @@ pub struct EvolutionPoint {
     pub scale: f64,
     /// Number of flavors
     pub nf: i64,
+}
+
+/// Metadata values stored in an EKO metadata card.
+#[derive(Deserialize)]
+pub struct Metadata {
+    /// Metadata schema version.
+    pub data_version: i64,
+    /// Evolution origin point as `(scale, number of flavors)`.
+    pub origin: Vec<f64>,
+    /// EKO data version.
+    pub version: String,
+    /// The x-grid used by the EKO output.
+    pub xgrid: Vec<f64>,
+}
+
+/// Read and deserialize a metadata YAML file.
+pub fn read_metadata(path: &Path) -> Result<Metadata> {
+    let content = read_to_string(path)?;
+    let metadata = yaml_serde::from_str(&content)?;
+    Ok(metadata)
 }
 
 impl TryFrom<&Yaml> for EvolutionPoint {

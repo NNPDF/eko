@@ -22,6 +22,8 @@ lz4_flex.workspace = true
 ndarray.workspace = true
 ndarray-npy.workspace = true
 thiserror.workspace = true
+serde = { version = "1", features = ["derive"] }
+yaml_serde = "0.10.7"
 
 [dev-dependencies]
 assert_fs.workspace = true
