@@ -36,6 +36,8 @@ pyo3 = "0.29.0"
 tar = "0.4.46"
 thiserror = "1.0.63"
 yaml-rust2 = "0.8"
+yaml_serde = "0.10.7"
+serde = { version = "1", features = ["derive"] }
 
 # Dev dependencies
 assert_fs = "1.1.2"
