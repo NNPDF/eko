@@ -2,7 +2,7 @@ use assert_fs::prelude::*;
 use predicates::prelude::*;
 use std::path::PathBuf;
 
-use dekoder::eko::{EKO, EvolutionPoint, read_metadata};
+use dekoder::eko::{EKO, EvolutionPoint};
 
 // assert_fs will clean up the directories for us,
 // so for the most part we don't need worry about that.
@@ -90,20 +90,10 @@ fn load_operator() {
 fn read_eko_cards() {
     let src = v3tar();
     let (metadata, theory, operator) = EKO::read_eko_cards(src).unwrap();
-    assert!(!metadata.is_empty());
-    assert!(!theory.is_empty());
-    assert!(!operator.is_empty());
-}
-
-#[test]
-fn read_metadata_card() {
-    let src = v3tar();
-    let dst = assert_fs::TempDir::new().unwrap();
-    let _eko = EKO::extract(src, dst.to_owned()).unwrap();
-    let metadata = read_metadata(dst.child("metadata.yaml").path()).unwrap();
-
     assert_eq!(metadata.data_version, 3);
     assert_eq!(metadata.origin.len(), 2);
     assert_eq!(metadata.version, "0.15.1");
     assert!(!metadata.xgrid.is_empty());
+    assert!(!theory.is_empty());
+    assert!(!operator.is_empty());
 }
