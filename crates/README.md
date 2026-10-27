@@ -16,4 +16,4 @@ Here, we develop the Rust components of the EKO library
 - `doc-header.html` is an HTML snippet to be included in every docs page to inject
   KaTeX support and abbreviation support
 - `bump-versions.py` increases the Rust versions in all crates consistently
-- `make_bib.py` generates the Rust function stubs which serve as fake bibliography system
+- `make_bib.py` generates the Rust function stubs which serve as fake bibliography system from each crate's `refs.bib`
