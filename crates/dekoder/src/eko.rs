@@ -1,5 +1,5 @@
 //! Utilities for reading and writing an eko output.
-use serde::Deserialize;
+use serde::{Deserialize, Deserializer};
 use std::ffi::OsStr;
 use std::fs::{File, remove_dir_all};
 use std::io::{BufWriter, Read};
@@ -33,11 +33,22 @@ pub struct Metadata {
     /// Metadata schema version.
     pub data_version: i64,
     /// Evolution origin point as `(scale, number of flavors)`.
-    pub origin: Vec<f64>,
+    #[serde(deserialize_with = "deserialize_evolution_point")]
+    pub origin: EvolutionPoint,
     /// EKO data version.
     pub version: String,
     /// The x-grid used by the EKO output.
     pub xgrid: Vec<f64>,
+}
+
+fn deserialize_evolution_point<'de, D>(
+    deserializer: D,
+) -> std::result::Result<EvolutionPoint, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let (scale, nf) = <(f64, i64)>::deserialize(deserializer)?;
+    Ok(EvolutionPoint { scale, nf })
 }
 
 /// Reimplementation of [`np.isclose`](https://numpy.org/doc/stable/reference/generated/numpy.isclose.html#numpy-isclose).
