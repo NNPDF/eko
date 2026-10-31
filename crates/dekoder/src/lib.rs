@@ -87,6 +87,9 @@ pub enum EKOError {
     /// Underlying I/O error.
     #[error("I/O error")]
     IOError(#[from] std::io::Error),
+    /// YAML deserialization error.
+    #[error("YAML error: {0}")]
+    YamlError(#[from] yaml_serde::Error),
     /// 4D operator is not readable.
     #[error("Loading operator from `{0}` failed")]
     OperatorLoadError(PathBuf),
