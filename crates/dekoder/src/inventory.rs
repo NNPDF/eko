@@ -1,12 +1,12 @@
 //! Utilities for dealing with the eko assets.
 use lz4_flex::frame::FrameDecoder;
 use ndarray_npy::NpzReader;
+use serde::de::DeserializeOwned;
 use std::collections::HashMap;
 use std::ffi::OsString;
 use std::fs::{File, read_dir, read_to_string};
 use std::io::{Cursor, Read};
 use std::path::PathBuf;
-use yaml_rust2::{Yaml, YamlLoader};
 
 use crate::{EKOError, Operator, Result};
 
@@ -14,14 +14,14 @@ use crate::{EKOError, Operator, Result};
 const HEADER_EXT: &str = "yaml";
 
 /// Assets manager.
-pub(crate) struct Inventory<K: Eq + for<'a> TryFrom<&'a Yaml, Error = EKOError>> {
+pub(crate) struct Inventory<K: Eq + DeserializeOwned> {
     /// Working directory
     path: PathBuf,
     /// Available keys
     keys: HashMap<OsString, K>,
 }
 
-impl<K: Eq + for<'a> TryFrom<&'a Yaml, Error = EKOError>> Inventory<K> {
+impl<K: Eq + DeserializeOwned> Inventory<K> {
     /// Construct new manager pointing to `path`.
     pub(crate) fn new(path: PathBuf) -> Self {
         Self {
@@ -39,8 +39,7 @@ impl<K: Eq + for<'a> TryFrom<&'a Yaml, Error = EKOError>> Inventory<K> {
                 continue;
             }
             // read
-            let cnt = YamlLoader::load_from_str(&read_to_string(&entry)?)
-                .map_err(|_| EKOError::KeyError("because failed to read yaml file.".to_owned()))?;
+            let key: K = yaml_serde::from_str(&read_to_string(&entry)?)?;
             // add to register
             self.keys.insert(
                 entry
@@ -49,7 +48,7 @@ impl<K: Eq + for<'a> TryFrom<&'a Yaml, Error = EKOError>> Inventory<K> {
                         "because failed to read file name".to_owned(),
                     ))?
                     .to_os_string(),
-                K::try_from(&cnt[0])?,
+                key,
             );
         }
         Ok(())

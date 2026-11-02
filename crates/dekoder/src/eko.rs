@@ -1,10 +1,9 @@
 //! Utilities for reading and writing an eko output.
+use serde::{Deserialize, Deserializer};
 use std::ffi::OsStr;
-use std::fs::File;
-use std::fs::remove_dir_all;
+use std::fs::{File, remove_dir_all};
 use std::io::{BufWriter, Read};
 use std::path::PathBuf;
-use yaml_rust2::Yaml;
 
 use crate::{EKOError, Operator, Result};
 
@@ -20,6 +19,7 @@ const THEORY_FILE: &str = "theory.yaml";
 const OPERATOR_FILE: &str = "operator.yaml";
 
 /// A reference point in the evolution atlas.
+#[derive(Deserialize)]
 pub struct EvolutionPoint {
     /// Evolution scale.
     pub scale: f64,
@@ -27,24 +27,28 @@ pub struct EvolutionPoint {
     pub nf: i64,
 }
 
-impl TryFrom<&Yaml> for EvolutionPoint {
-    type Error = EKOError;
+/// Metadata values stored in an EKO metadata card.
+#[derive(Deserialize)]
+pub struct Metadata {
+    /// Metadata schema version.
+    pub data_version: i64,
+    /// Evolution origin point as `(scale, number of flavors)`.
+    #[serde(deserialize_with = "deserialize_evolution_point")]
+    pub origin: EvolutionPoint,
+    /// EKO data version.
+    pub version: String,
+    /// The x-grid used by the EKO output.
+    pub xgrid: Vec<f64>,
+}
 
-    /// Load from yaml.
-    fn try_from(yml: &Yaml) -> Result<Self> {
-        // work around float representation
-        let scale = yml["scale"].as_f64();
-        let scale = match scale {
-            Some(scale) => scale,
-            None => yml["scale"].as_i64().ok_or(EKOError::KeyError(
-                "because failed to read scale as float from int".to_owned(),
-            ))? as f64,
-        };
-        let nf = yml["nf"]
-            .as_i64()
-            .ok_or(EKOError::KeyError("because failed to read nf".to_owned()))?;
-        Ok(Self { scale, nf })
-    }
+fn deserialize_evolution_point<'de, D>(
+    deserializer: D,
+) -> std::result::Result<EvolutionPoint, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let (scale, nf) = <(f64, i64)>::deserialize(deserializer)?;
+    Ok(EvolutionPoint { scale, nf })
 }
 
 /// Reimplementation of [`np.isclose`](https://numpy.org/doc/stable/reference/generated/numpy.isclose.html#numpy-isclose).
@@ -140,39 +144,45 @@ impl EKO {
 
     /// Read metadata and cards from `src`.
     /// The function avoids extracting the (large) operators.
-    /// Returns the raw yaml contents as `(metadata, theory, operator)`.
-    pub fn read_eko_cards(src: PathBuf) -> Result<(String, String, String)> {
+    /// Returns `(metadata, theory, operator)`, with metadata deserialized.
+    pub fn read_eko_cards(src: PathBuf) -> Result<(Metadata, String, String)> {
         let mut ar = tar::Archive::new(File::open(src)?);
 
-        let mut metadata: Option<String> = None;
+        let mut metadata: Option<Metadata> = None;
         let mut theory: Option<String> = None;
         let mut operator: Option<String> = None;
 
         for entry in ar.entries()? {
-            let entry = entry?;
+            let mut entry = entry?;
             // get the file name (last component of the path)
-            let path = entry.path()?;
-            let name = path.file_name();
+            let card = {
+                let path = entry.path()?;
+                let name = match path.file_name() {
+                    Some(n) => n,
+                    None => continue,
+                };
 
-            let name = match name {
-                Some(n) => n,
-                None => continue,
+                if name == OsStr::new(METADATA_FILE) {
+                    0
+                } else if name == OsStr::new(THEORY_FILE) {
+                    1
+                } else if name == OsStr::new(OPERATOR_FILE) {
+                    2
+                } else {
+                    continue;
+                }
             };
 
-            let target = if name == OsStr::new(METADATA_FILE) {
-                &mut metadata
-            } else if name == OsStr::new(THEORY_FILE) {
-                &mut theory
-            } else if name == OsStr::new(OPERATOR_FILE) {
-                &mut operator
-            } else {
-                continue;
-            };
-
-            let mut entry = entry; // used shadowing to make entry mutable
             let mut contents = String::new();
             entry.read_to_string(&mut contents)?;
-            *target = Some(contents);
+
+            if card == 0 {
+                metadata = Some(yaml_serde::from_str(&contents)?);
+            } else if card == 1 {
+                theory = Some(contents);
+            } else {
+                operator = Some(contents);
+            }
         }
 
         Ok((

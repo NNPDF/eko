@@ -90,7 +90,10 @@ fn load_operator() {
 fn read_eko_cards() {
     let src = v3tar();
     let (metadata, theory, operator) = EKO::read_eko_cards(src).unwrap();
-    assert!(!metadata.is_empty());
+    assert_eq!(metadata.data_version, 3);
+    assert!(metadata.origin == EvolutionPoint { scale: 2.0, nf: 4 });
+    assert_eq!(metadata.version, "0.15.1");
+    assert!(!metadata.xgrid.is_empty());
     assert!(!theory.is_empty());
     assert!(!operator.is_empty());
 }
