@@ -129,31 +129,13 @@ def load_field(type_, value):
     # TODO: nice place for a match statement...
     if type(type_) is typing.NewType:
         return load_field(type_.__supertype__, value)
-    try:
-        # before py3.10 typing.NewType was just a function, so the check above
-        # would  fail
-        return load_field(type_.__supertype__, value)
-    except AttributeError:
-        pass
+    if type(type_) is typing.TypeAliasType:
+        return load_field(type_.__value__, value)
 
     if typing.get_origin(type_) is not None:
         # this has to go first since for followin ones I will assume they are
         # valid classes, cf. the module docstring
         return load_typing(type_, value)
-
-    # FIXME: python 3.8 does not recognize the origin of `npt.NDArray`, but at
-    # the same time it is not a proper class since `numpy==1.23.2`, since it is
-    # not recognized by `inspect.isclass`, and `type(npt.NDArray)` is not
-    # inheriting from `type`
-    # However, this check should be matched by every version of NumPy for every
-    # version of Python supported
-    # Once py3.8 will be dropped, move this back below `inspect.isclass`
-    # assertion
-    if np.ndarray in type_.__mro__ or issubclass(type_, np.ndarray):
-        # do not apply array on scalars
-        if isinstance(value, list):
-            return np.array(value)
-        return value
 
     assert inspect.isclass(type_)
 
@@ -161,6 +143,11 @@ def load_field(type_, value):
         return type_.from_dict(value)
     if issubclass(type_, enum.Enum):
         return load_enum(type_, value)
+    if np.ndarray in type_.__mro__ or issubclass(type_, np.ndarray):
+        # do not apply array on scalars
+        if isinstance(value, list):
+            return np.array(value)
+        return value
     if isinstance(value, dict):
         return type_(**value)
 
