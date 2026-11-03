@@ -8,6 +8,7 @@ import copy
 import dataclasses
 import enum
 import inspect
+import sys
 import typing
 
 import numpy as np
@@ -129,7 +130,7 @@ def load_field(type_, value):
     # TODO: nice place for a match statement...
     if type(type_) is typing.NewType:
         return load_field(type_.__supertype__, value)
-    if type(type_) is typing.TypeAliasType:
+    if sys.version_info >= (3, 12) and type(type_) is typing.TypeAliasType:  # pylint: disable=no-member
         return load_field(type_.__value__, value)
 
     if typing.get_origin(type_) is not None:
