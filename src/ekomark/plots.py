@@ -236,9 +236,11 @@ def save_operators_to_pdf(
     qed : bool
         plot operators in unified evolution basis, if the former is active
     """
-    ops_names = (
-        br.evol_basis_pids if rotate_to_evolution_basis else br.flavor_basis_pids
-    )
+    ops_names = br.flavor_basis_pids
+    if rotate_to_evolution_basis:
+        ops_names = br.evol_basis_pids
+        if qed:
+            ops_names = br.unified_evol_basis_pids
     ops_id = f"o{ops['hash'][:6]}_t{theory['hash'][:6]}"
     path = f"{path}/{ops_id}.pdf"
     print(f"Plotting operators plots to {path}")
