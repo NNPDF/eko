@@ -15,13 +15,13 @@ Items without prefix refer to a global change.
 
 ## [Unreleased](https://github.com/NNPDF/eko/compare/v0.15.7...HEAD)
 
+### Changed
+- rust: Move `dekoder` from `yaml-rust2` to `yaml_serde` ([#584](https://github.com/NNPDF/eko/pull/584))
+
 ## [0.15.7](https://github.com/NNPDF/eko/compare/v0.15.6...v0.15.7) - 2026-09-16
 
 ### Added
 - py: Read metadata, theory and operator cards from an EKO archive without extracting operators ([#563](https://github.com/NNPDF/eko/pull/563))
-
-### Changed
-- rust: Move `dekoder` from `yaml-rust2` to `yaml_serde` ([#584](https://github.com/NNPDF/eko/pull/584))
 
 ## [0.15.6](https://github.com/NNPDF/eko/compare/v0.15.5...v0.15.6) - 2026-09-08
 
