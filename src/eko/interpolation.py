@@ -203,7 +203,7 @@ def evaluate_grid(N, is_log, logx, area_list):
 
 
 # TODO lift to runcard?
-_atol_eps = 10 * np.finfo(float).eps
+_atol_eps = 10 * np.finfo(float).eps  # pylint: disable=no-member
 
 
 @nb.njit(cache=True)

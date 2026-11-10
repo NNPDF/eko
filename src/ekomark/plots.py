@@ -2,13 +2,12 @@
 
 import io
 import pprint
-from typing import Dict, List
 
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.backends.backend_pdf import PdfPages
-from matplotlib.cm import get_cmap
 from matplotlib.colors import LogNorm
+from matplotlib.pyplot import get_cmap
 
 from eko import basis_rotation as br
 from eko.io import manipulate
@@ -237,7 +236,11 @@ def save_operators_to_pdf(
     qed : bool
         plot operators in unified evolution basis, if the former is active
     """
-    ops_names = br.evol_basis_pids if rotate_to_evolution_basis else br.evol_basis_pids
+    ops_names = br.flavor_basis_pids
+    if rotate_to_evolution_basis:
+        ops_names = br.evol_basis_pids
+        if qed:
+            ops_names = br.unified_evol_basis_pids
     ops_id = f"o{ops['hash'][:6]}_t{theory['hash'][:6]}"
     path = f"{path}/{ops_id}.pdf"
     print(f"Plotting operators plots to {path}")
@@ -262,8 +265,8 @@ def save_operators_to_pdf(
             for label_out, res, res_err in zip(ops_names, results, errors):
                 if label_out in skip_pdfs:
                     continue
-                new_op: Dict[int, List[float]] = {}
-                new_op_err: Dict[int, List[float]] = {}
+                new_op: dict[int, list[float]] = {}
+                new_op_err: dict[int, list[float]] = {}
                 # loop on xgrid point
                 for j in range(len(me.xgrid)):
                     # loop on pid in
