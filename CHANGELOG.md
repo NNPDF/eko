@@ -13,7 +13,9 @@ We may prefix the items to signal the scope:
 
 Items without prefix refer to a global change.
 
-## [Unreleased](https://github.com/NNPDF/eko/compare/v0.15.7...HEAD)
+## [Unreleased](https://github.com/NNPDF/eko/compare/v0.15.8...HEAD)
+
+## [0.15.8](https://github.com/NNPDF/eko/compare/v0.15.7...v0.15.8) - 2026-11-10
 
 ### Changed
 - rust: Move `dekoder` from `yaml-rust2` to `yaml_serde` ([#584](https://github.com/NNPDF/eko/pull/584))
