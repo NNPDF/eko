@@ -15,6 +15,15 @@ fn v3tar() -> PathBuf {
     src
 }
 
+fn metadata_fixture(name: &str) -> PathBuf {
+    let base: PathBuf = [env!("CARGO_MANIFEST_DIR"), "..", "..", "tests", "data"]
+        .iter()
+        .collect();
+    let src = base.join(name);
+    assert!(predicate::path::exists().eval(&src));
+    src
+}
+
 #[test]
 fn open() {
     let src = v3tar();
@@ -88,12 +97,19 @@ fn load_operator() {
 
 #[test]
 fn read_eko_cards() {
-    let src = v3tar();
-    let (metadata, theory, operator) = EKO::read_eko_cards(src).unwrap();
-    assert_eq!(metadata.data_version, 3);
-    assert!(metadata.origin == EvolutionPoint { scale: 2.0, nf: 4 });
-    assert_eq!(metadata.version, "0.15.1");
-    assert!(!metadata.xgrid.is_empty());
-    assert!(!theory.is_empty());
-    assert!(!operator.is_empty());
+    let fixtures = [
+        ("v1-0.13.tar", 1, "0.13.5"),
+        ("v1-0.14.tar", 2, "0.14.0"),
+        ("v3.tar", 3, "0.15.1"),
+    ];
+
+    for (name, data_version, version) in fixtures {
+        let (metadata, theory, operator) = EKO::read_eko_cards(metadata_fixture(name)).unwrap();
+        assert_eq!(metadata.data_version, data_version);
+        assert!(metadata.origin == EvolutionPoint { scale: 2.0, nf: 4 });
+        assert_eq!(metadata.version, version);
+        assert!(!metadata.xgrid.is_empty());
+        assert!(!theory.is_empty());
+        assert!(!operator.is_empty());
+    }
 }

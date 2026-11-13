@@ -28,17 +28,72 @@ pub struct EvolutionPoint {
 }
 
 /// Metadata values stored in an EKO metadata card.
-#[derive(Deserialize)]
 pub struct Metadata {
     /// Metadata schema version.
     pub data_version: i64,
     /// Evolution origin point as `(scale, number of flavors)`.
-    #[serde(deserialize_with = "deserialize_evolution_point")]
     pub origin: EvolutionPoint,
     /// EKO data version.
     pub version: String,
     /// The x-grid used by the EKO output.
     pub xgrid: Vec<f64>,
+}
+
+/// Raw metadata representation used to normalize legacy EKO schemas.
+#[derive(Deserialize)]
+struct RawMetadata {
+    data_version: i64,
+    #[serde(deserialize_with = "deserialize_evolution_point")]
+    origin: EvolutionPoint,
+    version: String,
+    xgrid: Option<Vec<f64>>,
+    bases: Option<RawBases>,
+}
+
+#[derive(Deserialize)]
+struct RawBases {
+    xgrid: Vec<f64>,
+}
+
+// Port of the `metadata.py` `from_raw` function.
+impl Metadata {
+    fn from_raw(mut raw: RawMetadata) -> Result<Self> {
+        if raw.data_version == 1 {
+            let mut version = raw.version.split('.');
+            let major = version.next();
+            let minor = version.next();
+
+            if major == Some("0") && minor == Some("13") {
+                update_metadata_v1(&mut raw);
+            } else if major == Some("0") && minor == Some("14") {
+                update_metadata_v2(&mut raw);
+            }
+        }
+
+        let xgrid = raw.xgrid.ok_or_else(|| {
+            EKOError::IOError(std::io::Error::new(
+                std::io::ErrorKind::InvalidData,
+                "metadata is missing xgrid",
+            ))
+        })?;
+
+        Ok(Self {
+            data_version: raw.data_version,
+            origin: raw.origin,
+            version: raw.version,
+            xgrid,
+        })
+    }
+}
+
+fn update_metadata_v1(raw: &mut RawMetadata) {
+    raw.data_version = 1;
+    raw.xgrid = raw.bases.take().map(|bases| bases.xgrid);
+}
+
+fn update_metadata_v2(raw: &mut RawMetadata) {
+    raw.data_version = 2;
+    raw.xgrid = raw.bases.take().map(|bases| bases.xgrid);
 }
 
 fn deserialize_evolution_point<'de, D>(
@@ -177,7 +232,8 @@ impl EKO {
             entry.read_to_string(&mut contents)?;
 
             if card == 0 {
-                metadata = Some(yaml_serde::from_str(&contents)?);
+                let raw: RawMetadata = yaml_serde::from_str(&contents)?;
+                metadata = Some(Metadata::from_raw(raw)?);
             } else if card == 1 {
                 theory = Some(contents);
             } else {
