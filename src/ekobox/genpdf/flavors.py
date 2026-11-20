@@ -6,6 +6,8 @@ import numpy as np
 
 from eko import basis_rotation as br
 
+from .parser import LhapdfDataBlock, LhapdfDataFile
+
 
 def pid_to_flavor(pids):
     """Create flavor representations from PIDs.
@@ -50,26 +52,27 @@ def evol_to_flavor(labels):
     return np.array(ps)
 
 
-def project(blocks, reprs):
+def project(f: LhapdfDataFile, reprs) -> LhapdfDataFile:
     """Project some combination of flavors defined by reprs from the blocks.
 
     Parameters
     ----------
-    blocks : list(dict)
+    blocks :
         PDF blocks
-    reprs : list(int)
+    reprs :
         active distributions in flavor representation
 
     Returns
     -------
-    list(dict) :
+    LhapdfDataFile :
         filtered blocks
     """
-    new_blocks = copy.deepcopy(blocks)
-    for block in new_blocks:
-        current_pids = block["pids"]
-        current_data = block["data"].T
+    new_blocks = []
+    for block in f.blocks:
+        current_pids = block.pids
+        current_data = block.data.T
         if len(current_data) == 0:
+            new_blocks.append(copy.deepcopy(block))
             continue
         # load all flavors
         flavor_data = [np.zeros_like(current_data[0]) for pid in br.flavor_basis_pids]
@@ -81,9 +84,15 @@ def project(blocks, reprs):
         for elem in reprs:
             proj = elem[:, np.newaxis] * elem
             new_data += proj @ flavor_data / (elem @ elem)
-        block["pids"] = br.flavor_basis_pids
-        block["data"] = np.array(new_data).T
-    return new_blocks
+        new_blocks.append(
+            LhapdfDataBlock(
+                xgrid=block.xgrid,
+                qgrid=block.qgrid,
+                pids=br.flavor_basis_pids,
+                data=np.array(new_data).T,
+            )
+        )
+    return LhapdfDataFile(header=copy.deepcopy(f.header), blocks=new_blocks)
 
 
 def is_evolution_labels(labels):

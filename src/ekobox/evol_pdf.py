@@ -9,6 +9,7 @@ from eko.io import EKO
 from eko.runner import managed
 
 from . import apply, genpdf, info_file
+from .genpdf.parser import LhapdfDataFile
 from .utils import regroup_evolgrid
 
 DEFAULT_NAME = "eko.tar"
@@ -111,7 +112,9 @@ def evolve_pdfs(
         genpdf.install_pdf(name)
 
 
-def collect_blocks(evolved_PDF: dict, q2block_per_nf: dict, xgrid: list):
+def collect_blocks(
+    evolved_PDF: dict, q2block_per_nf: dict, xgrid: list
+) -> LhapdfDataFile:
     """Collect all LHAPDF blocks for a given replica.
 
     Parameters
@@ -139,4 +142,4 @@ def collect_blocks(evolved_PDF: dict, q2block_per_nf: dict, xgrid: list):
             pids=np.array(br.flavor_basis_pids),
         )
         all_blocks.append(block)
-    return all_blocks
+    return LhapdfDataFile(header={}, blocks=all_blocks)

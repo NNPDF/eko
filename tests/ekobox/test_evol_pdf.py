@@ -119,11 +119,11 @@ def test_collect_blocks():
     # basic
     eps = [(3.0, 3), (4.0, 3)]
     bs = ev_p.collect_blocks(mk(eps), ev_p.regroup_evolgrid(eps), xgrid)
-    assert len(bs) == 1
-    np.testing.assert_allclose(bs[0]["mu2grid"], (3.0, 4.0))
+    assert len(bs.blocks) == 1
+    np.testing.assert_allclose(bs.blocks[0].qgrid ** 2.0, (3.0, 4.0))
     # more advanced
     eps = [(4.0, 3), (3.0, 3), (5.0, 4), (3.0, 4)]
     bs = ev_p.collect_blocks(mk(eps), ev_p.regroup_evolgrid(eps), xgrid)
-    assert len(bs) == 2
-    np.testing.assert_allclose(bs[0]["mu2grid"], (3.0, 4.0))
-    np.testing.assert_allclose(bs[1]["mu2grid"], (3.0, 5.0))
+    assert len(bs.blocks) == 2
+    np.testing.assert_allclose(bs.blocks[0].qgrid ** 2.0, (3.0, 4.0))
+    np.testing.assert_allclose(bs.blocks[1].qgrid ** 2.0, (3.0, 5.0))
