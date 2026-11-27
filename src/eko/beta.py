@@ -159,6 +159,32 @@ def beta_qed_aem2as1(nf: int) -> float:
 
 
 @nb.njit(cache=True)
+def beta_qed_aem2as2(nf: int) -> float:
+    r"""Compute the second QCD correction of the QED beta function.
+
+    Implements :eqref:`A.12` of :cite:`Billis:2019evv`, where the opposite sign
+    convention is used.
+
+    Parameters
+    ----------
+    nf :
+        number of active flavors
+
+    Returns
+    -------
+    float
+        second QCD correction of the QED beta function :math:`\beta_{QED}^{(2,2),(n_f)}`
+    """
+    nu = constants.uplike_flavors(nf)
+    nd = nf - nu
+    charges = constants.NC * (nu * constants.eu2 + nd * constants.ed2)
+    return -charges * (
+        2.0 * constants.CF * (133.0 / 18.0 * constants.CA - constants.CF)
+        - 44.0 / 9.0 * constants.CF * constants.TR * nf
+    )
+
+
+@nb.njit(cache=True)
 def beta_qcd_as4(nf: int) -> float:
     r"""Compute the third coefficient of the QCD beta function.
 
@@ -267,6 +293,8 @@ def beta_qed(k: Tuple[int, int], nf: int, nl: int) -> float:
         beta_ = beta_qed_aem3(nf, nl)
     elif k == (1, 2):
         beta_ = beta_qed_aem2as1(nf)
+    elif k == (2, 2):
+        beta_ = beta_qed_aem2as2(nf)
     else:
         raise ValueError("Beta_QED coefficients beyond NLO are not implemented!")
     return beta_

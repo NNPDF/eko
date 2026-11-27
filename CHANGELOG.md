@@ -15,6 +15,9 @@ Items without prefix refer to a global change.
 
 ## [Unreleased](https://github.com/NNPDF/eko/compare/v0.15.8...HEAD)
 
+### Added
+- py: QED beta function coefficient `beta_qed((2, 2))` at $\mathcal{O}(a_{em}^2 a_s^2)$ ([#510](https://github.com/NNPDF/eko/issues/510))
+
 ## [0.15.8](https://github.com/NNPDF/eko/compare/v0.15.7...v0.15.8) - 2026-11-10
 
 ### Changed

@@ -56,6 +56,26 @@ def test_beta_aem3():
             )
 
 
+def test_beta_aem2as2():
+    """Test second QCD correction to the QED beta function."""
+    # Eq. (4.3) of arXiv:1206.1284 gives the quark part of beta_QED in units of
+    # (alpha_s/pi)^2, i.e. 16 times our a_s^2 coefficient, with opposite sign
+    for nf in range(3, 6 + 1):
+        nu = uplike_flavors(nf)
+        nd = nf - nu
+        sum_q2 = nu * 4 / 9 + nd * 1 / 9
+        np.testing.assert_allclose(
+            beta.beta_qed_aem2as2(nf),
+            -16.0 * (125.0 / 12.0 - 11.0 / 18.0 * nf) * sum_q2,
+        )
+    # numeric check against Eq. (4.5) of arXiv:1206.1284 for nf=5
+    np.testing.assert_allclose(
+        beta.beta_qed_aem2as2(5) / beta.beta_qed_aem2(5, 0),
+        16.0 * 2.249 / 1.222,
+        rtol=1e-3,
+    )
+
+
 def test_beta_as4():
     """Test third beta function coefficient."""
     _flav_test(beta.beta_qcd_as4)
@@ -90,6 +110,7 @@ def test_beta():
                 beta.beta_qed((0, 3), nf, nl), beta.beta_qed_aem3(nf, nl)
             )
     np.testing.assert_allclose(beta.beta_qed((1, 2), nf, nl), beta.beta_qed_aem2as1(nf))
+    np.testing.assert_allclose(beta.beta_qed((2, 2), nf, nl), beta.beta_qed_aem2as2(nf))
     with pytest.raises(ValueError):
         beta.beta_qcd((6, 0), 3)
     with pytest.raises(ValueError):
